@@ -310,11 +310,6 @@ export default function Waitlist() {
           {!success && <img src={heroImg} alt="Opeari Village" className="w-[180px] mx-auto mb-4 max-md:w-[140px] max-md:my-3" onError={(e) => (e.currentTarget.style.display = 'none')} />}
           </p>
 
-            src={heroImg}
-            alt="Opeari Village"
-            className="w-[180px] mx-auto mb-4 max-md:w-[140px] max-md:my-3"
-            onError={(e) => (e.currentTarget.style.display = 'none')}
-          />
 
           {/* Trust Badges */}
           <div className="flex flex-wrap justify-center gap-2 gap-x-4 border-t border-[#c8e6d9] pt-4 max-w-[420px] mx-auto">
