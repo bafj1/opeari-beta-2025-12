@@ -307,9 +307,9 @@ export default function Waitlist() {
           </h1>
           <p className="text-base leading-relaxed text-[#527a6a] mb-5 max-w-[420px] mx-auto max-md:text-[0.95rem]">
             We're launching neighborhood by neighborhood. Claim early access to verified, flexible childcare in your community.
+          {!success && <img src={heroImg} alt="Opeari Village" className="w-[180px] mx-auto mb-4 max-md:w-[140px] max-md:my-3" onError={(e) => (e.currentTarget.style.display = 'none')} />}
           </p>
 
-          <img
             src={heroImg}
             alt="Opeari Village"
             className="w-[180px] mx-auto mb-4 max-md:w-[140px] max-md:my-3"
@@ -335,7 +335,6 @@ export default function Waitlist() {
           </div>
 
           {/* Pears Decoration (Moved from Right Card) */}
-          <img
         </div>
 
         {/* Form Card */}
