@@ -34,6 +34,8 @@ export default function Waitlist() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  const showReferralName = ['friend', 'neighbor', 'parent_group'].includes(referralSource)
+
   const generateReferralCode = (name: string) => {
     const cleanName = name.toUpperCase().slice(0, 4).padEnd(4, 'X')
     const random = Math.random().toString(36).substring(2, 6).toUpperCase()
@@ -70,6 +72,7 @@ export default function Waitlist() {
     if (!urgency) { setError('Please select your timeline.'); return }
     if (!userType) { setError('Please select what brings you here.'); return }
     if (!referralSource) { setError('Please tell us how you heard about Opeari.'); return }
+    if (showReferralName && !referralName) { setError('Please tell us who referred you.'); return }
 
     const refCode = generateReferralCode(cleanFirstName)
     setLoading(true)
@@ -77,7 +80,7 @@ export default function Waitlist() {
     try {
       // Direct Supabase Insert
       const { error: dbError } = await supabase
-        .from('waitlist')
+        .from('waitlist_entries')
         .insert({
           first_name: cleanFirstName,
           last_name: cleanLastName,
@@ -104,7 +107,7 @@ export default function Waitlist() {
 
       /* Fetch real waitlist count for "Queue Position" */
       const { count } = await supabase
-        .from('waitlist')
+        .from('waitlist_entries')
         .select('*', { count: 'exact', head: true })
 
       const realPosition = (count || 0)
@@ -262,7 +265,6 @@ export default function Waitlist() {
     }
   }, [success])
 
-  const showReferralName = ['friend', 'neighbor', 'parent_group'].includes(referralSource)
 
   // Shared input styles
   const inputClass = "w-full px-3.5 py-3 border border-[#c8e6d9] rounded-[10px] font-[Comfortaa] text-base text-[#1e6b4e] bg-white transition-all focus:outline-none focus:border-[#1e6b4e] focus:ring-4 focus:ring-[#1e6b4e]/10 placeholder:text-[#8faaaa]"
@@ -523,6 +525,7 @@ export default function Waitlist() {
                 </div>
 
                 {/* Referral Code Toggle */}
+                {(referralSource === '' || referralSource === 'referral_code') && (
                 <div className="mb-4">
                   <button
                     type="button"
@@ -547,9 +550,11 @@ export default function Waitlist() {
                   )}
                 </div>
 
+                )}
+
                 {(showReferralName && referralSource !== 'referral_code') && (
                   <div className="mb-4">
-                    <label className={labelClass}>Who referred you? <span className="text-[#8faaaa] font-normal normal-case tracking-normal">(optional)</span></label>
+                    <label className={labelClass}>Who referred you? <span className="text-red-600">*</span></label>
                     <input
                       type="text"
                       value={referralName}
