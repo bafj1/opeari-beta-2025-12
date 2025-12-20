@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 const logoImg = '/logo.svg'
-const heroImg = '/pear-waitlist.png'
+const heroImg = '/opeari-waitlist.png'
 
 export default function Waitlist() {
   const [searchParams] = useSearchParams()
