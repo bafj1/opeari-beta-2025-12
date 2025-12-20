@@ -4,63 +4,68 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const headers = {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*'
 };
 
 // Helper: Clean strings
 const clean = (str) => (str ? str.trim() : '');
 
 export const handler = async (event) => {
-    if (event.httpMethod === 'OPTIONS') {
-        return { statusCode: 200, headers, body: '' };
+  // 1. Handle OPTIONS
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers,
+      body: 'Method not allowed'
+    };
+  }
+
+  try {
+    const data = JSON.parse(event.body);
+
+    // Extract fields
+    const email = clean(data.email);
+    const firstName = clean(data.firstName);
+    const lastName = clean(data.lastName);
+    const zipCode = clean(data.zipCode);
+    const userType = clean(data.userType);
+
+    // Position handling: allow 0, handle undefined
+    let position = data.position;
+    if (position === undefined || position === null) {
+      position = 'Unknown'; // Frontend didn't send it
     }
 
-    if (event.httpMethod !== 'POST') {
-        return {
-            statusCode: 405,
-            headers,
-            body: 'Method not allowed'
-        };
+    const referralSource = clean(data.referralSource);
+    const referralName = clean(data.referralName);
+    const childcareChallenge = clean(data.childcareChallenge);
+
+    if (!email) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ ok: false, error: 'Email is required' })
+      };
     }
 
+    const isFoundingMember = (typeof position === 'number' && position <= 100 && position > 0);
+    const SENDER_EMAIL = 'Opeari <breada@opeari.com>';
+    const ADMIN_EMAIL = 'breada@opeari.com';
+
+    const results = {};
+
+    // 1. Send RICH User Confirmation
     try {
-        const data = JSON.parse(event.body);
-
-        // Extract fields passed from frontend
-        const email = clean(data.email);
-        const firstName = clean(data.firstName);
-        const lastName = clean(data.lastName);
-        const zipCode = clean(data.zipCode);
-        const userType = clean(data.userType);
-        const position = data.position || 'Unknown';
-        const referralSource = clean(data.referralSource);
-        const referralName = clean(data.referralName);
-        const childcareChallenge = clean(data.childcareChallenge); // Mapped from whyJoin
-
-        if (!email) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ ok: false, error: 'Email is required' })
-            };
-        }
-
-        const isFoundingMember = (typeof position === 'number' && position <= 100);
-        const SENDER_EMAIL = 'Opeari <breada@opeari.com>';
-        const ADMIN_EMAIL = 'breada@opeari.com';
-
-        const results = {};
-
-        // ---------------------------------------------------------
-        // 1. Send RICH User Confirmation (The "Cute" Email)
-        // ---------------------------------------------------------
-        try {
-            const userEmail = await resend.emails.send({
-                from: SENDER_EMAIL,
-                to: email,
-                subject: "You're on the Opeari waitlist! 🍐",
-                html: `
+      const userEmail = await resend.emails.send({
+        from: SENDER_EMAIL,
+        to: email,
+        subject: "You're on the Opeari waitlist! 🍐",
+        html: `
 <!DOCTYPE html>
 <html>
 <head>
@@ -103,15 +108,15 @@ export const handler = async (event) => {
         <div style="color: #5a8a72; font-size: 14px; margin-top: 6px;">You'll help shape what comes next — and get priority access when we launch.</div>
       </div>
       ` : ''}
-      
-      <!-- What's Next -->
+    
+      <!-- Next Steps -->
       <div style="background: #f8fdf8; border: 2px solid #d4e8dc; border-radius: 12px; padding: 24px; margin: 24px 0;">
-        <h3 style="color: #1e6b4e; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">What happens next?</h3>
-        <ul style="color: #48735e; font-size: 15px; line-height: 1.8; margin: 0; padding-left: 20px;">
-          <li>We'll email you when it's time to complete your account</li>
-          <li>You'll get priority access to test features and give feedback</li>
-          <li>We'll keep you updated on our progress</li>
-        </ul>
+         <h3 style="color: #1e6b4e; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">What happens next?</h3>
+         <ul style="color: #48735e; font-size: 15px; line-height: 1.8; margin: 0; padding-left: 20px;">
+           <li>We'll email you when it's time to complete your account</li>
+           <li>You'll get priority access to test features and give feedback</li>
+           <li>We'll keep you updated on our progress</li>
+         </ul>
       </div>
     </div>
     
@@ -125,22 +130,20 @@ export const handler = async (event) => {
 </body>
 </html>
           `
-            });
-            results.userEmail = userEmail;
-        } catch (e) {
-            console.error('Failed to send user email:', e);
-            results.userEmailError = e.message;
-        }
+      });
+      results.userEmail = userEmail;
+    } catch (e) {
+      console.error('Failed to send user email:', e);
+      results.userEmailError = e.message;
+    }
 
-        // ---------------------------------------------------------
-        // 2. Send DETAILED Admin Notification
-        // ---------------------------------------------------------
-        try {
-            const adminEmail = await resend.emails.send({
-                from: SENDER_EMAIL,
-                to: ADMIN_EMAIL,
-                subject: `🍐 New Waitlist: ${firstName} (${email})`,
-                html: `
+    // 2. Send Admin Notification
+    try {
+      const adminEmail = await resend.emails.send({
+        from: SENDER_EMAIL,
+        to: ADMIN_EMAIL,
+        subject: `🍐 New Waitlist: ${firstName} (${email})`,
+        html: `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: #1e6b4e; color: white; padding: 20px; text-align: center;">
                 <h1 style="margin: 0;">New Waitlist Signup! 🎉</h1>
@@ -150,8 +153,8 @@ export const handler = async (event) => {
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Name:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${firstName} ${lastName}</td></tr>
                   <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Email:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${email}</td></tr>
-                  <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Zip Code:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${zipCode}</td></tr>
-                  <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Type:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${userType}</td></tr>
+                  <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Zip Code:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${zipCode || 'Not provided'}</td></tr>
+                  <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Type:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${userType || 'Not provided'}</td></tr>
                   <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Position:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">#${position} ${isFoundingMember ? '⭐ Founding 100' : ''}</td></tr>
                    <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Intent/Challenge:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${childcareChallenge || 'Not provided'}</td></tr>
                   <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Referral:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${referralSource || 'None'} ${referralName ? `(${referralName})` : ''}</td></tr>
@@ -162,36 +165,39 @@ export const handler = async (event) => {
               </div>
             </div>
           `
-            });
-            results.adminEmail = adminEmail;
-        } catch (e) {
-            console.error('Failed to send admin email:', e);
-            results.adminEmailError = e.message;
-        }
-
-        // Return Success
-        const anySuccess = results.userEmail?.data || results.adminEmail?.data;
-        const errors = [results.userEmailError, results.adminEmailError].filter(Boolean);
-
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({
-                ok: !!anySuccess,
-                message: anySuccess ? 'Emails processed' : 'Failed to send emails',
-                errors: errors.length > 0 ? errors : undefined
-            })
-        };
-
-    } catch (err) {
-        console.error('Function Error:', err);
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({
-                ok: false,
-                error: err.message
-            })
-        };
+      });
+      results.adminEmail = adminEmail;
+    } catch (e) {
+      console.error('Failed to send admin email:', e);
+      results.adminEmailError = e.message;
     }
+
+    // Return Success
+    const anySuccess = results.userEmail?.data || results.adminEmail?.data;
+    const errors = [results.userEmailError, results.adminEmailError].filter(Boolean);
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        ok: !!anySuccess,
+        // Return 'emailSent' (for legacy frontend check) AND 'message'
+        emailSent: !!results.userEmail?.data,
+        message: anySuccess ? 'Emails processed' : 'Failed to send emails',
+        error: errors.length > 0 ? errors.join('; ') : undefined // Flatten errors to string for frontend logs
+      })
+    };
+
+  } catch (err) {
+    console.error('Function Error:', err);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        ok: false,
+        emailSent: false,
+        error: err.message
+      })
+    };
+  }
 };
