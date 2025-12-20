@@ -1,0 +1,2823 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Nanny Share Builder | Opeari</title>
+  <meta name="description" content="Build your nanny share the right way — with guidance, guardrails, and zero guesswork. Join the movement to reimagine childcare." />
+  <meta name="robots" content="index, follow" />
+  
+  <!-- SEO and Social Sharing -->
+  <link rel="canonical" href="https://opeari.com/nannyshare-builder" />
+  
+  <!-- Performance optimization -->
+  <link rel="preload" href="images/pear-village-hero.png" as="image" />
+  
+  <!-- Font preloading for better performance -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap" as="style" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap" media="print" onload="this.media='all'" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap" />
+  </noscript>
+  
+  <!-- Open Graph Tags -->
+  <meta property="og:title" content="Nanny Share Builder | Opeari" />
+  <meta property="og:description" content="Build your nanny share the right way — with guidance, guardrails, and zero guesswork. Join the movement to reimagine childcare." />
+  <meta property="og:image" content="https://opeari.com/images/pear-village-icon.png" />
+  <meta property="og:url" content="https://opeari.com/nannyshare-builder" />
+  <meta property="og:type" content="website" />
+  
+  <!-- Fonts & Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="icon" href="images/favicon.png" type="image/png" />
+  
+  <!-- Inline critical styles -->
+  <style>
+    :root {
+      --primary: #056839;
+      --accent: #F2A069;
+      --background: #d8f5e5;
+      --text: #056839;
+      --light-accent: #F9E3D2;
+      --border-color: rgba(5, 104, 57, 0.1);
+      --btn-pink: #F8C3B3;
+      --teal-stripe: #8bd7c7;
+      --secondary-text: #4A6163;
+      --success-green: #4CAF50;
+      --warning-gray: #6B7280;
+      --pending-soft: #8bd7c7;
+      --progress-bg: rgba(255, 255, 255, 0.3);
+    }
+    
+    [data-theme="dark"] {
+      --primary: #3CA370;
+      --accent: #F2A069;
+      --background: #1a3c2c;
+      --text: #E8E8E8;
+      --light-accent: #5D4331;
+      --border-color: rgba(60, 163, 112, 0.1);
+      --btn-pink: #F8C3B3;
+      --teal-stripe: #3CA370;
+      --secondary-text: #a0b5b7;
+    }
+    
+    body {
+      font-family: 'Comfortaa', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      transition: background-color 0.3s, color 0.3s;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    /* Add decorative teal stripes at the top of the page */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background-color: var(--teal-stripe);
+      z-index: 1000;
+    }
+    
+    body::after {
+      content: "";
+      position: fixed;
+      top: 18px;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background-color: var(--teal-stripe);
+      opacity: 0.7;
+      z-index: 1000;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      box-sizing: border-box;
+    }
+    
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      margin-top: 30px;
+    }
+    
+    .logo {
+      height: 120px;
+      width: auto;
+    }
+    
+    .desktop-nav {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    
+    .desktop-nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      padding-bottom: 5px;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+    
+    .desktop-nav a.active {
+      border-bottom: 2px solid var(--btn-pink);
+    }
+    
+    .desktop-nav a:hover {
+      color: var(--btn-pink);
+    }
+    
+    .login-link {
+      background-color: var(--btn-pink) !important;
+      color: var(--primary) !important;
+      padding: 0.5rem 1rem !important;
+      border-radius: 25px !important;
+      border-bottom: none !important;
+      transition: all 0.3s ease !important;
+      cursor: pointer;
+      border: none;
+      font-family: 'Comfortaa', sans-serif;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    
+    .login-link:hover {
+      background-color: #f5b2a1 !important;
+      color: white !important;
+      transform: translateY(-2px);
+    }
+    
+    .utility-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .language-toggles {
+      display: flex;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--primary);
+    }
+    
+    .lang-btn {
+      background: none;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      color: var(--primary);
+    }
+    
+    .lang-btn.active {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .theme-toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background-color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0 3px;
+      transition: background-color 0.3s;
+      border: none;
+    }
+    
+    .theme-toggle-slider {
+      position: absolute;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: white;
+      transition: transform 0.3s;
+    }
+    
+    [data-theme="dark"] .theme-toggle {
+      background-color: var(--accent);
+    }
+    
+    [data-theme="dark"] .theme-toggle-slider {
+      transform: translateX(20px);
+    }
+    
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: var(--primary);
+      margin: 4px 0;
+    }
+    
+    .mobile-nav {
+      display: none;
+      padding: 1rem;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    /* PAGE SPECIFIC STYLES */
+    .page-header {
+      text-align: center;
+      padding: 4rem 2rem 2rem;
+    }
+    
+    .page-header h1 {
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+    
+    .page-header .subtitle {
+      font-size: 1.3rem;
+      line-height: 1.6;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+      color: var(--text);
+    }
+    
+    .progress-tracker {
+      background-color: rgba(255, 255, 255, 0.6);
+      padding: 2rem;
+      border-radius: 20px;
+      margin: 0 auto 3rem;
+      max-width: 900px;
+    }
+    
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    
+    .progress-line {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background-color: var(--progress-bg);
+      z-index: 1;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background-color: var(--teal-stripe);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+    
+    .progress-step {
+      position: relative;
+      z-index: 2;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--progress-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .progress-step.completed {
+      background-color: var(--teal-stripe);
+      color: var(--primary);
+    }
+    
+    .progress-step.active {
+      background-color: var(--primary);
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+    
+    .builder-section {
+      padding: 0 2rem 4rem;
+    }
+    
+    .step-container {
+      display: none;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .step-container.active {
+      display: block;
+    }
+    
+    .step-card {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+    }
+    
+    .step-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .step-number {
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 60px;
+      margin-bottom: 1rem;
+    }
+    
+    .step-title {
+      font-size: 2rem;
+      color: var(--primary);
+      margin: 0 0 1rem;
+      font-weight: 600;
+    }
+    
+    .step-description {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--text);
+      margin: 0;
+    }
+    
+    .form-section {
+      margin-bottom: 2rem;
+    }
+    
+    .form-section h3 {
+      color: var(--primary);
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    
+    .upload-area {
+      border: 2px dashed var(--border-color);
+      border-radius: 15px;
+      padding: 2rem;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+    
+    .upload-area:hover {
+      border-color: var(--primary);
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .upload-area.has-files {
+      border-color: var(--success-green);
+      background-color: rgba(76, 175, 80, 0.1);
+    }
+    
+    .upload-icon {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    
+    .upload-text {
+      color: var(--text);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .upload-subtext {
+      color: var(--secondary-text);
+      font-size: 0.9rem;
+    }
+    
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.6);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      transform: translateY(0);
+    }
+    
+    .checkbox-item:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(5, 104, 57, 0.1);
+    }
+    
+    .checkbox-item.checked {
+      border-color: var(--teal-stripe);
+      background-color: rgba(139, 215, 199, 0.15);
+      transform: translateY(0);
+      animation: checkboxBounce 0.4s ease-out;
+    }
+
+    @keyframes checkboxBounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .step-container.active {
+      display: block;
+      animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .checkbox-item input {
+      margin-right: 0.75rem;
+      transform: scale(1.2);
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .checkbox-item input:checked + label {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .checkbox-item:has(input:checked) {
+      border-color: var(--teal-stripe);
+      background-color: rgba(139, 215, 199, 0.15);
+    }
+    
+    .checkbox-item label {
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+    }
+    
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin: 1rem 0;
+    }
+    
+    .status-pending {
+      background-color: var(--pending-soft);
+      color: var(--primary);
+    }
+    
+    .status-complete {
+      background-color: var(--success-green);
+      color: white;
+    }
+    
+    .status-in-progress {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      background-color: rgba(255, 255, 255, 0.8);
+      color: var(--text);
+      font-family: 'Comfortaa', sans-serif;
+      box-sizing: border-box;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: white;
+      box-shadow: 0 0 0 3px rgba(5, 104, 57, 0.1);
+    }
+    
+    .action-link {
+      display: inline-flex;
+      align-items: center;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--primary);
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      margin: 0.5rem;
+    }
+    
+    .action-link:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .rate-builder {
+      background-color: rgba(255, 255, 255, 0.6);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 2rem 0;
+    }
+    
+    .rate-display {
+      text-align: center;
+      padding: 1.5rem;
+      background-color: var(--teal-stripe);
+      border-radius: 10px;
+      margin: 1rem 0;
+    }
+    
+    .rate-amount {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .rate-description {
+      color: var(--text);
+      font-weight: 600;
+    }
+    
+    .toggle-section {
+      margin: 2rem 0;
+    }
+    
+    .toggle-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background-color: rgba(255, 255, 255, 0.6);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    
+    .toggle-info h4 {
+      color: var(--primary);
+      margin: 0 0 0.5rem;
+      font-weight: 600;
+    }
+    
+    .toggle-info p {
+      color: var(--text);
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 60px;
+      height: 30px;
+      border-radius: 15px;
+      background-color: #ccc;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .toggle-switch.active {
+      background-color: var(--teal-stripe);
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: white;
+      transition: transform 0.3s;
+    }
+    
+    .toggle-switch.active .toggle-slider {
+      transform: translateX(30px);
+    }
+    
+    .navigation-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 3rem;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 1rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--btn-pink);
+      color: var(--primary);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      background-color: #f5b2a1;
+      color: white;
+    }
+    
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    
+    .btn-secondary:hover {
+      background-color: rgba(5, 104, 57, 0.1);
+    }
+    
+    .btn-large {
+      padding: 1.5rem 3rem;
+      font-size: 1.2rem;
+    }
+    
+    .summary-section {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 2rem 0;
+    }
+    
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+    
+    .summary-label {
+      color: var(--text);
+      font-weight: 600;
+    }
+    
+    .summary-value {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .capacity-info {
+      background-color: rgba(255, 255, 255, 0.6);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+    }
+
+    .capacity-note {
+      font-size: 0.9rem;
+      color: var(--secondary-text);
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    .age-capacity-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .capacity-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .capacity-item:hover {
+      border-color: var(--primary);
+    }
+
+    .capacity-item.checked {
+      border-color: var(--teal-stripe);
+      background-color: rgba(139, 215, 199, 0.1);
+    }
+
+    .capacity-item input {
+      margin-right: 1rem;
+      transform: scale(1.2);
+      accent-color: var(--primary);
+    }
+
+    .capacity-details {
+      flex: 1;
+    }
+
+    .capacity-details label {
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .capacity-limit {
+      font-size: 0.85rem;
+      color: var(--secondary-text);
+      font-weight: 500;
+    }
+
+    .opeari-plus-section {
+      background-color: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 3rem 0;
+    }
+
+    .tier-comparison {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+
+    .tier-card {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 2rem;
+      border-radius: 15px;
+      border: 2px solid var(--border-color);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .tier-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .tier-card.premium {
+      border-color: var(--primary);
+      background-color: rgba(5, 104, 57, 0.05);
+    }
+
+    .tier-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--primary);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .tier-card h4 {
+      color: var(--primary);
+      font-size: 1.3rem;
+      margin: 0 0 1rem;
+      font-weight: 600;
+    }
+
+    .tier-price {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .tier-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1rem;
+    }
+
+    .tier-features li {
+      padding: 0.5rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .tier-features li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--teal-stripe);
+      font-weight: bold;
+    }
+
+    .tier-note {
+      font-size: 0.9rem;
+      color: var(--secondary-text);
+      font-style: italic;
+    }
+
+    .tier-toggle {
+      margin-top: 2rem;
+    }
+
+    .tier-toggle label {
+      display: block;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .tier-toggle label:hover {
+      background-color: rgba(255, 255, 255, 1);
+    }
+
+    .tier-toggle input[type="radio"] {
+      margin-right: 1rem;
+      accent-color: var(--primary);
+    }
+
+    .family-profile-section {
+      background-color: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 3rem 0;
+    }
+
+    .children-section {
+      margin: 2rem 0;
+    }
+
+    .parent-info-section {
+      margin: 2rem 0;
+    }
+
+    .child-form {
+      background-color: rgba(255, 255, 255, 0.6);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+    }
+
+    .add-child-btn {
+      background-color: transparent;
+      color: var(--primary);
+      border: 2px dashed var(--primary);
+      padding: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Comfortaa', sans-serif;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .add-child-btn:hover {
+      background-color: rgba(5, 104, 57, 0.05);
+    }
+
+    .family-values-section {
+      margin: 2rem 0;
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .value-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.6);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .value-item:hover {
+      border-color: var(--primary);
+    }
+
+    .value-item.checked {
+      border-color: var(--teal-stripe);
+      background-color: rgba(139, 215, 199, 0.1);
+    }
+
+    .value-item input {
+      margin-right: 0.75rem;
+      transform: scale(1.1);
+      accent-color: var(--primary);
+    }
+
+    .intro-card-preview {
+      margin-top: 2rem;
+    }
+
+    .preview-card {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 1.5rem;
+      border-radius: 15px;
+      border-left: 4px solid var(--primary);
+      transition: all 0.3s ease;
+      transform: translateY(0);
+    }
+
+    .preview-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .family-name-preview {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .verified-badge {
+      background-color: var(--teal-stripe);
+      color: var(--primary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .preview-content p {
+      margin: 0.5rem 0;
+      color: var(--text);
+    }
+
+    .safety-upload-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .safety-upload-item {
+      text-align: center;
+    }
+
+    .upload-area.small {
+      padding: 1.5rem;
+    }
+
+    .upload-area.small .upload-icon {
+      font-size: 1.5rem;
+    }
+
+    .upload-area.small .upload-text {
+      font-size: 0.9rem;
+    }
+
+    .village-impact-section {
+      background-color: rgba(255, 255, 255, 0.6);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .impact-message-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+
+    .impact-message-item {
+      text-align: left;
+      background-color: rgba(255, 255, 255, 0.6);
+      padding: 1.5rem;
+      border-radius: 10px;
+    }
+
+    .impact-message-item h4 {
+      color: var(--primary);
+      font-size: 1.1rem;
+      margin: 0 0 1rem;
+      font-weight: 600;
+    }
+
+    .impact-message-item p {
+      margin: 0;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .impact-message {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--text);
+      max-width: 600px;
+      margin: 2rem auto 0;
+    }
+
+    .convenience-features {
+      margin: 3rem 0;
+    }
+
+    .feature-timeline {
+      display: grid;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+
+    .timeline-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      background-color: rgba(255, 255, 255, 0.6);
+      border-radius: 15px;
+    }
+
+    .timeline-icon {
+      width: 50px;
+      height: 50px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .timeline-content h4 {
+      color: var(--primary);
+      margin: 0 0 0.5rem;
+      font-weight: 600;
+    }
+
+    .timeline-content p {
+      margin: 0;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* NEW SECTIONS FOR MOM ESSENTIALS */
+    .trust-essentials-section {
+      background-color: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 3rem 0;
+    }
+
+    .trust-essentials-note {
+      font-size: 0.95rem;
+      color: var(--secondary-text);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .dealbreaker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .dealbreaker-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .dealbreaker-item:hover {
+      border-color: var(--primary);
+    }
+
+    .dealbreaker-item.checked {
+      border-color: var(--teal-stripe);
+      background-color: rgba(139, 215, 199, 0.1);
+    }
+
+    .dealbreaker-item input {
+      margin-right: 0.75rem;
+      transform: scale(1.1);
+      accent-color: var(--primary);
+    }
+
+    .dealbreaker-item label {
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .supply-responsibility-section {
+      background-color: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 3rem 0;
+    }
+
+    .supply-note {
+      background-color: var(--teal-stripe);
+      color: var(--primary);
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .food-preferences-section {
+      background-color: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 3rem 0;
+    }
+
+    .food-structure-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .food-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.6);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .food-item:hover {
+      border-color: var(--primary);
+    }
+
+    .food-item.checked {
+      border-color: var(--teal-stripe);
+      background-color: rgba(139, 215, 199, 0.1);
+    }
+
+    .food-item input {
+      margin-right: 0.75rem;
+      transform: scale(1.1);
+      accent-color: var(--primary);
+    }
+
+    .philosophy-section {
+      background-color: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 3rem 0;
+    }
+
+    .philosophy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .philosophy-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.6);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .philosophy-item:hover {
+      border-color: var(--primary);
+    }
+
+    .philosophy-item.checked {
+      border-color: var(--teal-stripe);
+      background-color: rgba(139, 215, 199, 0.1);
+    }
+
+    .philosophy-item input {
+      margin-right: 0.75rem;
+      transform: scale(1.1);
+      accent-color: var(--primary);
+    }
+
+    .philosophy-item label {
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .legal-protection-section {
+      background-color: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 3rem 0;
+    }
+
+    .dealbreaker-preview-section {
+      background-color: rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 3rem 0;
+    }
+
+    .compatibility-tags {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .compatibility-tags h4 {
+      color: var(--primary);
+      font-size: 1rem;
+      margin: 0 0 1rem;
+      font-weight: 600;
+    }
+
+    .tag-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .compat-tag {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    .compat-tag.positive {
+      background-color: rgba(76, 175, 80, 0.1);
+      border-color: var(--success-green);
+      color: var(--success-green);
+    }
+
+    .compat-tag.neutral {
+      background-color: rgba(139, 215, 199, 0.1);
+      border-color: var(--teal-stripe);
+      color: var(--primary);
+    }
+
+    .compat-tag.warning {
+      background-color: rgba(255, 193, 7, 0.1);
+      border-color: #FFC107;
+      color: #8B6914;
+    }
+    
+    .cta-section {
+      text-align: center;
+      padding: 4rem 2rem;
+      background-color: rgba(255, 255, 255, 0.4);
+      margin: 4rem 0;
+      border-radius: 20px;
+    }
+    
+    .cta-content h2 {
+      color: var(--primary);
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    
+    .cta-content p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      color: var(--text);
+    }
+    
+    /* FOOTER STYLES */
+    footer {
+      text-align: center;
+      padding: 1rem 0 0.75rem;
+      font-size: 0.8rem;
+      color: var(--primary);
+      background-color: var(--background);
+      margin-top: 2rem;
+      position: relative;
+      border-top: 1px solid var(--teal-stripe);
+    }
+    
+    footer::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--teal-stripe);
+      opacity: 0.6;
+    }
+    
+    footer::after {
+      content: "";
+      position: absolute;
+      top: -20px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--teal-stripe);
+      opacity: 0.3;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    footer a:hover {
+      color: var(--btn-pink);
+    }
+    
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin: 0.5rem 0;
+    }
+    
+    .social-icon {
+      width: 24px;
+      height: 24px;
+      opacity: 0.9;
+      transition: all 0.2s ease;
+      color: var(--primary);
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    
+    .social-icon:hover {
+      opacity: 1;
+      transform: scale(1.1);
+      color: var(--btn-pink);
+    }
+    
+    .footer-copyright {
+      font-size: 0.85rem;
+      color: var(--primary);
+      margin-top: 0.5rem;
+      text-align: center;
+      width: 100%;
+      display: block;
+    }
+    
+    /* Sticky progress bar for mobile */
+    @media (max-width: 768px) {
+      .progress-tracker {
+        position: sticky;
+        top: 24px;
+        z-index: 100;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      
+      .desktop-nav {
+        display: none;
+      }
+      
+      .hamburger {
+        display: block;
+      }
+      
+      .page-header h1 {
+        font-size: 2.2rem;
+      }
+      
+      .page-header .subtitle {
+        font-size: 1.1rem;
+      }
+      
+      .progress-steps {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .progress-line {
+        display: none;
+      }
+      
+      .progress-labels {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .step-card {
+        padding: 2rem;
+      }
+      
+      .checkbox-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .navigation-buttons {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .container {
+        padding: 0 1rem;
+      }
+      
+      .logo {
+        height: 80px;
+      }
+      
+      .mobile-nav a.login-link {
+        background-color: var(--btn-pink);
+        color: var(--primary);
+        padding: 0.75rem 1rem;
+        border-radius: 25px;
+        text-align: center;
+        margin-top: 0.5rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .footer-links {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem 1rem;
+      }
+      
+      .social-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+    }
+    
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <div class="header-row">
+        <div class="logo-container">
+          <a href="index.html"><img src="images/logo.png" alt="Opeari Logo" class="logo" /></a>
+        </div>
+        <nav class="desktop-nav" aria-label="Main navigation">
+          <a href="index.html">Home</a>
+          <a href="about.html">About</a>
+          <a href="how-it-works.html">How It Works</a>
+          <a href="waitlist.html">Join</a>
+          <a href="faq.html">FAQ</a>
+          <button class="login-link" id="loginBtn">Login</button>
+        </nav>
+        <div class="utility-nav">
+          <div class="language-toggles">
+            <button class="lang-btn active" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="es">ES</button>
+          </div>
+          <button class="theme-toggle" aria-label="Toggle between light and dark mode" aria-pressed="false">
+            <div class="theme-toggle-slider"></div>
+          </button>
+          <button class="hamburger" aria-label="Menu" aria-expanded="false">
+            <div></div>
+            <div></div>
+            <div></div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <nav class="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="waitlist.html">Join</a>
+      <a href="faq.html">FAQ</a>
+      <button class="login-link" id="loginBtnMobile">Login</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Nanny Share Builder</h1>
+        <p class="subtitle">Build your nanny share the right way — with guidance, guardrails, and zero guesswork. We've thought through every detail so you don't have to.</p>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="progress-tracker">
+        <div class="progress-steps">
+          <div class="progress-line">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-step active" id="step1">1</div>
+          <div class="progress-step" id="step2">2</div>
+          <div class="progress-step" id="step3">3</div>
+          <div class="progress-step" id="step4">4</div>
+        </div>
+        <div class="progress-labels">
+          <span>Host Setup</span>
+          <span>Verification</span>
+          <span>Share Config</span>
+          <span>Launch</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="builder-section">
+      <div class="container">
+        
+        <!-- STEP 1: HOST HOME SETUP -->
+        <div class="step-container active" id="stepContent1">
+          <div class="step-card">
+            <div class="step-header">
+              <div class="step-number">1</div>
+              <h2 class="step-title">Host Home Setup</h2>
+              <p class="step-description">Show us your space and help families feel confident about your environment. Upload photos and confirm safety features.</p>
+            </div>
+
+            <div class="form-section">
+              <h3>Upload Your Space</h3>
+              <div class="upload-area" onclick="triggerFileUpload('spacePhotos')">
+                <div class="upload-icon">+</div>
+                <div class="upload-text">Upload photos of your play areas</div>
+                <div class="upload-subtext">Play area, bathroom, entryway, sleeping area (4-8 photos recommended)</div>
+                <input type="file" id="spacePhotos" multiple accept="image/*" style="display: none;" onchange="handleFileUpload(this, 'spaceStatus')">
+              </div>
+              <div class="status-indicator status-pending" id="spaceStatus">Space Photos: Not Uploaded</div>
+            </div>
+
+            <div class="form-section">
+              <h3>Home Details</h3>
+              <div class="form-group">
+                <label for="homeType">Home Type</label>
+                <select id="homeType">
+                  <option value="">Select your home type</option>
+                  <option value="house">House</option>
+                  <option value="apartment">Apartment</option>
+                  <option value="condo">Condo/Townhome</option>
+                </select>
+              </div>
+              
+              <div class="checkbox-grid">
+                <div class="checkbox-item">
+                  <input type="checkbox" id="stairs">
+                  <label for="stairs">Has stairs</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="pets">
+                  <label for="pets">Has pets</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="backyard">
+                  <label for="backyard">Has backyard</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="pool">
+                  <label for="pool">Has pool/spa</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- NEW: Trust Essentials Section -->
+            <div class="trust-essentials-section">
+              <h3>Family Compatibility Essentials</h3>
+              <p class="trust-essentials-note">These help us match you with families who share your priorities. All families will be informed of your selections.</p>
+              
+              <div class="dealbreaker-grid">
+                <div class="dealbreaker-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="smokingFree">
+                  <label for="smokingFree">100% smoke-free home</label>
+                </div>
+                <div class="dealbreaker-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="firearmsSecured">
+                  <label for="firearmsSecured">Firearms stored in locked safe</label>
+                </div>
+                <div class="dealbreaker-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="allergyAware">
+                  <label for="allergyAware">Allergy-conscious environment</label>
+                </div>
+                <div class="dealbreaker-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="vaccinationRequired">
+                  <label for="vaccinationRequired">All children must be vaccinated</label>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="petDetails">Pet Details (if applicable)</label>
+                <input type="text" id="petDetails" placeholder="e.g., 1 friendly golden retriever, indoor cat">
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>Enhanced Safety Protocols</h3>
+              <div class="safety-upload-grid">
+                <div class="safety-upload-item">
+                  <div class="upload-area small" onclick="triggerFileUpload('emergencyPlan')">
+                    <div class="upload-icon">□</div>
+                    <div class="upload-text">Emergency Exit Plan</div>
+                    <input type="file" id="emergencyPlan" accept=".pdf,.jpg,.png" style="display: none;" onchange="handleFileUpload(this, 'emergencyStatus')">
+                  </div>
+                  <div class="status-indicator status-pending" id="emergencyStatus">Not uploaded</div>
+                </div>
+                
+                <div class="safety-upload-item">
+                  <div class="upload-area small" onclick="triggerFileUpload('consentForms')">
+                    <div class="upload-icon">✓</div>
+                    <div class="upload-text">Medical Consent Forms</div>
+                    <input type="file" id="consentForms" multiple accept=".pdf,.jpg,.png" style="display: none;" onchange="handleFileUpload(this, 'consentStatus')">
+                  </div>
+                  <div class="status-indicator status-pending" id="consentStatus">Not uploaded</div>
+                </div>
+              </div>
+              
+              <div class="checkbox-grid">
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="drillPlan">
+                  <label for="drillPlan">Emergency drill plan documented</label>
+                </div>
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="medicationLog">
+                  <label for="medicationLog">Medication administration log ready</label>
+                </div>
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="backupContact">
+                  <label for="backupContact">Secondary caregiver contact available</label>
+                </div>
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="firstAidKit">
+                  <label for="firstAidKit">Age-appropriate first aid kit stocked</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: VERIFICATION -->
+        <div class="step-container" id="stepContent2">
+          <div class="step-card">
+            <div class="step-header">
+              <div class="step-number">2</div>
+              <h2 class="step-title">Provider & Family Verification</h2>
+              <p class="step-description">Complete background checks and certifications to build trust with partner families. We'll guide you through each requirement.</p>
+            </div>
+
+            <div class="form-section">
+              <h3>Background Check</h3>
+              <div class="upload-area" onclick="triggerFileUpload('backgroundCheck')">
+                <div class="upload-icon">+</div>
+                <div class="upload-text">Upload existing background check</div>
+                <div class="upload-subtext">Or we can help you get one through our partner Checkr</div>
+                <input type="file" id="backgroundCheck" accept=".pdf,.jpg,.png" style="display: none;" onchange="handleFileUpload(this, 'backgroundStatus')">
+              </div>
+              <a href="#" class="action-link">Start New Background Check</a>
+              <div class="status-indicator status-pending" id="backgroundStatus">Background Check: Pending</div>
+            </div>
+
+            <div class="form-section">
+              <h3>CPR & First Aid Certification</h3>
+              <div class="upload-area" onclick="triggerFileUpload('cprCert')">
+                <div class="upload-icon">+</div>
+                <div class="upload-text">Upload CPR/First Aid certificate</div>
+                <div class="upload-subtext">Current certification from AHA, Red Cross, or equivalent</div>
+                <input type="file" id="cprCert" accept=".pdf,.jpg,.png" style="display: none;" onchange="handleFileUpload(this, 'cprStatus')">
+              </div>
+              <a href="#" class="action-link">Find Local CPR Classes</a>
+              <div class="status-indicator status-pending" id="cprStatus">CPR Certification: Not Verified</div>
+            </div>
+
+            <div class="form-section">
+              <h3>Optional Add-ons</h3>
+              <div class="checkbox-grid">
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="pediatricFirst">
+                  <label for="pediatricFirst">Pediatric First Aid Training</label>
+                </div>
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="foodSafety">
+                  <label for="foodSafety">Food Safety Module</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: SHARE CONFIGURATION -->
+        <div class="step-container" id="stepContent3">
+          <div class="step-card">
+            <div class="step-header">
+              <div class="step-number">3</div>
+              <h2 class="step-title">Define Your Share Setup</h2>
+              <p class="step-description">Set your schedule, preferences, and rates. Our smart suggestions help you create a setup that works for everyone.</p>
+            </div>
+
+            <div class="form-section">
+              <h3>Care Schedule</h3>
+              <div class="form-group">
+                <label for="schedule">Available Days</label>
+                <select id="schedule" multiple>
+                  <option value="monday">Monday</option>
+                  <option value="tuesday">Tuesday</option>
+                  <option value="wednesday">Wednesday</option>
+                  <option value="thursday">Thursday</option>
+                  <option value="friday">Friday</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="timeStart">Start Time</label>
+                <input type="time" id="timeStart" value="08:00">
+              </div>
+              
+              <div class="form-group">
+                <label for="timeEnd">End Time</label>
+                <input type="time" id="timeEnd" value="17:00">
+              </div>
+            </div>
+
+            <!-- NEW: Food & Supply Preferences -->
+            <div class="food-preferences-section">
+              <h3>Food & Supply Structure</h3>
+              <p class="trust-essentials-note">Clear expectations prevent awkward conversations later.</p>
+              
+              <h4>Food & Meal Approach</h4>
+              <div class="food-structure-grid">
+                <div class="food-item" onclick="toggleCheckbox(this)">
+                  <input type="radio" name="foodStructure" id="sharedMeals">
+                  <label for="sharedMeals">Shared meals (I cook for everyone)</label>
+                </div>
+                <div class="food-item" onclick="toggleCheckbox(this)">
+                  <input type="radio" name="foodStructure" id="packedIndividually">
+                  <label for="packedIndividually">Each family packs their own</label>
+                </div>
+                <div class="food-item" onclick="toggleCheckbox(this)">
+                  <input type="radio" name="foodStructure" id="mixedApproach">
+                  <label for="mixedApproach">Mix (shared lunch, individual snacks)</label>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="allergyPlan">Allergy & Dietary Restrictions Plan</label>
+                <textarea id="allergyPlan" rows="3" placeholder="How will you handle food allergies, dietary restrictions, and emergency protocols?"></textarea>
+              </div>
+            </div>
+
+            <div class="supply-responsibility-section">
+              <h3>Supply Responsibility</h3>
+              <div class="supply-note">Each family is responsible for their own bottles, sippy cups, wipes, diapers, formula, and personal items.</div>
+              
+              <div class="checkbox-grid">
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="sanitationLog">
+                  <label for="sanitationLog">Daily sanitization log (Opeari+ feature)</label>
+                </div>
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="sharedToys">
+                  <label for="sharedToys">Shared toys sanitized daily</label>
+                </div>
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="bringOwnBottles">
+                  <label for="bringOwnBottles">No shared bottles, sippy cups, or pacifiers</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- NEW: Care Philosophy -->
+            <div class="philosophy-section">
+              <h3>What Kind of Childhood Experience Do You Want to Create?</h3>
+              <p class="trust-essentials-note">This helps us match you with families who share your values and parenting approach.</p>
+              
+              <div class="philosophy-grid">
+                <div class="philosophy-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="montessoriInspired">
+                  <label for="montessoriInspired">Montessori-inspired learning</label>
+                </div>
+                <div class="philosophy-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="freeRange">
+                  <label for="freeRange">Free-range/unstructured play</label>
+                </div>
+                <div class="philosophy-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="bilingualImmersion">
+                  <label for="bilingualImmersion">Bilingual immersion</label>
+                </div>
+                <div class="philosophy-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="stemEarly">
+                  <label for="stemEarly">STEM early play</label>
+                </div>
+                <div class="philosophy-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="gentleParenting">
+                  <label for="gentleParenting">Gentle parenting values</label>
+                </div>
+                <div class="philosophy-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="natureBased">
+                  <label for="natureBased">Nature-based learning</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>Share Preferences</h3>
+              <div class="toggle-section">
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <h4>Host at My Home</h4>
+                    <p>All care happens at your location</p>
+                  </div>
+                  <div class="toggle-switch" onclick="toggleSwitch(this)">
+                    <div class="toggle-slider"></div>
+                  </div>
+                </div>
+                
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <h4>Alternating Homes</h4>
+                    <p>Switch between your home and partner family's home</p>
+                  </div>
+                  <div class="toggle-switch" onclick="toggleSwitch(this)">
+                    <div class="toggle-slider"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>Group Size & Ages</h3>
+              <div class="form-group">
+                <label for="caregivers">Number of caregivers</label>
+                <select id="caregivers" onchange="updateCapacityLimits()">
+                  <option value="1">1 caregiver</option>
+                  <option value="2">2 caregivers</option>
+                </select>
+              </div>
+              
+              <div class="capacity-info">
+                <h4>Age Groups & Capacity Limits</h4>
+                <p class="capacity-note">Based on state daycare regulations + expert recommendations</p>
+                
+                <div class="age-capacity-grid">
+                  <div class="capacity-item" onclick="toggleAgeGroup(this, 'infants')">
+                    <input type="checkbox" id="infants">
+                    <div class="capacity-details">
+                      <label for="infants">Infants (0-12 months)</label>
+                      <span class="capacity-limit" id="infantLimit">Max 3 spots available</span>
+                    </div>
+                  </div>
+                  
+                  <div class="capacity-item" onclick="toggleAgeGroup(this, 'toddlers')">
+                    <input type="checkbox" id="toddlers">
+                    <div class="capacity-details">
+                      <label for="toddlers">Toddlers (1-3 years)</label>
+                      <span class="capacity-limit" id="toddlerLimit">Max 4 spots available</span>
+                    </div>
+                  </div>
+                  
+                  <div class="capacity-item" onclick="toggleAgeGroup(this, 'preschool')">
+                    <input type="checkbox" id="preschool">
+                    <div class="capacity-details">
+                      <label for="preschool">Preschool (3-5 years)</label>
+                      <span class="capacity-limit" id="preschoolLimit">Max 6 spots available</span>
+                    </div>
+                  </div>
+                  
+                  <div class="capacity-item" onclick="toggleAgeGroup(this, 'schoolAge')">
+                    <input type="checkbox" id="schoolAge">
+                    <div class="capacity-details">
+                      <label for="schoolAge">School age (5+ years)</label>
+                      <span class="capacity-limit" id="schoolAgeLimit">Max 8 spots available</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rate-builder">
+              <h3>Rate Builder</h3>
+              <p>Based on your location and preferences, we suggest:</p>
+              <div class="rate-display">
+                <div class="rate-amount">$15-18/hour</div>
+                <div class="rate-description">Per family (split rate)</div>
+              </div>
+              <div class="form-group">
+                <label for="customRate">Set your preferred rate per family</label>
+                <input type="number" id="customRate" placeholder="16" min="10" max="30">
+              </div>
+            </div>
+
+            <div class="opeari-plus-section">
+              <h3>Ready for the Full Village Experience?</h3>
+              <p class="trust-essentials-note">Choose your plan - you can upgrade anytime</p>
+              <div class="tier-comparison">
+                <div class="tier-card basic">
+                  <h4>Basic Setup</h4>
+                  <div class="tier-price">Free</div>
+                  <ul class="tier-features">
+                    <li>Guided nanny share setup</li>
+                    <li>Family discovery in your area</li>
+                    <li>Basic safety checklists</li>
+                    <li>Contract templates</li>
+                  </ul>
+                  <div class="tier-note">Perfect for trying it out</div>
+                </div>
+                
+                <div class="tier-card premium">
+                  <div class="tier-badge">Opeari+ Safety Plan</div>
+                  <h4>Full Village Protection</h4>
+                  <div class="tier-price">$35/month</div>
+                  <ul class="tier-features">
+                    <li>Everything in Basic, plus:</li>
+                    <li><strong>Verified safety badge & background checks</strong></li>
+                    <li><strong>Legal protection bundle & liability guidance</strong></li>
+                    <li><strong>Priority matching with dealbreaker alerts</strong></li>
+                    <li><strong>24/7 emergency hotline & backup care network</strong></li>
+                    <li>Age-appropriate curriculum modules</li>
+                    <li>Private photo & video sharing</li>
+                    <li>Auto-generated care agreements</li>
+                    <li>Activity ideas & themed weeks</li>
+                  </ul>
+                  <div class="tier-note">For families who want complete peace of mind</div>
+                </div>
+              </div>
+              
+              <div class="tier-toggle">
+                <label>
+                  <input type="radio" name="tier" value="basic" checked onchange="updateSelectedTier()">
+                  Start with Basic (upgrade anytime)
+                </label>
+                <label>
+                  <input type="radio" name="tier" value="premium" onchange="updateSelectedTier()">
+                  Unlock Full Village Protection ($35/month)
+                </label>
+              </div>
+              
+              <div class="supply-note">
+                <strong>Why Opeari+ Safety Plan?</strong> Legal templates, emergency resources, verified matches, and the peace of mind that comes with knowing every detail is covered.
+              </div>
+            </div>
+
+            <div class="family-profile-section">
+              <h3>Tell Us About Your Family</h3>
+              <p>Help us create better matches and generate your share intro card</p>
+              
+              <div class="form-group">
+                <label for="familyName">Family Name</label>
+                <input type="text" id="familyName" placeholder="The Johnson Family">
+              </div>
+              
+              <div class="children-section">
+                <h4>Children in Care</h4>
+                <div class="child-form" id="child1">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="childName1">Child's Name</label>
+                      <input type="text" id="childName1" placeholder="First name">
+                    </div>
+                    <div class="form-group">
+                      <label for="childAge1">Age</label>
+                      <select id="childAge1">
+                        <option value="">Select age</option>
+                        <option value="0-6m">0-6 months</option>
+                        <option value="6-12m">6-12 months</option>
+                        <option value="1y">1 year</option>
+                        <option value="2y">2 years</option>
+                        <option value="3y">3 years</option>
+                        <option value="4y">4 years</option>
+                        <option value="5y">5+ years</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="allergies1">Allergies or Health Considerations</label>
+                    <input type="text" id="allergies1" placeholder="None, or list any allergies/medical needs">
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="pottyTrained1">Potty Training Status</label>
+                      <select id="pottyTrained1">
+                        <option value="">Select status</option>
+                        <option value="fully-trained">Fully potty trained</option>
+                        <option value="in-progress">In progress</option>
+                        <option value="not-started">Not started</option>
+                        <option value="night-training">Day trained, working on nights</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="napSchedule1">Nap Schedule</label>
+                      <select id="napSchedule1">
+                        <option value="">Select schedule</option>
+                        <option value="one-nap">One nap (12-2pm)</option>
+                        <option value="two-naps">Two naps daily</option>
+                        <option value="no-naps">No naps needed</option>
+                        <option value="flexible">Flexible/as needed</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="personality1">Personality & Interests</label>
+                    <input type="text" id="personality1" placeholder="e.g., Loves art, shy at first, big feelings, very social">
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="existingCare1">Existing Daycare/Preschool (if any)</label>
+                    <input type="text" id="existingCare1" placeholder="e.g., Montessori 3 days/week, none, after-school program">
+                  </div>
+                </div>
+                
+                <button type="button" class="add-child-btn" onclick="addChildForm()">+ Add Another Child</button>
+              </div>
+              
+              <div class="parent-info-section">
+                <h4>Parent Information</h4>
+                <p class="trust-essentials-note">Help families understand your schedule and communication preferences</p>
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="parentNames">Parent Names</label>
+                    <input type="text" id="parentNames" placeholder="Sarah & Mike Johnson">
+                  </div>
+                  <div class="form-group">
+                    <label for="workSchedule">Work Schedule</label>
+                    <select id="workSchedule">
+                      <option value="">Select schedule</option>
+                      <option value="remote">Fully remote</option>
+                      <option value="hybrid">Hybrid (2-3 days office)</option>
+                      <option value="office">In-office daily</option>
+                      <option value="variable">Variable schedule</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="communicationStyle">Preferred Communication Style</label>
+                  <select id="communicationStyle">
+                    <option value="">Select preference</option>
+                    <option value="slack">Slack/messaging app</option>
+                    <option value="group-text">Group text messages</option>
+                    <option value="email">Email updates</option>
+                    <option value="in-person">In-person check-ins</option>
+                    <option value="mixed">Mix of methods</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="family-values-section">
+                <h4>Your Care Values & Preferences</h4>
+                <div class="values-grid">
+                  <div class="value-item" onclick="toggleValueItem(this)">
+                    <input type="checkbox" id="outdoor">
+                    <label for="outdoor">Outdoor play focused</label>
+                  </div>
+                  <div class="value-item" onclick="toggleValueItem(this)">
+                    <input type="checkbox" id="structured">
+                    <label for="structured">Structured activities</label>
+                  </div>
+                  <div class="value-item" onclick="toggleValueItem(this)">
+                    <input type="checkbox" id="montessori">
+                    <label for="montessori">Montessori approach</label>
+                  </div>
+                  <div class="value-item" onclick="toggleValueItem(this)">
+                    <input type="checkbox" id="bilingual">
+                    <label for="bilingual">Bilingual environment</label>
+                  </div>
+                  <div class="value-item" onclick="toggleValueItem(this)">
+                    <input type="checkbox" id="flexible">
+                    <label for="flexible">Flexible & adaptive</label>
+                  </div>
+                  <div class="value-item" onclick="toggleValueItem(this)">
+                    <input type="checkbox" id="creative">
+                    <label for="creative">Arts & creativity</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="intro-card-preview">
+                <h4>Your Share Intro Card Preview</h4>
+                <div class="preview-card">
+                  <div class="preview-header">
+                    <span class="family-name-preview">The Johnson Family</span>
+                    <span class="verified-badge">Opeari Verified</span>
+                  </div>
+                  <div class="preview-content">
+                    <p><strong>Children:</strong> <span id="childrenPreview">Emma (2y, loves art, one nap), Jake (4y, very social, no naps)</span></p>
+                    <p><strong>Values:</strong> <span id="valuesPreview">Outdoor play, Flexible & adaptive</span></p>
+                    <p><strong>Schedule:</strong> <span id="schedulePreview">Mon-Fri, 8am-5pm</span></p>
+                    <p><strong>Rate:</strong> <span id="ratePreview">$16/hour per family</span></p>
+                    <p><strong>Communication:</strong> <span id="commPreview">Group text preferred, hybrid work schedule</span></p>
+                    <p><strong>Home:</strong> <span id="homePreview">Smoke-free house with backyard, allergy-conscious</span></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 4: REVIEW & LAUNCH -->
+        <div class="step-container" id="stepContent4">
+          <div class="step-card">
+            <div class="step-header">
+              <div class="step-number">4</div>
+              <h2 class="step-title">Your Share, Your Way</h2>
+              <p class="step-description">You're not hiring a stranger. You're building something — with neighbors, with intention, with love. Welcome to the village.</p>
+            </div>
+
+            <div class="summary-section">
+              <h3>Your Nanny Share Summary</h3>
+              <div class="summary-item">
+                <span class="summary-label">Family</span>
+                <span class="summary-value">The Johnson Family (Sarah & Mike)</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Children</span>
+                <span class="summary-value">Emma (2y, loves art), Jake (4y, very social)</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Home Setup</span>
+                <span class="summary-value">Smoke-free house with backyard, allergy-conscious</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Capacity</span>
+                <span class="summary-value">Max 4 toddlers + 6 preschoolers</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Care Philosophy</span>
+                <span class="summary-value">Montessori-inspired, gentle parenting values</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Schedule</span>
+                <span class="summary-value">Mon-Fri, 8am-5pm (hybrid work schedule)</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Communication</span>
+                <span class="summary-value">Group text preferred</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Rate</span>
+                <span class="summary-value">$16/hour per family</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Plan</span>
+                <span class="summary-value" id="selectedPlanDisplay">Opeari+ Safety Plan</span>
+              </div>
+            </div>
+
+            <div class="dealbreaker-preview-section">
+              <h3>Your Family Match Preview</h3>
+              <p class="trust-essentials-note">This is how your profile will appear to potential partner families, with compatibility indicators upfront</p>
+              
+              <div class="preview-card">
+                <div class="preview-header">
+                  <span class="family-name-preview">The Johnson Family</span>
+                  <span class="verified-badge">Opeari+ Verified</span>
+                </div>
+                <div class="preview-content">
+                  <p><strong>Children:</strong> Emma (2y, loves art, potty training), Jake (4y, very social, no naps)</p>
+                  <p><strong>Schedule:</strong> Mon-Fri, 8am-5pm | <strong>Rate:</strong> $16/hour per family</p>
+                  <p><strong>Communication:</strong> Group text preferred, hybrid work schedule</p>
+                  
+                  <div class="compatibility-tags">
+                    <h4>At-a-Glance Compatibility:</h4>
+                    <div class="tag-grid">
+                      <span class="compat-tag positive" id="smokeFreeTag">✓ Smoke-free</span>
+                      <span class="compat-tag positive" id="petTag">✓ Allergy-conscious</span>
+                      <span class="compat-tag positive" id="vaccinatedTag">✓ Vaccinated families only</span>
+                      <span class="compat-tag neutral" id="foodTag">🍱 Shared meals</span>
+                      <span class="compat-tag neutral" id="philosophyTag">🎯 Montessori + Gentle parenting</span>
+                      <span class="compat-tag positive" id="safetyTag">✓ Enhanced safety protocols</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="village-impact-section">
+              <h3>You're Joining a Movement</h3>
+              <div class="impact-message-grid">
+                <div class="impact-message-item">
+                  <h4>Families Everywhere Are Opting Out</h4>
+                  <p>Of daycare waitlists, impersonal apps, and overpriced agencies. They're choosing intentional community care instead.</p>
+                </div>
+                
+                <div class="impact-message-item">
+                  <h4>Building Villages, Not Just Hiring Help</h4>
+                  <p>When you share care with neighbors, children get instant playmates and parents get real support systems.</p>
+                </div>
+                
+                <div class="impact-message-item">
+                  <h4>Creating the Infrastructure We Need</h4>
+                  <p>Modern families deserve modern solutions — flexible, affordable, community-centered childcare that actually works.</p>
+                </div>
+              </div>
+              <p class="impact-message">When you choose Opeari, you're part of reimagining how we raise children — together, intentionally, with community at the center.</p>
+            </div>
+
+            <div class="convenience-features">
+              <h3>What Happens Next</h3>
+              <div class="feature-timeline">
+                <div class="timeline-item">
+                  <div class="timeline-icon">1</div>
+                  <div class="timeline-content">
+                    <h4>Smart Matching</h4>
+                    <p>We'll connect you with 3-5 verified families in your area who share your values and schedule needs.</p>
+                  </div>
+                </div>
+                
+                <div class="timeline-item">
+                  <div class="timeline-icon">2</div>
+                  <div class="timeline-content">
+                    <h4>Meet & Greet</h4>
+                    <p>Virtual or in-person introductions with potential partner families — find your perfect match.</p>
+                  </div>
+                </div>
+                
+                <div class="timeline-item">
+                  <div class="timeline-icon">3</div>
+                  <div class="timeline-content">
+                    <h4>Guided Setup</h4>
+                    <p>Opeari facilitates your kickoff meeting, contract creation, and first week of care coordination.</p>
+                  </div>
+                </div>
+                
+                <div class="timeline-item">
+                  <div class="timeline-icon">4</div>
+                  <div class="timeline-content">
+                    <h4>Village Life</h4>
+                    <p>Ongoing support, activity suggestions, and the peace of mind that comes with community care.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3>Launch Preferences</h3>
+              <div class="checkbox-grid">
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="findMatches" checked>
+                  <label for="findMatches">Find family matches in my area</label>
+                </div>
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="scheduleKickoff" checked>
+                  <label for="scheduleKickoff">Schedule Opeari kickoff meeting</label>
+                </div>
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="earlyAccess">
+                  <label for="earlyAccess">Join early access program</label>
+                </div>
+                <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="referralProgram">
+                  <label for="referralProgram">Enroll in refer-a-family rewards</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="legal-protection-section">
+              <h3>Legal Protection & Peace of Mind</h3>
+              <p class="trust-essentials-note">Simple safeguards that protect everyone involved</p>
+              
+              <div class="dealbreaker-grid">
+                <div class="dealbreaker-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="homeownersInsurance" required>
+                  <label for="homeownersInsurance">I have current homeowner's/renter's insurance</label>
+                </div>
+                <div class="dealbreaker-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="liabilityWaiver" required>
+                  <label for="liabilityWaiver">I agree to shared liability waiver (Opeari+ feature)</label>
+                </div>
+                <div class="dealbreaker-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="independentProvider" required>
+                  <label for="independentProvider">I understand providers are independent contractors, not Opeari employees</label>
+                </div>
+                <div class="dealbreaker-item" onclick="toggleCheckbox(this)">
+                  <input type="checkbox" id="agreementTerms" required>
+                  <label for="agreementTerms">I agree to Opeari's <a href="#" style="color: var(--primary); text-decoration: underline;">Terms of Service</a></label>
+                </div>
+              </div>
+              
+              <div class="supply-note">
+                <strong>Village Protection Plan:</strong> Opeari+ includes legal templates, emergency resources, and liability guidance to keep your share running smoothly.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NAVIGATION BUTTONS -->
+        <div class="navigation-buttons">
+          <button class="btn btn-secondary" id="prevBtn" onclick="previousStep()" style="display: none;">Previous</button>
+          <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Continue</button>
+          <button class="btn btn-primary btn-large" id="launchBtn" onclick="launchNannyShare()" style="display: none;">Launch Your Nanny Share</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container">
+        <div class="cta-content">
+          <h2>We've thought through every detail so you don't have to.</h2>
+          <p>Ready to build your nanny share the right way? Join families who trust Opeari to make childcare sharing simple, safe, and stress-free.</p>
+          <a href="waitlist.html" class="btn btn-primary btn-large">Join the Movement</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="about.html">About Us</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="faq.html">FAQ</a>
+      <a href="mailto:hello@opeari.com">Contact Us</a>
+    </div>
+    
+    <div class="social-links">
+      <a href="https://instagram.com/opeari.co" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </a>
+      <a href="#" aria-label="Twitter">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+        </svg>
+      </a>
+      <a href="#" aria-label="Facebook">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+        </svg>
+      </a>
+      <a href="#" aria-label="LinkedIn">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+          <rect x="2" y="9" width="4" height="12"></rect>
+          <circle cx="4" cy="4" r="2"></circle>
+        </svg>
+      </a>
+      <a href="#" aria-label="TikTok">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path>
+          <path d="M15 8a4 4 0 1 0 0-8 4 4 0 0 0 0-8z"></path>
+          <path d="M15 8v8a4 4 0 0 1-4 4"></path>
+          <line x1="9" y1="16" x2="9" y2="20"></line>
+          <line x1="12" y1="8" x2="20" y2="8"></line>
+        </svg>
+      </a>
+      <a href="#" aria-label="YouTube">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+          <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+        </svg>
+      </a>
+    </div>
+    
+    <p class="footer-copyright">© 2025 Opeari, Inc. | Built by parents, for parents</p>
+  </footer>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 4;
+    let formData = {
+      selectedTier: 'basic',
+      dealbreakers: [],
+      preferences: {},
+      children: [],
+      philosophy: []
+    };
+
+    // Theme toggle functionality
+    const themeToggle = document.querySelector('.theme-toggle');
+    const htmlElement = document.documentElement;
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      htmlElement.setAttribute('data-theme', newTheme);
+    });
+
+    // Mobile nav toggle
+    const hamburger = document.querySelector('.hamburger');
+    const mobileNav = document.querySelector('.mobile-nav');
+
+    hamburger.addEventListener('click', () => {
+      const isExpanded = mobileNav.style.display === 'flex';
+      mobileNav.style.display = isExpanded ? 'none' : 'flex';
+      hamburger.setAttribute('aria-expanded', String(!isExpanded));
+      mobileNav.setAttribute('aria-hidden', String(isExpanded));
+    });
+
+    // Login button functionality
+    const loginBtn = document.getElementById('loginBtn');
+    const loginBtnMobile = document.getElementById('loginBtnMobile');
+
+    if (loginBtn) {
+      loginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'login.html';
+      });
+    }
+
+    if (loginBtnMobile) {
+      loginBtnMobile.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'login.html';
+        mobileNav.style.display = 'none';
+        hamburger.setAttribute('aria-expanded', 'false');
+        mobileNav.setAttribute('aria-hidden', 'true');
+      });
+    }
+
+    // Step navigation functions
+    function nextStep() {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        updateStepDisplay();
+      }
+    }
+
+    function previousStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateStepDisplay();
+      }
+    }
+
+    function updateStepDisplay() {
+      // Hide all step containers
+      for (let i = 1; i <= totalSteps; i++) {
+        const stepContent = document.getElementById(`stepContent${i}`);
+        if (stepContent) {
+          stepContent.classList.remove('active');
+        }
+        const stepElement = document.getElementById(`step${i}`);
+        if (stepElement) {
+          stepElement.classList.remove('active', 'completed');
+        }
+      }
+
+      // Show current step
+      const currentStepContent = document.getElementById(`stepContent${currentStep}`);
+      if (currentStepContent) {
+        currentStepContent.classList.add('active');
+      }
+      
+      const currentStepElement = document.getElementById(`step${currentStep}`);
+      if (currentStepElement) {
+        currentStepElement.classList.add('active');
+      }
+
+      // Mark completed steps
+      for (let i = 1; i < currentStep; i++) {
+        const stepElement = document.getElementById(`step${i}`);
+        if (stepElement) {
+          stepElement.classList.add('completed');
+        }
+      }
+
+      // Update progress bar
+      const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+      const progressFill = document.getElementById('progressFill');
+      if (progressFill) {
+        progressFill.style.width = `${progress}%`;
+      }
+
+      // Update navigation buttons
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const launchBtn = document.getElementById('launchBtn');
+
+      if (prevBtn) prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
+      
+      if (currentStep === totalSteps) {
+        if (nextBtn) nextBtn.style.display = 'none';
+        if (launchBtn) launchBtn.style.display = 'block';
+      } else {
+        if (nextBtn) nextBtn.style.display = 'block';
+        if (launchBtn) launchBtn.style.display = 'none';
+      }
+    }
+
+    // Interactive elements
+    function triggerFileUpload(inputId) {
+      const input = document.getElementById(inputId);
+      if (input) {
+        input.click();
+      }
+    }
+
+    function handleFileUpload(input, statusId) {
+      const statusElement = document.getElementById(statusId);
+      if (statusElement && input.files.length > 0) {
+        statusElement.textContent = `${input.files.length} file(s) uploaded`;
+        statusElement.className = 'status-indicator status-complete';
+        const uploadArea = input.closest('.upload-area');
+        if (uploadArea) {
+          uploadArea.classList.add('has-files');
+        }
+      }
+    }
+
+    function toggleCheckbox(element) {
+      const checkbox = element.querySelector('input[type="checkbox"], input[type="radio"]');
+      if (!checkbox) return;
+      
+      if (checkbox.type === 'radio') {
+        // For radio buttons, uncheck siblings first
+        const name = checkbox.name;
+        if (name) {
+          const siblings = document.querySelectorAll(`input[name="${name}"]`);
+          siblings.forEach(sibling => {
+            const parentElement = sibling.closest('.checkbox-item, .food-item, .dealbreaker-item, .philosophy-item, .value-item, .capacity-item');
+            if (parentElement) {
+              parentElement.classList.remove('checked');
+            }
+            sibling.checked = false;
+          });
+        }
+      }
+      
+      // Toggle the current checkbox
+      checkbox.checked = !checkbox.checked;
+      element.classList.toggle('checked', checkbox.checked);
+      
+      // Store data
+      if (checkbox.id) {
+        formData.preferences[checkbox.id] = checkbox.checked;
+      }
+    }
+
+    function toggleSwitch(element) {
+      element.classList.toggle('active');
+      const isActive = element.classList.contains('active');
+      
+      // Store switch state
+      const parentToggleItem = element.closest('.toggle-item');
+      if (parentToggleItem) {
+        const switchId = parentToggleItem.querySelector('h4').textContent.toLowerCase().replace(/\s+/g, '_');
+        formData.preferences[switchId] = isActive;
+      }
+    }
+
+    function toggleAgeGroup(element, ageGroup) {
+      toggleCheckbox(element);
+      updateCapacityLimits();
+    }
+
+    function toggleValueItem(element) {
+      toggleCheckbox(element);
+    }
+
+    function addChildForm() {
+      alert('Additional child form would be added here. This functionality will be implemented in the full version.');
+    }
+
+    function updateCapacityLimits() {
+      const caregivers = document.getElementById('caregivers');
+      if (!caregivers) return;
+      
+      const multiplier = caregivers.value === '2' ? 2 : 1;
+      
+      const infantLimit = document.getElementById('infantLimit');
+      const toddlerLimit = document.getElementById('toddlerLimit');
+      const preschoolLimit = document.getElementById('preschoolLimit');
+      const schoolAgeLimit = document.getElementById('schoolAgeLimit');
+      
+      if (infantLimit) infantLimit.textContent = `Max ${3 * multiplier} spots available`;
+      if (toddlerLimit) toddlerLimit.textContent = `Max ${4 * multiplier} spots available`;
+      if (preschoolLimit) preschoolLimit.textContent = `Max ${6 * multiplier} spots available`;
+      if (schoolAgeLimit) schoolAgeLimit.textContent = `Max ${8 * multiplier} spots available`;
+    }
+
+    function updateSelectedTier() {
+      const tierRadios = document.querySelectorAll('input[name="tier"]');
+      let selectedTier = 'basic';
+      
+      tierRadios.forEach(radio => {
+        if (radio.checked) {
+          selectedTier = radio.value;
+        }
+      });
+      
+      formData.selectedTier = selectedTier;
+      
+      const planDisplay = document.getElementById('selectedPlanDisplay');
+      if (planDisplay) {
+        planDisplay.textContent = selectedTier === 'premium' ? 'Opeari+ Safety Plan' : 'Basic Setup';
+      }
+    }
+
+    function updatePreviewCard() {
+      // This would update the preview card based on form inputs
+      // For now, we'll just show static data
+      const familyName = document.getElementById('familyName');
+      if (familyName && familyName.value) {
+        const familyNamePreview = document.querySelector('.family-name-preview');
+        if (familyNamePreview) {
+          familyNamePreview.textContent = familyName.value;
+        }
+      }
+    }
+
+    function launchNannyShare() {
+      // Check required legal checkboxes
+      const requiredCheckboxes = ['homeownersInsurance', 'liabilityWaiver', 'independentProvider', 'agreementTerms'];
+      const missingCheckboxes = requiredCheckboxes.filter(id => {
+        const checkbox = document.getElementById(id);
+        return checkbox && !checkbox.checked;
+      });
+      
+      if (missingCheckboxes.length > 0) {
+        alert('⚠️ Please complete all required legal agreements before launching your nanny share.\n\nMissing: ' + missingCheckboxes.join(', '));
+        return;
+      }
+      
+      const planType = formData.selectedTier === 'premium' ? 'Opeari+ Safety Plan' : 'Basic Setup';
+      
+      alert(`🎉 Welcome to the village! Your nanny share is ready to launch.\n\n✨ What happens next:\n• Dealbreaker alerts with compatible families\n• ${planType} includes ${formData.selectedTier === 'premium' ? 'legal templates & emergency support' : 'basic matching tools'}\n• First family introductions within 48 hours\n• Kickoff meeting scheduled within 1 week\n\nReady to reimagine childcare together! 🍐`);
+      
+      // In a real implementation, this would submit the form data
+      console.log('Form data to submit:', formData);
+    }
+
+    // Form validation
+    function validateStep(step) {
+      // Add validation logic for each step
+      return true;
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      updateStepDisplay();
+      updateCapacityLimits();
+      
+      // Simple checkbox handling - let the browser handle the actual checking
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          const checkboxItem = this.closest('.checkbox-item, .dealbreaker-item, .philosophy-item, .value-item, .capacity-item');
+          if (checkboxItem) {
+            if (this.checked) {
+              checkboxItem.classList.add('checked');
+            } else {
+              checkboxItem.classList.remove('checked');
+            }
+          }
+        });
+      });
+      
+      // Add event listeners to tier selection
+      const tierRadios = document.querySelectorAll('input[name="tier"]');
+      tierRadios.forEach(radio => {
+        radio.addEventListener('change', updateSelectedTier);
+      });
+      
+      // Add event listeners to toggle switches
+      const toggleSwitches = document.querySelectorAll('.toggle-switch');
+      toggleSwitches.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+          toggleSwitch(this);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

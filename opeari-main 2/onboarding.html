@@ -1,0 +1,2807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Complete Your Profile | Opeari</title>
+  <link rel="icon" href="images/favicon.png" type="image/png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary: #1e6b4e;
+      --primary-light: #3ca370;
+      --primary-dark: #155a3e;
+      --coral: #F8C3B3;
+      --coral-dark: #e5a090;
+      --coral-light: rgba(248, 195, 179, 0.3);
+      --green-light: rgba(30, 107, 78, 0.1);
+      --background: #fffaf5;
+      --background-mint: #e8f5f0;
+      --text: #1e6b4e;
+      --text-light: #5a8a72;
+      --text-muted: #8fb89f;
+      --white: #ffffff;
+      --border: #c8e6d9;
+      --border-light: #e0f0e8;
+      --error: #e57373;
+      --error-bg: #fef2f2;
+      
+      /* Avatar colors */
+      --avatar-green: #c8e6d9;
+      --avatar-coral: #f8d4ca;
+      --avatar-gold: #f5e6b8;
+    }
+    
+    html, body {
+      height: 100%;
+    }
+    
+    body {
+      font-family: 'Comfortaa', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Access Denied Screen */
+    .access-denied {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .access-denied.show {
+      display: flex;
+    }
+    
+    .access-denied-icon {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .access-denied h1 {
+      font-size: 1.75rem;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+    
+    .access-denied p {
+      font-size: 1rem;
+      color: var(--text-light);
+      max-width: 400px;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    
+    .access-denied .btn-waitlist {
+      display: inline-block;
+      padding: 1rem 2rem;
+      background: var(--primary);
+      color: var(--white);
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      font-family: 'Comfortaa', sans-serif;
+      transition: all 0.2s ease;
+    }
+    
+    .access-denied .btn-waitlist:hover {
+      background: var(--coral);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+    
+    /* Main App Container */
+    .app-container {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .app-container.show {
+      display: flex;
+    }
+    
+    /* Header */
+    header {
+      background: var(--white);
+      padding: 0.5rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-light);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo {
+      height: 46px;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .step-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-light);
+    }
+    
+    /* Progress Bar */
+    .progress-container {
+      display: flex;
+      gap: 0.375rem;
+    }
+    
+    .progress-dot {
+      width: 28px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--border);
+      transition: all 0.3s ease;
+    }
+    
+    .progress-dot.active {
+      background: var(--primary);
+    }
+    
+    .progress-dot.complete {
+      background: var(--coral);
+    }
+    
+    /* Main */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 1rem 1.5rem 1.5rem;
+    }
+    
+    .onboarding-container {
+      width: 100%;
+      max-width: 540px;
+    }
+    
+    /* Step Header */
+    .step-header {
+      text-align: center;
+      margin-bottom: 0.875rem;
+    }
+    
+    .step-header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+      line-height: 1.3;
+    }
+    
+    .step-header p {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      line-height: 1.4;
+    }
+    
+    /* Card */
+    .step-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 20px rgba(30, 107, 78, 0.08);
+    }
+    
+    /* Steps */
+    .step {
+      display: none;
+    }
+    
+    .step.active {
+      display: block;
+    }
+    
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 0.875rem;
+    }
+    
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    
+    .form-row-3 {
+      grid-template-columns: 1fr 1fr 100px;
+    }
+    
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.4rem;
+    }
+    
+    .label-optional {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+    
+    .label-hint {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      display: block;
+      margin-top: 2px;
+    }
+    
+    .required-label {
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    
+    .required-star {
+      color: var(--coral-dark);
+      font-weight: 700;
+    }
+    
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30, 107, 78, 0.1);
+    }
+    
+    input::placeholder,
+    textarea::placeholder {
+      color: var(--text-muted);
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+    
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231e6b4e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+    }
+    
+    /* ZIP Code Input */
+    .zip-input {
+      max-width: 140px;
+      text-align: center;
+      letter-spacing: 0.15em;
+      font-weight: 600;
+    }
+    
+    /* Display Name Section */
+    .display-section {
+      background: var(--background-mint);
+      border-radius: 12px;
+      padding: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    
+    .display-section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.4rem;
+    }
+    
+    .display-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+    
+    .display-options-row {
+      flex-direction: row;
+      gap: 0.5rem;
+    }
+    
+    .display-options-row .display-option {
+      flex: 1;
+    }
+    
+    .display-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.625rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .display-option:hover {
+      border-color: var(--primary);
+    }
+    
+    .display-option.selected {
+      border-color: var(--primary);
+      background: var(--green-light);
+    }
+    
+    .display-option input[type="radio"] {
+      display: none;
+    }
+    
+    .radio-circle {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    
+    .display-option.selected .radio-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+    }
+    
+    .radio-circle::after {
+      content: '';
+      width: 7px;
+      height: 7px;
+      background: var(--white);
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    .display-option.selected .radio-circle::after {
+      opacity: 1;
+    }
+    
+    .display-text {
+      flex: 1;
+    }
+    
+    .display-preview {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .display-desc {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 0;
+    }
+    
+    /* Avatar Selection */
+    .avatar-section {
+      margin-top: 0.75rem;
+    }
+    
+    .avatar-section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      max-width: 280px;
+    }
+    
+    .avatar-option {
+      aspect-ratio: 1;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    .avatar-option:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+    
+    .avatar-option.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--coral-light);
+    }
+    
+    .avatar-option svg {
+      width: 70%;
+      height: 70%;
+    }
+    
+    .avatar-option.upload {
+      background: var(--background);
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    .avatar-option.upload svg {
+      width: 30%;
+      height: 30%;
+    }
+    
+    .avatar-option.upload span {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+    }
+    
+    .avatar-option img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    #avatarUpload {
+      display: none;
+    }
+    
+    /* Privacy Note */
+    .privacy-note {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--background-mint);
+      border-radius: 8px;
+      margin-top: 0.875rem;
+      font-size: 0.72rem;
+      color: var(--text-light);
+      line-height: 1.4;
+    }
+    
+    .privacy-note svg {
+      flex-shrink: 0;
+    }
+    
+    /* User Type Selection */
+    .user-type-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .user-type-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .user-type-option:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(30, 107, 78, 0.1);
+    }
+    
+    .user-type-option.selected {
+      border-color: var(--primary);
+      background: var(--green-light);
+    }
+    
+    .user-type-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--background-mint);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .user-type-option.selected .user-type-icon {
+      background: var(--coral);
+    }
+    
+    .user-type-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--primary);
+      fill: none;
+      stroke-width: 2;
+    }
+    
+    .user-type-content {
+      flex: 1;
+    }
+    
+    .user-type-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.125rem;
+    }
+    
+    .user-type-desc {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      line-height: 1.3;
+    }
+    
+    /* Kid Cards */
+    .kids-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .kid-card {
+      background: var(--background-mint);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem;
+      transition: border-color 0.2s ease;
+    }
+    
+    .kid-card:focus-within {
+      border-color: var(--primary);
+    }
+    
+    .kid-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .kid-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .remove-kid-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 0.75rem;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    
+    .remove-kid-btn:hover {
+      color: var(--error);
+      background: var(--error-bg);
+    }
+    
+    .kid-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
+    }
+    
+    .kid-fields .form-group {
+      margin-bottom: 0;
+    }
+    
+    .kid-fields label {
+      font-size: 0.75rem;
+    }
+    
+    .kid-fields input,
+    .kid-fields select {
+      padding: 0.65rem 0.75rem;
+      font-size: 0.85rem;
+    }
+    
+    /* Add Kid Button */
+    .add-kid-btn {
+      width: 100%;
+      padding: 0.875rem;
+      background: none;
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      color: var(--text-light);
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .add-kid-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(30, 107, 78, 0.03);
+    }
+    
+    /* Expecting Toggle */
+    .expecting-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      margin-top: 0.75rem;
+      cursor: pointer;
+    }
+    
+    .expecting-row input {
+      display: none;
+    }
+    
+    .toggle-track {
+      width: 44px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 12px;
+      position: relative;
+      transition: background 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: var(--white);
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .expecting-row input:checked + .toggle-track {
+      background: var(--primary);
+    }
+    
+    .expecting-row input:checked + .toggle-track::after {
+      transform: translateX(20px);
+    }
+    
+    .toggle-label {
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    
+    /* Caregiver Type Grid */
+    .caregiver-type-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.375rem;
+    }
+    
+    .caregiver-type-option {
+      padding: 0.625rem 0.5rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    
+    .caregiver-type-option:hover {
+      border-color: var(--primary);
+    }
+    
+    .caregiver-type-option.selected {
+      border-color: var(--primary);
+      background: var(--coral-light);
+    }
+    
+    /* Experience Highlight */
+    .experience-highlight {
+      background: var(--background-mint);
+      padding: 0.875rem;
+      border-radius: 12px;
+      margin-top: 0.5rem;
+    }
+    
+    .experience-highlight label {
+      margin-bottom: 0.5rem;
+    }
+    
+    .select-prominent {
+      padding: 0.875rem 1rem !important;
+      font-size: 1rem !important;
+      font-weight: 600;
+      border-width: 2px;
+    }
+    
+    /* Certifications */
+    .cert-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.375rem;
+    }
+    
+    .cert-option {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.625rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.78rem;
+      color: var(--text);
+    }
+    
+    .cert-option:hover {
+      border-color: var(--primary);
+    }
+    
+    .cert-option.selected {
+      border-color: var(--primary);
+      background: var(--green-light);
+    }
+    
+    .cert-option input {
+      display: none;
+    }
+    
+    .cert-check {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    
+    .cert-option.selected .cert-check {
+      background: var(--coral);
+      border-color: var(--coral);
+    }
+    
+    .cert-check svg {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    .cert-option.selected .cert-check svg {
+      opacity: 1;
+    }
+    
+    .cert-upload-note {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    
+    .cert-upload-note svg {
+      flex-shrink: 0;
+    }
+    
+    /* Schedule Grid */
+    .schedule-section {
+      margin-bottom: 1rem;
+    }
+    
+    .schedule-context {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background: var(--background-mint);
+      border-radius: 10px;
+      text-align: center;
+    }
+    
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: auto repeat(3, 1fr);
+      gap: 0.35rem;
+      background: var(--background-mint);
+      border-radius: 14px;
+      padding: 0.875rem;
+    }
+    
+    .schedule-header {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-light);
+      text-align: center;
+      padding: 0.4rem 0.2rem;
+    }
+    
+    .schedule-header .time-range {
+      display: block;
+      font-size: 0.55rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    
+    .day-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      padding-right: 0.4rem;
+    }
+    
+    .schedule-cell {
+      padding: 0.45rem 0.2rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 0.6rem;
+      font-family: 'Comfortaa', sans-serif;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    
+    .schedule-cell:hover {
+      border-color: var(--primary);
+    }
+    
+    .schedule-cell.selected {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--white);
+    }
+    
+    /* Quick Select */
+    .quick-select {
+      margin-bottom: 0.875rem;
+    }
+    
+    .quick-select-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    
+    .quick-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    
+    .quick-btn {
+      padding: 0.45rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'Comfortaa', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .quick-btn:hover {
+      border-color: var(--primary);
+    }
+    
+    .quick-btn.selected {
+      background: var(--coral);
+      border-color: var(--coral);
+      color: var(--primary);
+    }
+    
+    /* Irregular Schedule */
+    .irregular-section {
+      margin-top: 0.625rem;
+    }
+    
+    .irregular-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+    
+    .irregular-toggle:hover {
+      border-color: var(--primary);
+    }
+    
+    .irregular-toggle input {
+      display: none;
+    }
+    
+    .checkbox-box {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .checkbox-box svg {
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.2s ease;
+    }
+    
+    .irregular-toggle input:checked ~ .checkbox-box {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    
+    .irregular-toggle input:checked ~ .checkbox-box svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    .irregular-text {
+      font-size: 0.85rem;
+      color: var(--text);
+    }
+    
+    .irregular-note {
+      margin-top: 0.6rem;
+      display: none;
+    }
+    
+    .irregular-note.show {
+      display: block;
+    }
+    
+    .irregular-note textarea {
+      font-size: 0.85rem;
+      min-height: 55px;
+    }
+    
+    /* Interest Sections - Bordered Checklist Rows */
+    .interest-section {
+      margin-bottom: 1rem;
+    }
+    
+    .interest-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.125rem;
+    }
+    
+    .section-desc {
+      font-size: 0.72rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+    
+    .interest-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.25rem;
+    }
+    
+    .interest-list.single-col {
+      grid-template-columns: 1fr;
+    }
+    
+    .interest-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.4rem;
+      padding: 0.4rem 0.5rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .interest-row:hover {
+      border-color: var(--primary);
+    }
+    
+    .interest-row.selected {
+      border-color: var(--primary);
+      background: var(--green-light);
+    }
+    
+    .interest-row input {
+      display: none;
+    }
+    
+    .row-checkbox {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    
+    .interest-row.selected .row-checkbox {
+      background: var(--coral);
+      border-color: var(--coral);
+    }
+    
+    .row-checkbox svg {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    .interest-row.selected .row-checkbox svg {
+      opacity: 1;
+    }
+    
+    .row-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      line-height: 1.2;
+    }
+    
+    .row-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .row-desc {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    
+    /* Timeline Options */
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.3rem;
+    }
+    
+    .timeline-option {
+      padding: 0.5rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    
+    .timeline-option:hover {
+      border-color: var(--primary);
+    }
+    
+    .timeline-option.selected {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: var(--white);
+    }
+    
+    /* Navigation Buttons */
+    .nav-buttons {
+      display: flex;
+      gap: 0.625rem;
+      margin-top: 1rem;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 0.7rem;
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-back {
+      background: var(--white);
+      color: var(--text-light);
+      border: 2px solid var(--border);
+    }
+    
+    .btn-back:hover {
+      border-color: var(--text-light);
+      color: var(--text);
+    }
+    
+    .btn-primary {
+      flex: 2;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      background: var(--coral);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+    
+    .btn-primary:disabled {
+      background: var(--border);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* Error Message */
+    .error-message {
+      background: var(--error-bg);
+      border: 1px solid var(--error);
+      color: #c62828;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      display: none;
+    }
+    
+    .error-message.show {
+      display: block;
+    }
+    
+    /* Change Later Note */
+    .change-later {
+      text-align: center;
+      margin-top: 0.875rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    /* Celebration Screen */
+    .celebration-screen {
+      text-align: center;
+      padding: 1.5rem 0;
+    }
+    
+    .celebration-hero {
+      width: 260px;
+      height: auto;
+      margin: 0 auto 1.25rem;
+      display: block;
+      animation: scaleIn 0.5s ease;
+    }
+    
+    @keyframes scaleIn {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .celebration-screen h1 {
+      font-size: 1.75rem;
+      color: var(--primary);
+      margin-bottom: 0.6rem;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+    
+    .celebration-screen .message {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      line-height: 1.6;
+      margin-bottom: 1.75rem;
+      animation: fadeUp 0.5s ease 0.3s both;
+    }
+    
+    @keyframes fadeUp {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    
+    .cta-btn {
+      display: inline-block;
+      padding: 1rem 2.25rem;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Comfortaa', sans-serif;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      animation: fadeUp 0.5s ease 0.4s both;
+    }
+    
+    .cta-btn:hover {
+      background: var(--coral);
+      color: var(--primary);
+      transform: translateY(-3px);
+    }
+    
+    .sub-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 1.25rem;
+      animation: fadeUp 0.5s ease 0.5s both;
+    }
+    
+    /* Confetti */
+    .confetti-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1000;
+    }
+    
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      animation: confettiFall 3s ease-out forwards;
+    }
+    
+    @keyframes confettiFall {
+      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 250, 245, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+    }
+    
+    .loading-overlay.active {
+      display: flex;
+    }
+    
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading-overlay p {
+      margin-top: 1rem;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 520px) {
+      main {
+        padding: 1.25rem 1rem 2rem;
+      }
+      
+      .step-card {
+        padding: 1.25rem;
+      }
+      
+      .step-header h1 {
+        font-size: 1.4rem;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .form-row-3 {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .form-row-3 .form-group:last-child {
+        grid-column: span 2;
+      }
+      
+      .display-options-row {
+        flex-direction: column;
+      }
+      
+      .kid-fields {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .kid-fields .form-group:first-child {
+        grid-column: span 2;
+      }
+      
+      .nav-buttons {
+        flex-direction: column-reverse;
+      }
+      
+      .btn {
+        flex: none;
+        width: 100%;
+      }
+      
+      .timeline-grid,
+      .caregiver-type-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .schedule-grid {
+        gap: 0.25rem;
+        padding: 0.6rem;
+      }
+      
+      .schedule-cell {
+        padding: 0.35rem 0.15rem;
+        font-size: 0.55rem;
+      }
+      
+      .day-label {
+        font-size: 0.65rem;
+      }
+      
+      .user-type-option {
+        padding: 0.75rem;
+      }
+      
+      .user-type-icon {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .cert-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .avatar-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.375rem;
+      }
+      
+      .interest-list {
+        grid-template-columns: 1fr;
+      }
+      
+      .interest-row {
+        padding: 0.4rem 0.5rem;
+      }
+      
+      .row-label {
+        font-size: 0.75rem;
+      }
+      
+      .row-desc {
+        font-size: 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Access Denied Screen -->
+  <div class="access-denied" id="accessDenied">
+    <svg class="access-denied-icon" viewBox="0 0 120 120" fill="none">
+      <circle cx="60" cy="60" r="55" fill="#e8f5f0" stroke="#1e6b4e" stroke-width="3"/>
+      <path d="M60 25 C45 25, 35 40, 35 55 L35 65 L30 65 L30 95 L90 95 L90 65 L85 65 L85 55 C85 40, 75 25, 60 25 Z" fill="#c8e6d9" stroke="#1e6b4e" stroke-width="3"/>
+      <rect x="50" y="75" width="20" height="10" rx="2" fill="#1e6b4e"/>
+      <circle cx="60" cy="72" r="5" fill="#1e6b4e"/>
+      <path d="M45 55 C45 45, 52 35, 60 35 C68 35, 75 45, 75 55" stroke="#1e6b4e" stroke-width="3" fill="none"/>
+    </svg>
+    <h1>Oops! You're not quite in yet</h1>
+    <p>This page is for approved Opeari members. Join our waitlist and we'll let you know when it's your turn!</p>
+    <a href="waitlist.html" class="btn-waitlist">Join the Waitlist</a>
+  </div>
+
+  <!-- Main App -->
+  <div class="app-container" id="appContainer">
+    <header>
+      <a href="index.html">
+        <img src="images/logo.png" alt="Opeari" class="logo" />
+      </a>
+      <div class="header-right">
+        <span class="step-label" id="stepLabel">Step 1 of 5</span>
+        <div class="progress-container" id="progressDots"></div>
+      </div>
+    </header>
+
+    <main>
+      <div class="onboarding-container">
+        <div id="errorMsg" class="error-message"></div>
+        
+        <!-- STEP 1: About You -->
+        <div id="step1" class="step active">
+          <div class="step-header">
+            <h1>Let's start with the basics</h1>
+            <p>Tell us a bit about yourself</p>
+          </div>
+          
+          <div class="step-card">
+            <div class="form-row form-row-3">
+              <div class="form-group">
+                <label for="firstName">First name</label>
+                <input type="text" id="firstName" placeholder="Jane" maxlength="30" />
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last name</label>
+                <input type="text" id="lastName" placeholder="Smith" maxlength="30" />
+              </div>
+              <div class="form-group">
+                <label for="zipCode">ZIP</label>
+                <input type="text" id="zipCode" class="zip-input" placeholder="90210" maxlength="5" inputmode="numeric" />
+              </div>
+            </div>
+            
+            <!-- Display Name Options -->
+            <div class="display-section">
+              <div class="display-section-title">How should we display your name?</div>
+              <div class="display-options display-options-row">
+                <label class="display-option selected" data-type="initial">
+                  <input type="radio" name="displayType" value="initial" checked />
+                  <span class="radio-circle"></span>
+                  <span class="display-text">
+                    <span class="display-preview" id="previewInitial">Jane S.</span>
+                    <span class="display-desc">First name + last initial</span>
+                  </span>
+                </label>
+                <label class="display-option" data-type="family">
+                  <input type="radio" name="displayType" value="family" />
+                  <span class="radio-circle"></span>
+                  <span class="display-text">
+                    <span class="display-preview" id="previewFamily">The Smith Family</span>
+                    <span class="display-desc">Great for family accounts</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- Avatar Selection -->
+            <div class="avatar-section">
+              <div class="avatar-section-title">Choose your avatar</div>
+              <div class="avatar-grid">
+                <div class="avatar-option selected" data-color="green" data-avatar="pear">
+                  <img src="images/avatar-green.png" alt="Green pear avatar" />
+                </div>
+                <div class="avatar-option" data-color="coral" data-avatar="pear">
+                  <img src="images/avatar-coral.png" alt="Coral pear avatar" />
+                </div>
+                <div class="avatar-option" data-color="gold" data-avatar="pear">
+                  <img src="images/avatar-gold.png" alt="Gold pear avatar" />
+                </div>
+                <div class="avatar-option upload" data-avatar="upload">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#8fb89f" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                  <span>Upload</span>
+                </div>
+              </div>
+              <input type="file" id="avatarUpload" accept="image/*" />
+            </div>
+            
+            <div class="form-group" style="margin-top: 0.75rem;">
+              <label for="bio">About you <span class="label-optional">(optional)</span></label>
+              <span class="label-hint">What should other families know about you?</span>
+              <textarea id="bio" placeholder="E.g., Mom of two in Park Slope, work-from-home, love outdoor activities..." style="min-height: 50px;"></textarea>
+            </div>
+            
+            <div class="nav-buttons">
+              <button class="btn btn-primary" id="step1Next">Continue</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- STEP 2: User Type -->
+        <div id="step2" class="step">
+          <div class="step-header">
+            <h1>What brings you to Opeari?</h1>
+            <p>Select the option that best describes you</p>
+          </div>
+          
+          <div class="step-card">
+            <div class="user-type-grid">
+              <div class="user-type-option" data-type="family">
+                <div class="user-type-icon">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="9" cy="7" r="3"/>
+                    <circle cx="15" cy="7" r="3"/>
+                    <path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/>
+                    <circle cx="12" cy="14" r="2"/>
+                  </svg>
+                </div>
+                <div class="user-type-content">
+                  <div class="user-type-title">I'm looking for childcare</div>
+                  <div class="user-type-desc">Find nanny shares, backup care, and connect with local families</div>
+                </div>
+              </div>
+              
+              <div class="user-type-option" data-type="caregiver">
+                <div class="user-type-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </div>
+                <div class="user-type-content">
+                  <div class="user-type-title">I want to provide care</div>
+                  <div class="user-type-desc">Nanny, babysitter, grandparent, or anyone who loves caring for kids</div>
+                </div>
+              </div>
+              
+              <div class="user-type-option" data-type="both">
+                <div class="user-type-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </div>
+                <div class="user-type-content">
+                  <div class="user-type-title">Both — I need care AND can provide it</div>
+                  <div class="user-type-desc">Perfect for care exchanges and parents with extra capacity</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="nav-buttons">
+              <button class="btn btn-back" id="step2Back">Back</button>
+              <button class="btn btn-primary" id="step2Next" disabled>Continue</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- STEP 3A: Kids -->
+        <div id="step3a" class="step">
+          <div class="step-header">
+            <h1>Tell us about your little ones</h1>
+            <p>We'll match you with families who have kids around the same age</p>
+          </div>
+          
+          <div class="step-card">
+            <div class="kids-list" id="kidsList"></div>
+            
+            <button type="button" class="add-kid-btn" id="addKidBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add another child
+            </button>
+            
+            <label class="expecting-row" id="expectingRow">
+              <input type="checkbox" id="expectingToggle" />
+              <span class="toggle-track"></span>
+              <span class="toggle-label">We're expecting!</span>
+            </label>
+            
+            <div class="nav-buttons">
+              <button class="btn btn-back" id="step3aBack">Back</button>
+              <button class="btn btn-primary" id="step3aNext">Continue</button>
+            </div>
+            
+            <p class="change-later">You can update this anytime</p>
+          </div>
+        </div>
+        
+        <!-- STEP 3B: Caregiver Info -->
+        <div id="step3b" class="step">
+          <div class="step-header">
+            <h1>Tell us about yourself</h1>
+            <p>Help families understand your background</p>
+          </div>
+          
+          <div class="step-card">
+            <div class="form-group">
+              <label class="required-label">What best describes you? <span class="required-star">*</span></label>
+              <div class="caregiver-type-grid" id="caregiverTypeGrid">
+                <div class="caregiver-type-option" data-value="professional_nanny">Professional Nanny</div>
+                <div class="caregiver-type-option" data-value="babysitter">Babysitter</div>
+                <div class="caregiver-type-option" data-value="aupair">Au Pair</div>
+                <div class="caregiver-type-option" data-value="grandparent">Grandparent</div>
+                <div class="caregiver-type-option" data-value="family_member">Family Member</div>
+                <div class="caregiver-type-option" data-value="parent_capacity">Parent with Capacity</div>
+                <div class="caregiver-type-option" data-value="retired">Retired Individual</div>
+                <div class="caregiver-type-option" data-value="student">College Student</div>
+              </div>
+            </div>
+            
+            <div class="form-group experience-highlight">
+              <label for="yearsExperience" class="required-label">Years of childcare experience <span class="required-star">*</span></label>
+              <select id="yearsExperience" class="select-prominent">
+                <option value="">Select...</option>
+                <option value="new">New to childcare</option>
+                <option value="1-2">1-2 years</option>
+                <option value="3-5">3-5 years</option>
+                <option value="5-10">5-10 years</option>
+                <option value="10+">10+ years</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Certifications <span class="label-optional">(optional)</span></label>
+              <div class="cert-grid" id="certGrid">
+                <label class="cert-option" data-value="cpr">
+                  <input type="checkbox" />
+                  <span class="cert-check">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                  CPR Certified
+                </label>
+                <label class="cert-option" data-value="first_aid">
+                  <input type="checkbox" />
+                  <span class="cert-check">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                  First Aid
+                </label>
+                <label class="cert-option" data-value="ece">
+                  <input type="checkbox" />
+                  <span class="cert-check">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                  Early Childhood Ed
+                </label>
+                <label class="cert-option" data-value="background_check">
+                  <input type="checkbox" />
+                  <span class="cert-check">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                  Background Check
+                </label>
+              </div>
+              <div class="cert-upload-note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <span>You can upload copies of your certifications later in your profile</span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="caregiverBio">Tell families about your experience <span class="label-optional">(optional)</span></label>
+              <textarea id="caregiverBio" placeholder="E.g., I've been a nanny for 5 years, love arts & crafts, and have experience with newborns..." style="min-height: 50px;"></textarea>
+            </div>
+            
+            <div class="nav-buttons">
+              <button class="btn btn-back" id="step3bBack">Back</button>
+              <button class="btn btn-primary" id="step3bNext">Continue</button>
+            </div>
+            
+            <p class="change-later">You can update this anytime</p>
+          </div>
+        </div>
+        
+        <!-- STEP 4: Schedule -->
+        <div id="step4" class="step">
+          <div class="step-header">
+            <h1 id="scheduleTitle">When do you need care?</h1>
+            <p>Select all times that apply</p>
+          </div>
+          
+          <div class="step-card">
+            <div class="schedule-context" id="scheduleContext">
+              Tap the times when you typically need childcare
+            </div>
+            
+            <div class="quick-select">
+              <span class="quick-select-label">Quick select</span>
+              <div class="quick-options">
+                <button type="button" class="quick-btn" data-preset="weekday-full">M-F Full</button>
+                <button type="button" class="quick-btn" data-preset="mornings">Mornings</button>
+                <button type="button" class="quick-btn" data-preset="afternoons">Afternoons</button>
+                <button type="button" class="quick-btn" data-preset="flexible">Flexible</button>
+              </div>
+            </div>
+            
+            <div class="schedule-section">
+              <div class="schedule-grid" id="scheduleGrid">
+                <div class="schedule-header"></div>
+                <div class="schedule-header">Morning<span class="time-range">7am–12pm</span></div>
+                <div class="schedule-header">Afternoon<span class="time-range">12pm–5pm</span></div>
+                <div class="schedule-header">Evening<span class="time-range">5pm–9pm</span></div>
+              </div>
+            </div>
+            
+            <div class="irregular-section">
+              <label class="irregular-toggle" id="irregularToggle">
+                <input type="checkbox" id="irregularCheck" />
+                <span class="checkbox-box">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                <span class="irregular-text">My schedule changes regularly</span>
+              </label>
+              <div class="irregular-note" id="irregularNote">
+                <textarea id="scheduleNotes" placeholder="Shift work, rotating schedules, seasonal needs..."></textarea>
+              </div>
+            </div>
+            
+            <div class="nav-buttons">
+              <button class="btn btn-back" id="step4Back">Back</button>
+              <button class="btn btn-primary" id="step4Next">Continue</button>
+            </div>
+            
+            <p class="change-later">You can update this anytime</p>
+          </div>
+        </div>
+        
+        <!-- STEP 5: Interests (Bordered Checklist) -->
+        <div id="step5" class="step">
+          <div class="step-header">
+            <h1>What are you interested in?</h1>
+            <p>Select all that apply — we'll find the right matches</p>
+          </div>
+          
+          <div class="step-card">
+            <!-- Family interests -->
+            <div id="familyInterestsSection">
+              <div class="interest-section">
+                <div class="section-title">Childcare Solutions</div>
+                <div class="section-desc">What type of care are you looking for?</div>
+                <div class="interest-list" id="childcareInterests">
+                  <label class="interest-row" data-value="nannyshare">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Nanny Share</span>
+                      <span class="row-desc">Split costs with another family</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="backup-care">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Backup Care</span>
+                      <span class="row-desc">Sick days & emergencies</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="care-exchange">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Care Exchange</span>
+                      <span class="row-desc">Trade hours with neighbors</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="travel-aupair">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Travel / Au Pair</span>
+                      <span class="row-desc">Vacation & live-in care</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="interest-section">
+                <div class="section-title">Community</div>
+                <div class="section-desc">Connect with families nearby</div>
+                <div class="interest-list" id="communityInterests">
+                  <label class="interest-row" data-value="carpools">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Carpools</span>
+                      <span class="row-desc">School & activity runs</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="playdates">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Playdates</span>
+                      <span class="row-desc">New friends for your kids</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="parent-groups">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Parent Groups</span>
+                      <span class="row-desc">Mom walks, coffee meetups</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="recommendations">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Recommendations</span>
+                      <span class="row-desc">Classes, pediatricians, activities</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="otherInterests">Anything else? <span class="label-optional">(optional)</span></label>
+                <textarea id="otherInterests" placeholder="Tell us what else you're looking for..." style="min-height: 60px;"></textarea>
+              </div>
+            </div>
+            
+            <!-- Caregiver interests -->
+            <div id="caregiverInterestsSection" style="display: none;">
+              <div class="interest-section">
+                <div class="section-title">Work Opportunities</div>
+                <div class="section-desc">What type of positions interest you?</div>
+                <div class="interest-list" id="caregiverWorkInterests">
+                  <label class="interest-row" data-value="nanny-position">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Nanny</span>
+                      <span class="row-desc">Full or part-time</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="babysitter">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Babysitter</span>
+                      <span class="row-desc">Date nights & occasional</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="aupair-position">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Au Pair / Travel</span>
+                      <span class="row-desc">Live-in or travel with families</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="mommas-helper">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Mom's Helper</span>
+                      <span class="row-desc">Assist while parent is home</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="driver">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Driver</span>
+                      <span class="row-desc">School & activity pickups</span>
+                    </span>
+                  </label>
+                  <label class="interest-row" data-value="care-exchange-provider">
+                    <input type="checkbox" />
+                    <span class="row-checkbox">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span class="row-text">
+                      <span class="row-label">Care Exchange</span>
+                      <span class="row-desc">Trade time, not money</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group" style="margin-top: 1.5rem;">
+              <div class="section-title">When do you need to get started?</div>
+              <div class="timeline-grid" id="timelineGrid" style="margin-top: 0.75rem;">
+                <div class="timeline-option" data-value="asap">ASAP</div>
+                <div class="timeline-option" data-value="1-3months">1-3 months</div>
+                <div class="timeline-option" data-value="3-6months">3-6 months</div>
+                <div class="timeline-option" data-value="exploring">Just exploring</div>
+              </div>
+            </div>
+            
+            <div class="nav-buttons">
+              <button class="btn btn-back" id="step5Back">Back</button>
+              <button class="btn btn-primary" id="finishBtn">Find My Village</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- STEP 6: Celebration -->
+        <div id="step6" class="step">
+          <div class="celebration-screen">
+            <img src="images/pear-village-hero.png" alt="Welcome!" class="celebration-hero" />
+            <h1>Welcome to your village!</h1>
+            <p class="message" id="celebrationMessage">
+              You're one of the first in your area. We'll notify you as more neighbors join!
+            </p>
+            <a href="dashboard.html" class="cta-btn">Explore Opeari</a>
+            <p class="sub-note">You can update your profile anytime in settings</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <div class="confetti-container" id="confettiContainer"></div>
+  
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Setting up your profile...</p>
+  </div>
+
+  <script>
+    (function() {
+      const SUPABASE_URL = 'https://rvostbkbbddbgcnxqchv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2b3N0YmtiYmRkYmdjbnhxY2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzcwMjAsImV4cCI6MjA4MDQ1MzAyMH0.k8LLGt_nCsFO9xINa-80Y49NSPSxryYxCoACwk97E_w';
+      
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      
+      // State
+      let currentStep = 1;
+      let memberId = null;
+      let userId = null;
+      let kidCount = 0;
+      let userType = null;
+      let displayType = 'initial';
+      let selectedAvatar = { color: 'green', type: 'pear', customUrl: null };
+      
+      // Flow configuration
+      const flows = {
+        family: ['step1', 'step2', 'step3a', 'step4', 'step5', 'step6'],
+        caregiver: ['step1', 'step2', 'step3b', 'step4', 'step5', 'step6'],
+        both: ['step1', 'step2', 'step3a', 'step3b', 'step4', 'step5', 'step6']
+      };
+      
+      let currentFlow = [];
+      let flowIndex = 0;
+      
+      // DOM Elements
+      const accessDenied = document.getElementById('accessDenied');
+      const appContainer = document.getElementById('appContainer');
+      const errorMsg = document.getElementById('errorMsg');
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const stepLabel = document.getElementById('stepLabel');
+      const kidsList = document.getElementById('kidsList');
+      const scheduleGrid = document.getElementById('scheduleGrid');
+      const progressDots = document.getElementById('progressDots');
+      
+      // Days for schedule
+      const days = [
+        { short: 'Mon', full: 'monday' },
+        { short: 'Tue', full: 'tuesday' },
+        { short: 'Wed', full: 'wednesday' },
+        { short: 'Thu', full: 'thursday' },
+        { short: 'Fri', full: 'friday' },
+        { short: 'Sat', full: 'saturday' },
+        { short: 'Sun', full: 'sunday' }
+      ];
+      const times = ['morning', 'afternoon', 'evening'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      
+      // Initialize
+      async function init() {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          // No session - show access denied
+          accessDenied.classList.add('show');
+          return;
+        }
+        
+        userId = session.user.id;
+        
+        // Check if user has a member record (approved from waitlist)
+        const { data: member, error } = await supabase
+          .from('members')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
+        
+        if (error || !member) {
+          // No member record - not approved yet
+          accessDenied.classList.add('show');
+          return;
+        }
+        
+        // User is approved - show the app
+        memberId = member.id;
+        appContainer.classList.add('show');
+        
+        // Pre-fill from existing data
+        if (member.first_name) document.getElementById('firstName').value = member.first_name;
+        if (member.last_name) document.getElementById('lastName').value = member.last_name;
+        if (member.location) document.getElementById('zipCode').value = member.location;
+        if (member.bio) document.getElementById('bio').value = member.bio;
+        
+        updateDisplayPreviews();
+        updateProgressDots(5);
+        generateScheduleGrid();
+        addKid();
+        setupEventListeners();
+      }
+      
+      function updateProgressDots(total) {
+        progressDots.innerHTML = '';
+        for (let i = 0; i < total; i++) {
+          const dot = document.createElement('div');
+          dot.className = 'progress-dot';
+          dot.id = 'dot' + (i + 1);
+          if (i === 0) dot.classList.add('active');
+          progressDots.appendChild(dot);
+        }
+      }
+      
+      function generateScheduleGrid() {
+        days.forEach(day => {
+          const dayLabel = document.createElement('div');
+          dayLabel.className = 'day-label';
+          dayLabel.textContent = day.short;
+          scheduleGrid.appendChild(dayLabel);
+          
+          times.forEach(time => {
+            const cell = document.createElement('button');
+            cell.type = 'button';
+            cell.className = 'schedule-cell';
+            cell.dataset.day = day.full;
+            cell.dataset.time = time;
+            cell.textContent = time.charAt(0).toUpperCase();
+            cell.addEventListener('click', () => {
+              cell.classList.toggle('selected');
+              clearQuickSelect();
+            });
+            scheduleGrid.appendChild(cell);
+          });
+        });
+      }
+      
+      function setupEventListeners() {
+        // Name inputs
+        document.getElementById('firstName').addEventListener('input', updateDisplayPreviews);
+        document.getElementById('lastName').addEventListener('input', updateDisplayPreviews);
+        
+        // ZIP code
+        document.getElementById('zipCode').addEventListener('input', (e) => {
+          e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
+        });
+        
+        // Display type options
+        document.querySelectorAll('.display-option').forEach(option => {
+          option.addEventListener('click', () => {
+            document.querySelectorAll('.display-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+            displayType = option.dataset.type;
+          });
+        });
+        
+        // Avatar selection
+        document.querySelectorAll('.avatar-option').forEach(option => {
+          option.addEventListener('click', () => {
+            if (option.dataset.avatar === 'upload') {
+              document.getElementById('avatarUpload').click();
+              return;
+            }
+            
+            document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+            selectedAvatar = {
+              color: option.dataset.color,
+              type: 'pear',
+              customUrl: null
+            };
+          });
+        });
+        
+        // Avatar upload
+        document.getElementById('avatarUpload').addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          
+          // Create preview
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const uploadOption = document.querySelector('.avatar-option.upload');
+            uploadOption.innerHTML = `<img src="${event.target.result}" alt="Avatar" />`;
+            
+            document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+            uploadOption.classList.add('selected');
+            
+            selectedAvatar = {
+              color: null,
+              type: 'custom',
+              customUrl: event.target.result
+            };
+          };
+          reader.readAsDataURL(file);
+        });
+        
+        // User type selection
+        document.querySelectorAll('.user-type-option').forEach(option => {
+          option.addEventListener('click', () => {
+            document.querySelectorAll('.user-type-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+            userType = option.dataset.type;
+            document.getElementById('step2Next').disabled = false;
+            
+            currentFlow = flows[userType];
+            updateProgressDots(currentFlow.length - 1);
+            
+            // Update schedule context
+            if (userType === 'caregiver') {
+              document.getElementById('scheduleTitle').textContent = 'When are you available?';
+              document.getElementById('scheduleContext').textContent = 'Tap the times when you\'re available to provide care';
+            } else {
+              document.getElementById('scheduleTitle').textContent = 'When do you need care?';
+              document.getElementById('scheduleContext').textContent = 'Tap the times when you typically need childcare';
+            }
+            
+            // Show/hide interest sections
+            if (userType === 'family') {
+              document.getElementById('familyInterestsSection').style.display = 'block';
+              document.getElementById('caregiverInterestsSection').style.display = 'none';
+            } else if (userType === 'caregiver') {
+              document.getElementById('familyInterestsSection').style.display = 'none';
+              document.getElementById('caregiverInterestsSection').style.display = 'block';
+            } else {
+              document.getElementById('familyInterestsSection').style.display = 'block';
+              document.getElementById('caregiverInterestsSection').style.display = 'block';
+            }
+          });
+        });
+        
+        // Navigation
+        document.getElementById('step1Next').addEventListener('click', () => validateStep1());
+        document.getElementById('step2Back').addEventListener('click', () => goBack());
+        document.getElementById('step2Next').addEventListener('click', () => goNext());
+        document.getElementById('step3aBack').addEventListener('click', () => goBack());
+        document.getElementById('step3aNext').addEventListener('click', () => validateStep3a());
+        document.getElementById('step3bBack').addEventListener('click', () => goBack());
+        document.getElementById('step3bNext').addEventListener('click', () => validateStep3b());
+        document.getElementById('step4Back').addEventListener('click', () => goBack());
+        document.getElementById('step4Next').addEventListener('click', () => goNext());
+        document.getElementById('step5Back').addEventListener('click', () => goBack());
+        document.getElementById('finishBtn').addEventListener('click', () => validateStep5());
+        
+        // Add kid
+        document.getElementById('addKidBtn').addEventListener('click', addKid);
+        
+        // Irregular schedule
+        document.getElementById('irregularCheck').addEventListener('change', (e) => {
+          document.getElementById('irregularNote').classList.toggle('show', e.target.checked);
+        });
+        
+        // Quick select
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            applyPreset(btn.dataset.preset);
+            document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+          });
+        });
+        
+        // Caregiver type
+        document.querySelectorAll('.caregiver-type-option').forEach(option => {
+          option.addEventListener('click', () => {
+            document.querySelectorAll('.caregiver-type-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+          });
+        });
+        
+        // Certification options
+        document.querySelectorAll('.cert-option input').forEach(checkbox => {
+          checkbox.addEventListener('change', (e) => {
+            e.target.closest('.cert-option').classList.toggle('selected', e.target.checked);
+          });
+        });
+        
+        // Interest row options
+        document.querySelectorAll('.interest-row input').forEach(checkbox => {
+          checkbox.addEventListener('change', (e) => {
+            e.target.closest('.interest-row').classList.toggle('selected', e.target.checked);
+          });
+        });
+        
+        // Timeline
+        document.querySelectorAll('.timeline-option').forEach(option => {
+          option.addEventListener('click', () => {
+            document.querySelectorAll('.timeline-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+          });
+        });
+      }
+      
+      function updateDisplayPreviews() {
+        const firstName = document.getElementById('firstName').value.trim() || 'Jane';
+        const lastName = document.getElementById('lastName').value.trim() || 'Smith';
+        
+        document.getElementById('previewInitial').textContent = firstName + ' ' + lastName.charAt(0).toUpperCase() + '.';
+        document.getElementById('previewFamily').textContent = 'The ' + lastName + ' Family';
+      }
+      
+      function clearQuickSelect() {
+        document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('selected'));
+      }
+      
+      function applyPreset(preset) {
+        document.querySelectorAll('.schedule-cell').forEach(c => c.classList.remove('selected'));
+        const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+        
+        if (preset === 'weekday-full') {
+          document.querySelectorAll('.schedule-cell').forEach(cell => {
+            if (weekdays.includes(cell.dataset.day) && ['morning', 'afternoon'].includes(cell.dataset.time)) {
+              cell.classList.add('selected');
+            }
+          });
+        } else if (preset === 'mornings') {
+          document.querySelectorAll('.schedule-cell').forEach(cell => {
+            if (weekdays.includes(cell.dataset.day) && cell.dataset.time === 'morning') {
+              cell.classList.add('selected');
+            }
+          });
+        } else if (preset === 'afternoons') {
+          document.querySelectorAll('.schedule-cell').forEach(cell => {
+            if (weekdays.includes(cell.dataset.day) && cell.dataset.time === 'afternoon') {
+              cell.classList.add('selected');
+            }
+          });
+        } else if (preset === 'flexible') {
+          document.querySelectorAll('.schedule-cell').forEach(cell => {
+            cell.classList.add('selected');
+          });
+        }
+      }
+      
+      function addKid() {
+        kidCount++;
+        const card = document.createElement('div');
+        card.className = 'kid-card';
+        card.dataset.kidId = kidCount;
+        
+        const currentYear = new Date().getFullYear();
+        let yearOptions = '<option value="">Year</option>';
+        for (let y = currentYear; y >= currentYear - 18; y--) {
+          yearOptions += `<option value="${y}">${y}</option>`;
+        }
+        
+        let monthOptions = '<option value="">Month</option>';
+        months.forEach((m, i) => {
+          monthOptions += `<option value="${i + 1}">${m}</option>`;
+        });
+        
+        const removeBtn = kidCount > 1 ? 
+          `<button type="button" class="remove-kid-btn" onclick="removeKid(${kidCount})">Remove</button>` : '';
+        
+        card.innerHTML = `
+          <div class="kid-card-header">
+            <span class="kid-label">Child ${kidCount}</span>
+            ${removeBtn}
+          </div>
+          <div class="kid-fields">
+            <div class="form-group">
+              <label>Name <span class="label-optional">(optional)</span></label>
+              <input type="text" class="kid-name" placeholder="First name" maxlength="30" />
+            </div>
+            <div class="form-group">
+              <label>Birth month</label>
+              <select class="kid-month">${monthOptions}</select>
+            </div>
+            <div class="form-group">
+              <label>Birth year</label>
+              <select class="kid-year">${yearOptions}</select>
+            </div>
+          </div>
+        `;
+        
+        kidsList.appendChild(card);
+      }
+      
+      window.removeKid = function(id) {
+        const card = document.querySelector(`[data-kid-id="${id}"]`);
+        if (card) {
+          card.remove();
+          renumberKids();
+        }
+      };
+      
+      function renumberKids() {
+        document.querySelectorAll('.kid-card').forEach((card, i) => {
+          card.querySelector('.kid-label').textContent = `Child ${i + 1}`;
+        });
+      }
+      
+      function showError(msg) {
+        errorMsg.textContent = msg;
+        errorMsg.classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      
+      function hideError() {
+        errorMsg.classList.remove('show');
+      }
+      
+      function validateStep1() {
+        hideError();
+        
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const zip = document.getElementById('zipCode').value.trim();
+        
+        if (!firstName || firstName.length < 2) {
+          showError('Please enter your first name (at least 2 characters)');
+          return;
+        }
+        if (!lastName || lastName.length < 2) {
+          showError('Please enter your last name (at least 2 characters)');
+          return;
+        }
+        if (!zip || zip.length !== 5) {
+          showError('Please enter a valid 5-digit ZIP code');
+          return;
+        }
+        
+        goNext();
+      }
+      
+      function validateStep3a() {
+        hideError();
+        
+        const expecting = document.getElementById('expectingToggle').checked;
+        const kids = document.querySelectorAll('.kid-card');
+        let hasValidKid = false;
+        
+        kids.forEach(card => {
+          const year = card.querySelector('.kid-year').value;
+          if (year) hasValidKid = true;
+        });
+        
+        if (!hasValidKid && !expecting) {
+          showError('Please add at least one child with their birth year, or indicate you\'re expecting');
+          return;
+        }
+        
+        goNext();
+      }
+      
+      function validateStep3b() {
+        hideError();
+        
+        const caregiverType = document.querySelector('.caregiver-type-option.selected');
+        const experience = document.getElementById('yearsExperience').value;
+        
+        if (!caregiverType) {
+          showError('Please select what best describes you');
+          return;
+        }
+        if (!experience) {
+          showError('Please select your years of experience');
+          return;
+        }
+        
+        goNext();
+      }
+      
+      function validateStep5() {
+        hideError();
+        
+        // Check if at least one interest is selected
+        const selectedInterests = document.querySelectorAll('.interest-row.selected');
+        if (selectedInterests.length === 0) {
+          showError('Please select at least one interest');
+          return;
+        }
+        
+        // Check if timeline is selected
+        const selectedTimeline = document.querySelector('.timeline-option.selected');
+        if (!selectedTimeline) {
+          showError('Please select when you need to get started');
+          return;
+        }
+        
+        saveProfile();
+      }
+      
+      function goNext() {
+        hideError();
+        
+        if (!currentFlow.length) {
+          flowIndex = 1;
+          showStep('step2');
+          return;
+        }
+        
+        flowIndex++;
+        if (flowIndex < currentFlow.length) {
+          showStep(currentFlow[flowIndex]);
+        }
+      }
+      
+      function goBack() {
+        hideError();
+        
+        if (!currentFlow.length) {
+          flowIndex = 0;
+          showStep('step1');
+          return;
+        }
+        
+        flowIndex--;
+        if (flowIndex >= 0) {
+          showStep(currentFlow[flowIndex]);
+        }
+      }
+      
+      function showStep(stepId) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById(stepId).classList.add('active');
+        
+        const totalSteps = currentFlow.length ? currentFlow.length - 1 : 5;
+        const currentNum = flowIndex + 1;
+        
+        if (stepId !== 'step6') {
+          stepLabel.textContent = `Step ${currentNum} of ${totalSteps}`;
+        }
+        
+        for (let i = 1; i <= totalSteps; i++) {
+          const dot = document.getElementById('dot' + i);
+          if (dot) {
+            dot.classList.remove('active', 'complete');
+            if (i < currentNum) dot.classList.add('complete');
+            if (i === currentNum) dot.classList.add('active');
+          }
+        }
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      
+      async function saveProfile() {
+        loadingOverlay.classList.add('active');
+        
+        try {
+          const firstName = document.getElementById('firstName').value.trim();
+          const lastName = document.getElementById('lastName').value.trim();
+          const zipCode = document.getElementById('zipCode').value.trim();
+          const bio = document.getElementById('bio').value.trim();
+          
+          // Display name
+          let displayName;
+          if (displayType === 'family') {
+            displayName = 'The ' + lastName + ' Family';
+          } else {
+            displayName = firstName + ' ' + lastName.charAt(0).toUpperCase() + '.';
+          }
+          
+          // Kids
+          const kids = [];
+          if (userType === 'family' || userType === 'both') {
+            document.querySelectorAll('.kid-card').forEach(card => {
+              const name = card.querySelector('.kid-name').value.trim();
+              const month = card.querySelector('.kid-month').value;
+              const year = card.querySelector('.kid-year').value;
+              
+              if (year) {
+                kids.push({
+                  name: name || null,
+                  birth_month: month ? parseInt(month) : null,
+                  birth_year: parseInt(year)
+                });
+              }
+            });
+          }
+          const expecting = document.getElementById('expectingToggle').checked;
+          
+          // Caregiver data
+          let caregiverType = null;
+          let yearsExperience = null;
+          let certifications = [];
+          let caregiverBio = null;
+          
+          if (userType === 'caregiver' || userType === 'both') {
+            const selectedType = document.querySelector('.caregiver-type-option.selected');
+            caregiverType = selectedType ? selectedType.dataset.value : null;
+            yearsExperience = document.getElementById('yearsExperience').value || null;
+            
+            document.querySelectorAll('.cert-option.selected').forEach(cert => {
+              certifications.push(cert.dataset.value);
+            });
+            
+            caregiverBio = document.getElementById('caregiverBio').value.trim() || null;
+          }
+          
+          // Schedule
+          const schedule = [];
+          document.querySelectorAll('.schedule-cell.selected').forEach(cell => {
+            schedule.push({ day: cell.dataset.day, time: cell.dataset.time });
+          });
+          const irregularSchedule = document.getElementById('irregularCheck').checked;
+          const scheduleNotes = document.getElementById('scheduleNotes').value.trim();
+          
+          // Interests
+          const interests = [];
+          document.querySelectorAll('.interest-row.selected').forEach(row => {
+            interests.push(row.dataset.value);
+          });
+          
+          const otherInterests = document.getElementById('otherInterests')?.value.trim() || null;
+          
+          const timeline = document.querySelector('.timeline-option.selected')?.dataset.value || null;
+          
+          // Avatar
+          const avatarData = JSON.stringify(selectedAvatar);
+          
+          // Update member
+          const memberData = {
+            first_name: firstName,
+            last_name: lastName,
+            display_name: displayName,
+            location: zipCode,
+            bio: bio,
+            user_type: userType,
+            looking_for: interests,
+            care_timeline: timeline,
+            irregular_schedule: irregularSchedule,
+            schedule_notes: scheduleNotes,
+            expecting: expecting,
+            caregiver_type: caregiverType,
+            years_experience: yearsExperience,
+            certifications: certifications,
+            caregiver_bio: caregiverBio,
+            avatar_data: avatarData,
+            onboarding_complete: true,
+            updated_at: new Date().toISOString()
+          };
+          
+          // Note: other_interests field requires adding column to members table
+          // ALTER TABLE members ADD COLUMN other_interests TEXT;
+          
+          console.log('Saving member data:', memberData);
+          
+          const { error: memberError } = await supabase
+            .from('members')
+            .update(memberData)
+            .eq('id', memberId);
+          
+          if (memberError) {
+            console.error('Member update error:', memberError);
+            throw memberError;
+          }
+          
+          // Save kids
+          if (userType === 'family' || userType === 'both') {
+            const { error: deleteKidsError } = await supabase.from('kids').delete().eq('member_id', memberId);
+            if (deleteKidsError) console.warn('Kids delete warning:', deleteKidsError);
+            
+            if (kids.length > 0) {
+              const kidsToInsert = kids.map(k => ({
+                member_id: memberId,
+                name: k.name,
+                birth_month: k.birth_month,
+                birth_year: k.birth_year
+              }));
+              
+              const { error: insertKidsError } = await supabase.from('kids').insert(kidsToInsert);
+              if (insertKidsError) console.warn('Kids insert warning:', insertKidsError);
+            }
+          }
+          
+          // Save schedule
+          const { error: deleteScheduleError } = await supabase.from('member_schedule').delete().eq('member_id', memberId);
+          if (deleteScheduleError) console.warn('Schedule delete warning:', deleteScheduleError);
+          
+          if (schedule.length > 0) {
+            const dayMap = {
+              'monday': 1, 'tuesday': 2, 'wednesday': 3, 'thursday': 4,
+              'friday': 5, 'saturday': 6, 'sunday': 7
+            };
+            
+            const scheduleToInsert = schedule.map(s => ({
+              member_id: memberId,
+              day_of_week: dayMap[s.day],
+              time_slot: s.time
+            }));
+            
+            const { error: insertScheduleError } = await supabase.from('member_schedule').insert(scheduleToInsert);
+            if (insertScheduleError) console.warn('Schedule insert warning:', insertScheduleError);
+          }
+          
+          // Success
+          loadingOverlay.classList.remove('active');
+          
+          flowIndex = currentFlow.length - 1;
+          showStep('step6');
+          
+          setTimeout(createConfetti, 300);
+          
+        } catch (err) {
+          console.error('Save error:', err);
+          console.error('Error details:', err.message || err.details || JSON.stringify(err));
+          loadingOverlay.classList.remove('active');
+          
+          // Show more specific error message
+          let errorMsg = 'Something went wrong. Please try again.';
+          if (err.message) {
+            if (err.message.includes('other_interests')) {
+              errorMsg = 'Database needs update. Please contact support or remove the "Anything else" field.';
+            } else {
+              errorMsg = err.message;
+            }
+          }
+          showError(errorMsg);
+        }
+      }
+      
+      function createConfetti() {
+        const container = document.getElementById('confettiContainer');
+        const colors = ['#1e6b4e', '#F8C3B3', '#8bd7c7', '#3ca370', '#f5c9c2'];
+        
+        for (let i = 0; i < 50; i++) {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.left = Math.random() * 100 + '%';
+          confetti.style.animationDelay = Math.random() * 2 + 's';
+          confetti.style.width = (Math.random() * 8 + 6) + 'px';
+          confetti.style.height = (Math.random() * 8 + 6) + 'px';
+          container.appendChild(confetti);
+        }
+        
+        setTimeout(() => { container.innerHTML = ''; }, 5000);
+      }
+      
+      init();
+    })();
+  </script>
+</body>
+</html>

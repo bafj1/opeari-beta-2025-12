@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Start Your Opeari - Opeari</title>
+    <meta name="description" content="Find trusted local childcare with Opeari's smart matching algorithm. Connect with verified babysitters and nannies in your neighborhood.">
+    <meta name="keywords" content="childcare, babysitter, nanny, local care, trusted caregivers">
+    
+    <!-- Fonts with performance optimization -->
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="images/pear-happy.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="images/pear-confident.svg" as="image" type="image/svg+xml">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    
+    <style>
+        :root {
+            --mint: #d4ffeb;
+            --dark-green: #1e6b4e;
+            --peach: #ffdab9;
+            --peach-dark: #ffad89;
+            --yellow: #e0ff64;
+            --white: #ffffff;
+            --gray-light: #f8f9fa;
+            --gray-medium: #6c757d;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --shadow-medium: rgba(0, 0, 0, 0.1);
+            --shadow-strong: rgba(0, 0, 0, 0.15);
+            --light-mint: #f0fff8;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Comfortaa', sans-serif;
+            background: var(--mint);
+            color: var(--dark-green);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Header Navigation */
+        .header-nav {
+            background: var(--white);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px var(--shadow-medium);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Enhanced header with proper logo alignment */
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-green);
+            text-decoration: none;
+            gap: 0.5rem;
+        }
+        
+        .logo img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+        
+        .header h1 svg,
+        .header h1 .pear-logo {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .search-section h3 svg,
+        .search-section h3 .pear-icon,
+        .results-section h3 svg,
+        .results-section h3 .pear-icon {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .match-score svg,
+        .match-score .pear-icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .algorithm-info h4 svg,
+        .algorithm-info h4 .pear-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* Custom pear styling */
+        .pear-logo,
+        .pear-icon {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--dark-green);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--peach-dark);
+        }
+        
+        .cta-button {
+            background: var(--dark-green);
+            color: var(--white) !important;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 107, 78, 0.3);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark-green);
+            cursor: pointer;
+        }
+        
+        /* Main Content */
+        .main-wrapper {
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px var(--shadow);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, var(--peach), var(--yellow));
+            color: var(--dark-green);
+            text-align: center;
+            padding: 2rem;
+            border-bottom: 5px solid var(--peach-dark);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .header h1 svg {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            min-height: 600px;
+        }
+        
+        .search-section {
+            flex: 1 1 50%;
+            background: var(--light-mint);
+            padding: 2rem;
+            border-right: 2px solid var(--peach);
+        }
+        
+        .results-section {
+            flex: 1 1 50%;
+            padding: 2rem;
+            background: var(--white);
+        }
+        
+        .search-section h3,
+        .results-section h3 {
+            color: var(--dark-green);
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .search-section h3 svg,
+        .results-section h3 svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-green);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            border: 2px solid #82c4ad;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--dark-green);
+            box-shadow: 0 0 0 3px rgba(30, 107, 78, 0.1);
+        }
+        
+        input:invalid {
+            border-color: var(--danger);
+        }
+        
+        /* Remove pink border on date input */
+        input[type="date"] {
+            border: 2px solid #82c4ad;
+        }
+        
+        input[type="date"]:focus {
+            border-color: var(--dark-green);
+        }
+        
+        .search-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            background: var(--dark-green);
+            color: var(--white);
+            padding: 1rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            font-family: 'Comfortaa', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .search-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--white);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .caregiver-card {
+            background: var(--white);
+            border-left: 5px solid var(--dark-green);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(30, 107, 78, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideIn 0.5s ease forwards;
+        }
+        
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .caregiver-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 12px 25px var(--shadow-medium);
+        }
+        
+        .caregiver-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .caregiver-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--dark-green);
+        }
+        
+        /* Enhanced accessibility */
+        .match-score {
+            background: var(--yellow);
+            border-radius: 12px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--dark-green);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            animation: bounce 0.6s ease-out;
+            /* Enhanced accessibility */
+            aria-label: "Match compatibility score";
+        }
+        
+        /* Tooltip styling */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark-green);
+            color: var(--white);
+            text-align: center;
+            border-radius: 8px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1001;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+        
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--dark-green) transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .match-score svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .caregiver-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .detail-item {
+            font-size: 0.95rem;
+            color: var(--gray-medium);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .detail-item strong {
+            color: var(--dark-green);
+        }
+        
+        .detail-item svg {
+            width: 16px;
+            height: 16px;
+            color: var(--dark-green);
+        }
+        
+        .verification-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        
+        .badge {
+            background: var(--light-mint);
+            color: var(--dark-green);
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .badge svg {
+            width: 14px;
+            height: 14px;
+        }
+        
+        .contact-btn {
+            background: var(--dark-green);
+            color: var(--white);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .contact-btn:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+        
+        .contact-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .no-results {
+            text-align: center;
+            color: var(--gray-medium);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .no-results svg {
+            width: 48px;
+            height: 48px;
+            color: var(--gray-medium);
+        }
+        
+        .algorithm-info {
+            background: rgba(30, 107, 78, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            border-left: 4px solid var(--dark-green);
+        }
+        
+        .algorithm-info h4 {
+            color: var(--dark-green);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .algorithm-info h4 svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .algorithm-info ul {
+            margin-left: 1.25rem;
+            color: var(--gray-medium);
+        }
+        
+        .algorithm-info li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .algorithm-info li svg {
+            width: 16px;
+            height: 16px;
+            margin-top: 0.1rem;
+            color: var(--dark-green);
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--dark-green);
+            color: var(--white);
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .social-icons svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            background: var(--success);
+            color: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px var(--shadow-medium);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            font-weight: 600;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .toast.error {
+            background: var(--danger);
+        }
+        
+        .toast.warning {
+            background: var(--warning);
+            color: var(--dark-green);
+        }
+        
+        /* Error States */
+        .error-message {
+            color: var(--danger);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .form-group.error input,
+        .form-group.error select {
+            border-color: var(--danger);
+        }
+        
+        .form-group.error .error-message {
+            display: block;
+        }
+        
+        /* Analytics and Tracking */
+        .analytics-data {
+            display: none;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-wrapper {
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .search-section {
+                border-right: none;
+                border-bottom: 2px solid var(--peach);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .caregiver-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-inner {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .toast {
+                right: 1rem;
+                left: 1rem;
+                transform: translateY(-100px);
+            }
+            
+            .toast.show {
+                transform: translateY(0);
+            }
+            
+            .caregiver-header {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .header-nav, .footer, .search-section {
+                display: none;
+            }
+            
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .caregiver-card {
+                break-inside: avoid;
+            }
+        }
+        
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* Focus states */
+        .search-btn:focus,
+        .contact-btn:focus,
+        .cta-button:focus {
+            outline: 2px solid var(--yellow);
+            outline-offset: 2px;
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root {
+                --shadow: rgba(0, 0, 0, 0.3);
+                --shadow-medium: rgba(0, 0, 0, 0.5);
+            }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <nav class="header-nav" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <a href="index.html" class="logo" aria-label="Opeari Home">
+                <img src="images/pear-confident.svg" alt="Opeari Pear Logo" class="pear-logo">
+                <span>Opeari</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="matching.html">Find Care</a></li>
+                <li><a href="become-caregiver.html">Become a Caregiver</a></li>
+                <li><a href="login.html" class="cta-button">Join Waitlist</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Toggle mobile menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div class="container">
+            <div class="header">
+                <h1>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v10m0 0L8 8m4 4 4-4"/>
+                        <path d="m8 17 8-5-8-5v10z"/>
+                        <circle cx="12" cy="17" r="5"/>
+                    </svg>
+                    Find Your Perfect Match
+                </h1>
+                <p>Flexible, trusted, local care — just how parenting should feel</p>
+            </div>
+            
+            <div class="main-content">
+                <div class="search-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        Find Your Care Match
+                    </h3>
+                    <form id="searchForm" novalidate>
+                        <div class="form-group" data-field="zipCode">
+                            <label for="zipCode">Your ZIP Code *</label>
+                            <input type="text" id="zipCode" name="zipCode" placeholder="90266" value="90266" required 
+                                   pattern="[0-9]{5}" maxlength="5" aria-describedby="zipCode-error">
+                            <div class="error-message" id="zipCode-error">Please enter a valid 5-digit ZIP code</div>
+                        </div>
+                        
+                        <div class="form-group" data-field="date">
+                            <label for="date">Date Needed *</label>
+                            <input type="date" id="date" name="date" required aria-describedby="date-error">
+                            <div class="error-message" id="date-error">Please select a date</div>
+                        </div>
+                        
+                        <div class="form-group" data-field="startTime">
+                            <label for="startTime">Start Time *</label>
+                            <input type="time" id="startTime" name="startTime" value="19:00" required aria-describedby="startTime-error">
+                            <div class="error-message" id="startTime-error">Please select a start time</div>
+                        </div>
+                        
+                        <div class="form-group" data-field="duration">
+                            <label for="duration">Duration (hours) *</label>
+                            <select id="duration" name="duration" required aria-describedby="duration-error">
+                                <option value="">Select duration</option>
+                                <option value="2">2 hours</option>
+                                <option value="3">3 hours</option>
+                                <option value="4" selected>4 hours</option>
+                                <option value="6">6 hours</option>
+                                <option value="8">8 hours</option>
+                            </select>
+                            <div class="error-message" id="duration-error">Please select a duration</div>
+                        </div>
+                        
+                        <div class="form-group" data-field="kidAges">
+                            <label for="kidAges">Children's Ages (comma separated) *</label>
+                            <input type="text" id="kidAges" name="kidAges" placeholder="2, 5" value="2, 5" required 
+                                   pattern="[0-9,\s]+" aria-describedby="kidAges-error">
+                            <div class="error-message" id="kidAges-error">Please enter valid ages (numbers separated by commas)</div>
+                        </div>
+                        
+                        <div class="form-group" data-field="maxDistance">
+                            <label for="maxDistance">Maximum Distance (miles) *</label>
+                            <select id="maxDistance" name="maxDistance" required aria-describedby="maxDistance-error">
+                                <option value="">Select distance</option>
+                                <option value="2">2 miles</option>
+                                <option value="5" selected>5 miles</option>
+                                <option value="10">10 miles</option>
+                                <option value="15">15 miles</option>
+                            </select>
+                            <div class="error-message" id="maxDistance-error">Please select a maximum distance</div>
+                        </div>
+                        
+                        <div class="form-group" data-field="budget">
+                            <label for="budget">Budget per hour *</label>
+                            <select id="budget" name="budget" required aria-describedby="budget-error">
+                                <option value="">Select budget</option>
+                                <option value="15">$15/hour</option>
+                                <option value="20">$20/hour</option>
+                                <option value="25" selected>$25/hour</option>
+                                <option value="30">$30/hour</option>
+                                <option value="40">$40/hour</option>
+                            </select>
+                            <div class="error-message" id="budget-error">Please select a budget range</div>
+                        </div>
+                        
+                        <button type="submit" class="search-btn" id="searchButton">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="m21 21-4.35-4.35"/>
+                            </svg>
+                            <span>Ready to Opeari?</span>
+                            <div class="loading-spinner" id="loadingSpinner"></div>
+                        </button>
+                    </form>
+                    
+                    <div class="algorithm-info">
+                        <h4>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 12l2 2 4-4"/>
+                                <path d="M21 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
+                                <path d="M3 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
+                                <path d="M12 21c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
+                                <path d="M12 3c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
+                            </svg>
+                            How Opeari Works:
+                        </h4>
+                        <ul>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                <strong>Smart Matching:</strong> Finds caregivers in your neighborhood or for your next trip
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <strong>Smart Scheduling:</strong> Checks real availability
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="1" x2="12" y2="23"/>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                </svg>
+                                <strong>Budget Friendly:</strong> Matches your rate preferences
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <strong>Age Experience:</strong> Prioritizes relevant child age experience
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <circle cx="12" cy="16" r="1"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                <strong>Safety First:</strong> Verified credentials & background checks
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="results-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        Your Matches
+                    </h3>
+                    <div id="results" role="region" aria-label="Search results" aria-live="polite">
+                        <div class="no-results">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                                <line x1="15" y1="9" x2="15.01" y2="9"/>
+                            </svg>
+                            <p>Ready to find your perfect caregiver? Fill out the form and let's match you!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer with single-row layout -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-inner">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; flex-wrap: wrap; gap: 2rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <p>© 2025 Opeari, Inc. All rights reserved.</p>
+                    <p style="font-size: 0.9rem; opacity: 0.8;">Stop scrambling. Start Opearing.</p>
+                </div>
+                
+                <div style="display: flex; gap: 3rem; flex-wrap: wrap;">
+                    <div>
+                        <h4 style="margin-bottom: 0.75rem; font-weight: 600; font-size: 0.9rem;">Product</h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+                            <a href="find-care.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Find Care</a>
+                            <a href="become-caregiver.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Become a Caregiver</a>
+                            <a href="nanny-shares.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Nanny Shares</a>
+                            <a href="travel-care.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Travel Care</a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin-bottom: 0.75rem; font-weight: 600; font-size: 0.9rem;">Company</h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+                            <a href="about.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">About</a>
+                            <a href="careers.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Careers</a>
+                            <a href="press.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Press</a>
+                            <a href="blog.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Blog</a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin-bottom: 0.75rem; font-weight: 600; font-size: 0.9rem;">Support</h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+                            <a href="help-center.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Help Center</a>
+                            <a href="safety.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Safety</a>
+                            <a href="contact.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Contact</a>
+                            <a href="community.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Community</a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin-bottom: 0.75rem; font-weight: 600; font-size: 0.9rem;">Legal</h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+                            <a href="privacy.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Privacy Policy</a>
+                            <a href="terms.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Terms of Service</a>
+                            <a href="insurance.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Insurance</a>
+                            <a href="background-checks.html" style="color: var(--white); text-decoration: none; opacity: 0.9;">Background Checks</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="social-icons">
+                    <a href="https://instagram.com/opeari.co" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                        </svg>
+                    </a>
+                    <a href="https://linkedin.com/company/opeari" target="_blank" rel="noopener noreferrer" aria-label="Connect with us on LinkedIn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                            <rect x="2" y="9" width="4" height="12"/>
+                            <circle cx="4" cy="4" r="2"/>
+                        </svg>
+                    </a>
+                    <a href="https://tiktok.com/@opeari" target="_blank" rel="noopener noreferrer" aria-label="Follow us on TikTok">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
+                        </svg>
+                    </a>
+                    <a href="https://twitter.com/opeari" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Twitter">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+    <!-- Analytics tracking -->
+    <div class="analytics-data" id="analyticsData"></div>
+
+    <script>
+        // $100M+ Platform Algorithm Enhancements
+        class AdvancedMatchingEngine {
+            constructor() {
+                this.demandPrediction = new Map();
+                this.caregiverPerformance = new Map();
+                this.marketDynamics = {
+                    surgePricing: false,
+                    demandMultiplier: 1.0,
+                    supplyScore: 1.0
+                };
+            }
+
+            // Uber-inspired: Dynamic pricing based on supply/demand
+            calculateDynamicPricing(baseRate, zipCode, timeSlot) {
+                const demand = this.getPredictedDemand(zipCode, timeSlot);
+                const supply = this.getAvailableSupply(zipCode, timeSlot);
+                
+                const demandSupplyRatio = demand / Math.max(supply, 1);
+                
+                if (demandSupplyRatio > 2.0) {
+                    // High demand, low supply - increase prices
+                    return Math.min(baseRate * 1.5, baseRate + 15); // Cap surge at +$15/hr
+                } else if (demandSupplyRatio < 0.5) {
+                    // Low demand, high supply - competitive pricing
+                    return Math.max(baseRate * 0.9, baseRate - 5); // Floor at -$5/hr
+                }
+                
+                return baseRate;
+            }
+
+            // Rover-inspired: Behavioral compatibility scoring
+            calculatePersonalityMatch(family, caregiver) {
+                const familyStyle = family.parentingStyle || 'balanced'; // structured, relaxed, balanced
+                const caregiverStyle = caregiver.careStyle || 'adaptive';
+                
+                const compatibilityMatrix = {
+                    'structured': { 'structured': 1.0, 'adaptive': 0.8, 'relaxed': 0.6 },
+                    'balanced': { 'structured': 0.9, 'adaptive': 1.0, 'relaxed': 0.9 },
+                    'relaxed': { 'structured': 0.6, 'adaptive': 0.8, 'relaxed': 1.0 }
+                };
+                
+                return compatibilityMatrix[familyStyle]?.[caregiverStyle] || 0.7;
+            }
+
+            // Airbnb-inspired: Quality and trust scoring
+            calculateTrustScore(caregiver) {
+                let score = 0;
+                const weights = {
+                    backgroundCheck: 0.3,
+                    verifiedReviews: 0.25,
+                    responseTime: 0.15,
+                    completionRate: 0.15,
+                    platformTenure: 0.1,
+                    repeatBookings: 0.05
+                };
+
+                // Background check verification
+                score += caregiver.backgroundCheck ? weights.backgroundCheck : 0;
+                
+                // Review quality (not just quantity)
+                const avgRating = caregiver.rating || 0;
+                const reviewCount = caregiver.reviews || 0;
+                const reviewScore = Math.min(avgRating / 5, 1) * Math.min(reviewCount / 20, 1);
+                score += reviewScore * weights.verifiedReviews;
+                
+                // Response time (faster = better)
+                const responseMinutes = caregiver.avgResponseTime || 120;
+                const responseScore = Math.max(0, 1 - responseMinutes / 240); // Best if under 2 hours
+                score += responseScore * weights.responseTime;
+                
+                // Completion rate
+                const completionRate = caregiver.completionRate || 0.85;
+                score += completionRate * weights.completionRate;
+                
+                // Platform tenure (longer = more trusted)
+                const monthsOnPlatform = caregiver.platformTenure || 1;
+                const tenureScore = Math.min(monthsOnPlatform / 12, 1); // Max credit at 1 year
+                score += tenureScore * weights.platformTenure;
+                
+                // Repeat bookings (loyalty indicator)
+                const repeatRate = caregiver.repeatBookingRate || 0;
+                score += repeatRate * weights.repeatBookings;
+                
+                return Math.round(score * 100);
+            }
+
+            // Advanced geographic clustering
+            findOptimalCaregiverClusters(searchLocation, maxDistance) {
+                // Group caregivers by micro-neighborhoods for efficiency
+                const clusters = new Map();
+                
+                // Sample clustering logic (would use real geo-clustering in production)
+                const clusterRadius = 0.5; // 0.5 mile clusters
+                
+                return Array.from(clusters.values()).sort((a, b) => {
+                    // Prioritize clusters with high-quality caregivers
+                    const avgQualityA = a.reduce((sum, c) => sum + this.calculateTrustScore(c), 0) / a.length;
+                    const avgQualityB = b.reduce((sum, c) => sum + this.calculateTrustScore(c), 0) / b.length;
+                    return avgQualityB - avgQualityA;
+                });
+            }
+
+            // Predictive demand modeling
+            getPredictedDemand(zipCode, timeSlot) {
+                const hour = new Date(timeSlot).getHours();
+                const dayOfWeek = new Date(timeSlot).getDay();
+                
+                // Evening hours (5-9 PM) and weekends have higher demand
+                let demandMultiplier = 1.0;
+                
+                if (hour >= 17 && hour <= 21) demandMultiplier *= 1.4; // Evening rush
+                if (dayOfWeek === 5 || dayOfWeek === 6) demandMultiplier *= 1.3; // Friday/Saturday
+                if (hour >= 22 || hour <= 6) demandMultiplier *= 1.8; // Late night premium
+                
+                return demandMultiplier;
+            }
+
+            getAvailableSupply(zipCode, timeSlot) {
+                // In production, this would query real-time caregiver availability
+                return Math.random() * 10 + 5; // Simulate 5-15 available caregivers
+            }
+
+            // Advanced matching with ML-inspired scoring
+            calculateAdvancedMatchScore(caregiver, searchCriteria, familyProfile = {}) {
+                const basicScore = calculateMatchScore(caregiver, searchCriteria);
+                
+                // Enhanced scoring factors
+                const trustScore = this.calculateTrustScore(caregiver);
+                const personalityMatch = this.calculatePersonalityMatch(familyProfile, caregiver);
+                const marketDemand = this.getPredictedDemand(searchCriteria.zipCode, 
+                    `${searchCriteria.date}T${searchCriteria.startTime}`);
+                
+                // Dynamic pricing adjustment
+                const adjustedRate = this.calculateDynamicPricing(
+                    caregiver.hourlyRate, 
+                    searchCriteria.zipCode, 
+                    `${searchCriteria.date}T${searchCriteria.startTime}`
+                );
+                
+                // Recalculate rate score with dynamic pricing
+                const budget = searchCriteria.budget;
+                const rateScore = adjustedRate <= budget ? 100 : 
+                    Math.max(0, 100 - ((adjustedRate - budget) / budget * 50));
+                
+                // Advanced weighted scoring
+                const advancedScore = (
+                    basicScore * 0.4 +           // Base compatibility
+                    trustScore * 0.25 +          // Trust and quality
+                    personalityMatch * 100 * 0.2 + // Behavioral match
+                    rateScore * 0.15             // Dynamic pricing fit
+                );
+                
+                return {
+                    score: Math.round(advancedScore),
+                    trustScore,
+                    personalityMatch: Math.round(personalityMatch * 100),
+                    adjustedRate,
+                    demandLevel: marketDemand > 1.3 ? 'high' : marketDemand > 0.8 ? 'medium' : 'low'
+                };
+            }
+        }
+
+        // Enhanced backend integration with error handling and caching
+        class BackendService {
+            constructor() {
+                this.cache = new Map();
+                this.cacheTTL = 5 * 60 * 1000; // 5 minutes
+            }
+
+            async fetchCaregivers(searchCriteria) {
+                const cacheKey = JSON.stringify(searchCriteria);
+                const cached = this.cache.get(cacheKey);
+                
+                if (cached && Date.now() - cached.timestamp < this.cacheTTL) {
+                    return cached.data;
+                }
+
+                try {
+                    // Production: Replace with real Airtable API call
+                    const response = await this.simulateAirtableCall(searchCriteria);
+                    
+                    this.cache.set(cacheKey, {
+                        data: response,
+                        timestamp: Date.now()
+                    });
+                    
+                    return response;
+                } catch (error) {
+                    console.error('Failed to fetch caregivers:', error);
+                    Analytics.track('caregiver_fetch_error', { error: error.message });
+                    throw new Error('Unable to load caregivers. Please try again.');
+                }
+            }
+
+            async simulateAirtableCall(searchCriteria) {
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // In production, this would be:
+                // const response = await fetch(`${CONFIG.API_BASE_URL}/caregivers/search`, {
+                //     method: 'POST',
+                //     headers: { 
+                //         'Content-Type': 'application/json',
+                //         'Authorization': `Bearer ${CONFIG.AIRTABLE.API_KEY}`
+                //     },
+                //     body: JSON.stringify(searchCriteria)
+                // });
+                // return response.json();
+                
+                return sampleCaregivers;
+            }
+
+            async saveMatch(matchData) {
+                try {
+                    // Production Airtable save
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/matches`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(matchData)
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to save match');
+                    
+                    Analytics.track('match_saved', matchData);
+                    return await response.json();
+                } catch (error) {
+                    console.error('Failed to save match:', error);
+                    throw error;
+                }
+            }
+
+            async sendEmailNotification(emailData) {
+                try {
+                    // Resend integration
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/email/send`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${CONFIG.RESEND.API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            from: CONFIG.RESEND.FROM_EMAIL,
+                            ...emailData
+                        })
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to send email');
+                    
+                    Analytics.track('email_sent', { type: emailData.template });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Failed to send email:', error);
+                    throw error;
+                }
+            }
+        }
+
+        const advancedMatcher = new AdvancedMatchingEngine();
+
+        // Enhanced caregiver data with platform metrics
+        const sampleCaregivers = [
+            {
+                id: 1,
+                name: "Sarah Johnson",
+                zipCode: "90266",
+                lat: 33.8847,
+                lng: -118.4109,
+                hourlyRate: 22,
+                experience: ["toddlers", "preschool"],
+                certifications: ["CPR", "First Aid"],
+                availability: {
+                    "monday": ["09:00", "22:00"],
+                    "tuesday": ["09:00", "22:00"],
+                    "wednesday": ["09:00", "22:00"],
+                    "thursday": ["09:00", "22:00"],
+                    "friday": ["09:00", "22:00"],
+                    "saturday": ["10:00", "23:00"],
+                    "sunday": ["10:00", "20:00"]
+                },
+                rating: 4.8,
+                reviews: 23,
+                profileImage: "sarah.jpg",
+                bio: "Experienced childcare provider with a passion for early childhood development.",
+                phone: "+1234567890",
+                email: "sarah.j@example.com",
+                verified: true,
+                backgroundCheck: true,
+                languages: ["English"],
+                specialties: ["Potty training", "Meal prep"],
+                // Advanced platform metrics
+                avgResponseTime: 45, // minutes
+                completionRate: 0.96,
+                platformTenure: 18, // months
+                repeatBookingRate: 0.73,
+                careStyle: "structured",
+                insuranceVerified: true,
+                emergencyTrained: true
+            },
+            {
+                id: 2,
+                name: "Maria Rodriguez",
+                zipCode: "90277",
+                lat: 33.9025,
+                lng: -118.4270,
+                hourlyRate: 25,
+                experience: ["infants", "toddlers", "school-age"],
+                certifications: ["CPR", "First Aid", "Background Check"],
+                availability: {
+                    "monday": ["08:00", "18:00"],
+                    "tuesday": ["08:00", "18:00"],
+                    "wednesday": ["08:00", "18:00"],
+                    "thursday": ["08:00", "18:00"],
+                    "friday": ["08:00", "18:00"],
+                    "saturday": ["09:00", "21:00"],
+                    "sunday": ["12:00", "20:00"]
+                },
+                rating: 4.9,
+                reviews: 31,
+                profileImage: "maria.jpg",
+                bio: "Bilingual caregiver with 8+ years experience and early childhood education degree.",
+                phone: "+1234567891",
+                email: "maria.r@example.com",
+                verified: true,
+                backgroundCheck: true,
+                languages: ["English", "Spanish"],
+                specialties: ["Bilingual care", "Educational activities"],
+                avgResponseTime: 28,
+                completionRate: 0.98,
+                platformTenure: 24,
+                repeatBookingRate: 0.84,
+                careStyle: "balanced",
+                insuranceVerified: true,
+                emergencyTrained: true
+            },
+            {
+                id: 3,
+                name: "Jessica Chen",
+                zipCode: "90254",
+                lat: 33.8961,
+                lng: -118.2965,
+                hourlyRate: 20,
+                experience: ["toddlers", "preschool", "school-age"],
+                certifications: ["CPR"],
+                availability: {
+                    "monday": ["16:00", "23:00"],
+                    "tuesday": ["16:00", "23:00"],
+                    "wednesday": ["16:00", "23:00"],
+                    "thursday": ["16:00", "23:00"],
+                    "friday": ["16:00", "23:00"],
+                    "saturday": ["09:00", "23:00"],
+                    "sunday": ["09:00", "23:00"]
+                },
+                rating: 4.6,
+                reviews: 18,
+                profileImage: "jessica.jpg",
+                bio: "College student studying child psychology with flexible evening availability.",
+                phone: "+1234567892",
+                email: "jessica.c@example.com",
+                verified: true,
+                backgroundCheck: false,
+                languages: ["English"],
+                specialties: ["Homework help", "Creative activities"],
+                avgResponseTime: 75,
+                completionRate: 0.89,
+                platformTenure: 8,
+                repeatBookingRate: 0.45,
+                careStyle: "relaxed",
+                insuranceVerified: false,
+                emergencyTrained: true
+            },
+            {
+                id: 4,
+                name: "Amanda Davis",
+                zipCode: "90245",
+                lat: 33.8992,
+                lng: -118.3570,
+                hourlyRate: 28,
+                experience: ["infants", "toddlers"],
+                certifications: ["CPR", "First Aid", "Background Check", "Childcare Degree"],
+                availability: {
+                    "monday": ["07:00", "19:00"],
+                    "tuesday": ["07:00", "19:00"],
+                    "wednesday": ["07:00", "19:00"],
+                    "thursday": ["07:00", "19:00"],
+                    "friday": ["07:00", "19:00"],
+                    "saturday": ["08:00", "22:00"],
+                    "sunday": ["10:00", "18:00"]
+                },
+                rating: 5.0,
+                reviews: 42,
+                profileImage: "amanda.jpg",
+                bio: "Licensed childcare professional with specialized infant care training.",
+                phone: "+1234567893",
+                email: "amanda.d@example.com",
+                verified: true,
+                backgroundCheck: true,
+                languages: ["English"],
+                specialties: ["Infant care", "Sleep training", "Developmental activities"],
+                avgResponseTime: 15,
+                completionRate: 1.0,
+                platformTenure: 36,
+                repeatBookingRate: 0.92,
+                careStyle: "structured",
+                insuranceVerified: true,
+                emergencyTrained: true
+            },
+            {
+                id: 5,
+                name: "Taylor Kim",
+                zipCode: "90266",
+                lat: 33.8810,
+                lng: -118.4089,
+                hourlyRate: 18,
+                experience: ["school-age", "teens"],
+                certifications: ["CPR"],
+                availability: {
+                    "monday": ["15:00", "22:00"],
+                    "tuesday": ["15:00", "22:00"],
+                    "wednesday": ["15:00", "22:00"],
+                    "thursday": ["15:00", "22:00"],
+                    "friday": ["15:00", "23:00"],
+                    "saturday": ["10:00", "23:00"],
+                    "sunday": ["10:00", "22:00"]
+                },
+                rating: 4.5,
+                reviews: 12,
+                profileImage: "taylor.jpg",
+                bio: "Energetic babysitter who loves outdoor activities and sports.",
+                phone: "+1234567894",
+                email: "taylor.k@example.com",
+                verified: true,
+                backgroundCheck: true,
+                languages: ["English"],
+                specialties: ["Sports activities", "Outdoor play"],
+                avgResponseTime: 65,
+                completionRate: 0.91,
+                platformTenure: 6,
+                repeatBookingRate: 0.38,
+                careStyle: "relaxed",
+                insuranceVerified: true,
+                emergencyTrained: false
+            }
+        ];
+
+        const backendService = new BackendService();
+        const zipCoordinates = {
+            "90266": { lat: 33.8847, lng: -118.4109 }, // Manhattan Beach
+            "90277": { lat: 33.9025, lng: -118.4270 }, // Redondo Beach
+            "90254": { lat: 33.8961, lng: -118.2965 }, // Hermosa Beach
+            "90245": { lat: 33.8992, lng: -118.3570 }, // El Segundo
+            "90210": { lat: 34.0901, lng: -118.4065 }  // Beverly Hills
+        };
+
+        // Form validation
+        class FormValidator {
+            constructor(form) {
+                this.form = form;
+                this.rules = {
+                    zipCode: {
+                        required: true,
+                        pattern: /^[0-9]{5}$/,
+                        message: "Please enter a valid 5-digit ZIP code"
+                    },
+                    date: {
+                        required: true,
+                        custom: (value) => {
+                            const selectedDate = new Date(value);
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            return selectedDate >= today;
+                        },
+                        message: "Please select a future date"
+                    },
+                    startTime: {
+                        required: true,
+                        message: "Please select a start time"
+                    },
+                    duration: {
+                        required: true,
+                        message: "Please select a duration"
+                    },
+                    kidAges: {
+                        required: true,
+                        pattern: /^[0-9,\s]+$/,
+                        custom: (value) => {
+                            const ages = value.split(',').map(age => parseInt(age.trim()));
+                            return ages.every(age => !isNaN(age) && age >= 0 && age <= 18);
+                        },
+                        message: "Please enter valid ages (0-18, separated by commas)"
+                    },
+                    maxDistance: {
+                        required: true,
+                        message: "Please select a maximum distance"
+                    },
+                    budget: {
+                        required: true,
+                        message: "Please select a budget range"
+                    }
+                };
+            }
+
+            validateField(fieldName, value) {
+                const rule = this.rules[fieldName];
+                if (!rule) return { isValid: true };
+
+                if (rule.required && (!value || value.trim() === '')) {
+                    return { isValid: false, message: rule.message };
+                }
+
+                if (rule.pattern && !rule.pattern.test(value)) {
+                    return { isValid: false, message: rule.message };
+                }
+
+                if (rule.custom && !rule.custom(value)) {
+                    return { isValid: false, message: rule.message };
+                }
+
+                return { isValid: true };
+            }
+
+            validateForm() {
+                let isValid = true;
+                const formData = new FormData(this.form);
+                const errors = {};
+
+                for (const [fieldName, value] of formData.entries()) {
+                    const validation = this.validateField(fieldName, value);
+                    if (!validation.isValid) {
+                        isValid = false;
+                        errors[fieldName] = validation.message;
+                        this.showFieldError(fieldName, validation.message);
+                    } else {
+                        this.clearFieldError(fieldName);
+                    }
+                }
+
+                return { isValid, errors };
+            }
+
+            showFieldError(fieldName, message) {
+                const formGroup = this.form.querySelector(`[data-field="${fieldName}"]`);
+                if (formGroup) {
+                    formGroup.classList.add('error');
+                    const errorElement = formGroup.querySelector('.error-message');
+                    if (errorElement) {
+                        errorElement.textContent = message;
+                    }
+                }
+            }
+
+            clearFieldError(fieldName) {
+                const formGroup = this.form.querySelector(`[data-field="${fieldName}"]`);
+                if (formGroup) {
+                    formGroup.classList.remove('error');
+                }
+            }
+
+            clearAllErrors() {
+                const errorGroups = this.form.querySelectorAll('.form-group.error');
+                errorGroups.forEach(group => group.classList.remove('error'));
+            }
+        }
+
+        // Analytics tracking
+        class Analytics {
+            static track(event, properties = {}) {
+                // Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', event, properties);
+                }
+
+                // Mixpanel
+                if (typeof mixpanel !== 'undefined') {
+                    mixpanel.track(event, properties);
+                }
+
+                // Custom analytics
+                const analyticsData = {
+                    event,
+                    properties,
+                    timestamp: new Date().toISOString(),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent
+                };
+
+                // Store for later batch sending
+                const stored = JSON.parse(localStorage.getItem('opeari_analytics') || '[]');
+                stored.push(analyticsData);
+                localStorage.setItem('opeari_analytics', JSON.stringify(stored.slice(-100))); // Keep last 100 events
+            }
+
+            static async sendBatch() {
+                const events = JSON.parse(localStorage.getItem('opeari_analytics') || '[]');
+                if (events.length === 0) return;
+
+                try {
+                    await fetch(`${CONFIG.API_BASE_URL}/analytics/batch`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ events })
+                    });
+                    localStorage.removeItem('opeari_analytics');
+                } catch (error) {
+                    console.warn('Analytics batch send failed:', error);
+                }
+            }
+        }
+
+        // Utility functions
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 3959; // Earth's radius in miles
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                     Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function isAvailable(caregiver, dayOfWeek, startTime, duration) {
+            const availability = caregiver.availability[dayOfWeek.toLowerCase()];
+            if (!availability) return false;
+            
+            const [availStart, availEnd] = availability;
+            const requestedStart = startTime;
+            const requestedEnd = addHours(startTime, duration);
+            
+            return requestedStart >= availStart && requestedEnd <= availEnd;
+        }
+
+        function addHours(time, hours) {
+            const [hour, minute] = time.split(':').map(Number);
+            const totalMinutes = hour * 60 + minute + (hours * 60);
+            const newHour = Math.floor(totalMinutes / 60) % 24;
+            const newMinute = totalMinutes % 60;
+            return `${newHour.toString().padStart(2, '0')}:${newMinute.toString().padStart(2, '0')}`;
+        }
+
+        function getAgeCategory(age) {
+            if (age < 1) return "infants";
+            if (age < 3) return "toddlers";
+            if (age < 6) return "preschool";
+            if (age < 13) return "school-age";
+            return "teens";
+        }
+
+        function calculateMatchScore(caregiver, searchCriteria) {
+            let score = 0;
+            const weights = {
+                distance: 0.3,
+                rate: 0.25,
+                experience: 0.25,
+                certifications: 0.1,
+                rating: 0.1
+            };
+
+            // Distance score
+            const maxDistance = searchCriteria.maxDistance;
+            const distance = caregiver.distance;
+            const distanceScore = Math.max(0, (maxDistance - distance) / maxDistance) * 100;
+            score += distanceScore * weights.distance;
+
+            // Rate score
+            const budget = searchCriteria.budget;
+            const rate = caregiver.hourlyRate;
+            const rateScore = rate <= budget ? 100 : Math.max(0, 100 - ((rate - budget) / budget * 50));
+            score += rateScore * weights.rate;
+
+            // Experience score
+            const kidAges = searchCriteria.kidAges;
+            const ageCategories = kidAges.map(age => getAgeCategory(age));
+            const matchingExperience = ageCategories.filter(cat => caregiver.experience.includes(cat));
+            const experienceScore = (matchingExperience.length / ageCategories.length) * 100;
+            score += experienceScore * weights.experience;
+
+            // Certifications score
+            const certificationScore = caregiver.certifications.length * 25;
+            score += Math.min(100, certificationScore) * weights.certifications;
+
+            // Rating score
+            const ratingScore = (caregiver.rating / 5) * 100;
+            score += ratingScore * weights.rating;
+
+            return Math.round(score);
+        }
+
+        // Enhanced main matching algorithm with backend integration
+        async function findMatches(searchCriteria) {
+            try {
+                // Track search attempt
+                Analytics.track('search_initiated', searchCriteria);
+                
+                // Fetch caregivers from backend
+                const caregivers = await backendService.fetchCaregivers(searchCriteria);
+                
+                const userCoords = zipCoordinates[searchCriteria.zipCode];
+                if (!userCoords) {
+                    throw new Error('ZIP code not supported in our service area');
+                }
+
+                const matches = [];
+
+                for (const caregiver of caregivers) {
+                    // Calculate distance
+                    const distance = calculateDistance(
+                        userCoords.lat, userCoords.lng,
+                        caregiver.lat, caregiver.lng
+                    );
+
+                    // Filter by distance
+                    if (distance > searchCriteria.maxDistance) continue;
+
+                    // Check availability
+                    const dayOfWeek = new Date(searchCriteria.date).toLocaleDateString('en-US', { weekday: 'long' });
+                    if (!isAvailable(caregiver, dayOfWeek, searchCriteria.startTime, searchCriteria.duration)) continue;
+
+                    // Add distance to caregiver object
+                    caregiver.distance = distance;
+
+                    // Calculate match score
+                    const score = calculateMatchScore(caregiver, searchCriteria);
+
+                    matches.push({
+                        ...caregiver,
+                        matchScore: score
+                    });
+                }
+
+                // Sort by match score
+                const sortedMatches = matches.sort((a, b) => b.matchScore - a.matchScore);
+                
+                // Track successful search
+                Analytics.track('search_completed', {
+                    ...searchCriteria,
+                    matches_found: sortedMatches.length,
+                    avg_match_score: sortedMatches.reduce((sum, m) => sum + m.matchScore, 0) / sortedMatches.length || 0
+                });
+                
+                return sortedMatches;
+            } catch (error) {
+                Analytics.track('search_error', { error: error.message, searchCriteria });
+                throw error;
+            }
+        }
+
+        // Enhanced results display with $100M+ platform features
+        function displayResults(matches) {
+            const resultsDiv = document.getElementById('results');
+            
+                            if (matches.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <img src="images/pear-sad.svg" alt="Sad Pear" style="width: 48px; height: 48px;">
+                        <p><strong>Don't worry — Opearing parents like you are joining daily.</strong></p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">Try adjusting your preferences or check back soon. Your Opeari community is growing!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            showToast('success', `Perfect! You're now Opearing with ${matches.length} amazing caregiver${matches.length > 1 ? 's' : ''}!`);
+
+            resultsDiv.innerHTML = matches.map((caregiver, index) => {
+                const advancedScore = advancedMatcher.calculateAdvancedMatchScore(caregiver, {
+                    zipCode: document.getElementById('zipCode').value,
+                    date: document.getElementById('date').value,
+                    startTime: document.getElementById('startTime').value,
+                    duration: parseInt(document.getElementById('duration').value),
+                    kidAges: document.getElementById('kidAges').value.split(',').map(age => parseInt(age.trim())),
+                    maxDistance: parseInt(document.getElementById('maxDistance').value),
+                    budget: parseInt(document.getElementById('budget').value)
+                });
+
+                const isPremium = advancedScore.adjustedRate > caregiver.hourlyRate;
+                const demandBadge = advancedScore.demandLevel === 'high' ? 
+                    '<span style="background: #ff6b6b; color: white; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.7rem;">High Demand</span>' :
+                    advancedScore.demandLevel === 'medium' ?
+                    '<span style="background: #feca57; color: #2c3e50; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.7rem;">Popular</span>' : '';
+
+                return `
+                    <div class="caregiver-card" style="animation-delay: ${index * 0.1}s">
+                        <div class="caregiver-header">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <img src="images/caregivers/${caregiver.profileImage || 'default-avatar.jpg'}" 
+                                     alt="${caregiver.name}" 
+                                     loading="lazy"
+                                     style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                                <div>
+                                    <div class="caregiver-name">${caregiver.name}</div>
+                                    <div style="font-size: 0.8rem; color: var(--gray-medium); margin-top: 0.25rem;">
+                                        ${caregiver.bio.substring(0, 50)}...
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
+                                <div class="match-score" aria-label="Match compatibility score: ${advancedScore.score}%">
+                                    <img src="images/pear-excited.svg" alt="Excited Pear" class="pear-icon">
+                                    ${advancedScore.score}% match
+                                </div>
+                                ${demandBadge}
+                            </div>
+                        </div>
+                        <div class="caregiver-details">
+                            <div class="detail-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="1" x2="12" y2="23"/>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                </svg>
+                                <strong>Rate:</strong> ${advancedScore.adjustedRate}/hour 
+                                ${isPremium ? '<span style="color: #ff6b6b; font-size: 0.8rem;">(+
+
+        // Enhanced toast notifications with pear icons
+        function showToast(type, message) {
+            const toast = document.getElementById('toast');
+            toast.className = `toast ${type}`;
+            
+            const pearIcon = type === 'success' ? 
+                '<img src="images/pear-happy.svg" alt="Success" style="width: 20px; height: 20px;">' :
+                type === 'error' ?
+                '<img src="images/pear-sad.svg" alt="Error" style="width: 20px; height: 20px;">' :
+                '<img src="images/pear-waving.svg" alt="Warning" style="width: 20px; height: 20px;">';
+            
+        // Add save caregiver functionality with Opeari language
+        function saveCaregiver(caregiverId) {
+            Analytics.track('caregiver_saved', { caregiver_id: caregiverId });
+            showToast('success', 'Added to your Opeari circle! You can contact them anytime.');
+        } + (advancedScore.adjustedRate - caregiver.hourlyRate).toFixed(0) + ' surge)</span>' : ''}
+                            </div>
+                            <div class="detail-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                <strong>Distance:</strong> ${caregiver.distance.toFixed(1)} miles
+                            </div>
+                            <div class="detail-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+                                </svg>
+                                <strong>Rating:</strong> ${caregiver.rating} (${caregiver.reviews} reviews)
+                            </div>
+                            <div class="detail-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <strong>Experience:</strong> ${caregiver.experience.join(', ')}
+                            </div>
+                            <div class="detail-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                                <strong>Response time:</strong> ~${caregiver.avgResponseTime} min
+                            </div>
+                            <div class="detail-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <circle cx="12" cy="12" r="10"/>
+                                </svg>
+                                <strong>Completion rate:</strong> ${Math.round(caregiver.completionRate * 100)}%
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced Trust & Quality Indicators -->
+                        <div style="display: flex; justify-content: space-between; margin: 1rem 0; padding: 0.75rem; background: var(--light-mint); border-radius: 8px;">
+                            <div style="text-align: center;">
+                                <div style="font-weight: 600; color: var(--dark-green);">${advancedScore.trustScore}%</div>
+                                <div style="font-size: 0.8rem; color: var(--gray-medium);">Trust Score</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-weight: 600; color: var(--dark-green);">${advancedScore.personalityMatch}%</div>
+                                <div style="font-size: 0.8rem; color: var(--gray-medium);">Personality Match</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-weight: 600; color: var(--dark-green);">${caregiver.platformTenure}mo</div>
+                                <div style="font-size: 0.8rem; color: var(--gray-medium);">On Platform</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-weight: 600; color: var(--dark-green);">${Math.round(caregiver.repeatBookingRate * 100)}%</div>
+                                <div style="font-size: 0.8rem; color: var(--gray-medium);">Repeat Rate</div>
+                            </div>
+                        </div>
+
+                        <div class="verification-badges">
+                            ${caregiver.certifications.map(cert => `
+                                <div class="badge">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                        <circle cx="12" cy="16" r="1"/>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                    </svg>
+                                    ${cert}
+                                </div>
+                            `).join('')}
+                            ${caregiver.verified ? `
+                                <div class="badge">
+                                    <img src="images/pear-confident.svg" alt="Verified" class="pear-icon" style="width: 14px; height: 14px;">
+                                    Verified by Opeari
+                                </div>
+                            ` : ''}
+                            ${caregiver.insuranceVerified ? `
+                                <div class="badge">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    </svg>
+                                    Insured
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                            <button class="contact-btn" onclick="contactCaregiver(${caregiver.id})" style="flex: 1;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                                Start Opearing with ${caregiver.name.split(' ')[0]}
+                            </button>
+                            <button onclick="saveCaregiver(${caregiver.id})" 
+                                    class="tooltip"
+                                    style="background: var(--light-mint); color: var(--dark-green); border: 2px solid var(--dark-green); padding: 0.5rem; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;"
+                                    onmouseover="this.style.background='var(--dark-green)'; this.style.color='var(--white)'"
+                                    onmouseout="this.style.background='var(--light-mint)'; this.style.color='var(--dark-green)'">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/>
+                                </svg>
+                                <span class="tooltiptext">Think of this like your trusted care shortlist</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Enhanced toast notifications with pear icons
+        function showToast(type, message) {
+            const toast = document.getElementById('toast');
+            toast.className = `toast ${type}`;
+            
+            const pearIcon = type === 'success' ? 
+                '<img src="images/pear-happy.svg" alt="Success" style="width: 20px; height: 20px;">' :
+                type === 'error' ?
+                '<img src="images/pear-sad.svg" alt="Error" style="width: 20px; height: 20px;">' :
+                '<img src="images/pear-waving.svg" alt="Warning" style="width: 20px; height: 20px;">';
+            
+            toast.innerHTML = `${pearIcon}<span>${message}</span>`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }

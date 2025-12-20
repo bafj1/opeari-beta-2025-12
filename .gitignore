@@ -1,0 +1,40 @@
+.DS_Store
+**/.DS_Store
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node / build
+node_modules
+dist
+build
+.next
+out
+coverage
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Mac + editor
+.vscode
+.idea
+
+# Antigravity / Cursor (if present)
+.antigravity
+.cursor
+
+# env
+.env
+# netlify local
+.netlify/
+# build
+/dist
+# deps
+node_modules

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoPeari - Perry Chases Baby Perry!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background: linear-gradient(135deg, #e8f5e9, #d4ffeb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 800px;
+            height: 600px;
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+            border: 4px solid #1e6b4e;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(30, 107, 78, 0.3);
+        }
+
+        .game-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .score, .high-score, .distance, .timer {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 15px;
+            border: 2px solid #1e6b4e;
+            color: #1e6b4e;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(to bottom, #95bbad, #1e6b4e);
+            border-top: 3px solid #1e6b4e;
+        }
+
+        .grass {
+            position: absolute;
+            bottom: 145px;
+            width: 100%;
+            height: 20px;
+            background: repeating-linear-gradient(
+                90deg,
+                #4a9b6e 0px,
+                #4a9b6e 3px,
+                #5ba878 3px,
+                #5ba878 6px
+            );
+        }
+
+        .parent-pear {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            bottom: 150px;
+            left: 100px;
+            transition: bottom 0.3s ease;
+            z-index: 50;
+        }
+
+        .baby-pear {
+            position: absolute;
+            width: 40px;
+            height: 55px;
+            bottom: 150px;
+            right: 50px;
+            animation: babeBounce 2s ease-in-out infinite;
+            z-index: 50;
+        }
+
+        .pear {
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .parent-pear .pear {
+            background: #a8d4a8;
+            width: 100%;
+            height: 100%;
+        }
+
+        .baby-pear .pear {
+            background: #fff7d6;
+            width: 100%;
+            height: 100%;
+        }
+
+        .stem {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 12px;
+            background: #8B4513;
+            border-radius: 2px;
+        }
+
+        .leaf {
+            position: absolute;
+            top: -15px;
+            right: 40%;
+            width: 15px;
+            height: 10px;
+            background: #4a9b6e;
+            border-radius: 50% 10px;
+            transform: rotate(-30deg);
+        }
+
+        .name-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #1e6b4e;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .baby-pear .name-label {
+            font-size: 10px;
+        }
+
+        .obstacle {
+            position: absolute;
+            width: 50px;
+            height: 40px;
+            bottom: 150px;
+            background: #8B4513;
+            border: 3px solid #654321;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+            animation: moveLeft 2.5s linear infinite;
+        }
+
+        .floating-pear {
+            position: absolute;
+            width: 30px;
+            height: 40px;
+            background: #ffeb3b;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            border: 2px solid #fbc02d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #1e6b4e;
+            animation: floatLeft 3s linear infinite;
+            bottom: 220px;
+        }
+
+        .floating-pear::before {
+            content: '2x';
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            animation: cloudMove 8s linear infinite;
+        }
+
+        .cloud1 {
+            width: 80px;
+            height: 40px;
+            top: 80px;
+            right: -100px;
+        }
+
+        .cloud2 {
+            width: 60px;
+            height: 30px;
+            top: 120px;
+            right: -80px;
+            animation-delay: -4s;
+        }
+
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(232, 245, 233, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 48px;
+            color: #1e6b4e;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #1e6b4e;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: #ffccc7;
+            color: #1e6b4e;
+            border: 3px solid #1e6b4e;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            background: #fbb8ac;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            color: #1e6b4e;
+            font-size: 14px;
+        }
+
+        .hearts {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            color: #ffccc7;
+        }
+
+        .double-jump-indicator {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 15px;
+            border: 2px solid #1e6b4e;
+            color: #1e6b4e;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        @keyframes moveLeft {
+            from { right: -60px; }
+            to { right: 100%; }
+        }
+
+        @keyframes floatLeft {
+            from { right: -40px; }
+            to { right: 100%; }
+        }
+
+        @keyframes cloudMove {
+            from { right: -100px; }
+            to { right: 100%; }
+        }
+
+        @keyframes babeBounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes jump {
+            0% { bottom: 150px; }
+            50% { bottom: 280px; }
+            100% { bottom: 150px; }
+        }
+
+        @keyframes doubleJump {
+            0% { bottom: 150px; }
+            25% { bottom: 280px; }
+            50% { bottom: 250px; }
+            75% { bottom: 320px; }
+            100% { bottom: 150px; }
+        }
+
+        .jumping {
+            animation: jump 0.7s ease;
+        }
+
+        .double-jumping {
+            animation: doubleJump 1s ease;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #fff7d6;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkle 1s ease-out forwards;
+        }
+
+        @keyframes sparkle {
+            0% { 
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+            100% { 
+                opacity: 0;
+                transform: scale(0) translateY(-50px);
+            }
+        }
+
+        .bonus-text {
+            position: absolute;
+            color: #ffeb3b;
+            font-weight: bold;
+            font-size: 14px;
+            pointer-events: none;
+            animation: bonusFloat 1.5s ease-out forwards;
+        }
+
+        @keyframes bonusFloat {
+            0% { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% { 
+                opacity: 0;
+                transform: translateY(-80px) scale(1.2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="start-screen" id="startScreen">
+            <h1 class="title">🍐 GoPeari!</h1>
+            <p class="subtitle">Help Perry the Parent catch Baby Perry!</p>
+            <button class="btn" onclick="startGame()">Start Chasing!</button>
+            <div class="instructions">
+                Press SPACEBAR to jump over obstacles<br>
+                Press SPACEBAR twice for a double-jump!<br>
+                Collect golden pears for 2x points!<br>
+                Survive for 30 seconds to win! 💚
+            </div>
+        </div>
+
+        <div class="game-over-screen" id="gameOverScreen" style="display: none;">
+            <h2 class="title">Game Over!</h2>
+            <p class="subtitle" id="finalMessage"></p>
+            <p style="color: #1e6b4e; margin: 10px 0;">Score: <span id="finalScore"></span></p>
+            <button class="btn" onclick="restartGame()">Play Again!</button>
+        </div>
+
+        <div class="game-header">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="timer">Time: <span id="timer">30</span>s</div>
+            <div class="high-score">Best: <span id="highScore">0</span></div>
+        </div>
+
+        <div class="hearts" id="hearts">💚💚💚</div>
+        <div class="double-jump-indicator" id="doubleJumpIndicator">Double Jump: Ready</div>
+
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+
+        <div class="ground"></div>
+        <div class="grass"></div>
+
+        <div class="parent-pear" id="parentPear">
+            <div class="pear">
+                <div class="stem"></div>
+                <div class="leaf"></div>
+            </div>
+            <div class="name-label">Perry</div>
+        </div>
+
+        <div class="baby-pear" id="babyPear">
+            <div class="pear">
+                <div class="stem"></div>
+                <div class="leaf"></div>
+            </div>
+            <div class="name-label">Baby Perry</div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            isPlaying: false,
+            score: 0,
+            timeLeft: 30,
+            lives: 3,
+            obstacles: [],
+            floatingPears: [],
+            isJumping: false,
+            canDoubleJump: true,
+            hasUsedDoubleJump: false,
+            gameSpeed: 1,
+            obstacleFrequency: 0.015,
+            pearFrequency: 0.008,
+            highScore: parseInt(localStorage.getItem('gopeariHighScore')) || 0,
+            gameStartTime: 0
+        };
+
+        const parentPear = document.getElementById('parentPear');
+        const babyPear = document.getElementById('babyPear');
+        const gameContainer = document.querySelector('.game-container');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+
+        // Update high score display
+        document.getElementById('highScore').textContent = gameState.highScore;
+
+        // Obstacle types
+        const obstacleTypes = ['LOG', 'ROCK', 'BUSH'];
+
+        function startGame() {
+            startScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            gameState.isPlaying = true;
+            gameState.score = 0;
+            gameState.timeLeft = 30;
+            gameState.lives = 3;
+            gameState.obstacles = [];
+            gameState.floatingPears = [];
+            gameState.gameSpeed = 1;
+            gameState.canDoubleJump = true;
+            gameState.hasUsedDoubleJump = false;
+            gameState.gameStartTime = Date.now();
+            updateUI();
+            gameLoop();
+        }
+
+        function restartGame() {
+            // Clear obstacles and floating pears
+            document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
+            document.querySelectorAll('.floating-pear').forEach(pear => pear.remove());
+            document.querySelectorAll('.bonus-text').forEach(text => text.remove());
+            startGame();
+        }
+
+        function jump() {
+            if (!gameState.isPlaying) return;
+
+            if (!gameState.isJumping) {
+                // First jump
+                gameState.isJumping = true;
+                gameState.hasUsedDoubleJump = false;
+                parentPear.classList.add('jumping');
+                createSparkles();
+                
+                setTimeout(() => {
+                    gameState.isJumping = false;
+                    parentPear.classList.remove('jumping');
+                    gameState.canDoubleJump = true;
+                    updateDoubleJumpIndicator();
+                }, 700);
+                
+            } else if (gameState.canDoubleJump && !gameState.hasUsedDoubleJump) {
+                // Double jump
+                gameState.hasUsedDoubleJump = true;
+                gameState.canDoubleJump = false;
+                parentPear.classList.remove('jumping');
+                parentPear.classList.add('double-jumping');
+                createSparkles();
+                updateDoubleJumpIndicator();
+                
+                setTimeout(() => {
+                    parentPear.classList.remove('double-jumping');
+                }, 1000);
+            }
+        }
+
+        function updateDoubleJumpIndicator() {
+            const indicator = document.getElementById('doubleJumpIndicator');
+            if (gameState.isJumping && gameState.canDoubleJump && !gameState.hasUsedDoubleJump) {
+                indicator.textContent = 'Double Jump: Press Space!';
+                indicator.style.background = 'rgba(255, 235, 59, 0.9)';
+            } else if (gameState.hasUsedDoubleJump || !gameState.canDoubleJump) {
+                indicator.textContent = 'Double Jump: Used';
+                indicator.style.background = 'rgba(200, 200, 200, 0.9)';
+            } else {
+                indicator.textContent = 'Double Jump: Ready';
+                indicator.style.background = 'rgba(255, 255, 255, 0.9)';
+            }
+        }
+
+        function createSparkles() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = (100 + Math.random() * 60) + 'px';
+                    particle.style.bottom = (150 + Math.random() * 50) + 'px';
+                    gameContainer.appendChild(particle);
+                    
+                    setTimeout(() => particle.remove(), 1000);
+                }, i * 100);
+            }
+        }
+
+        function createObstacle() {
+            const obstacle = document.createElement('div');
+            obstacle.className = 'obstacle';
+            obstacle.textContent = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+            obstacle.style.animationDuration = (2.5 / gameState.gameSpeed) + 's';
+            gameContainer.appendChild(obstacle);
+            gameState.obstacles.push(obstacle);
+
+            // Remove obstacle after animation
+            setTimeout(() => {
+                if (obstacle.parentNode) {
+                    obstacle.remove();
+                }
+                gameState.obstacles = gameState.obstacles.filter(obs => obs !== obstacle);
+            }, 2500 / gameState.gameSpeed);
+        }
+
+        function createFloatingPear() {
+            const pear = document.createElement('div');
+            pear.className = 'floating-pear';
+            pear.style.animationDuration = (3 / gameState.gameSpeed) + 's';
+            gameContainer.appendChild(pear);
+            gameState.floatingPears.push(pear);
+
+            // Remove pear after animation
+            setTimeout(() => {
+                if (pear.parentNode) {
+                    pear.remove();
+                }
+                gameState.floatingPears = gameState.floatingPears.filter(p => p !== pear);
+            }, 3000 / gameState.gameSpeed);
+        }
+
+        function showBonusText(points) {
+            const bonusText = document.createElement('div');
+            bonusText.className = 'bonus-text';
+            bonusText.textContent = '+' + points + ' pts!';
+            bonusText.style.left = '120px';
+            bonusText.style.bottom = '200px';
+            gameContainer.appendChild(bonusText);
+            
+            setTimeout(() => bonusText.remove(), 1500);
+        }
+
+        function checkCollisions() {
+            // Check obstacle collisions
+            gameState.obstacles.forEach(obstacle => {
+                const obstacleRect = obstacle.getBoundingClientRect();
+                const parentRect = parentPear.getBoundingClientRect();
+                
+                if (obstacleRect.left < parentRect.right - 10 &&
+                    obstacleRect.right > parentRect.left + 10 &&
+                    obstacleRect.top < parentRect.bottom - 10 &&
+                    obstacleRect.bottom > parentRect.top + 10) {
+                    
+                    // Hit obstacle
+                    gameState.lives--;
+                    obstacle.remove();
+                    gameState.obstacles = gameState.obstacles.filter(obs => obs !== obstacle);
+                    updateHearts();
+                    
+                    if (gameState.lives <= 0) {
+                        endGame("Oh no! Perry got too tired!");
+                    }
+                }
+            });
+
+            // Check floating pear collisions
+            gameState.floatingPears.forEach(pear => {
+                const pearRect = pear.getBoundingClientRect();
+                const parentRect = parentPear.getBoundingClientRect();
+                
+                if (pearRect.left < parentRect.right &&
+                    pearRect.right > parentRect.left &&
+                    pearRect.top < parentRect.bottom &&
+                    pearRect.bottom > parentRect.top) {
+                    
+                    // Collected floating pear
+                    const bonusPoints = 20;
+                    gameState.score += bonusPoints;
+                    showBonusText(bonusPoints);
+                    pear.remove();
+                    gameState.floatingPears = gameState.floatingPears.filter(p => p !== pear);
+                }
+            });
+        }
+
+        function updateHearts() {
+            const heartsElement = document.getElementById('hearts');
+            heartsElement.textContent = '💚'.repeat(gameState.lives) + '🤍'.repeat(3 - gameState.lives);
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('timer').textContent = gameState.timeLeft;
+            document.getElementById('highScore').textContent = gameState.highScore;
+        }
+
+        function endGame(message) {
+            gameState.isPlaying = false;
+            
+            // Update high score
+            if (gameState.score > gameState.highScore) {
+                gameState.highScore = gameState.score;
+                localStorage.setItem('gopeariHighScore', gameState.highScore);
+                message += "\n🎉 New High Score! 🎉";
+            }
+            
+            document.getElementById('finalMessage').textContent = message;
+            document.getElementById('finalScore').textContent = gameState.score;
+            gameOverScreen.style.display = 'flex';
+            
+            // Clear obstacles and floating pears
+            gameState.obstacles.forEach(obs => obs.remove());
+            gameState.obstacles = [];
+            gameState.floatingPears.forEach(pear => pear.remove());
+            gameState.floatingPears = [];
+        }
+
+        function gameLoop() {
+            if (!gameState.isPlaying) return;
+
+            // Update timer (decrease by roughly 1 second per second)
+            const currentTime = Date.now();
+            const elapsedSeconds = Math.floor((currentTime - gameState.gameStartTime) / 1000);
+            gameState.timeLeft = Math.max(0, 30 - elapsedSeconds);
+            
+            // Check win condition (survived 30 seconds)
+            if (gameState.timeLeft <= 0) {
+                endGame("🎉 Success! Perry survived and caught Baby Perry! 🍐💚");
+                return;
+            }
+            
+            // Increase score over time
+            gameState.score += Math.floor(gameState.gameSpeed);
+            
+            // Increase game speed gradually
+            gameState.gameSpeed += 0.0008;
+            
+            // Create obstacles
+            if (Math.random() < gameState.obstacleFrequency * gameState.gameSpeed) {
+                createObstacle();
+            }
+            
+            // Create floating pears
+            if (Math.random() < gameState.pearFrequency * gameState.gameSpeed) {
+                createFloatingPear();
+            }
+            
+            // Check collisions
+            checkCollisions();
+            
+            // Update UI
+            updateUI();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                jump();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (gameState.isPlaying && 
+                !startScreen.contains(e.target) && 
+                !gameOverScreen.contains(e.target)) {
+                jump();
+            }
+        });
+
+        // Prevent spacebar scrolling
+        window.addEventListener('keydown', (e) => {
+            if (e.keyCode === 32 && e.target === document.body) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

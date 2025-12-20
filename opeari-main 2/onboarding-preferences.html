@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Preferences | Opeari</title>
+  <link rel="icon" href="images/favicon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap" rel="stylesheet" />
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary: #1e6b4e;
+      --coral: #F8C3B3;
+      --coral-light: rgba(248, 195, 179, 0.25);
+      --background: #d8f5e5;
+      --text: #1e6b4e;
+      --text-light: #3d8c6c;
+      --white: #ffffff;
+      --border: #c8e6d9;
+    }
+    
+    html, body {
+      height: 100%;
+    }
+    
+    body {
+      font-family: 'Comfortaa', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    header {
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .logo {
+      height: 70px;
+    }
+    
+    .progress {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .progress-step {
+      width: 32px;
+      height: 4px;
+      border-radius: 2px;
+      background-color: var(--border);
+    }
+    
+    .progress-step.active {
+      background-color: var(--primary);
+    }
+    
+    .progress-step.complete {
+      background-color: var(--coral);
+    }
+    
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    
+    .onboarding-container {
+      width: 100%;
+      max-width: 460px;
+    }
+    
+    .step-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .step-number {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .onboarding-card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 24px rgba(30, 107, 78, 0.08);
+    }
+    
+    /* Sections */
+    .section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .section:last-of-type {
+      margin-bottom: 1.25rem;
+    }
+    
+    .section-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    
+    /* Chips */
+    .chips {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+    
+    .chip {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: 'Comfortaa', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    
+    .chip:hover {
+      border-color: var(--primary);
+    }
+    
+    .chip.selected {
+      border-color: var(--primary);
+      background: var(--coral-light);
+    }
+    
+    /* Last chip spans remaining space on its row */
+    .chip:last-child:nth-child(3n+1) {
+      grid-column: span 3;
+    }
+    
+    .chip:last-child:nth-child(3n+2) {
+      grid-column: span 2;
+    }
+    
+    /* Zip input */
+    .zip-input {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      font-family: 'Comfortaa', sans-serif;
+      font-weight: 600;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: var(--white);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s ease;
+      text-align: center;
+      letter-spacing: 0.1em;
+    }
+    
+    .zip-input:focus {
+      border-color: var(--primary);
+    }
+    
+    .zip-input::placeholder {
+      color: var(--text-light);
+      opacity: 0.4;
+    }
+    
+    /* Distance */
+    .distance-options {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .distance-btn {
+      flex: 1;
+      padding: 0.75rem 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: 'Comfortaa', sans-serif;
+      background: var(--white);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .distance-btn:hover {
+      border-color: var(--primary);
+    }
+    
+    .distance-btn.selected {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--white);
+    }
+    
+    /* Buttons */
+    .buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .btn-back {
+      flex: 1;
+      padding: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'Comfortaa', sans-serif;
+      background: var(--white);
+      color: var(--text-light);
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-back:hover {
+      border-color: var(--text-light);
+    }
+    
+    .btn-next {
+      flex: 2;
+      padding: 1rem;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Comfortaa', sans-serif;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-next:hover:not(:disabled) {
+      background: var(--coral);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+    
+    .btn-next:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .skip {
+      display: block;
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      text-decoration: none;
+    }
+    
+    .skip:hover {
+      color: var(--primary);
+    }
+    
+    @media (max-width: 500px) {
+      header { padding: 1rem 1.25rem; }
+      main { padding: 1.5rem; align-items: flex-start; }
+      .onboarding-card { padding: 1.5rem; }
+      h1 { font-size: 1.5rem; }
+      .buttons { flex-direction: column-reverse; }
+      .btn-back, .btn-next { flex: none; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html">
+      <img src="images/logo.png" alt="Opeari" class="logo" />
+    </a>
+    <div class="progress">
+      <div class="progress-step complete"></div>
+      <div class="progress-step complete"></div>
+      <div class="progress-step active"></div>
+      <div class="progress-step"></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="onboarding-container">
+      <div class="step-header">
+        <p class="step-number">Step 3 of 4</p>
+        <h1>What are you looking for?</h1>
+      </div>
+      
+      <div class="onboarding-card">
+        
+        <div class="section">
+          <span class="section-label">I'm interested in...</span>
+          <div class="chips">
+            <button type="button" class="chip" data-value="nannyshare">Nanny share</button>
+            <button type="button" class="chip" data-value="aupair">Au pair</button>
+            <button type="button" class="chip" data-value="backup">Backup care</button>
+            <button type="button" class="chip" data-value="carpools">Carpools</button>
+            <button type="button" class="chip" data-value="activities">Activities</button>
+            <button type="button" class="chip" data-value="playdates">Playdates</button>
+            <button type="button" class="chip" data-value="travel">Travel</button>
+          </div>
+        </div>
+        
+        <div class="section">
+          <span class="section-label">Your zip code</span>
+          <input type="text" class="zip-input" id="zipCode" placeholder="90210" maxlength="5" inputmode="numeric" />
+        </div>
+        
+        <div class="section">
+          <span class="section-label">How close should matches be?</span>
+          <div class="distance-options">
+            <button type="button" class="distance-btn" data-value="1">1 mi</button>
+            <button type="button" class="distance-btn selected" data-value="3">3 mi</button>
+            <button type="button" class="distance-btn" data-value="5">5 mi</button>
+            <button type="button" class="distance-btn" data-value="10">10+</button>
+          </div>
+        </div>
+        
+        <div class="buttons">
+          <button type="button" class="btn-back" onclick="window.location.href='onboarding-schedule.html'">Back</button>
+          <button type="button" class="btn-next" id="nextBtn" disabled>Continue</button>
+        </div>
+      </div>
+      
+      <a href="onboarding-complete.html" class="skip">Skip for now</a>
+    </div>
+  </main>
+
+  <script>
+    const chips = document.querySelectorAll('.chip');
+    const distanceBtns = document.querySelectorAll('.distance-btn');
+    const zipInput = document.getElementById('zipCode');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('selected');
+        updateButton();
+      });
+    });
+    
+    distanceBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        distanceBtns.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+    
+    zipInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
+      updateButton();
+    });
+    
+    function updateButton() {
+      const hasChip = document.querySelectorAll('.chip.selected').length > 0;
+      const hasZip = zipInput.value.length === 5;
+      nextBtn.disabled = !(hasChip && hasZip);
+    }
+    
+    nextBtn.addEventListener('click', () => {
+      const interests = [];
+      document.querySelectorAll('.chip.selected').forEach(c => interests.push(c.dataset.value));
+      
+      const data = {
+        interests,
+        zipCode: zipInput.value,
+        distance: document.querySelector('.distance-btn.selected').dataset.value
+      };
+      
+      localStorage.setItem('opeari_onboarding_preferences', JSON.stringify(data));
+      window.location.href = 'onboarding-complete.html';
+    });
+  </script>
+</body>
+</html>

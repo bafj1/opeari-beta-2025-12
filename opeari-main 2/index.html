@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Opeari | Your Modern Childcare Village</title>
+  <meta name="description" content="The flexible, trusted child care network that forms around you." />
+  <link rel="icon" href="images/favicon.png" type="image/png">
+  
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Brand Palette (Matches Waitlist) */
+      --primary: #1e6b4e;
+      --primary-dark: #154a36;
+      --accent: #F8C3B3;
+      --accent-hover: #f0b09e;
+      --mint: #d8f5e5;
+      --bg: #fffaf5;
+      --white: #ffffff;
+      --text: #1e6b4e;
+      --text-light: #527a6a;
+      --border: rgba(30, 107, 78, 0.1);
+      --glass: rgba(255, 255, 255, 0.95);
+      --shadow: 0 8px 32px rgba(30, 107, 78, 0.08);
+      
+      /* UI Specs */
+      --header-height: 85px;
+      --radius: 20px;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html { scroll-behavior: smooth; }
+    
+    /* Better focus states for accessibility */
+    *:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    
+    body {
+      font-family: 'Comfortaa', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* --- HEADER --- */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 5%;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Official Logo */
+    .logo {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo img { height: 80px; width: auto; }
+
+    /* Navigation */
+    .desktop-nav {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .desktop-nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+      position: relative;
+    }
+    
+    .desktop-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+    
+    .desktop-nav a:hover::after { width: 100%; }
+    .desktop-nav a:hover { color: var(--primary); }
+
+    .nav-btn {
+      background-color: var(--accent);
+      color: var(--primary) !important;
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-weight: 700;
+      transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(248, 195, 179, 0.5);
+      background-color: var(--accent);
+    }
+
+    /* Mobile Menu */
+    .hamburger { 
+      display: none; 
+      background: none; 
+      border: none; 
+      cursor: pointer; 
+      flex-direction: column; 
+      gap: 5px;
+      padding: 10px;
+    }
+    .hamburger div { 
+      width: 24px; 
+      height: 2px; 
+      background: var(--primary); 
+      transition: 0.3s; 
+    }
+    
+    .mobile-nav {
+      position: fixed;
+      top: var(--header-height);
+      left: 0; right: 0;
+      background: var(--white);
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      z-index: 999;
+    }
+    
+    .mobile-nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 10px 0;
+      display: block;
+      text-align: center;
+    }
+
+    /* --- HERO SECTION --- */
+    .hero-section {
+      padding: 4rem 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      min-height: 80vh;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    /* Subtle decorative gradient */
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      right: -5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(216, 245, 229, 0.6) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .hero-text h1 {
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      line-height: 1.1;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-text p {
+      font-size: 1.15rem;
+      color: var(--text-light);
+      margin-bottom: 2.5rem;
+      max-width: 500px;
+      line-height: 1.7;
+    }
+
+    .cta-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
+    
+    /* Trust badges below CTA */
+    .trust-row {
+      display: flex;
+      gap: 20px;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+    
+    .trust-badge svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--primary);
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-block;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(30, 107, 78, 0.2);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(30, 107, 78, 0.35), 0 0 20px rgba(30, 107, 78, 0.15);
+      background: var(--primary);
+    }
+
+    .btn-outline {
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      background: transparent;
+    }
+    .btn-outline:hover { background: rgba(30, 107, 78, 0.05); }
+
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .hero-visual img {
+      width: 100%;
+      height: auto;
+      max-width: 450px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .hero-text { animation: fadeInUp 0.8s ease-out; }
+    .hero-visual { animation: fadeInUp 0.8s ease-out 0.2s both; }
+    .benefit-grid { animation: fadeInUp 0.8s ease-out 0.3s both; }
+    .glass-card { animation: fadeInUp 0.8s ease-out 0.4s both; }
+
+    /* --- BENEFITS GRID --- */
+    .benefits-section {
+      padding: 4rem 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .benefit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      text-align: center;
+    }
+
+    .benefit-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .icon-circle {
+      width: 80px; 
+      height: 80px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      color: var(--primary);
+      transition: transform 0.3s;
+    }
+    
+    .benefit-item:hover .icon-circle { 
+      transform: scale(1.1) rotate(5deg); 
+    }
+    
+    .benefit-item span { 
+      font-weight: 700; 
+      font-size: 1.1rem; 
+      color: var(--text); 
+    }
+
+    /* --- FEATURED CARD --- */
+    .featured-section { 
+      padding: 4rem 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 4rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .glass-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(30, 107, 78, 0.12);
+    }
+
+    .glass-card h2 {
+      font-size: 2.2rem;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .glass-card p {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      max-width: 700px;
+      margin: 0 auto 1.5rem;
+      line-height: 1.7;
+    }
+
+    /* --- LOGIN MODAL --- */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .modal.show { opacity: 1; }
+
+    .modal-content {
+      background: var(--white);
+      padding: 40px;
+      border-radius: 24px;
+      width: 90%;
+      max-width: 420px;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+      transform: scale(0.9) translateY(20px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .modal.show .modal-content { 
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: var(--primary);
+    }
+
+    .close { 
+      position: absolute; 
+      top: 20px; 
+      right: 20px; 
+      font-size: 28px; 
+      cursor: pointer; 
+      color: var(--text-light);
+      line-height: 1;
+    }
+    .close:hover { color: var(--primary); }
+
+    .form-group { margin-bottom: 1rem; }
+    
+    .form-group label { 
+      display: block; 
+      margin-bottom: 8px; 
+      font-weight: 700; 
+      font-size: 0.85rem; 
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    
+    .form-group input:focus { 
+      outline: none; 
+      border-color: var(--primary); 
+      box-shadow: 0 0 0 3px rgba(30,107,78,0.1);
+      background: #fff;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1rem;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: all 0.2s;
+    }
+    
+    .login-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .login-btn:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    .form-links {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    
+    .form-links a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .form-links a:hover { text-decoration: underline; }
+
+    .error-message {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: none;
+      text-align: center;
+      border: 1px solid #fecaca;
+    }
+    
+    .success-message {
+      background: var(--mint);
+      color: var(--primary);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: none;
+      text-align: center;
+    }
+
+    /* --- FOOTER --- */
+    footer {
+      background: var(--white);
+      padding: 3rem 20px;
+      margin-top: 4rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .footer-links { 
+      display: flex; 
+      justify-content: center; 
+      gap: 20px; 
+      margin-bottom: 20px; 
+      flex-wrap: wrap; 
+    }
+    .footer-links a { 
+      color: var(--primary); 
+      text-decoration: none; 
+      font-weight: 600; 
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--primary-dark); }
+    
+    .social-links { 
+      display: flex; 
+      justify-content: center; 
+      gap: 15px; 
+      margin-bottom: 20px; 
+    }
+    .social-icon { 
+      width: 24px; 
+      height: 24px; 
+      color: var(--primary); 
+      transition: transform 0.2s, color 0.2s; 
+    }
+    .social-icon:hover { 
+      transform: scale(1.1); 
+      color: var(--accent); 
+    }
+
+    .footer-copyright { 
+      font-size: 0.85rem; 
+      color: var(--text-light); 
+      opacity: 0.8; 
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 900px) {
+      :root { --header-height: 70px; }
+      
+      .hero-section { 
+        grid-template-columns: 1fr; 
+        text-align: center; 
+        padding-top: 2rem;
+        min-height: auto;
+      }
+      .hero-text { margin: 0 auto; }
+      .hero-text p { margin-left: auto; margin-right: auto; }
+      .hero-visual { order: -1; margin-bottom: 2rem; }
+      .hero-visual img { max-width: 300px; }
+      .cta-buttons { justify-content: center; }
+      .trust-row { justify-content: center; }
+      
+      .hero-section::before { display: none; }
+      
+      .desktop-nav { display: none; }
+      .hamburger { display: flex; }
+      
+      .logo img { height: 60px; }
+      
+      .glass-card { padding: 2rem; }
+      .glass-card h2 { font-size: 1.8rem; }
+    }
+    
+    @media (max-width: 500px) {
+      .hero-text h1 { font-size: 2rem; }
+      .cta-buttons { flex-direction: column; width: 100%; }
+      .btn { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-row">
+      <!-- Official Logo -->
+      <a href="index.html" class="logo">
+        <img src="images/offiical opeari logo (5.6.25).svg" alt="Opeari">
+      </a>
+
+      <nav class="desktop-nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="how-it-works.html">How It Works</a>
+        <a href="waitlist.html">Join</a>
+        <a href="faq.html">FAQ</a>
+        <button class="nav-btn" id="loginBtn">Login</button>
+      </nav>
+
+      <button class="hamburger" aria-label="Menu">
+        <div></div><div></div><div></div>
+      </button>
+    </div>
+
+    <!-- Mobile Nav -->
+    <nav class="mobile-nav">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="waitlist.html">Join</a>
+      <a href="faq.html">FAQ</a>
+      <button class="nav-btn" id="loginBtnMobile" style="width:100%; text-align:center;">Login</button>
+    </nav>
+  </header>
+
+  <section class="hero-section">
+    <div class="hero-text">
+      <h1>Flexible care, perfectly paired.</h1>
+      <p>Opeari blends au pair energy with community magic. Build a private childcare network with neighbors you trust—flexible, affordable, and powered by parents.</p>
+      <div class="cta-buttons">
+        <a href="waitlist.html" class="btn btn-primary">Join the Waitlist</a>
+        <a href="https://forms.gle/odaEVK696zgy4doy5" target="_blank" class="btn btn-outline">Help Us Learn</a>
+      </div>
+      <div class="trust-row">
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+          Background verified
+        </div>
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          Privacy-first
+        </div>
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Invite-only
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img src="images/pear-village-hero.png" alt="Opeari Village" loading="lazy" onerror="this.src='images/pear-waitlist.png'" />
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section class="benefits-section">
+    <div class="benefit-grid">
+      <div class="benefit-item">
+        <div class="icon-circle">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <span>Flexible Schedules</span>
+      </div>
+      <div class="benefit-item">
+        <div class="icon-circle">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        </div>
+        <span>Trusted Connections</span>
+      </div>
+      <div class="benefit-item">
+        <div class="icon-circle">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        </div>
+        <span>Parent-Powered</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURE CARD -->
+  <section class="featured-section">
+    <div class="glass-card">
+      <h2>Not an agency. Not a sitter app.</h2>
+      <p>Opeari is reimagining the way we parent—by helping families connect, share, and co-create care with people nearby. Whether you're swapping help, sharing a nanny, or starting something new, Opeari empowers you to build real support systems that move with you.</p>
+      <p style="margin-bottom:0; font-weight:700; color: var(--primary);">This is care, re-paired.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-links">
+      <a href="about.html">About</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="faq.html">FAQ</a>
+      <a href="/cdn-cgi/l/email-protection#036b666f6f6c436c736662716a2d606c6e">Contact</a>
+    </div>
+    
+    <div class="social-links">
+      <a href="https://instagram.com/opeari.co" target="_blank" aria-label="Instagram">
+        <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+      </a>
+    </div>
+    
+    <p class="footer-copyright">© 2025 Opeari, Inc. All rights reserved.</p>
+  </footer>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Welcome Back</h2>
+      <div id="loginError" class="error-message"></div>
+      <div id="loginSuccess" class="success-message"></div>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" name="email" required placeholder="you@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" name="password" required placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button type="submit" class="login-btn">Log In</button>
+        <div class="form-links">
+          <a href="#" class="forgot-password">Forgot password?</a>
+          <p style="margin-top: 10px;">New here? <a href="waitlist.html">Join the waitlist</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    (function() {
+      // ============ SUPABASE CONFIG ============
+      const SUPABASE_URL = 'https://rvostbkbbddbgcnxqchv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2b3N0YmtiYmRkYmdjbnhxY2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzcwMjAsImV4cCI6MjA4MDQ1MzAyMH0.k8LLGt_nCsFO9xINa-80Y49NSPSxryYxCoACwk97E_w';
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // ============ DOM ELEMENTS ============
+      const hamburger = document.querySelector('.hamburger');
+      const mobileNav = document.querySelector('.mobile-nav');
+      const loginModal = document.getElementById('loginModal');
+      const loginBtns = document.querySelectorAll('#loginBtn, #loginBtnMobile');
+      const closeBtn = document.querySelector('.close');
+      const loginForm = document.getElementById('loginForm');
+      const errorDiv = document.getElementById('loginError');
+      const successDiv = document.getElementById('loginSuccess');
+
+      // ============ MOBILE MENU ============
+      hamburger.addEventListener('click', () => {
+        const isHidden = getComputedStyle(mobileNav).display === 'none';
+        mobileNav.style.display = isHidden ? 'flex' : 'none';
+      });
+
+      // ============ MODAL LOGIC ============
+      function openModal(e) {
+        e.preventDefault();
+        loginModal.style.display = 'flex';
+        setTimeout(() => loginModal.classList.add('show'), 10);
+        mobileNav.style.display = 'none';
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        loginForm.reset();
+      }
+
+      function closeModal() {
+        loginModal.classList.remove('show');
+        setTimeout(() => loginModal.style.display = 'none', 300);
+      }
+
+      loginBtns.forEach(btn => btn.addEventListener('click', openModal));
+      closeBtn.addEventListener('click', closeModal);
+      window.addEventListener('click', (e) => { 
+        if (e.target === loginModal) closeModal(); 
+      });
+
+      // ============ LOGIN WITH SUPABASE ============
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        // Reset
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Logging in...';
+
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+
+          if (error) throw error;
+
+          successDiv.textContent = 'Welcome back! Redirecting...';
+          successDiv.style.display = 'block';
+
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 1500);
+
+        } catch (error) {
+          console.error('Login error:', error);
+          errorDiv.textContent = error.message || 'Invalid email or password.';
+          errorDiv.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Log In';
+        }
+      });
+
+      // Check existing session
+      async function checkSession() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (sess

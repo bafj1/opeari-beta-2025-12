@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Secure Your Spot | Opeari</title>
+  <meta name="description" content="Join the neighborhood childcare network.">
+  
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Brand Palette (Matches Homepage) */
+      --primary: #1e6b4e;
+      --accent: #F8C3B3;
+      --mint: #d8f5e5;
+      --text: #1e6b4e;
+      --white: #ffffff;
+      --error: #ef4444;
+      
+      /* UI Variables */
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.6);
+      --radius-lg: 24px;
+      --radius-sm: 12px;
+      --shadow-soft: 0 10px 40px -10px rgba(30, 107, 78, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Comfortaa', sans-serif;
+      background-color: var(--mint);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Decorative Top Stripe */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; height: 8px;
+      background: linear-gradient(90deg, #8bd7c7, var(--accent));
+      z-index: 20;
+    }
+
+    /* Floating Background Elements (Soul) */
+    .bg-shape {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(60px);
+      z-index: -1;
+      animation: float 10s infinite ease-in-out;
+    }
+    .shape-1 { top: -10%; left: -10%; width: 400px; height: 400px; background: rgba(139, 215, 199, 0.4); }
+    .shape-2 { bottom: -10%; right: -10%; width: 500px; height: 500px; background: rgba(248, 195, 179, 0.3); animation-delay: 2s; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(20px, -20px); }
+    }
+
+    /*--- Main Layout ---*/
+    .nav-header {
+      width: 100%;
+      max-width: 1200px;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-link {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .back-link:hover { opacity: 1; }
+
+    .main-container {
+      width: 100%;
+      max-width: 520px;
+      margin: 20px auto 60px;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /*--- The Card (Glassmorphism) ---*/
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-soft);
+      transform: translateY(0);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Header Text */
+    .form-header { text-align: center; margin-bottom: 30px; }
+    .form-header h1 { font-size: 1.8rem; margin-bottom: 10px; color: var(--primary); letter-spacing: -0.5px; }
+    .form-header p { font-size: 1rem; color: #4a6b5d; line-height: 1.5; }
+
+    /*--- Inputs & Groups ---*/
+    .form-group { margin-bottom: 20px; position: relative; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      margin-left: 4px;
+      color: var(--primary);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid transparent;
+      background: #fff;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--primary);
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(30, 107, 78, 0.1);
+    }
+    
+    input::placeholder { color: #aabeb6; }
+
+    /* ZIP Input specific */
+    #zipCode { letter-spacing: 2px; font-weight: 600; }
+
+    /* Custom Radio Cards (Role Selection) */
+    .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    
+    .role-option {
+      position: relative;
+    }
+    
+    .role-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    
+    .role-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: #fff;
+      border: 2px solid transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      height: 100%;
+    }
+    
+    .role-card span.icon { font-size: 1.5rem; margin-bottom: 5px; display: block; }
+    .role-card span.text { font-size: 0.9rem; font-weight: 700; }
+
+    .role-option input:checked + .role-card {
+      border-color: var(--primary);
+      background: rgba(30, 107, 78, 0.05);
+      color: var(--primary);
+    }
+
+    /* Honey Pot (Anti-Spam) */
+    .hp-field { display: none; visibility: hidden; }
+
+    /* CTA Button */
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.2s, background 0.2s;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(30, 107, 78, 0.3);
+    }
+
+    .btn-submit:hover {
+      background: #15523b;
+      transform: translateY(-2px);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    /* Success State (Gamification) */
+    .success-view { display: none; text-align: center; padding: 20px 0; }
+    .success-icon { 
+      font-size: 4rem; 
+      margin-bottom: 20px; 
+      display: inline-block;
+      animation: bounce 2s infinite; 
+    }
+    
+    .success-view h2 { color: var(--primary); margin-bottom: 10px; }
+    .success-view p { margin-bottom: 30px; font-size: 1.1rem; }
+    
+    .share-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: var(--radius-sm);
+      margin-top: 20px;
+      border: 2px dashed #8bd7c7;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Error Message */
+    .error-toast {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+      border: 1px solid #fecaca;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .card { padding: 24px; }
+      .form-row { grid-template-columns: 1fr; gap: 15px; }
+      .role-grid { grid-template-columns: 1fr; }
+      .role-card { flex-direction: row; gap: 10px; padding: 12px; justify-content: flex-start; }
+      .role-card span.icon { margin-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Backgrounds -->
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+
+  <!-- Header -->
+  <nav class="nav-header">
+    <a href="index.html" class="logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7zM9 20h6v2H9v-2zm3-13c-2.21 0-4-1.79-4-4h2c0 1.1.9 2 2 2s2-.9 2-2h2c0 2.21-1.79 4-4 4z"/>
+      </svg>
+      Opeari
+    </a>
+    <a href="index.html" class="back-link">← Back Home</a>
+  </nav>
+
+  <main class="main-container">
+    <div class="card">
+      
+      <!-- ERROR MESSAGE -->
+      <div id="errorToast" class="error-toast"></div>
+
+      <!-- FORM VIEW -->
+      <div id="formView">
+        <div class="form-header">
+          <h1>Build your village.</h1>
+          <p>We are launching neighborhood by neighborhood. Secure your spot in line now.</p>
+        </div>
+
+        <form id="waitlistForm">
+          <!-- Honeypot for bots -->
+          <input type="text" name="bot_check" class="hp-field" tabindex="-1" autocomplete="off">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" placeholder="Jane" required autocomplete="given-name">
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" placeholder="Doe" required autocomplete="family-name">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="jane@example.com" required autocomplete="email">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="zipCode">ZIP Code</label>
+              <input type="text" id="zipCode" name="zipCode" placeholder="90210" pattern="[0-9]*" inputmode="numeric" maxlength="5" required autocomplete="postal-code">
+            </div>
+            
+            <!-- Replaced long referral select with just 'How did you hear' - optional removed for MVP friction reduction -->
+          </div>
+
+          <label style="margin-bottom: 10px; display:block;">I am mainly a...</label>
+          <div class="role-grid">
+            <label class="role-option">
+              <input type="radio" name="role" value="family" checked>
+              <div class="role-card">
+                <span class="icon">🏠</span>
+                <span class="text">Parent</span>
+              </div>
+            </label>
+            <label class="role-option">
+              <input type="radio" name="role" value="caregiver">
+              <div class="role-card">
+                <span class="icon">💛</span>
+                <span class="text">Caregiver</span>
+              </div>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">Secure My Spot</button>
+          
+          <p style="text-align: center; margin-top: 15px; font-size: 0.8rem; opacity: 0.7;">
+            No spam, ever. Just community.
+          </p>
+        </form>
+      </div>
+
+      <!-- SUCCESS VIEW (Gamified) -->
+      <div id="successView" class="success-view">
+        <div class="success-icon">🍐</div>
+        <h2>You're on the list!</h2>
+        <p>Thanks, <span id="successName">Neighbor</span>. We've saved your spot.</p>
+        
+        <div class="share-box">
+          <p style="font-weight: 700; margin-bottom: 10px; color: var(--primary);">Want to skip the wait?</p>
+          <p style="font-size: 0.9rem; margin-bottom: 15px;">Opeari works best when your neighbors are on it too. Invite 2 friends to bump your priority.</p>
+          <button class="btn-submit" style="background: var(--accent); color: var(--primary); font-size: 1rem; padding: 12px;" onclick="copyLink()">
+            Copy Invite Link 🔗
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // --- Config ---
+    // NOTE: In production, ensure you have Row Level Security (RLS) enabled on Supabase
+    const SUPABASE_URL = 'https://rvostbkbbddbgcnxqchv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2b3N0YmtiYmRkYmdjbnhxY2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzcwMjAsImV4cCI6MjA4MDQ1MzAyMH0.k8LLGt_nCsFO9xINa-80Y49NSPSxryYxCoACwk97E_w';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- Logic ---
+    const form = document.getElementById('waitlistForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const formView = document.getElementById('formView');
+    const successView = document.getElementById('successView');
+    const errorToast = document.getElementById('errorToast');
+
+    // Input Validation: ZIP Code (Numbers Only)
+    document.getElementById('zipCode').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '').slice(0, 5);
+    });
+
+    // Form Submit
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorToast.style.display = 'none';
+
+      // 1. Bot Check (Honeypot)
+      const botField = document.querySelector('.hp-field');
+      if (botField.value) return; // Silent fail for bots
+
+      // 2. Loading State
+      const originalBtnText = submitBtn.innerText;
+      submitBtn.innerText = 'Securing spot...';
+      submitBtn.disabled = true;
+
+      // 3. Gather Data
+      const formData = {
+        first_name: document.getElementById('firstName').value.trim(),
+        last_name: document.getElementById('lastName').value.trim(),
+        email: document.getElementById('email').value.trim().toLowerCase(),
+        location: document.getElementById('zipCode').value.trim(),
+        role: document.querySelector('input[name="role"]:checked').value,
+        created_at: new Date().toISOString()
+        // Removed unnecessary fields for MVP conversion speed
+      };
+
+      try {
+        // 4. Check Duplicate (Client-side check - RLS is better but this works for UI)
+        const { count } = await supabase
+          .from('waitlist')
+          .select('*', { count: 'exact', head: true })
+          .eq('email', formData.email);
+
+        if (count > 0) {
+          throw new Error("You're already on the list! Check your inbox soon.");
+        }
+
+        // 5. Insert Data
+        // Mapping 'role' to 'notes' or a specific column depending on your DB schema
+        // Assuming you have 'notes' from previous schema, or update schema to have 'role'
+        const dbPayload = {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          location: formData.location,
+          notes: `Role: ${formData.role} | Source: Direct Waitlist`,
+          created_at: formData.created_at
+        };
+
+        const { error } = await supabase.from('waitlist').insert(dbPayload);
+
+        if (error) throw error;
+
+        // 6. Success State
+        document.getElementById('successName').innerText = formData.first_name;
+        formView.style.display = 'none';
+        successView.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (err) {
+        console.error(err);
+        errorToast.innerText = err.message || "Something went wrong. Please try again.";
+        errorToast.style.display = 'block';
+        submitBtn.innerText = originalBtnText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Growth Feature: Copy Link
+    function copyLink() {
+      const url = window.location.origin; // Or specific referral URL
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.querySelector('.share-box button');
+        btn.innerText = 'Copied! Share it 🍐';
+        setTimeout(() => btn.innerText = 'Copy Invite Link 🔗', 2000);
+      });
+    }
+  </script>
+</body>
+</html>

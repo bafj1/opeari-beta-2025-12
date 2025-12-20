@@ -1,0 +1,1622 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, ChevronLeft, Check, Upload, Star, Heart, Users, Clock, MapPin, Phone, Mail, User, Shield, Award, Calendar, Camera, Plus } from 'lucide-react';
+
+const ProviderOnboarding = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [theme, setTheme] = useState('light');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    preferredName: '',
+    pronouns: '',
+    phone: '',
+    email: '',
+    profilePhoto: null,
+    careTypes: [],
+    ageGroups: [],
+    languages: [],
+    references: '',
+    certifications: [],
+    trustAgreement: false,
+    availability: {},
+    radius: '',
+    willTravel: false,
+    hasTransportation: false,
+    uploadStatuses: {
+      profilePhoto: 'pending',
+      references: 'pending',
+      backgroundCheck: 'pending'
+    }
+  });
+
+  const totalSteps = 5;
+  const steps = [
+    { id: 1, title: 'Basic Info', icon: User },
+    { id: 2, title: 'Care Preferences', icon: Heart },
+    { id: 3, title: 'Safety & Trust', icon: Shield },
+    { id: 4, title: 'Availability', icon: Calendar },
+    { id: 5, title: 'Review & Submit', icon: Check }
+  ];
+
+  const careTypeOptions = [
+    'Babysitting', 'Tutoring', 'Nannying', 'Elder Help', 'Pet-sitting', 'Other'
+  ];
+
+  const ageGroupOptions = [
+    '0-2 years', '3-5 years', '6-10 years', '10-12 years'
+  ];
+
+  const certificationOptions = [
+    'CPR', 'First Aid', 'Early Childhood Ed', 'Other'
+  ];
+
+  const timeSlots = ['Morning', 'Afternoon', 'Evening'];
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleMultiSelect = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].includes(value) 
+        ? prev[field].filter(item => item !== value)
+        : [...prev[field], value]
+    }));
+  };
+
+  const handleFileUpload = (field, files) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: files,
+      uploadStatuses: {
+        ...prev.uploadStatuses,
+        [field]: files && files.length > 0 ? 'complete' : 'pending'
+      }
+    }));
+  };
+
+  const handleAvailabilityToggle = (day, time) => {
+    const key = `${day}-${time}`;
+    setFormData(prev => ({
+      ...prev,
+      availability: {
+        ...prev.availability,
+        [key]: !prev.availability[key]
+      }
+    }));
+  };
+
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  const handleSubmit = () => {
+    setShowSuccess(true);
+  };
+
+  const getProgressPercentage = () => {
+    return ((currentStep - 1) / (totalSteps - 1)) * 100;
+  };
+
+  const StatusIndicator = ({ status, children }) => (
+    <div className={`status-indicator ${
+      status === 'complete' ? 'status-complete' : 
+      status === 'in-progress' ? 'status-in-progress' : 'status-pending'
+    }`}>
+      {children}
+    </div>
+  );
+
+  const UploadArea = ({ id, title, subtitle, onFileSelect, hasFiles }) => (
+    <div 
+      className={`upload-area ${hasFiles ? 'has-files' : ''}`}
+      onClick={() => document.getElementById(id)?.click()}
+    >
+      <div className="upload-icon">
+        {hasFiles ? '✓' : <Plus size={32} />}
+      </div>
+      <div className="upload-text">{title}</div>
+      <div className="upload-subtext">{subtitle}</div>
+      <input
+        type="file"
+        id={id}
+        multiple
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={(e) => onFileSelect(e.target.files)}
+      />
+    </div>
+  );
+
+  const CheckboxGrid = ({ options, selectedValues, onToggle, field }) => (
+    <div className="checkbox-grid">
+      {options.map((option) => (
+        <div
+          key={option}
+          className={`checkbox-item ${selectedValues.includes(option) ? 'checked' : ''}`}
+          onClick={() => onToggle(field, option)}
+        >
+          <input
+            type="checkbox"
+            checked={selectedValues.includes(option)}
+            onChange={() => {}} // Controlled by parent onClick
+            onClick={(e) => e.stopPropagation()}
+          />
+          <label>{option}</label>
+        </div>
+      ))}
+    </div>
+  );
+
+  const StepOne = () => (
+    <div className="step-card">
+      <div className="step-header">
+        <div className="step-number">1</div>
+        <h2 className="step-title">Let's get to know you</h2>
+        <p className="step-description">Tell us a bit about yourself — don't worry, you can edit later!</p>
+      </div>
+      
+      <div className="form-section">
+        <h3>Profile Photo</h3>
+        <UploadArea
+          id="profilePhoto"
+          title="Upload your profile photo"
+          subtitle="A friendly photo helps families connect with you"
+          onFileSelect={(files) => handleFileUpload('profilePhoto', files)}
+          hasFiles={formData.profilePhoto}
+        />
+        <StatusIndicator status={formData.uploadStatuses.profilePhoto}>
+          Profile Photo: {formData.uploadStatuses.profilePhoto === 'complete' ? 'Uploaded' : 'Not Uploaded'}
+        </StatusIndicator>
+      </div>
+
+      <div className="form-section">
+        <h3>Basic Information</h3>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="fullName">Full Name *</label>
+            <input
+              type="text"
+              id="fullName"
+              value={formData.fullName}
+              onChange={(e) => handleInputChange('fullName', e.target.value)}
+              placeholder="Your full name"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="preferredName">Preferred Name</label>
+            <input
+              type="text"
+              id="preferredName"
+              value={formData.preferredName}
+              onChange={(e) => handleInputChange('preferredName', e.target.value)}
+              placeholder="What should we call you?"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="pronouns">Pronouns</label>
+            <select
+              id="pronouns"
+              value={formData.pronouns}
+              onChange={(e) => handleInputChange('pronouns', e.target.value)}
+            >
+              <option value="">Select pronouns</option>
+              <option value="she/her">She/Her</option>
+              <option value="he/him">He/Him</option>
+              <option value="they/them">They/Them</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="phone">Phone Number *</label>
+            <input
+              type="tel"
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => handleInputChange('phone', e.target.value)}
+              placeholder="(555) 123-4567"
+            />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="email">Email Address *</label>
+          <input
+            type="email"
+            id="email"
+            value={formData.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            placeholder="your@email.com"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const StepTwo = () => (
+    <div className="step-card">
+      <div className="step-header">
+        <div className="step-number">2</div>
+        <h2 className="step-title">What kind of care do you love providing?</h2>
+        <p className="step-description">Help families find the right match by sharing your care preferences</p>
+      </div>
+      
+      <div className="form-section">
+        <h3>Types of care you provide</h3>
+        <CheckboxGrid
+          options={careTypeOptions}
+          selectedValues={formData.careTypes}
+          onToggle={handleMultiSelect}
+          field="careTypes"
+        />
+      </div>
+
+      <div className="form-section">
+        <h3>Age groups you're comfortable with</h3>
+        <CheckboxGrid
+          options={ageGroupOptions}
+          selectedValues={formData.ageGroups}
+          onToggle={handleMultiSelect}
+          field="ageGroups"
+        />
+      </div>
+
+      <div className="form-section">
+        <h3>Languages spoken</h3>
+        <div className="form-group">
+          <input
+            type="text"
+            value={formData.languages.join(', ')}
+            onChange={(e) => handleInputChange('languages', e.target.value.split(', ').filter(lang => lang.trim()))}
+            placeholder="English, Spanish, French..."
+          />
+          <p className="form-subtext">Separate languages with commas</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const StepThree = () => (
+    <div className="step-card">
+      <div className="step-header">
+        <div className="step-number">3</div>
+        <h2 className="step-title">Building trust together</h2>
+        <p className="step-description">We keep your info private and secure — this helps families feel confident</p>
+      </div>
+      
+      <div className="form-section">
+        <h3>References</h3>
+        <div className="form-group">
+          <textarea
+            value={formData.references}
+            onChange={(e) => handleInputChange('references', e.target.value)}
+            rows={4}
+            placeholder="Share contact info for 2-3 references (previous families, employers, etc.)"
+          />
+        </div>
+      </div>
+
+      <div className="form-section">
+        <h3>Certifications</h3>
+        <CheckboxGrid
+          options={certificationOptions}
+          selectedValues={formData.certifications}
+          onToggle={handleMultiSelect}
+          field="certifications"
+        />
+      </div>
+
+      <div className="form-section">
+        <h3>Background Check</h3>
+        <div className="background-check-area">
+          <button className="action-link">
+            <Shield className="w-5 h-5 mr-2" />
+            Initiate Background Check
+          </button>
+          <p className="form-subtext">We'll guide you through this process after you submit</p>
+        </div>
+      </div>
+
+      <div className="form-section">
+        <div className="trust-agreement">
+          <input
+            type="checkbox"
+            id="trustAgreement"
+            checked={formData.trustAgreement}
+            onChange={(e) => handleInputChange('trustAgreement', e.target.checked)}
+          />
+          <label htmlFor="trustAgreement">
+            I agree to uphold Opeari's community guidelines and safety expectations. I understand that trust is the foundation of great care.
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+
+  const StepFour = () => (
+    <div className="step-card">
+      <div className="step-header">
+        <div className="step-number">4</div>
+        <h2 className="step-title">When are you available?</h2>
+        <p className="step-description">Share your general availability — families love flexibility!</p>
+      </div>
+      
+      <div className="form-section">
+        <h3>Weekly Availability</h3>
+        <div className="availability-grid">
+          <div className="availability-header">
+            <div></div>
+            {timeSlots.map((time) => (
+              <div key={time} className="time-slot-header">{time}</div>
+            ))}
+          </div>
+          {weekDays.map((day) => (
+            <div key={day} className="availability-row">
+              <div className="day-label">{day}</div>
+              {timeSlots.map((time) => (
+                <div key={`${day}-${time}`} className="availability-cell">
+                  <button
+                    onClick={() => handleAvailabilityToggle(day, time)}
+                    className={`availability-toggle ${
+                      formData.availability[`${day}-${time}`] ? 'active' : ''
+                    }`}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <p className="form-subtext">Click to toggle your availability for each time slot</p>
+      </div>
+
+      <div className="form-section">
+        <h3>Service Details</h3>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="radius">Service Area</label>
+            <input
+              type="text"
+              id="radius"
+              value={formData.radius}
+              onChange={(e) => handleInputChange('radius', e.target.value)}
+              placeholder="Zip code or neighborhood"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="hasTransportation">Transportation</label>
+            <select
+              id="hasTransportation"
+              value={formData.hasTransportation.toString()}
+              onChange={(e) => handleInputChange('hasTransportation', e.target.value === 'true')}
+            >
+              <option value="">Select option</option>
+              <option value="true">I have my own car</option>
+              <option value="false">I use public transport/rideshare</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="checkbox-item" onClick={() => handleInputChange('willTravel', !formData.willTravel)}>
+          <input
+            type="checkbox"
+            checked={formData.willTravel}
+            onChange={() => {}}
+          />
+          <label>I'm willing to travel to families' homes (vs. only hosting at my location)</label>
+        </div>
+      </div>
+    </div>
+  );
+
+  const StepFive = () => (
+    <div className="step-card">
+      <div className="step-header">
+        <div className="step-number">5</div>
+        <h2 className="step-title">Almost there!</h2>
+        <p className="step-description">Take a moment to review everything — looking good!</p>
+      </div>
+      
+      <div className="summary-section">
+        <h3>Provider Summary</h3>
+        <div className="summary-grid">
+          <div className="summary-item">
+            <div className="summary-row">
+              <span className="summary-label">Basic Info</span>
+              <button onClick={() => setCurrentStep(1)} className="edit-link">Edit</button>
+            </div>
+            <p className="summary-value">{formData.fullName} • {formData.email} • {formData.phone}</p>
+          </div>
+
+          <div className="summary-item">
+            <div className="summary-row">
+              <span className="summary-label">Care Preferences</span>
+              <button onClick={() => setCurrentStep(2)} className="edit-link">Edit</button>
+            </div>
+            <p className="summary-value">{formData.careTypes.join(', ')} • Ages: {formData.ageGroups.join(', ')}</p>
+          </div>
+
+          <div className="summary-item">
+            <div className="summary-row">
+              <span className="summary-label">Safety & Trust</span>
+              <button onClick={() => setCurrentStep(3)} className="edit-link">Edit</button>
+            </div>
+            <p className="summary-value">
+              {formData.certifications.length > 0 ? `Certifications: ${formData.certifications.join(', ')}` : 'No certifications listed'} 
+              {formData.trustAgreement ? ' • Community guidelines accepted' : ''}
+            </p>
+          </div>
+
+          <div className="summary-item">
+            <div className="summary-row">
+              <span className="summary-label">Availability</span>
+              <button onClick={() => setCurrentStep(4)} className="edit-link">Edit</button>
+            </div>
+            <p className="summary-value">
+              Service area: {formData.radius || 'Not specified'} • 
+              {formData.hasTransportation ? ' Has transportation' : ' Uses public transport'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const SuccessModal = () => (
+    <div className="modal-overlay">
+      <div className="success-modal">
+        <div className="success-icon">
+          <Check size={40} />
+        </div>
+        <h2>You're officially Opearing! 🍐</h2>
+        <p>
+          Our team will review your info and reach out with next steps. In the meantime, keep an eye on your inbox — and thanks for joining the care revolution.
+        </p>
+        <button 
+          onClick={() => setShowSuccess(false)}
+          className="btn btn-primary btn-large"
+        >
+          Return to Homepage
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className={`provider-onboarding ${theme}`} data-theme={theme}>
+      {/* Decorative stripes */}
+      <div className="top-stripe primary"></div>
+      <div className="top-stripe secondary"></div>
+
+      {/* Header */}
+      <header className="header">
+        <div className="container">
+          <div className="header-row">
+            <div className="logo-container">
+              <a href="#" className="logo">🍐 Opeari</a>
+            </div>
+            
+            <nav className="desktop-nav">
+              <a href="#">How It Works</a>
+              <a href="#">About</a>
+              <a href="#">FAQ</a>
+            </nav>
+            
+            <div className="utility-nav">
+              <div className="language-toggles">
+                <button className="lang-btn active">EN</button>
+                <button className="lang-btn">ES</button>
+              </div>
+              <button className="theme-toggle" onClick={toggleTheme}>
+                <div className="theme-toggle-slider"></div>
+              </button>
+              <button className="login-link">Login</button>
+              <button 
+                className="hamburger"
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+              >
+                <div></div>
+                <div></div>
+                <div></div>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {mobileNavOpen && (
+          <nav className="mobile-nav">
+            <a href="#">How It Works</a>
+            <a href="#">About</a>
+            <a href="#">FAQ</a>
+            <button className="login-link">Login</button>
+          </nav>
+        )}
+      </header>
+
+      {/* Hero Section */}
+      <section className="page-header">
+        <div className="container">
+          <h1>Become a trusted care provider in your neighborhood</h1>
+          <p className="subtitle">
+            Whether you're a retired teacher, a weekend babysitter, or a full-time nanny — Opeari makes it easy to connect with families who value flexibility, trust, and community.
+          </p>
+        </div>
+      </section>
+
+      {/* Progress Tracker */}
+      <section className="container">
+        <div className="progress-tracker">
+          <div className="progress-steps">
+            <div className="progress-line">
+              <div 
+                className="progress-fill" 
+                style={{ width: `${getProgressPercentage()}%` }}
+              />
+            </div>
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              const isActive = currentStep === step.id;
+              const isCompleted = currentStep > step.id;
+              
+              return (
+                <div 
+                  key={step.id} 
+                  className={`progress-step ${
+                    isCompleted ? 'completed' : isActive ? 'active' : ''
+                  }`}
+                >
+                  {isCompleted ? <Check size={20} /> : step.id}
+                </div>
+              );
+            })}
+          </div>
+          <div className="progress-labels">
+            {steps.map((step) => (
+              <span key={step.id}>{step.title}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Form Steps */}
+      <section className="builder-section">
+        <div className="container">
+          <div className="step-container active">
+            {currentStep === 1 && <StepOne />}
+            {currentStep === 2 && <StepTwo />}
+            {currentStep === 3 && <StepThree />}
+            {currentStep === 4 && <StepFour />}
+            {currentStep === 5 && <StepFive />}
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="navigation-buttons">
+            <button
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              className="btn btn-secondary"
+              style={{ visibility: currentStep === 1 ? 'hidden' : 'visible' }}
+            >
+              <ChevronLeft className="w-5 h-5 mr-2" />
+              Previous
+            </button>
+            
+            {currentStep < totalSteps ? (
+              <button
+                onClick={nextStep}
+                className="btn btn-primary"
+              >
+                Next Step
+                <ChevronRight className="w-5 h-5 ml-2" />
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                className="btn btn-primary btn-large"
+              >
+                Become a Verified Provider
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonial Section */}
+      <section className="testimonial-section">
+        <div className="container">
+          <div className="testimonial-card">
+            <Star className="testimonial-star" />
+            <blockquote>
+              "I used to juggle three apps. Now I just Opeari."
+            </blockquote>
+            <cite>— Leslie, weekend sitter</cite>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="footer-links">
+          <a href="#">About Us</a>
+          <a href="#">How It Works</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">FAQ</a>
+          <a href="#">Contact Us</a>
+        </div>
+        
+        <div className="social-links">
+          <a href="#" aria-label="Instagram">📷</a>
+          <a href="#" aria-label="Twitter">🐦</a>
+          <a href="#" aria-label="Facebook">📘</a>
+          <a href="#" aria-label="LinkedIn">💼</a>
+          <a href="#" aria-label="TikTok">🎵</a>
+        </div>
+        
+        <p className="footer-copyright">© 2025 Opeari, Inc. | Built by parents, powered by purpose</p>
+      </footer>
+
+      {showSuccess && <SuccessModal />}
+
+      <style jsx>{`
+        :root {
+          --primary: #056839;
+          --accent: #F2A069;
+          --background: #d8f5e5;
+          --text: #056839;
+          --light-accent: #F9E3D2;
+          --border-color: rgba(5, 104, 57, 0.1);
+          --btn-pink: #F8C3B3;
+          --teal-stripe: #8bd7c7;
+          --secondary-text: #4A6163;
+          --success-green: #4CAF50;
+          --warning-gray: #6B7280;
+          --pending-soft: #8bd7c7;
+          --progress-bg: rgba(255, 255, 255, 0.3);
+        }
+
+        [data-theme="dark"] {
+          --primary: #3CA370;
+          --accent: #F2A069;
+          --background: #1a3c2c;
+          --text: #E8E8E8;
+          --light-accent: #5D4331;
+          --border-color: rgba(60, 163, 112, 0.1);
+          --btn-pink: #F8C3B3;
+          --teal-stripe: #3CA370;
+          --secondary-text: #a0b5b7;
+        }
+
+        .provider-onboarding {
+          font-family: 'Comfortaa', -apple-system, BlinkMacSystemFont, sans-serif;
+          background-color: var(--background);
+          color: var(--text);
+          min-height: 100vh;
+          transition: all 0.3s ease;
+        }
+
+        .top-stripe {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1000;
+        }
+
+        .top-stripe.primary {
+          height: 10px;
+          background-color: var(--teal-stripe);
+        }
+
+        .top-stripe.secondary {
+          top: 18px;
+          height: 6px;
+          background-color: var(--teal-stripe);
+          opacity: 0.7;
+        }
+
+        .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 2rem;
+        }
+
+        .header {
+          margin-top: 30px;
+          position: sticky;
+          top: 0;
+          background-color: var(--background);
+          z-index: 100;
+          padding: 1rem 0;
+        }
+
+        .header-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .logo {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--primary);
+          text-decoration: none;
+        }
+
+        .desktop-nav {
+          display: flex;
+          gap: 1.5rem;
+          align-items: center;
+        }
+
+        .desktop-nav a {
+          color: var(--text);
+          text-decoration: none;
+          font-weight: 600;
+          transition: color 0.3s;
+        }
+
+        .desktop-nav a:hover {
+          color: var(--btn-pink);
+        }
+
+        .utility-nav {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .language-toggles {
+          display: flex;
+          border-radius: 20px;
+          overflow: hidden;
+          border: 1px solid var(--primary);
+        }
+
+        .lang-btn {
+          background: none;
+          border: none;
+          padding: 0.25rem 0.5rem;
+          cursor: pointer;
+          color: var(--primary);
+          font-weight: 600;
+        }
+
+        .lang-btn.active {
+          background-color: var(--primary);
+          color: white;
+        }
+
+        .theme-toggle {
+          position: relative;
+          width: 44px;
+          height: 24px;
+          border-radius: 12px;
+          background-color: var(--primary);
+          cursor: pointer;
+          border: none;
+          transition: background-color 0.3s;
+        }
+
+        .theme-toggle-slider {
+          position: absolute;
+          left: 3px;
+          top: 3px;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background-color: white;
+          transition: transform 0.3s;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+          background-color: var(--accent);
+        }
+
+        [data-theme="dark"] .theme-toggle-slider {
+          transform: translateX(20px);
+        }
+
+        .login-link {
+          background-color: var(--btn-pink);
+          color: var(--primary);
+          padding: 0.5rem 1rem;
+          border-radius: 25px;
+          border: none;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-decoration: none;
+        }
+
+        .login-link:hover {
+          background-color: #f5b2a1;
+          color: white;
+          transform: translateY(-2px);
+        }
+
+        .hamburger {
+          display: none;
+          background: none;
+          border: none;
+          cursor: pointer;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .hamburger div {
+          width: 25px;
+          height: 3px;
+          background-color: var(--primary);
+        }
+
+        .mobile-nav {
+          display: none;
+          flex-direction: column;
+          gap: 1rem;
+          padding: 1rem 2rem;
+          background-color: var(--background);
+        }
+
+        .mobile-nav a {
+          color: var(--text);
+          text-decoration: none;
+          font-weight: 600;
+        }
+
+        .page-header {
+          text-align: center;
+          padding: 4rem 2rem 2rem;
+        }
+
+        .page-header h1 {
+          font-size: 3rem;
+          color: var(--primary);
+          margin-bottom: 1rem;
+          font-weight: 700;
+        }
+
+        .page-header .subtitle {
+          font-size: 1.3rem;
+          line-height: 1.6;
+          max-width: 700px;
+          margin: 0 auto;
+          color: var(--text);
+        }
+
+        .progress-tracker {
+          background-color: rgba(255, 255, 255, 0.6);
+          padding: 2rem;
+          border-radius: 20px;
+          margin: 0 auto 3rem;
+          max-width: 900px;
+        }
+
+        .progress-steps {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: relative;
+          margin-bottom: 1rem;
+        }
+
+        .progress-line {
+          position: absolute;
+          top: 50%;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background-color: var(--progress-bg);
+          z-index: 1;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background-color: var(--teal-stripe);
+          width: 0%;
+          transition: width 0.5s ease;
+        }
+
+        .progress-step {
+          position: relative;
+          z-index: 2;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background-color: var(--progress-bg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          transition: all 0.3s ease;
+        }
+
+        .progress-step.completed {
+          background-color: var(--teal-stripe);
+          color: var(--primary);
+        }
+
+        .progress-step.active {
+          background-color: var(--primary);
+          color: white;
+          transform: scale(1.1);
+        }
+
+        .progress-labels {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.9rem;
+          font-weight: 600;
+          margin-top: 0.5rem;
+        }
+
+        .builder-section {
+          padding: 0 2rem 4rem;
+        }
+
+        .step-container {
+          max-width: 900px;
+          margin: 0 auto;
+        }
+
+        .step-card {
+          background-color: rgba(255, 255, 255, 0.8);
+          padding: 3rem;
+          border-radius: 20px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .step-header {
+          text-align: center;
+          margin-bottom: 3rem;
+        }
+
+        .step-number {
+          display: inline-block;
+          width: 60px;
+          height: 60px;
+          background-color: var(--primary);
+          color: white;
+          border-radius: 50%;
+          font-size: 1.5rem;
+          font-weight: 700;
+          line-height: 60px;
+          margin-bottom: 1rem;
+        }
+
+        .step-title {
+          font-size: 2rem;
+          color: var(--primary);
+          margin: 0 0 1rem;
+          font-weight: 600;
+        }
+
+        .step-description {
+          font-size: 1.1rem;
+          line-height: 1.6;
+          color: var(--text);
+          margin: 0;
+        }
+
+        .form-section {
+          margin-bottom: 2rem;
+        }
+
+        .form-section h3 {
+          color: var(--primary);
+          font-size: 1.3rem;
+          margin-bottom: 1rem;
+          font-weight: 600;
+        }
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+        }
+
+        .form-group {
+          margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+          display: block;
+          margin-bottom: 0.5rem;
+          color: var(--text);
+          font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+          width: 100%;
+          padding: 1rem;
+          border: 2px solid var(--border-color);
+          border-radius: 12px;
+          background-color: rgba(255, 255, 255, 0.8);
+          color: var(--text);
+          font-family: inherit;
+          box-sizing: border-box;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+          outline: none;
+          border-color: var(--primary);
+          background-color: white;
+          box-shadow: 0 0 0 3px rgba(5, 104, 57, 0.1);
+        }
+
+        .form-subtext {
+          font-size: 0.9rem;
+          color: var(--secondary-text);
+          margin-top: 0.5rem;
+          font-style: italic;
+        }
+
+        .upload-area {
+          border: 2px dashed var(--border-color);
+          border-radius: 15px;
+          padding: 2rem;
+          text-align: center;
+          background-color: rgba(255, 255, 255, 0.5);
+          transition: all 0.3s ease;
+          cursor: pointer;
+          margin-bottom: 1rem;
+        }
+
+        .upload-area:hover {
+          border-color: var(--primary);
+          background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .upload-area.has-files {
+          border-color: var(--success-green);
+          background-color: rgba(76, 175, 80, 0.1);
+        }
+
+        .upload-icon {
+          font-size: 2rem;
+          color: var(--primary);
+          margin-bottom: 1rem;
+          font-weight: 600;
+        }
+
+        .upload-text {
+          color: var(--text);
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+          color: var(--secondary-text);
+          font-size: 0.9rem;
+        }
+
+        .checkbox-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1rem;
+          margin: 1rem 0;
+        }
+
+        .checkbox-item {
+          display: flex;
+          align-items: center;
+          padding: 1rem;
+          background-color: rgba(255, 255, 255, 0.6);
+          border-radius: 10px;
+          border: 2px solid transparent;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          cursor: pointer;
+        }
+
+        .checkbox-item:hover {
+          border-color: var(--primary);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(5, 104, 57, 0.1);
+        }
+
+        .checkbox-item.checked {
+          border-color: var(--teal-stripe);
+          background-color: rgba(139, 215, 199, 0.15);
+          animation: checkboxBounce 0.4s ease-out;
+        }
+
+        @keyframes checkboxBounce {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.02); }
+          100% { transform: scale(1); }
+        }
+
+        .checkbox-item input {
+          margin-right: 0.75rem;
+          transform: scale(1.2);
+          accent-color: var(--primary);
+        }
+
+        .checkbox-item label {
+          font-weight: 600;
+          color: var(--text);
+          cursor: pointer;
+        }
+
+        .status-indicator {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          font-weight: 600;
+          font-size: 0.9rem;
+          margin: 1rem 0;
+        }
+
+        .status-pending {
+          background-color: var(--pending-soft);
+          color: var(--primary);
+        }
+
+        .status-complete {
+          background-color: var(--success-green);
+          color: white;
+        }
+
+        .status-in-progress {
+          background-color: var(--primary);
+          color: white;
+        }
+
+        .action-link {
+          display: inline-flex;
+          align-items: center;
+          color: var(--primary);
+          text-decoration: none;
+          font-weight: 600;
+          padding: 0.75rem 1.5rem;
+          border: 2px solid var(--primary);
+          border-radius: 25px;
+          transition: all 0.3s ease;
+          margin: 0.5rem 0;
+          background: none;
+          cursor: pointer;
+        }
+
+        .action-link:hover {
+          background-color: var(--primary);
+          color: white;
+        }
+
+        .background-check-area {
+          text-align: center;
+          padding: 1.5rem;
+          background-color: rgba(255, 255, 255, 0.5);
+          border-radius: 12px;
+        }
+
+        .trust-agreement {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          padding: 1.5rem;
+          background-color: rgba(255, 255, 255, 0.6);
+          border-radius: 12px;
+        }
+
+        .trust-agreement input {
+          margin-top: 0.25rem;
+          transform: scale(1.2);
+          accent-color: var(--primary);
+        }
+
+        .trust-agreement label {
+          font-weight: 500;
+          line-height: 1.5;
+          color: var(--text);
+        }
+
+        .availability-grid {
+          background-color: white;
+          border-radius: 12px;
+          overflow: hidden;
+          border: 1px solid var(--border-color);
+        }
+
+        .availability-header {
+          display: grid;
+          grid-template-columns: 80px repeat(3, 1fr);
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .availability-header > div {
+          padding: 0.75rem;
+          text-align: center;
+          font-weight: 600;
+          color: var(--secondary-text);
+          font-size: 0.9rem;
+        }
+
+        .availability-row {
+          display: grid;
+          grid-template-columns: 80px repeat(3, 1fr);
+          border-top: 1px solid var(--border-color);
+        }
+
+        .day-label {
+          padding: 1rem 0.75rem;
+          font-weight: 600;
+          color: var(--text);
+          background-color: rgba(0, 0, 0, 0.02);
+          display: flex;
+          align-items: center;
+        }
+
+        .availability-cell {
+          padding: 0.5rem;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-left: 1px solid var(--border-color);
+        }
+
+        .availability-toggle {
+          width: 40px;
+          height: 32px;
+          border: none;
+          border-radius: 6px;
+          background-color: #f3f4f6;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .availability-toggle.active {
+          background-color: var(--teal-stripe);
+        }
+
+        .availability-toggle:hover {
+          transform: scale(1.05);
+        }
+
+        .summary-section {
+          background-color: rgba(255, 255, 255, 0.8);
+          padding: 2rem;
+          border-radius: 15px;
+          margin: 2rem 0;
+        }
+
+        .summary-section h3 {
+          color: var(--primary);
+          font-size: 1.3rem;
+          margin-bottom: 1.5rem;
+          font-weight: 600;
+        }
+
+        .summary-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .summary-item {
+          padding: 1.5rem;
+          background-color: rgba(255, 255, 255, 0.6);
+          border-radius: 12px;
+          border-left: 4px solid var(--primary);
+        }
+
+        .summary-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.5rem;
+        }
+
+        .summary-label {
+          color: var(--text);
+          font-weight: 600;
+          font-size: 1.1rem;
+        }
+
+        .edit-link {
+          color: var(--primary);
+          background: none;
+          border: none;
+          font-weight: 600;
+          cursor: pointer;
+          text-decoration: underline;
+          font-size: 0.9rem;
+        }
+
+        .edit-link:hover {
+          color: var(--btn-pink);
+        }
+
+        .summary-value {
+          color: var(--secondary-text);
+          margin: 0;
+          line-height: 1.5;
+        }
+
+        .navigation-buttons {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 3rem;
+        }
+
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          padding: 1rem 2rem;
+          border-radius: 50px;
+          text-decoration: none;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          border: none;
+          cursor: pointer;
+          font-family: inherit;
+          font-size: 1rem;
+        }
+
+        .btn-primary {
+          background-color: var(--btn-pink);
+          color: var(--primary);
+        }
+
+        .btn-primary:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+          background-color: #f5b2a1;
+          color: white;
+        }
+
+        .btn-secondary {
+          background-color: transparent;
+          color: var(--primary);
+          border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+          background-color: rgba(5, 104, 57, 0.1);
+        }
+
+        .btn-secondary:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .btn-large {
+          padding: 1.5rem 3rem;
+          font-size: 1.2rem;
+        }
+
+        .testimonial-section {
+          padding: 4rem 2rem;
+        }
+
+        .testimonial-card {
+          background-color: rgba(255, 255, 255, 0.8);
+          padding: 2rem;
+          border-radius: 20px;
+          text-align: center;
+          max-width: 600px;
+          margin: 0 auto;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .testimonial-star {
+          color: var(--accent);
+          margin-bottom: 1rem;
+        }
+
+        .testimonial-card blockquote {
+          font-size: 1.2rem;
+          font-style: italic;
+          color: var(--text);
+          margin: 0 0 1rem;
+          line-height: 1.6;
+        }
+
+        .testimonial-card cite {
+          color: var(--primary);
+          font-weight: 600;
+        }
+
+        .footer {
+          text-align: center;
+          padding: 2rem 0;
+          background-color: var(--background);
+          border-top: 1px solid var(--teal-stripe);
+          margin-top: 2rem;
+        }
+
+        .footer-links {
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 1.25rem;
+          margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+          color: var(--primary);
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.9rem;
+          transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+          color: var(--btn-pink);
+        }
+
+        .social-links {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          margin: 1rem 0;
+        }
+
+        .social-links a {
+          font-size: 1.2rem;
+          text-decoration: none;
+          transition: transform 0.2s ease;
+        }
+
+        .social-links a:hover {
+          transform: scale(1.2);
+        }
+
+        .footer-copyright {
+          font-size: 0.85rem;
+          color: var(--primary);
+          margin-top: 1rem;
+        }
+
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 1rem;
+        }
+
+        .success-modal {
+          background-color: white;
+          border-radius: 20px;
+          padding: 3rem;
+          max-width: 500px;
+          width: 100%;
+          text-align: center;
+          animation: modalBounce 0.4s ease-out;
+        }
+
+        @keyframes modalBounce {
+          0% {
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+
+        .success-icon {
+          width: 80px;
+          height: 80px;
+          background-color: var(--teal-stripe);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 1.5rem;
+          color: var(--primary);
+        }
+
+        .success-modal h2 {
+          color: var(--primary);
+          font-size: 1.8rem;
+          margin-bottom: 1rem;
+          font-weight: 600;
+        }
+
+        .success-modal p {
+          color: var(--secondary-text);
+          line-height: 1.6;
+          margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+          .desktop-nav {
+            display: none;
+          }
+
+          .hamburger {
+            display: flex;
+          }
+
+          .mobile-nav {
+            display: flex;
+          }
+
+          .page-header h1 {
+            font-size: 2.2rem;
+          }
+
+          .page-header .subtitle {
+            font-size: 1.1rem;
+          }
+
+          .step-card {
+            padding: 2rem;
+          }
+
+          .form-row {
+            grid-template-columns: 1fr;
+          }
+
+          .checkbox-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .availability-header,
+          .availability-row {
+            grid-template-columns: 60px repeat(3, 1fr);
+          }
+
+          .navigation-buttons {
+            flex-direction: column;
+            gap: 1rem;
+          }
+
+          .btn {
+            width: 100%;
+            justify-content: center;
+          }
+
+          .container {
+            padding: 0 1rem;
+          }
+
+          .progress-tracker {
+            margin-bottom: 2rem;
+          }
+
+          .footer-links {
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default ProviderOnboarding;

@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opeari Settings - Profile Tab</title>
+    <style>
+        :root {
+            /* Opeari Brand Colors */
+            --mint-primary: #95BBAD;
+            --mint-medium: #48735E;
+            --mint-pale: #E8F8F0;
+            --dark-green: #20694E;
+            --peach: #FFCCC7;
+            --soft-yellow: #fff7d6;
+            --light-green: #D4FFEB;
+            
+            /* System Colors */
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            
+            /* Status Colors */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(30, 107, 78, 0.05);
+            --shadow: 0 4px 20px rgba(30, 107, 78, 0.08);
+            --shadow-lg: 0 8px 30px rgba(30, 107, 78, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comfortaa', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #D4FFEB 0%, #fff7d6 50%, #FFCCC7 100%);
+            min-height: 100vh;
+            color: var(--dark-green);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .main-nav {
+            background: var(--white);
+            border-bottom: 2px solid var(--gray-200);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-logo:hover {
+            transform: scale(1.02);
+        }
+        
+        .nav-logo-img {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 4px rgba(30, 107, 78, 0.2));
+        }
+        
+        .nav-logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark-green);
+            font-family: 'Comfortaa', sans-serif;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            font-family: 'Comfortaa', sans-serif;
+        }
+        
+        .nav-link:hover {
+            color: var(--dark-green);
+            background: var(--mint-pale);
+            transform: translateY(-1px);
+        }
+        
+        .nav-link-active {
+            color: var(--dark-green) !important;
+            background: var(--mint-pale) !important;
+        }
+
+        .nav-user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .nav-user-info {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .nav-user-name {
+            font-weight: 600;
+            color: var(--dark-green);
+            font-size: 0.9rem;
+        }
+        
+        .nav-user-points {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-weight: 500;
+        }
+
+        /* Container - Mobile First */
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 800px;
+                padding: 24px;
+            }
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 6px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-list {
+            display: flex;
+            gap: 4px;
+            min-width: max-content;
+        }
+
+        .tab-button {
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 44px;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            background: var(--gray-100);
+            color: var(--dark-green);
+        }
+
+        .tab-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--mint-primary);
+            background: var(--gray-100);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--mint-primary), var(--mint-medium));
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-button.active:focus {
+            box-shadow: 0 0 0 2px var(--mint-primary), var(--shadow-sm);
+        }
+
+        .tab-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Loading States - Removed */
+
+        /* Quick Actions Bar */
+        .quick-actions {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--mint-pale);
+        }
+
+        .quick-actions h3 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: var(--dark-green);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: var(--mint-pale);
+            color: var(--dark-green);
+            border: 1px solid var(--mint-primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: var(--mint-primary);
+            color: var(--white);
+            transform: translateY(-1px);
+        }
+
+        /* Profile Content */
+        .profile-content {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        /* Section Headers */
+        .section-header {
+            background: linear-gradient(135deg, var(--mint-pale), var(--light-green));
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-green);
+            margin-bottom: 4px;
+        }
+
+        .section-subtitle {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .personalized-tip {
+            background: var(--soft-yellow);
+            border: 1px solid #f0eb9a;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--dark-green);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Profile Photo Section */
+        .photo-section {
+            padding: 24px;
+            border-bottom: 1px solid var(--gray-200);
+            text-align: center;
+        }
+
+        .photo-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .photo-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--mint-primary), var(--mint-medium));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 2rem;
+            font-weight: 600;
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-upload-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .photo-preview:hover .photo-upload-overlay {
+            opacity: 1;
+        }
+
+        .upload-button {
+            background: var(--mint-primary);
+            color: var(--white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .upload-button:hover {
+            background: var(--mint-medium);
+            transform: translateY(-1px);
+        }
+
+        /* Form Sections */
+        .form-section {
+            padding: 24px;
+        }
+
+        .form-section:not(:last-child) {
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .section-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-green);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .form-grid.two-column {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Form Groups */
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--dark-green);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .label-required {
+            color: var(--error);
+            margin-left: 4px;
+        }
+
+        .label-help {
+            display: block;
+            color: var(--gray-500);
+            font-weight: 400;
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+
+        /* Form Inputs */
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: var(--white);
+            color: var(--gray-700);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--mint-primary);
+            box-shadow: 0 0 0 4px rgba(149, 187, 173, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Location Input with Map Integration */
+        .location-input-group {
+            position: relative;
+        }
+
+        .location-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border: 2px solid var(--mint-primary);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .location-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .location-option:hover {
+            background: var(--mint-pale);
+        }
+
+        .location-option:last-child {
+            border-bottom: none;
+        }
+
+        .location-details {
+            flex: 1;
+        }
+
+        .location-name {
+            font-weight: 500;
+            color: var(--dark-green);
+        }
+
+        .location-distance {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        /* Auto-save Indicator */
+        .auto-save-indicator {
+            position: absolute;
+            top: 8px;
+            right: 16px;
+            background: var(--success);
+            color: var(--white);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .auto-save-indicator.show {
+            opacity: 1;
+        }
+
+        .auto-save-indicator.saving {
+            background: var(--warning);
+        }
+
+        .auto-save-indicator.error {
+            background: var(--error);
+        }
+
+        /* Advanced Options */
+        .advanced-options {
+            margin-top: 16px;
+        }
+
+        .advanced-toggle {
+            background: none;
+            border: none;
+            color: var(--mint-primary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.3s ease;
+            padding: 8px 0;
+        }
+
+        .advanced-toggle:hover {
+            color: var(--dark-green);
+        }
+
+        .advanced-icon {
+            transition: transform 0.3s ease;
+            width: 12px;
+            height: 12px;
+        }
+
+        .advanced-toggle.expanded .advanced-icon {
+            transform: rotate(180deg);
+        }
+
+        .advanced-content {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .advanced-content.show {
+            display: block;
+        }
+
+        /* Completion Progress */
+        .completion-badge {
+            background: var(--light-green);
+            color: var(--dark-green);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+
+        /* Role Indicator */
+        .role-indicator {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            background: var(--white);
+            border: 2px solid var(--mint-primary);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--dark-green);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .role-indicator:hover {
+            background: var(--mint-pale);
+        }
+
+        /* Interest Tags */
+        .interest-tag {
+            background: var(--mint-pale);
+            color: var(--dark-green);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--mint-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 4px;
+        }
+
+        .interest-tag:hover {
+            background: var(--mint-primary);
+            color: var(--white);
+        }
+
+        .remove-interest {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            margin-left: 4px;
+            opacity: 0.7;
+            font-weight: bold;
+        }
+
+        .remove-interest:hover {
+            opacity: 1;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: var(--white);
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: var(--error);
+        }
+
+        .toast.warning {
+            background: var(--warning);
+        }
+
+        /* Footer - Better Readability */
+        .site-footer {
+            background: linear-gradient(135deg, var(--dark-green) 0%, var(--mint-medium) 100%);
+            color: var(--white);
+            margin-top: 60px;
+            font-family: 'Comfortaa', sans-serif;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .footer-top {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            padding: 60px 0 40px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .footer-section h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--white);
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-logo-img {
+            width: 40px;
+            height: 40px;
+            filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(255, 255, 255, 0.2));
+        }
+        
+        .footer-logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+        
+        .footer-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .footer-links a:hover {
+            color: var(--white);
+        }
+        
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .footer-legal p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 767px) {
+            .container {
+                padding: 12px;
+            }
+
+            .photo-preview {
+                width: 80px;
+                height: 80px;
+                font-size: 1.5rem;
+            }
+
+            .form-section {
+                padding: 20px 16px;
+            }
+
+            .role-indicator {
+                position: static;
+                margin-bottom: 16px;
+                margin-left: auto;
+                margin-right: auto;
+                width: fit-content;
+            }
+
+            .toast {
+                bottom: 90px;
+                right: 16px;
+                left: 16px;
+                max-width: none;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .footer-top {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 40px 0 30px 0;
+                text-align: center;
+            }
+
+            .tab-navigation {
+                margin: 0 -12px 20px -12px;
+                border-radius: 0;
+            }
+
+            .tab-list {
+                padding: 0 12px;
+                scroll-behavior: smooth;
+            }
+
+            .tab-button {
+                min-width: 120px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <img src="/images/logo.png" alt="Opeari Logo" class="nav-logo-img">
+                <span class="nav-logo-text">Opeari</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="/find-care" class="nav-link">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/>
+                    </svg>
+                    Find Care
+                </a>
+                <a href="/my-village" class="nav-link">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                    </svg>
+                    My Village
+                </a>
+                <a href="/account-settings" class="nav-link nav-link-active">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"/>
+                    </svg>
+                    Settings
+                </a>
+            </div>
+            
+            <div class="nav-user-menu">
+                <div class="nav-user-info">
+                    <div class="nav-user-name" id="navUserName">Sarah J.</div>
+                    <div class="nav-user-points" id="navUserPoints">3,850 pts</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Role Indicator -->
+    <div class="role-indicator" id="roleIndicator" onclick="switchUserRole()">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span>Parent Mode</span>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <span id="toastMessage">Profile updated!</span>
+    </div>
+
+    <div class="container">
+        <!-- Tab Navigation -->
+        <nav class="tab-navigation">
+            <div class="tab-list" role="tablist">
+                <button class="tab-button active" role="tab" aria-selected="true">
+                    <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Profile</span>
+                </button>
+                <button class="tab-button" role="tab" aria-selected="false" aria-controls="family-panel" id="family-tab">
+                    <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                    </svg>
+                    <span>Family & Care</span>
+                </button>
+                <button class="tab-button" role="tab" aria-selected="false">
+                    <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Schedule</span>
+                </button>
+                <button class="tab-button" role="tab" aria-selected="false">
+                    <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Safety & Village</span>
+                </button>
+                <button class="tab-button" role="tab" aria-selected="false">
+                    <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions" id="quickActions">
+            <h3>
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                </svg>
+                <span id="quickActionsTitle">Parent Quick Actions</span>
+            </h3>
+            <div class="action-buttons" id="actionButtons">
+                <button class="action-btn" onclick="handleQuickAction('addChild')">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span>Add Child Info</span>
+                </button>
+                <button class="action-btn" onclick="handleQuickAction('findCare')">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8z"/></svg>
+                    <span>Find Caregivers</span>
+                </button>
+                <button class="action-btn" onclick="handleQuickAction('safety')">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944z"/></svg>
+                    <span>Safety Settings</span>
+                </button>
+                <button class="action-btn" onclick="handleQuickAction('availability')">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4z"/></svg>
+                    <span>Set Availability</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="profile-content" role="tabpanel" id="profile-panel" aria-labelledby="profile-tab">
+            <!-- Section Header -->
+            <div class="section-header">
+                <h1 class="section-title">
+                    Your Profile
+                    <span class="completion-badge" id="profileCompletion">85% Complete</span>
+                </h1>
+                <p class="section-subtitle" id="sectionSubtitle">Help families get to know and trust you</p>
+                <div class="personalized-tip" id="personalizedTip">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    A complete profile helps other parents feel confident connecting with you
+                </div>
+            </div>
+
+            <!-- Profile Photo Section -->
+            <div class="photo-section">
+                <div class="photo-container">
+                    <div class="photo-preview" id="photoPreview">
+                        SJ
+                        <div class="photo-upload-overlay" onclick="uploadPhoto()">
+                            <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <button class="upload-button" onclick="uploadPhoto()">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                    </svg>
+                    Update Photo
+                </button>
+                <p style="color: var(--gray-500); font-size: 0.8rem; margin-top: 8px;">
+                    JPG or PNG, max 2MB
+                </p>
+            </div>
+
+            <!-- Basic Information -->
+            <div class="form-section">
+                <div class="section-label">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Basic Information
+                </div>
+                
+                <div class="form-grid two-column">
+                    <div class="form-group">
+                        <label class="form-label">
+                            First Name
+                            <span class="label-required">*</span>
+                            <span class="label-help" id="firstNameHelp">How should other parents know you?</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="firstName" 
+                            value="Sarah"
+                            data-field="FirstName"
+                            data-table="Members"
+                            required
+                        >
+                        <div class="auto-save-indicator" id="firstName-indicator">Saved</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Last Name
+                            <span class="label-required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="lastName" 
+                            value="Johnson"
+                            data-field="LastName"
+                            data-table="Members"
+                            required
+                        >
+                        <div class="auto-save-indicator" id="lastName-indicator">Saved</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Display Name
+                        <span class="label-help">Your unique handle (like @johndoe_sf)</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="displayName" 
+                        value="sarah_johnson_sf"
+                        data-field="DisplayName"
+                        data-table="Members"
+                        pattern="[a-zA-Z0-9_]+"
+                    >
+                    <div class="auto-save-indicator" id="displayName-indicator">Saved</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span id="taglineLabel">Your Parent Tagline</span>
+                        <span class="label-help" id="taglineHelp">What makes you a great parent and community member?</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="tagline" 
+                        value="Mom of two who loves organizing playdates!"
+                        data-field="Tagline"
+                        data-table="Members"
+                        maxlength="80"
+                    >
+                    <div class="auto-save-indicator" id="tagline-indicator">Saved</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span id="bioLabel">About You as a Parent</span>
+                        <span class="label-help" id="bioHelp">Share your parenting style, kids' ages, and how you like to help other families</span>
+                    </label>
+                    <textarea 
+                        class="form-textarea" 
+                        id="bio" 
+                        data-field="Bio"
+                        data-table="Members"
+                        maxlength="500"
+                        placeholder="Tell your story! What do you love about parenting? What are your hobbies? How do you like to help other families?"
+                    >Former marketing manager turned stay-at-home mom. I have a 4-year-old daughter Emma and 2-year-old son Max. Love organizing neighborhood activities and helping other parents navigate SF with kids!</textarea>
+                    <div class="auto-save-indicator" id="bio-indicator">Saved</div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="form-section">
+                <div class="section-label">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                    </svg>
+                    Contact Information
+                </div>
+                
+                <div class="form-grid two-column">
+                    <div class="form-group">
+                        <label class="form-label">
+                            Email Address
+                            <span class="label-required">*</span>
+                            <span class="label-help">Used for notifications and account recovery</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            class="form-input" 
+                            id="email" 
+                            value="sarah.parent@example.com"
+                            data-field="Email"
+                            data-table="Members"
+                            required
+                        >
+                        <div class="auto-save-indicator" id="email-indicator">Saved</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Phone Number
+                            <span class="label-required">*</span>
+                            <span class="label-help">For urgent notifications and verification</span>
+                        </label>
+                        <input 
+                            type="tel" 
+                            class="form-input" 
+                            id="phoneNumber" 
+                            value="(415) 123-4567"
+                            data-field="PhoneNumber"
+                            data-table="Members"
+                            required
+                        >
+                        <div class="auto-save-indicator" id="phoneNumber-indicator">Saved</div>
+                    </div>
+                </div>
+
+                <div class="form-grid two-column">
+                    <div class="form-group location-input-group">
+                        <label class="form-label">
+                            Neighborhood
+                            <span class="label-required">*</span>
+                            <span class="label-help">Help others find local connections</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="neighborhood" 
+                            value="Mission District"
+                            data-field="Neighborhood"
+                            data-table="Members"
+                            required
+                            autocomplete="off"
+                            onFocus="showLocationSuggestions()"
+                            onInput="filterLocations(this.value)"
+                        >
+                        <div class="location-suggestions" id="locationSuggestions">
+                            <!-- Dynamic content -->
+                        </div>
+                        <div class="auto-save-indicator" id="neighborhood-indicator">Saved</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Location Summary
+                            <span class="label-help">Public location (e.g., "Mission District, SF")</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="locationSummary" 
+                            value="Mission District, SF"
+                            data-field="LocationSummary"
+                            data-table="Members"
+                        >
+                        <div class="auto-save-indicator" id="locationSummary-indicator">Saved</div>
+                    </div>
+                </div>
+
+                <!-- Advanced Contact Options -->
+                <div class="advanced-options">
+                    <button class="advanced-toggle" onclick="toggleAdvanced('contact')">
+                        <span>More contact options</span>
+                        <svg class="advanced-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 10l5 5 5-5z"/>
+                        </svg>
+                    </button>
+                    <div class="advanced-content" id="contact-advanced">
+                        <div class="form-grid two-column">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Pronouns
+                                    <span class="label-help">Help others address you correctly</span>
+                                </label>
+                                <select class="form-select" id="pronouns" data-field="Pronouns" data-table="Members">
+                                    <option value="">Select pronouns</option>
+                                    <option value="she/her">She/Her</option>
+                                    <option value="he/him">He/Him</option>
+                                    <option value="they/them">They/Them</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Birthday
+                                    <span class="label-help">We'll celebrate with you! (month/day only shown)</span>
+                                </label>
+                                <input 
+                                    type="date" 
+                                    class="form-input" 
+                                    id="birthdate" 
+                                    data-field="Birthday"
+                                    data-table="Members"
+                                >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Languages You Speak
+                                <span class="label-help">Separate multiple languages with commas</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-input" 
+                                id="spokenLanguages" 
+                                value=""
+                                data-field="SpokenLanguages"
+                                data-table="Members"
+                                placeholder="English, Spanish, French..."
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interests Section -->
+            <div class="form-section">
+                <div class="section-label">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                    Interests & Hobbies
+                </div>
+                <p style="color: var(--gray-600); margin-bottom: 16px; font-size: 0.9rem;">
+                    Share your interests to connect with like-minded families
+                </p>
+                
+                <div class="form-group">
+                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="interestInput" 
+                            placeholder="Add an interest..."
+                            style="flex: 1;"
+                        >
+                        <button class="upload-button" onclick="addInterest()" style="margin: 0; padding: 14px 20px;">
+                            Add
+                        </button>
+                    </div>
+                    
+                    <div id="interestTags" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="/images/logo.png" alt="Opeari Logo" class="footer-logo-img">
+                        <span class="footer-logo-text">Opeari</span>
+                    </div>
+                    <p class="footer-description">
+                        Building trusted childcare villages where families support each other. 
+                        Safe, verified, and community-focused care for the modern family.
+                    </p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Platform</h4>
+                    <ul class="footer-links">
+                        <li><a href="/find-care">Find Care</a></li>
+                        <li><a href="/offer-care">Offer Care</a></li>
+                        <li><a href="/my-village">My Village</a></li>
+                        <li><a href="/safety">Safety Center</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="/help">Help Center</a></li>
+                        <li><a href="/contact">Contact Us</a></li>
+                        <li><a href="/community">Community</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/careers">Careers</a></li>
+                        <li><a href="/press">Press</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-legal">
+                    <p>&copy; 2024 Opeari. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================================================
+        // USER DATA SIMULATION
+        // ============================================================================
+        
+        // Simulate user data - in real app, this would come from API/Airtable
+        const USER_PROFILES = {
+            'sarah.parent@example.com': {
+                firstName: 'Sarah',
+                lastName: 'Johnson',
+                displayName: 'sarah_johnson_sf',
+                email: 'sarah.parent@example.com',
+                phoneNumber: '(415) 123-4567',
+                neighborhood: 'Mission District',
+                locationSummary: 'Mission District, SF',
+                tagline: 'Mom of two who loves organizing playdates!',
+                bio: 'Former marketing manager turned stay-at-home mom. I have a 4-year-old daughter Emma and 2-year-old son Max. Love organizing neighborhood activities and helping other parents navigate SF with kids!',
+                interests: ['Hiking', 'Cooking', 'Yoga', 'Photography'],
+                role: 'parent',
+                pronouns: 'she/her',
+                spokenLanguages: 'English, Spanish',
+                points: 3850,
+                photoUrl: '',
+                profileCompletion: 85
+            },
+            'john.provider@example.com': {
+                firstName: 'John',
+                lastName: 'Martinez',
+                displayName: 'john_martinez_care',
+                email: 'john.provider@example.com',
+                phoneNumber: '(415) 987-6543',
+                neighborhood: 'Castro District',
+                locationSummary: 'Castro District, SF',
+                tagline: 'Experienced childcare provider & former teacher',
+                bio: 'Former elementary school teacher with 8 years of experience. I specialize in creative learning activities and have worked with children ages 2-12. CPR certified and love helping families in our community!',
+                interests: ['Reading', 'Arts & Crafts', 'Music', 'Education'],
+                role: 'provider',
+                pronouns: 'he/him',
+                spokenLanguages: 'English, French',
+                points: 7240,
+                photoUrl: '',
+                profileCompletion: 92
+            },
+            'alex.both@example.com': {
+                firstName: 'Alex',
+                lastName: 'Chen',
+                displayName: 'alex_chen_village',
+                email: 'alex.both@example.com',
+                phoneNumber: '(415) 555-0123',
+                neighborhood: 'Noe Valley',
+                locationSummary: 'Noe Valley, SF',
+                tagline: 'Parent + provider building community connections',
+                bio: 'Parent of 6-year-old twins and part-time nanny. I believe in building strong village connections where we all support each other. Love organizing care swaps and community events!',
+                interests: ['Community Building', 'Gardening', 'Baking', 'Soccer'],
+                role: 'both',
+                pronouns: 'they/them',
+                spokenLanguages: 'English, Mandarin',
+                points: 5690,
+                photoUrl: '',
+                profileCompletion: 78
+            }
+        };
+
+        // ============================================================================
+        // DYNAMIC USER LOADING
+        // ============================================================================
+        
+        let currentUser = null;
+        let currentUserRole = 'parent';
+        let lastCompletionPercentage = 0;
+        let hasShownCompletionToast = false;
+
+        function getCurrentUserEmail() {
+            // In real app, this would come from authentication
+            const emails = Object.keys(USER_PROFILES);
+            const savedEmail = localStorage.getItem('opeari_current_user');
+            
+            if (savedEmail && USER_PROFILES[savedEmail]) {
+                return savedEmail;
+            }
+            
+            // Default to first user for demo
+            return emails[0];
+        }
+
+        function loadUserData() {
+            const userEmail = getCurrentUserEmail();
+            currentUser = USER_PROFILES[userEmail];
+            
+            if (!currentUser) {
+                console.error('User not found:', userEmail);
+                currentUser = USER_PROFILES[Object.keys(USER_PROFILES)[0]];
+            }
+            
+            currentUserRole = currentUser.role;
+            
+            // Populate user data in the UI
+            populateUserData();
+            initializePersonalization();
+            
+            console.log('🍐 Loaded user:', currentUser.firstName, currentUser.lastName);
+        }
+
+        function populateUserData() {
+            // Header
+            document.getElementById('navUserName').textContent = `${currentUser.firstName} ${currentUser.lastName.charAt(0)}.`;
+            document.getElementById('navUserPoints').textContent = `${currentUser.points.toLocaleString()} pts`;
+            
+            // Profile fields
+            document.getElementById('firstName').value = currentUser.firstName;
+            document.getElementById('lastName').value = currentUser.lastName;
+            document.getElementById('displayName').value = currentUser.displayName;
+            document.getElementById('email').value = currentUser.email;
+            document.getElementById('phoneNumber').value = currentUser.phoneNumber;
+            document.getElementById('neighborhood').value = currentUser.neighborhood;
+            document.getElementById('locationSummary').value = currentUser.locationSummary;
+            document.getElementById('tagline').value = currentUser.tagline;
+            document.getElementById('bio').value = currentUser.bio;
+            
+            if (currentUser.pronouns) {
+                document.getElementById('pronouns').value = currentUser.pronouns;
+            }
+            
+            if (currentUser.spokenLanguages) {
+                document.getElementById('spokenLanguages').value = currentUser.spokenLanguages;
+            }
+            
+            // Photo preview
+            const photoPreview = document.getElementById('photoPreview');
+            if (currentUser.photoUrl) {
+                photoPreview.innerHTML = `
+                    <img src="${currentUser.photoUrl}" alt="Profile" />
+                    <div class="photo-upload-overlay" onclick="uploadPhoto()">
+                        <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                `;
+            } else {
+                const initials = `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`;
+                photoPreview.innerHTML = `
+                    ${initials}
+                    <div class="photo-upload-overlay" onclick="uploadPhoto()">
+                        <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                `;
+            }
+            
+            // Interests
+            const interestContainer = document.getElementById('interestTags');
+            interestContainer.innerHTML = currentUser.interests.map(interest => `
+                <span class="interest-tag" onclick="removeInterest(this)">
+                    ${interest}
+                    <button class="remove-interest">&times;</button>
+                </span>
+            `).join('');
+            
+            // Update profile completion
+            lastCompletionPercentage = currentUser.profileCompletion;
+            updateProfileCompletion();
+            
+            // Remove loading states
+            document.querySelectorAll('.loading-skeleton').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Remove placeholder texts
+            document.querySelectorAll('input[placeholder="Loading..."]').forEach(input => {
+                input.placeholder = '';
+            });
+            
+            document.querySelector('textarea[placeholder="Loading your profile..."]').placeholder = 'Tell your story! What do you love about parenting? What are your hobbies? How do you like to help other families?';
+        }
+
+        // ============================================================================
+        // AIRTABLE DATA MAPPING
+        // ============================================================================
+        
+        const AIRTABLE_FIELD_MAPPING = {
+            'firstName': { field: 'FirstName', table: 'Members', required: true },
+            'lastName': { field: 'LastName', table: 'Members', required: true },
+            'displayName': { field: 'DisplayName', table: 'Members', required: false },
+            'tagline': { field: 'Tagline', table: 'Members', required: false },
+            'bio': { field: 'Bio', table: 'Members', required: false },
+            'email': { field: 'Email', table: 'Members', required: true },
+            'phoneNumber': { field: 'PhoneNumber', table: 'Members', required: true },
+            'neighborhood': { field: 'Neighborhood', table: 'Members', required: true },
+            'locationSummary': { field: 'LocationSummary', table: 'Members', required: false },
+            'pronouns': { field: 'Pronouns', table: 'Members', required: false },
+            'birthdate': { field: 'Birthday', table: 'Members', required: false },
+            'spokenLanguages': { field: 'SpokenLanguages', table: 'Members', required: false },
+            'latitude': { field: 'Latitude', table: 'Members', required: false },
+            'longitude': { field: 'Longitude', table: 'Members', required: false },
+            'zipCode': { field: 'ZipCode', table: 'Members', required: false },
+            'profilePhoto': { field: 'ProfilePhoto', table: 'Members', required: false },
+            'interests': { field: 'Interests', table: 'Members', required: false },
+            'profileCompletion': { field: 'ProfileCompletion', table: 'Members', required: false },
+            'lastUpdated': { field: 'LastUpdated', table: 'Members', required: false }
+        };
+
+        // ============================================================================
+        // PERSONALIZATION ENGINE
+        // ============================================================================
+        
+        const personalizationConfig = {
+            parent: {
+                roleIndicator: 'Parent Mode',
+                sectionSubtitle: 'Help families get to know and trust you',
+                personalizedTip: 'A complete profile helps other parents feel confident connecting with you',
+                taglineLabel: 'Your Parent Tagline',
+                taglineHelp: 'What makes you a great parent and community member?',
+                bioLabel: 'About You as a Parent',
+                bioHelp: 'Share your parenting style, kids\' ages, and how you like to help other families',
+                firstNameHelp: 'How should other parents know you?',
+                quickActionsTitle: 'Parent Quick Actions',
+                quickActions: [
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0z"/></svg>', text: 'Add Child Info', action: 'addChild' },
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8z"/></svg>', text: 'Find Caregivers', action: 'findCare' },
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944z"/></svg>', text: 'Safety Settings', action: 'safety' },
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4z"/></svg>', text: 'Set Availability', action: 'availability' }
+                ]
+            },
+            provider: {
+                roleIndicator: 'Provider Mode',
+                sectionSubtitle: 'Showcase your caregiving experience and personality',
+                personalizedTip: 'A detailed profile helps parents feel confident choosing you for their children',
+                taglineLabel: 'Your Caregiver Tagline',
+                taglineHelp: 'What makes you special as a caregiver?',
+                bioLabel: 'About You as a Caregiver',
+                bioHelp: 'Share your experience, approach to childcare, and what you love about helping families',
+                firstNameHelp: 'How should families know you?',
+                quickActionsTitle: 'Provider Quick Actions',
+                quickActions: [
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0z"/></svg>', text: 'Update Services', action: 'services' },
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921z"/></svg>', text: 'Get Verified', action: 'verify' },
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4z"/></svg>', text: 'Set Availability', action: 'availability' },
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4z"/></svg>', text: 'Update Rates', action: 'rates' }
+                ]
+            },
+            both: {
+                roleIndicator: 'Parent + Provider Mode',
+                sectionSubtitle: 'Show both sides - your family and your caregiving experience',
+                personalizedTip: 'As both a parent and provider, your profile helps build trust in the community',
+                taglineLabel: 'Your Community Tagline',
+                taglineHelp: 'What makes you a valuable community member?',
+                bioLabel: 'About You',
+                bioHelp: 'Share your story as both a parent and caregiver in the community',
+                firstNameHelp: 'How should your village know you?',
+                quickActionsTitle: 'Community Quick Actions',
+                quickActions: [
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101z"/></svg>', text: 'Switch Mode', action: 'switchMode' },
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0z"/></svg>', text: 'Village Network', action: 'village' },
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0z"/></svg>', text: 'Care Swaps', action: 'swaps' },
+                    { icon: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8z"/></svg>', text: 'View Analytics', action: 'analytics' }
+                ]
+            }
+        };
+
+        // ============================================================================
+        // LOCATION INTEGRATION
+        // ============================================================================
+        
+        const LOCATION_DATABASE = [
+            { name: 'Mission District', distance: '0.2 miles', lat: 37.7599, lng: -122.4148, popular: true },
+            { name: 'Castro District', distance: '1.1 miles', lat: 37.7609, lng: -122.4350, popular: true },
+            { name: 'Noe Valley', distance: '0.8 miles', lat: 37.7505, lng: -122.4331, popular: true },
+            { name: 'Potrero Hill', distance: '1.5 miles', lat: 37.7587, lng: -122.3988, popular: false },
+            { name: 'SOMA', distance: '2.1 miles', lat: 37.7749, lng: -122.4194, popular: false },
+            { name: 'Marina District', distance: '3.2 miles', lat: 37.8021, lng: -122.4364, popular: false }
+        ];
+
+        function showLocationSuggestions() {
+            const suggestions = document.getElementById('locationSuggestions');
+            suggestions.style.display = 'block';
+            
+            // Show all locations initially
+            suggestions.innerHTML = LOCATION_DATABASE.map(location => `
+                <div class="location-option" onclick="selectLocation('${location.name}', '${location.distance}')">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="location-details">
+                        <div class="location-name">${location.name}</div>
+                        <div class="location-distance">${location.distance} from you</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterLocations(query) {
+            const suggestions = document.getElementById('locationSuggestions');
+            if (query.length < 2) {
+                showLocationSuggestions();
+                return;
+            }
+
+            const filtered = LOCATION_DATABASE.filter(location => 
+                location.name.toLowerCase().includes(query.toLowerCase())
+            ).slice(0, 5);
+
+            suggestions.innerHTML = filtered.map(location => `
+                <div class="location-option" onclick="selectLocation('${location.name}', '${location.distance}')">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="location-details">
+                        <div class="location-name">${location.name}</div>
+                        <div class="location-distance">${location.distance} from you</div>
+                    </div>
+                </div>
+            `).join('');
+
+            suggestions.style.display = filtered.length > 0 ? 'block' : 'none';
+        }
+
+        function selectLocation(name, distance) {
+            const input = document.getElementById('neighborhood');
+            const suggestions = document.getElementById('locationSuggestions');
+            
+            input.value = name;
+            suggestions.style.display = 'none';
+            
+            // Auto-populate location summary
+            document.getElementById('locationSummary').value = `${name}, SF`;
+            
+            // Update user data
+            currentUser.neighborhood = name;
+            currentUser.locationSummary = `${name}, SF`;
+            
+            // Trigger auto-save
+            autoSave('neighborhood', name);
+            autoSave('locationSummary', `${name}, SF`);
+            
+            showToast(`Location set to ${name}`);
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.location-input-group')) {
+                document.getElementById('locationSuggestions').style.display = 'none';
+            }
+        });
+
+        // ============================================================================
+        // ENHANCED AUTO-SAVE WITH AIRTABLE INTEGRATION
+        // ============================================================================
+        
+        let saveTimeout;
+        const saveDelay = 1000;
+
+        async function autoSave(fieldId, value) {
+            const mapping = AIRTABLE_FIELD_MAPPING[fieldId];
+            if (!mapping) {
+                console.warn(`No Airtable mapping found for field: ${fieldId}`);
+                return;
+            }
+
+            const indicator = document.getElementById(`${fieldId}-indicator`);
+            
+            if (indicator) {
+                indicator.textContent = 'Saving...';
+                indicator.className = 'auto-save-indicator show saving';
+            }
+
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => {
+                try {
+                    // Update current user data
+                    if (currentUser) {
+                        currentUser[fieldId] = value;
+                        USER_PROFILES[currentUser.email] = currentUser;
+                        localStorage.setItem('opeari_user_profiles', JSON.stringify(USER_PROFILES));
+                    }
+
+                    // Prepare data for Airtable
+                    const saveData = {
+                        table: mapping.table,
+                        field: mapping.field,
+                        value: value,
+                        userEmail: currentUser?.email || getCurrentUserEmail()
+                    };
+
+                    console.log(`💾 Saving to Airtable:`, saveData);
+                    
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    if (indicator) {
+                        indicator.textContent = 'Saved';
+                        indicator.className = 'auto-save-indicator show';
+                        
+                        setTimeout(() => {
+                            indicator.classList.remove('show');
+                        }, 2000);
+                    }
+                    
+                    updateProfileCompletion();
+                    
+                } catch (error) {
+                    console.error(`❌ Save failed for ${fieldId}:`, error);
+                    
+                    if (indicator) {
+                        indicator.textContent = 'Failed';
+                        indicator.className = 'auto-save-indicator show error';
+                    }
+                    
+                    showToast(`Failed to save ${mapping.field}`, 'error');
+                }
+            }, saveDelay);
+        }
+
+        // ============================================================================
+        // TAB NAVIGATION & KEYBOARD SUPPORT
+        // ============================================================================
+        
+        function initializeTabNavigation() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            tabButtons.forEach((tab, index) => {
+                // Click handler
+                tab.addEventListener('click', () => switchToTab(index));
+                
+                // Keyboard navigation
+                tab.addEventListener('keydown', (e) => {
+                    const currentIndex = Array.from(tabButtons).indexOf(tab);
+                    let newIndex = currentIndex;
+                    
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            newIndex = currentIndex > 0 ? currentIndex - 1 : tabButtons.length - 1;
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            newIndex = currentIndex < tabButtons.length - 1 ? currentIndex + 1 : 0;
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            newIndex = 0;
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            newIndex = tabButtons.length - 1;
+                            break;
+                        case 'Enter':
+                        case ' ':
+                            e.preventDefault();
+                            switchToTab(currentIndex);
+                            return;
+                    }
+                    
+                    if (newIndex !== currentIndex) {
+                        tabButtons[newIndex].focus();
+                    }
+                });
+            });
+        }
+        
+        function switchToTab(index) {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            // Update tab states
+            tabButtons.forEach((tab, i) => {
+                const isActive = i === index;
+                tab.classList.toggle('active', isActive);
+                tab.setAttribute('aria-selected', isActive.toString());
+                tab.setAttribute('tabindex', isActive ? '0' : '-1');
+            });
+            
+            // Announce tab change to screen readers
+            const activeTab = tabButtons[index];
+            const announcement = `${activeTab.textContent.trim()} tab selected`;
+            announceToScreenReader(announcement);
+            
+            console.log(`Switched to tab: ${activeTab.textContent.trim()}`);
+        }
+        
+        function announceToScreenReader(message) {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.setAttribute('aria-atomic', 'true');
+            announcement.style.position = 'absolute';
+            announcement.style.left = '-10000px';
+            announcement.style.width = '1px';
+            announcement.style.height = '1px';
+            announcement.style.overflow = 'hidden';
+            
+            document.body.appendChild(announcement);
+            announcement.textContent = message;
+            
+            setTimeout(() => {
+                document.body.removeChild(announcement);
+            }, 1000);
+        }
+        
+        function initializePersonalization() {
+            const config = personalizationConfig[currentUserRole];
+            
+            document.getElementById('roleIndicator').innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span>${config.roleIndicator}</span>
+            `;
+            
+            document.getElementById('sectionSubtitle').textContent = config.sectionSubtitle;
+            document.getElementById('personalizedTip').innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                ${config.personalizedTip}
+            `;
+            
+            document.getElementById('taglineLabel').textContent = config.taglineLabel;
+            document.getElementById('taglineHelp').textContent = config.taglineHelp;
+            document.getElementById('bioLabel').textContent = config.bioLabel;
+            document.getElementById('bioHelp').textContent = config.bioHelp;
+            document.getElementById('firstNameHelp').textContent = config.firstNameHelp;
+            document.getElementById('quickActionsTitle').textContent = config.quickActionsTitle;
+            
+            updateQuickActions(config.quickActions);
+            
+            console.log(`✨ Personalized for ${currentUserRole} mode`);
+        }
+
+        function updateQuickActions(actions) {
+            const container = document.getElementById('actionButtons');
+            container.innerHTML = actions.map(action => `
+                <button class="action-btn" onclick="handleQuickAction('${action.action}')">
+                    ${action.icon}
+                    <span>${action.text}</span>
+                </button>
+            `).join('');
+        }
+
+        function handleQuickAction(action) {
+            const actions = {
+                addChild: () => showToast('Opening family information...'),
+                findCare: () => showToast('Searching for caregivers...'),
+                safety: () => showToast('Opening safety settings...'),
+                availability: () => showToast('Opening schedule settings...'),
+                services: () => showToast('Opening care services...'),
+                verify: () => showToast('Starting verification process...'),
+                rates: () => showToast('Opening rate settings...'),
+                switchMode: () => switchUserRole(),
+                village: () => showToast('Opening village connections...'),
+                swaps: () => showToast('Opening care swap options...'),
+                analytics: () => showToast('Loading your analytics...')
+            };
+            
+            if (actions[action]) {
+                actions[action]();
+            }
+        }
+
+        function switchUserRole() {
+            const roles = ['parent', 'provider', 'both'];
+            const currentIndex = roles.indexOf(currentUserRole);
+            const nextIndex = (currentIndex + 1) % roles.length;
+            currentUserRole = roles[nextIndex];
+            
+            // Update user data
+            if (currentUser) {
+                currentUser.role = currentUserRole;
+                USER_PROFILES[currentUser.email] = currentUser;
+            }
+            
+            initializePersonalization();
+            showToast(`Switched to ${currentUserRole} mode!`);
+        }
+
+        // ============================================================================
+        // PROFILE COMPLETION TRACKING - FIXED
+        // ============================================================================
+        
+        function updateProfileCompletion() {
+            if (!currentUser) return 0;
+            
+            const requiredFields = ['firstName', 'lastName', 'email', 'phoneNumber', 'neighborhood'];
+            const optionalFields = ['displayName', 'tagline', 'bio', 'locationSummary'];
+            
+            let completed = 0;
+            let total = requiredFields.length * 2 + optionalFields.length; // Required fields count double
+            
+            // Check required fields (double weight)
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field && field.value.trim()) {
+                    completed += 2;
+                }
+            });
+            
+            // Check optional fields
+            optionalFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field && field.value.trim()) {
+                    completed += 1;
+                }
+            });
+            
+            // Check photo
+            if (currentUser.photoUrl) {
+                completed += 1;
+                total += 1;
+            } else {
+                total += 1;
+            }
+            
+            // Check interests
+            const interestTags = document.getElementById('interestTags');
+            if (interestTags && interestTags.children.length > 0) {
+                completed += 1;
+                total += 1;
+            } else {
+                total += 1;
+            }
+            
+            const percentage = Math.round((completed / total) * 100);
+            document.getElementById('profileCompletion').textContent = `${percentage}% Complete`;
+            
+            // Only show completion toast if significantly improved and not already shown
+            if (percentage >= 100 && lastCompletionPercentage < 100 && !hasShownCompletionToast) {
+                setTimeout(() => {
+                    showToast('Profile 100% complete! You\'re a superstar!');
+                    hasShownCompletionToast = true;
+                }, 500);
+            } else if (percentage >= 90 && lastCompletionPercentage < 90 && !hasShownCompletionToast) {
+                setTimeout(() => {
+                    showToast('Almost there! Your profile looks amazing!');
+                }, 500);
+            }
+            
+            // Update user data
+            if (currentUser) {
+                currentUser.profileCompletion = percentage;
+                USER_PROFILES[currentUser.email] = currentUser;
+            }
+            
+            lastCompletionPercentage = percentage;
+            return percentage;
+        }
+
+        // ============================================================================
+        // UI INTERACTIONS
+        // ============================================================================
+        
+        function toggleAdvanced(section) {
+            const toggle = document.querySelector(`[onclick="toggleAdvanced('${section}')"]`);
+            const content = document.getElementById(`${section}-advanced`);
+            
+            const isExpanded = content.classList.contains('show');
+            
+            if (isExpanded) {
+                content.classList.remove('show');
+                toggle.classList.remove('expanded');
+                toggle.querySelector('span').textContent = toggle.querySelector('span').textContent.replace('Hide', 'More');
+            } else {
+                content.classList.add('show');
+                toggle.classList.add('expanded');
+                toggle.querySelector('span').textContent = toggle.querySelector('span').textContent.replace('More', 'Hide');
+            }
+        }
+
+        function uploadPhoto() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 2 * 1024 * 1024) {
+                        showToast('File too large. Please choose an image under 2MB.', 'error');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('photoPreview');
+                        preview.innerHTML = `
+                            <img src="${e.target.result}" alt="Profile" />
+                            <div class="photo-upload-overlay" onclick="uploadPhoto()">
+                                <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                                    <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                                </svg>
+                            </div>
+                        `;
+                        
+                        // Update user data
+                        if (currentUser) {
+                            currentUser.photoUrl = e.target.result;
+                            USER_PROFILES[currentUser.email] = currentUser;
+                        }
+                        
+                        autoSave('profilePhoto', e.target.result);
+                        showToast('Profile photo updated!');
+                        updateProfileCompletion();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        function addInterest() {
+            const input = document.getElementById('interestInput');
+            const interest = input.value.trim();
+            
+            if (!interest) return;
+            
+            // Check for duplicates
+            const existingInterests = Array.from(document.querySelectorAll('#interestTags .interest-tag'))
+                .map(tag => tag.textContent.replace('×', '').trim());
+            
+            if (existingInterests.includes(interest)) {
+                showToast('Interest already added!', 'warning');
+                input.value = '';
+                return;
+            }
+            
+            const container = document.getElementById('interestTags');
+            const tag = document.createElement('span');
+            tag.className = 'interest-tag';
+            tag.innerHTML = `
+                ${interest}
+                <button class="remove-interest" onclick="removeInterest(this.parentElement)">&times;</button>
+            `;
+            
+            container.appendChild(tag);
+            input.value = '';
+            
+            // Update user data
+            if (currentUser) {
+                currentUser.interests.push(interest);
+                USER_PROFILES[currentUser.email] = currentUser;
+            }
+            
+            saveInterests();
+            showToast(`Added "${interest}" to your interests!`);
+            updateProfileCompletion();
+        }
+
+        function removeInterest(element) {
+            const interest = element.textContent.replace('×', '').trim();
+            element.remove();
+            
+            // Update user data
+            if (currentUser) {
+                currentUser.interests = currentUser.interests.filter(i => i !== interest);
+                USER_PROFILES[currentUser.email] = currentUser;
+            }
+            
+            saveInterests();
+            updateProfileCompletion();
+            showToast('Interest removed');
+        }
+
+        function saveInterests() {
+            const interests = Array.from(document.querySelectorAll('#interestTags .interest-tag'))
+                .map(tag => tag.textContent.replace('×', '').trim());
+            
+            autoSave('interests', interests.join(', '));
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        // ============================================================================
+        // USER SWITCHING (DEMO FEATURE)
+        // ============================================================================
+        
+        function switchUser() {
+            const emails = Object.keys(USER_PROFILES);
+            const currentEmail = getCurrentUserEmail();
+            const currentIndex = emails.indexOf(currentEmail);
+            const nextIndex = (currentIndex + 1) % emails.length;
+            const nextEmail = emails[nextIndex];
+            
+            localStorage.setItem('opeari_current_user', nextEmail);
+            
+            // Reset completion toast flag
+            hasShownCompletionToast = false;
+            
+            loadUserData();
+            showToast(`Switched to ${USER_PROFILES[nextEmail].firstName}'s profile!`);
+        }
+
+        // Add user switching button (for demo purposes)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'U') {
+                e.preventDefault();
+                switchUser();
+            }
+        });
+
+        // ============================================================================
+        // EVENT LISTENERS
+        // ============================================================================
+        
+        // Auto-save on input
+        document.addEventListener('input', function(e) {
+            if (e.target.id && AIRTABLE_FIELD_MAPPING[e.target.id]) {
+                autoSave(e.target.id, e.target.value);
+            }
+        });
+
+        // Auto-save on select change
+        document.addEventListener('change', function(e) {
+            if (e.target.id && AIRTABLE_FIELD_MAPPING[e.target.id]) {
+                autoSave(e.target.id, e.target.value);
+            }
+        });
+
+        // Enter key to add interests
+        document.getElementById('interestInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addInterest();
+            }
+        });
+
+        // Phone number formatting
+        document.getElementById('phoneNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 6) {
+                value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
+            } else if (value.length >= 3) {
+                value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+            }
+            e.target.value = value;
+        });
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🍐 Opeari Profile Tab Loading...');
+            
+            // Load user data first
+            loadUserData();
+            
+            // Initialize tab navigation
+            initializeTabNavigation();
+            
+            setTimeout(() => {
+                showToast('Welcome back! Your profile is loading...', 'success');
+                
+                // Add demo tip after 3 seconds
+                setTimeout(() => {
+                    showToast('💡 Press Ctrl+Shift+U to switch between demo users!', 'warning');
+                }, 3000);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

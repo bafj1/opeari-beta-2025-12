@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Frequently Asked Questions about Opeari's community childcare platform. Learn about our beta pricing, rewards system, safety features, and how to build your village.">
+  <meta name="keywords" content="Opeari FAQ, community childcare, childcare questions, village childcare, beta pricing, rewards system, parent community, childcare safety">
+  <meta name="author" content="Opeari, Inc.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="FAQ | Opeari Community Childcare - Your Questions Answered">
+  <meta property="og:description" content="Get answers about Opeari's community-based childcare platform. Currently free during beta with exciting rewards system coming soon!">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://opeari.com/faq.html">
+  <meta property="og:image" content="https://opeari.com/images/faq-og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FAQ | Opeari Community Childcare">
+  <meta name="twitter:description" content="Your questions about community childcare, answered with care. Free beta access available now!">
+  
+  <title>FAQ | Opeari Community Childcare</title>
+  
+  <link rel="canonical" href="https://opeari.com/faq.html">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  <style>
+    /* CSS Variables for Opeari Color Palette */
+    :root {
+      --mint: #e8f5e9;
+      --pale-mint: #e9f7ea;
+      --pale-green: #d4ffeb;
+      --soft-white: #f0f9f1;
+      --dark-green: #1e6b4e;
+      --text-color: #1e6b4e;
+      --peach-light: #ffe5e0;
+      --peach: #ffccc7;
+      --peach-dark: #fbb8ac;
+      --highlight-soft: #d8f5da;
+      --highlight-accent: #c4f0c7;
+      --white: #f8fdf8;
+      --footer-bg: #e9f7ea;
+      --footer-accent: #ffe5e0;
+      --shadow-light: rgba(0, 0, 0, 0.05);
+      --shadow-medium: rgba(0, 0, 0, 0.08);
+      --nav-hover-bg: rgba(212, 255, 235, 0.5);
+      --gradient-primary: linear-gradient(135deg, var(--pale-green), var(--mint));
+      --gradient-accent: linear-gradient(135deg, var(--peach-light), var(--peach));
+      --teal: #20b2aa;
+      --teal-light: #7fffd4;
+      --teal-dark: #008b8b;
+      --card-bg: rgba(255, 255, 255, 0.8);
+      --border-color: rgba(30, 107, 78, 0.1);
+    }
+
+    /* Dark theme variables */
+    [data-theme="dark"] {
+      --mint: #1a2f1e;
+      --pale-mint: #1f3423;
+      --pale-green: #243928;
+      --soft-white: #1e2a1f;
+      --dark-green: #7dd3a0;
+      --text-color: #a8d5ba;
+      --peach-light: #2d1f1d;
+      --peach: #3d2b28;
+      --peach-dark: #4d3532;
+      --highlight-soft: #2a3f2c;
+      --highlight-accent: #354a37;
+      --white: #232b24;
+      --footer-bg: #1f3423;
+      --footer-accent: #2d1f1d;
+      --shadow-light: rgba(255, 255, 255, 0.05);
+      --shadow-medium: rgba(255, 255, 255, 0.08);
+      --teal: #4ecdc4;
+      --teal-light: #7fffd4;
+      --teal-dark: #2d8f87;
+      --card-bg: rgba(35, 43, 36, 0.8);
+      --border-color: rgba(125, 211, 160, 0.1);
+    }
+
+    /* Reset and Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Comfortaa', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background: var(--mint);
+      overflow-x: hidden;
+    }
+
+    /* Header Styles - matching index.html */
+    header {
+      background: var(--soft-white);
+      box-shadow: 0 2px 20px var(--shadow-light);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
+      border-bottom: 1px solid var(--pale-green);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      box-sizing: border-box;
+    }
+    
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+    }
+    
+    .logo {
+      height: 120px;
+      width: auto;
+    }
+    
+    .desktop-nav {
+      display: flex;
+      gap: 1.5rem;
+    }
+    
+    .desktop-nav a {
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: 600;
+      padding-bottom: 5px;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+    
+    .desktop-nav a.active {
+      border-bottom: 2px solid var(--peach);
+    }
+    
+    .desktop-nav a:hover {
+      color: var(--peach);
+    }
+    
+    .utility-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .language-toggles {
+      display: flex;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--dark-green);
+    }
+    
+    .lang-btn {
+      background: none;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      color: var(--dark-green);
+      font-family: 'Comfortaa', sans-serif;
+      font-weight: 600;
+    }
+    
+    .lang-btn.active {
+      background-color: var(--dark-green);
+      color: white;
+    }
+
+    /* Theme toggle matching index.html */
+    .theme-toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background-color: var(--dark-green);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0 3px;
+      transition: background-color 0.3s;
+      border: none;
+    }
+    
+    .theme-toggle-slider {
+      position: absolute;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: white;
+      transition: transform 0.3s;
+    }
+    
+    [data-theme="dark"] .theme-toggle {
+      background-color: var(--peach);
+    }
+    
+    [data-theme="dark"] .theme-toggle-slider {
+      transform: translateX(20px);
+    }
+
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: var(--dark-green);
+      transition: all 0.3s ease;
+    }
+
+    .mobile-nav {
+      display: none;
+      padding: 1rem;
+      flex-direction: column;
+      gap: 1rem;
+      background: var(--white);
+      box-shadow: 0 4px 20px var(--shadow-medium);
+    }
+
+    .mobile-nav a {
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 0.5rem 0;
+    }
+
+    .mobile-nav a.active {
+      color: var(--peach);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: var(--gradient-primary);
+      padding: 4rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, var(--pale-green) 0%, transparent 70%);
+      animation: float 6s ease-in-out infinite;
+      opacity: 0.3;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      color: var(--dark-green);
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 4px var(--shadow-light);
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      color: var(--text-color);
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    .faq-hero-image {
+      width: 120px;
+      height: 120px;
+      margin: 2rem auto;
+      background: var(--highlight-soft);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px var(--shadow-medium);
+      transition: transform 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid var(--teal);
+    }
+
+    .faq-hero-image:hover {
+      transform: translateY(-10px) scale(1.05);
+      border-color: var(--peach);
+    }
+
+    .faq-hero-image::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: var(--gradient-accent);
+      opacity: 0.1;
+      animation: rotate 10s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* FAQ Container */
+    .faq-container {
+      background: var(--white);
+      margin: -2rem auto 4rem;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px var(--shadow-medium);
+      overflow: hidden;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Search Section */
+    .search-section {
+      background: var(--pale-mint);
+      padding: 2rem;
+      border-bottom: 1px solid var(--pale-green);
+    }
+
+    .search-container {
+      max-width: 500px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 1rem 1rem 1rem 3rem;
+      border: 2px solid var(--teal);
+      border-radius: 25px;
+      font-size: 1rem;
+      font-family: 'Comfortaa', sans-serif;
+      outline: none;
+      transition: border-color 0.3s;
+      box-sizing: border-box;
+      background: var(--white);
+      color: var(--text-color);
+    }
+
+    .search-input:focus {
+      border-color: var(--dark-green);
+      box-shadow: 0 0 0 3px rgba(30, 107, 78, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--teal);
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Quick Links */
+    .quick-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .quick-link {
+      background: var(--white);
+      border: 2px solid var(--peach);
+      border-radius: 20px;
+      padding: 0.5rem 1rem;
+      text-decoration: none;
+      color: var(--dark-green);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .quick-link:hover {
+      background: var(--peach);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px var(--shadow-light);
+    }
+
+    /* Category Tabs */
+    .category-section {
+      padding: 2rem;
+      background: var(--soft-white);
+    }
+
+    .category-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .category-tab {
+      background: var(--card-bg);
+      border: 2px solid var(--teal);
+      border-radius: 20px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+      white-space: nowrap;
+      color: var(--text-color);
+    }
+
+    .category-tab:hover,
+    .category-tab.active {
+      background: var(--dark-green);
+      color: white;
+      border-color: var(--dark-green);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px var(--shadow-medium);
+    }
+
+    /* FAQ Content */
+    .faq-content {
+      padding: 2rem;
+    }
+
+    .faq-section {
+      margin-bottom: 3rem;
+    }
+
+    .faq-section.hidden {
+      display: none;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: var(--dark-green);
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--peach);
+    }
+
+    .faq-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .faq-item {
+      background: var(--card-bg);
+      border: 2px solid var(--pale-green);
+      border-radius: 15px;
+      overflow: hidden;
+      transition: all 0.3s;
+      box-shadow: 0 2px 10px var(--shadow-light);
+      will-change: transform;
+    }
+
+    .faq-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px var(--shadow-medium);
+      border-color: var(--peach);
+    }
+
+    .faq-question {
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      padding: 1.5rem;
+      font-family: 'Comfortaa', sans-serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--dark-green);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.3s;
+    }
+
+    .faq-question:hover {
+      background: var(--highlight-soft);
+    }
+
+    .faq-question .chevron {
+      transition: transform 0.3s;
+      font-size: 1.2rem;
+      color: var(--teal);
+      font-weight: bold;
+    }
+
+    .faq-item.active .chevron {
+      transform: rotate(180deg);
+      color: var(--peach);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: var(--white);
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 1000px;
+    }
+
+    .faq-answer-content {
+      padding: 0 1.5rem 1.5rem;
+      color: var(--text-color);
+      line-height: 1.7;
+    }
+
+    .faq-answer-content ul {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .faq-answer-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .faq-answer-content strong {
+      color: var(--dark-green);
+    }
+
+    /* Highlight boxes in FAQ answers */
+    .highlight-box {
+      background: var(--highlight-soft);
+      border: 2px solid var(--teal);
+      border-radius: 10px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .highlight-box h5 {
+      color: var(--dark-green);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Enhanced table styling for pricing section */
+    .pricing-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px var(--shadow-light);
+    }
+
+    .pricing-table th {
+      padding: 0.75rem;
+      border: 1px solid var(--teal);
+      font-weight: 600;
+      background: var(--gradient-primary);
+      color: var(--dark-green);
+      text-align: left;
+    }
+
+    .pricing-table td {
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      vertical-align: top;
+    }
+
+    .pricing-table tr:nth-child(even) {
+      background: var(--soft-white);
+    }
+
+    .pricing-table tr:hover {
+      background: var(--highlight-soft);
+    }
+
+    /* No Results */
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-color);
+      display: none;
+      background: var(--white);
+      border-radius: 15px;
+      margin: 1rem 0;
+    }
+
+    .no-results.show {
+      display: block;
+    }
+
+    .no-results-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    /* Contact CTA */
+    .contact-cta {
+      background: var(--gradient-primary);
+      border-radius: 20px;
+      padding: 3rem;
+      text-align: center;
+      margin: 3rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact-cta::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, var(--white) 0%, transparent 70%);
+      opacity: 0.1;
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    .contact-cta h3 {
+      font-size: 1.8rem;
+      color: var(--dark-green);
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .contact-cta p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+    }
+
+    .contact-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--gradient-accent);
+      color: var(--dark-green);
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px var(--shadow-medium);
+      border: 2px solid transparent;
+      position: relative;
+      z-index: 2;
+    }
+
+    .contact-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px var(--shadow-medium);
+      border-color: var(--peach-dark);
+    }
+
+    /* Footer Styles */
+    footer {
+      background: var(--footer-bg);
+      padding: 3rem 2rem 2rem;
+      margin-top: 4rem;
+      position: relative;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-links a {
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      background: var(--footer-accent);
+      transform: translateY(-2px);
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .social-links a {
+      padding: 0.75rem;
+      background: var(--soft-white);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px var(--shadow-light);
+      border: 2px solid var(--teal);
+      color: var(--dark-green);
+    }
+
+    .social-links a:hover {
+      background: var(--peach);
+      transform: translateY(-3px) scale(1.1);
+      box-shadow: 0 8px 25px var(--shadow-medium);
+      border-color: var(--peach-dark);
+    }
+
+    .social-icon {
+      width: 24px;
+      height: 24px;
+      transition: all 0.3s ease;
+      stroke: var(--dark-green);
+    }
+
+    .footer-copyright {
+      text-align: center;
+      font-weight: 600;
+      color: var(--text-color);
+      opacity: 0.8;
+    }
+
+    /* Enhanced animations */
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.1; }
+      50% { transform: scale(1.1); opacity: 0.2; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .desktop-nav {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .mobile-nav.show {
+        display: flex;
+      }
+
+      .hero {
+        padding: 2rem 1rem;
+      }
+
+      .faq-container {
+        margin: -1rem 1rem 2rem;
+        border-radius: 15px;
+      }
+
+      .search-section, .category-section, .faq-content {
+        padding: 1rem;
+      }
+
+      .category-tabs {
+        gap: 0.5rem;
+      }
+
+      .category-tab {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .faq-question {
+        padding: 1rem;
+        font-size: 1rem;
+      }
+
+      .contact-cta {
+        padding: 2rem;
+        margin: 2rem 0;
+      }
+
+      .footer-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .quick-links {
+        gap: 0.5rem;
+      }
+
+      .quick-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+
+      .pricing-table {
+        font-size: 0.9rem;
+      }
+      
+      .pricing-table th,
+      .pricing-table td {
+        padding: 0.5rem;
+      }
+
+      .logo {
+        height: 80px;
+      }
+
+      .container {
+        width: 100%;
+        padding: 0 1rem;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .hero p {
+        font-size: 1.1rem;
+      }
+      
+      .faq-question {
+        font-size: 0.95rem;
+        padding: 0.8rem;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+      }
+
+      .pricing-table {
+        font-size: 0.8rem;
+      }
+      
+      .pricing-table th,
+      .pricing-table td {
+        padding: 0.4rem;
+      }
+      
+      /* Stack table on very small screens */
+      .pricing-table, .pricing-table thead, .pricing-table tbody, .pricing-table th, .pricing-table td, .pricing-table tr {
+        display: block;
+      }
+      
+      .pricing-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+      
+      .pricing-table tr {
+        border: 1px solid var(--border-color);
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        padding: 0.5rem;
+        background: var(--white);
+      }
+      
+      .pricing-table td {
+        border: none;
+        position: relative;
+        padding-left: 30%;
+        margin-bottom: 0.5rem;
+      }
+      
+      .pricing-table td:before {
+        content: attr(data-label) ": ";
+        position: absolute;
+        left: 6px;
+        width: 25%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: 600;
+        color: var(--dark-green);
+      }
+    }
+
+    /* Accessibility Focus Styles */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 6px;
+      background: var(--teal);
+      color: white;
+      padding: 8px;
+      text-decoration: none;
+      border-radius: 4px;
+      z-index: 10000;
+    }
+
+    .skip-link:focus {
+      top: 6px;
+    }
+
+    /* Focus styles for accessibility */
+    a:focus, button:focus, .category-tab:focus {
+      outline: 3px solid var(--peach);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px rgba(255, 204, 199, 0.3);
+    }
+
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Loading animation */
+    .loading {
+      opacity: 0;
+      animation: fadeIn 0.8s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Print styles */
+    @media print {
+      .theme-toggle, .hamburger, .social-links, .search-section {
+        display: none;
+      }
+      
+      .faq-answer {
+        max-height: none !important;
+      }
+      
+      .faq-item.active .faq-answer,
+      .faq-answer {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      
+      body {
+        background: white !important;
+        color: black !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="loading">
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-row">
+        <div class="logo-container">
+          <a href="index.html"><img src="images/logo.png" alt="Opeari Logo" class="logo" /></a>
+        </div>
+        <nav class="desktop-nav" aria-label="Main navigation">
+          <a href="index.html">Home</a>
+          <a href="about.html">About</a>
+          <a href="how-it-works.html">How It Works</a>
+          <a href="waitlist.html">Join</a>
+          <a href="faq.html" class="active">FAQ</a>
+        </nav>
+        <div class="utility-nav">
+          <div class="language-toggles">
+            <button class="lang-btn active" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="es">ES</button>
+          </div>
+          <button class="theme-toggle" aria-label="Toggle between light and dark mode" aria-pressed="false">
+            <div class="theme-toggle-slider"></div>
+          </button>
+          <button class="hamburger" aria-label="Menu" aria-expanded="false">
+            <div></div>
+            <div></div>
+            <div></div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <nav class="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="waitlist.html">Join</a>
+      <a href="faq.html" class="active">FAQ</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Frequently Asked Questions</h1>
+      <p>Your questions about community childcare, answered with care</p>
+      <p style="font-size: 1rem; margin-top: 0.5rem; opacity: 0.8;">Currently in beta • Free to join the waitlist • Building the village together</p>
+      <div class="faq-hero-image" role="img" aria-label="Opeari FAQ help and support">
+        <img src="images/pear-faq1.png" alt="Opeari Pear Character" style="width: 80px; height: 80px; object-fit: contain;" onerror="console.log('Image failed to load:', this.src); this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 3rem; color: var(--teal);\'>?</div>'" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="container" id="main-content">
+    <div class="faq-container">
+      
+      <!-- Search Section -->
+      <div class="search-section">
+        <div class="search-container">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+          </svg>
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Search for answers..."
+            id="searchInput"
+            aria-label="Search FAQ questions"
+          >
+        </div>
+        <div class="quick-links">
+          <a href="#getting-started" class="quick-link">Getting Started</a>
+          <a href="#safety" class="quick-link">Safety</a>
+          <a href="#pricing" class="quick-link">Pricing</a>
+          <a href="#community" class="quick-link">Community</a>
+          <a href="#caregivers" class="quick-link">For Caregivers</a>
+        </div>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="category-section">
+        <div class="category-tabs">
+          <div class="category-tab active" data-category="all">All Questions</div>
+          <div class="category-tab" data-category="getting-started">Getting Started</div>
+          <div class="category-tab" data-category="safety">Safety & Trust</div>
+          <div class="category-tab" data-category="pricing">Pricing</div>
+          <div class="category-tab" data-category="community">Community</div>
+          <div class="category-tab" data-category="caregivers">For Caregivers</div>
+          <div class="category-tab" data-category="legal">Legal & Terms</div>
+        </div>
+      </div>
+
+      <!-- FAQ Content -->
+      <div class="faq-content">
+        
+        <!-- Getting Started -->
+        <div class="faq-section" data-category="getting-started" id="getting-started">
+          <h2 class="section-title">
+            Getting Started
+          </h2>
+          <div class="faq-grid">
+            <div class="faq-item">
+              <button class="faq-question">
+                What exactly is Opeari?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p>Opeari is a community-driven childcare platform that connects parents directly — to share care, support each other, and co-create solutions that fit your life. No agencies. No strangers. Just your village.</p>
+                  
+                  <div class="highlight-box">
+                    <h5>🍐 Built by Parents, For Parents</h5>
+                    <p>We understand the challenges of modern parenting because we live them too. Opeari was created to bring back the village approach to raising children.</p>
+                  </div>
+                  
+                  <p><strong>Key Features:</strong></p>
+                  <ul>
+                    <li>Direct parent-to-parent connections</li>
+                    <li>Verified, trusted community members</li>
+                    <li>Flexible care arrangements (swaps, shares, backup)</li>
+                    <li>Local focus - your actual neighborhood</li>
+                    <li>No agency fees or middlemen</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                How do I get started?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p>Getting started is simple and completely free during our beta:</p>
+                  <ol>
+                    <li><strong>Join our beta waitlist</strong> - Tell us about your family and location</li>
+                    <li><strong>Complete your profile</strong> - Share what kind of care support you're looking for</li>
+                    <li><strong>Get connected</strong> - We'll help connect you with families and caregivers in your area</li>
+                    <li><strong>Start building your village</strong> - Begin creating the support network your family needs</li>
+                  </ol>
+                  
+                  <div class="highlight-box">
+                    <h5>🎉 Beta Benefits</h5>
+                    <p>As a beta member, you'll help shape Opeari's future and get:</p>
+                    <ul>
+                      <li>Free access to all features during development</li>
+                      <li>Direct input into platform improvements</li>
+                      <li>Grandfathered benefits when we launch publicly</li>
+                      <li>Early access to new features and tools</li>
+                    </ul>
+                  </div>
+                  
+                  <p>We'll notify you when Opeari launches in your area and guide you through every step of building your community.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                Can I join Opeari if I'm not a parent?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p>Absolutely! We welcome anyone who wants to be part of a caring community:</p>
+                  <ul>
+                    <li><strong>Grandparents</strong> who want to help their community</li>
+                    <li><strong>Retired educators</strong> with valuable experience</li>
+                    <li><strong>College students</strong> looking for flexible work</li>
+                    <li><strong>Neighbors and friends</strong> who want to support families</li>
+                    <li><strong>Professional caregivers</strong> seeking meaningful connections</li>
+                  </ul>
+                  
+                  <p>Opeari is about the whole village, not just parents. Every caring person makes our community stronger.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                How is Opeari different from Care.com or Nextdoor?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>No strangers, no agency fees, no spam.</strong> Here's what makes us different:</p>
+                  
+                  <div class="highlight-box">
+                    <h5>🔥 Opeari vs. The Competition</h5>
+                    <ul>
+                      <li><strong>Invite-only</strong> vs. open marketplace</li>
+                      <li><strong>Locally focused</strong> vs. city-wide strangers</li>
+                      <li><strong>Relationship-based</strong> vs. transaction-focused</li>
+                      <li><strong>Community moderated</strong> vs. algorithm-driven</li>
+                      <li><strong>No agency fees</strong> vs. high commission rates</li>
+                    </ul>
+                  </div>
+                  
+                  <p>Think quality over quantity, relationships over transactions. You're connecting with neighbors and community members, not random profiles from across the city.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                What areas does Opeari serve?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p>We're starting with select communities and expanding based on demand. Currently in early access for:</p>
+                  <ul>
+                    <li>San Francisco Bay Area</li>
+                    <li>Los Angeles Metro</li>
+                    <li>Seattle Metro</li>
+                    <li>Austin, TX</li>
+                    <li>Brooklyn, NY</li>
+                  </ul>
+                  
+                  <p><strong>Don't see your area?</strong> Join our waitlist anyway! We prioritize new areas based on community interest. Even just one match can make a huge difference — whether it's a neighbor, a grandparent, or someone nearby looking to help.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Safety & Trust -->
+        <div class="faq-section" data-category="safety" id="safety">
+          <h2 class="section-title">
+            Safety & Trust
+          </h2>
+          <div class="faq-grid">
+            <div class="faq-item">
+              <button class="faq-question">
+                How do you ensure safety?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p>Safety is our highest priority. We take a multi-layered approach:</p>
+                  
+                  <div class="highlight-box">
+                    <h5>🛡️ Our 4-Layer Safety System</h5>
+                    <ul>
+                      <li><strong>Community Verification:</strong> Invite-only, locally verified members</li>
+                      <li><strong>Background Checks:</strong> Comprehensive screening for all care providers</li>
+                      <li><strong>Human Moderation:</strong> Real people review all profiles and interactions</li>
+                      <li><strong>24/7 Support:</strong> Safety hotline and dispute resolution</li>
+                    </ul>
+                  </div>
+                  
+                  <p><strong>Additional Safety Features:</strong></p>
+                  <ul>
+                    <li>Identity verification for all members</li>
+                    <li>Reference validation and community feedback</li>
+                    <li>Secure messaging with moderation</li>
+                    <li>Emergency contact systems</li>
+                    <li>Incident reporting and response</li>
+                  </ul>
+                  
+                  <p>Remember: You're not connecting with strangers — you're building relationships with people you choose to trust.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                What about background checks?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p>All care providers go through our comprehensive verification process:</p>
+                  
+                  <ul>
+                    <li><strong>Criminal background checks</strong> at national and local levels</li>
+                    <li><strong>Sex offender registry</strong> screening</li>
+                    <li><strong>Reference validation</strong> with previous families</li>
+                    <li><strong>Identity verification</strong> with government-issued ID</li>
+                    <li><strong>Driving record checks</strong> for transportation providers</li>
+                  </ul>
+                  
+                  <p>Families can also request additional screening based on their comfort level. We believe in transparency — you'll know exactly what checks have been completed for each caregiver.</p>
+                  
+                  <div class="highlight-box">
+                    <h5>⏱️ Processing Timeline</h5>
+                    <p>Initial verification takes 3-5 business days. We also conduct annual re-verification to ensure ongoing safety standards.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                How do you handle emergencies?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p>We have comprehensive emergency procedures in place:</p>
+                  
+                  <div class="highlight-box">
+                    <h5>🚨 Emergency Contact Information</h5>
+                    <ul>
+                      <li><strong>Child Emergency:</strong> Call 911 first, then notify parents</li>
+                      <li><strong>Safety Concerns:</strong> Opeari Safety Hotline: 1-800-OPEARI-1</li>
+                      <li><strong>Platform Issues:</strong> support@opeari.com or in-app chat</li>
+                      <li><strong>After-hours Support:</strong> 24/7 emergency line available</li>
+                    </ul>
+                  </div>
+                  
+                  <p><strong>Our Emergency Response Team:</strong></p>
+                  <ul>
+                    <li>Immediate incident response within minutes</li>
+                    <li>Coordination with local authorities when needed</li>
+                    <li>Family notification and support</li>
+                    <li>Follow-up and incident investigation</li>
+                    <li>Community safety alerts if necessary</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                Can I trust reviews and ratings?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p>Our review system is designed for authenticity and trust:</p>
+                  
+                  <ul>
+                    <li><strong>Verified Reviews Only:</strong> Only families who have actually used a caregiver can leave reviews</li>
+                    <li><strong>Two-Way Reviews:</strong> Both families and caregivers review each other</li>
+                    <li><strong>Detailed Feedback:</strong> Reviews cover specific areas like reliability, communication, and child engagement</li>
+                    <li><strong>Recent Activity:</strong> We prioritize recent reviews and update profiles regularly</li>
+                    <li><strong>Fraud Detection:</strong> Advanced systems detect fake or manipulated reviews</li>
+                  </ul>
+                  
+                  <p>We also encourage families to conduct their own interviews and reference checks. Reviews are just one tool in your decision-making process.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="faq-section" data-category="pricing" id="pricing">
+          <h2 class="section-title">
+            Pricing
+          </h2>
+          <div class="faq-grid">
+            <div class="faq-item">
+              <button class="faq-question">
+                How much does Opeari cost?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <div class="highlight-box">
+                    <h5>🎉 Currently Free During Beta</h5>
+                    <p><strong>Everything is completely FREE</strong> while we build our community together!</p>
+                  </div>
+                  
+                  <p><strong>🧩 Planned Monetization Ideas</strong></p>
+                  <p><em>We're exploring these concepts based on community feedback:</em></p>
+                  
+                  <div class="highlight-box">
+                    <h5>🎁 Points & Rewards System (Coming Soon)</h5>
+                    <p><strong>Earn points for being a great community member:</strong></p>
+                    <ul>
+                      <li>Sharing care with neighbors</li>
+                      <li>Hosting swaps or community events</li>
+                      <li>Referring friends to the platform</li>
+                      <li>Helpful reviews and feedback</li>
+                    </ul>
+                    <p><strong>Monthly rewards:</strong> Gift cards, sponsor perks, or discounts ($5–$100/month range)</p>
+                    <p><em>Sponsors and brand partners will help cover these costs.</em></p>
+                  </div>
+                  
+                  <p><strong>🔮 Potential Subscription Tiers (Under Consideration)</strong></p>
+                  <p><em>Likely freemium model with optional upgrades:</em></p>
+                  
+                  <table class="pricing-table">
+                    <thead>
+                      <tr>
+                        <th>Tier</th>
+                        <th>Price</th>
+                        <th>Features</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td data-label="Tier"><strong>Free</strong></td>
+                        <td data-label="Price">$0</td>
+                        <td data-label="Features">Basic access, find/post care swaps, join events</td>
+                      </tr>
+                      <tr>
+                        <td data-label="Tier"><strong>Village+</strong></td>
+                        <td data-label="Price">~$8–15/month</td>
+                        <td data-label="Features">Verified profiles, faster match notifications, scheduling tools</td>
+                      </tr>
+                      <tr>
+                        <td data-label="Tier"><strong>Village Pro</strong></td>
+                        <td data-label="Price">~$20–30/month</td>
+                        <td data-label="Features">Premium filters, concierge match help, exclusive groups or events</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  
+                  <div class="highlight-box">
+                    <h5>🎯 Our Strategic Approach</h5>
+                    <p><strong>Build the village first, monetize once behavior is sticky.</strong></p>
+                    <ul>
+                      <li>Prioritize local trust and word of mouth over ad spending</li>
+                      <li>Use data + stories from early users to inform future pricing</li>
+                      <li>Considering keeping caregivers free to encourage supply-side growth</li>
+                      <li>Possibly charging parents only for advanced tools or early access to matches</li>
+                    </ul>
+                  </div>
+                  
+                  <p><strong>🤝 Community Input Welcomed!</strong></p>
+                  <p>We're committed to building pricing that serves our community. Your feedback shapes our decisions!</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                Are there any hidden fees?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>Absolutely no hidden fees, ever.</strong> We believe in complete transparency:</p>
+                  
+                  <div class="highlight-box">
+                    <h5>🎯 Our Commitment</h5>
+                    <ul>
+                      <li><strong>No signup fees</strong></li>
+                      <li><strong>No booking fees</strong></li>
+                      <li><strong>No transaction fees</strong> between families and caregivers</li>
+                      <li><strong>No cancellation fees</strong></li>
+                      <li><strong>No annual contracts</strong></li>
+                      <li><strong>No surprise charges</strong></li>
+                    </ul>
+                  </div>
+                  
+                  <p><strong>💡 Our Approach:</strong></p>
+                  <ul>
+                    <li><strong>Community First:</strong> We prioritize building relationships over extracting fees</li>
+                    <li><strong>Transparent Development:</strong> Any future pricing will be discussed openly with the community</li>
+                    <li><strong>Value-Based:</strong> If we introduce paid features, they'll provide clear value and remain optional</li>
+                    <li><strong>No Platform Tax:</strong> Direct payments between families and caregivers stay direct</li>
+                  </ul>
+                  
+                  <p><strong>🤝 Optional Services (Future Considerations):</strong></p>
+                  <p><em>If we introduce these, they'll be completely optional and transparently priced:</em></p>
+                  <ul>
+                    <li>Premium background verification services</li>
+                    <li>Advanced scheduling and coordination tools</li>
+                    <li>Specialized matching and concierge services</li>
+                    <li>Enhanced community features and events</li>
+                  </ul>
+                  
+                  <p>All potential pricing will be clearly communicated well in advance, with grandfathered benefits for early community members.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                Can I use Opeari with my existing nanny?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>Absolutely!</strong> Many families use Opeari to enhance their existing care arrangements:</p>
+                  
+                  <ul>
+                    <li><strong>Nanny Sharing:</strong> Split costs with another family part-time</li>
+                    <li><strong>Care Swaps:</strong> Organize care exchanges on your nanny's off days</li>
+                    <li><strong>Backup Care:</strong> Find reliable help when your regular caregiver isn't available</li>
+                    <li><strong>Community Support:</strong> Connect with other families for playdates and mutual support</li>
+                    <li><strong>Emergency Coverage:</strong> Have trusted backup options ready</li>
+                  </ul>
+                  
+                  <p>Your existing nanny can also join the platform to connect with other families in the community, potentially creating additional income opportunities.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                How do payments work between families and caregivers?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p>Payments between families and caregivers are handled directly - no platform fees:</p>
+                  
+                  <div class="highlight-box">
+                    <h5>💳 Payment Options</h5>
+                    <ul>
+                      <li>Direct bank transfers</li>
+                      <li>Cash payments</li>
+                      <li>Venmo, Zelle, or other apps</li>
+                      <li>Traditional checks</li>
+                    </ul>
+                  </div>
+                  
+                  <p><strong>We Provide:</strong></p>
+                  <ul>
+                    <li>Rate guidance based on local standards</li>
+                    <li>Contract templates for clear agreements</li>
+                    <li>Tax documentation assistance</li>
+                    <li>Dispute resolution support if needed</li>
+                  </ul>
+                  
+                  <p><strong>Important:</strong> Remember that tax obligations may apply for both families and caregivers. We recommend consulting with a tax professional for guidance specific to your situation.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Community -->
+        <div class="faq-section" data-category="community" id="community">
+          <h2 class="section-title">
+            Community
+          </h2>
+          <div class="faq-grid">
+            <div class="faq-item">
+              <button class="faq-question">
+                Am I expected to offer care to others too?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>Absolutely not!</strong> There's no requirement to provide care to participate in our community.</p>
+                  
+                  <p><strong>Many members join to:</strong></p>
+                  <ul>
+                    <li>Find trusted caregivers for their own families</li>
+                    <li>Connect with other parents for support and advice</li>
+                    <li>Access community resources and events</li>
+                    <li>Build relationships in their neighborhood</li>
+                    <li>Share experiences and recommendations</li>
+                  </ul>
+                  
+                  <div class="highlight-box">
+                    <h5>🌱 Organic Community Growth</h5>
+                    <p>Many families naturally want to help others once they feel settled in the community, but this happens organically. You can be as active or quiet as you'd like.</p>
+                  </div>
+                  
+                  <p>The beauty of Opeari is that everyone contributes in their own way - whether that's offering care, sharing resources, providing recommendations, or simply being part of something human and connected.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                What if I have an irregular schedule?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>Perfect!</strong> That's exactly who we built this for. Opeari is designed for real life:</p>
+                  
+                  <ul>
+                    <li><strong>Freelancers and Consultants:</strong> Match your variable schedule with flexible caregivers</li>
+                    <li><strong>Shift Workers:</strong> Find care that works with nights, weekends, and rotating schedules</li>
+                    <li><strong>Travel Workers:</strong> Connect with families for care swaps when you're in town</li>
+                    <li><strong>Part-time Workers:</strong> Share care arrangements that fit your specific days</li>
+                    <li><strong>Entrepreneurs:</strong> Build flexible care networks for unpredictable schedules</li>
+                  </ul>
+                  
+                  <div class="highlight-box">
+                    <h5>🔄 Flexible Care Solutions</h5>
+                    <p>Whether you work part-time, freelance, travel, or just need flexibility — Opeari lets you create care solutions that curve around your real life, not the other way around.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                Will this work in my area?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>Opeari works wherever people care for kids.</strong> Even just one match can make a huge difference.</p>
+                  
+                  <p><strong>What makes it work:</strong></p>
+                  <ul>
+                    <li><strong>Quality over Quantity:</strong> You only need a few good connections</li>
+                    <li><strong>Local Focus:</strong> We help you find people actually near you</li>
+                    <li><strong>Community Building:</strong> Every member helps grow the local network</li>
+                    <li><strong>Neighborhood Reach:</strong> Sometimes the perfect helper lives just down the street</li>
+                  </ul>
+                  
+                  <div class="highlight-box">
+                    <h5>🏡 Rural and Suburban Success</h5>
+                    <p>Some of our most successful communities are in smaller areas where neighbors naturally look out for each other. Urban density helps, but community spirit matters more.</p>
+                  </div>
+                  
+                  <p>Join our waitlist and help us understand the need in your area. The more interest we see, the faster we can launch and support your local community.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                How do I build trust with new families?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p>Building trust takes time, but our platform provides several tools to help:</p>
+                  
+                  <p><strong>Start Small:</strong></p>
+                  <ul>
+                    <li>Begin with short playdates or coffee meetings</li>
+                    <li>Attend community events together</li>
+                    <li>Start with care swaps before longer arrangements</li>
+                    <li>Include your children in initial meetings</li>
+                  </ul>
+                  
+                  <p><strong>Build Your Profile:</strong></p>
+                  <ul>
+                    <li>Share detailed information about your family</li>
+                    <li>Include photos and references</li>
+                    <li>Complete verification processes</li>
+                    <li>Engage in community discussions</li>
+                  </ul>
+                  
+                  <div class="highlight-box">
+                    <h5>🤝 Trust-Building Tips</h5>
+                    <p>Be patient, consistent, and authentic. The best relationships develop naturally over time. Trust your instincts and let connections grow at a comfortable pace.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- For Caregivers -->
+        <div class="faq-section" data-category="caregivers" id="caregivers">
+          <h2 class="section-title">
+            For Caregivers
+          </h2>
+          <div class="faq-grid">
+            <div class="faq-item">
+              <button class="faq-question">
+                How do caregivers join Opeari?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>Caregivers can join through our waitlist or by invitation from families.</strong> Here's the process:</p>
+                  
+                  <div class="highlight-box">
+                    <h5>📝 Caregiver Application Process</h5>
+                    <ol>
+                      <li><strong>Apply:</strong> Complete our comprehensive application</li>
+                      <li><strong>Verification:</strong> Background checks and reference validation</li>
+                      <li><strong>Profile Creation:</strong> Build your detailed caregiver profile</li>
+                      <li><strong>Community Integration:</strong> Get introduced to local families</li>
+                      <li><strong>Start Connecting:</strong> Begin building relationships and care arrangements</li>
+                    </ol>
+                  </div>
+                  
+                  <p><strong>Who We Welcome:</strong></p>
+                  <ul>
+                    <li>Professional nannies and babysitters</li>
+                    <li>Retired educators and childcare workers</li>
+                    <li>College students with childcare experience</li>
+                    <li>Au pairs and international caregivers</li>
+                    <li>Parents who want to offer care exchanges</li>
+                    <li>Experienced neighbors and community members</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                What kind of caregivers are welcome on Opeari?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>We welcome all types of caring people!</strong> Experience levels and backgrounds vary, but everyone shares a commitment to child safety and family support.</p>
+                  
+                  <p><strong>Professional Caregivers:</strong></p>
+                  <ul>
+                    <li>Licensed childcare providers</li>
+                    <li>Certified nannies and babysitters</li>
+                    <li>Former teachers and educators</li>
+                    <li>Childcare center staff</li>
+                    <li>Pediatric nurses or healthcare workers</li>
+                  </ul>
+                  
+                  <p><strong>Community Caregivers:</strong></p>
+                  <ul>
+                    <li>Experienced parents willing to help</li>
+                    <li>Grandparents and family friends</li>
+                    <li>College students studying education or child development</li>
+                    <li>Responsible teenagers with babysitting experience</li>
+                    <li>Neighbors who love working with children</li>
+                  </ul>
+                  
+                  <div class="highlight-box">
+                    <h5>💝 What Matters Most</h5>
+                    <p>Whether you're a professional caregiver or someone who simply loves being around kids, there's a place for you in our community. We value kindness, reliability, and genuine care for children above all else.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                How much can I earn as a caregiver?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>Earning potential varies based on experience, location, and type of care provided.</strong> We provide market rate guidance to ensure fair compensation.</p>
+                  
+                  <div class="highlight-box">
+                    <h5>💰 Typical Rate Ranges (varies by location)</h5>
+                    <ul>
+                      <li><strong>Experienced Nannies:</strong> $20-35/hour</li>
+                      <li><strong>Regular Babysitters:</strong> $15-25/hour</li>
+                      <li><strong>Occasional Sitters:</strong> $12-20/hour</li>
+                      <li><strong>Parent Care Swaps:</strong> Usually exchange-based</li>
+                      <li><strong>Special Needs Care:</strong> $25-40/hour</li>
+                    </ul>
+                  </div>
+                  
+                  <p><strong>Factors That Influence Rates:</strong></p>
+                  <ul>
+                    <li>Years of experience and qualifications</li>
+                    <li>Number of children and their ages</li>
+                    <li>Additional responsibilities (cooking, driving, etc.)</li>
+                    <li>Time of day and days of the week</li>
+                    <li>Length and consistency of arrangement</li>
+                  </ul>
+                  
+                  <p><strong>Benefits Beyond Hourly Pay:</strong></p>
+                  <ul>
+                    <li>Flexible scheduling that fits your life</li>
+                    <li>Long-term relationships with families</li>
+                    <li>Opportunities for professional development</li>
+                    <li>Access to a supportive caregiver community</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                What support do you provide to caregivers?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>We're committed to supporting caregivers throughout their journey with Opeari:</strong></p>
+                  
+                  <p><strong>Professional Development:</strong></p>
+                  <ul>
+                    <li>Monthly training workshops and webinars</li>
+                    <li>CPR and First Aid certification assistance</li>
+                    <li>Child development and safety training</li>
+                    <li>Professional networking opportunities</li>
+                  </ul>
+                  
+                  <p><strong>Business Support:</strong></p>
+                  <ul>
+                    <li>Help setting appropriate rates</li>
+                    <li>Contract templates and legal guidance</li>
+                    <li>Tax documentation and record-keeping tools</li>
+                    <li>Marketing and profile optimization tips</li>
+                  </ul>
+                  
+                  <p><strong>Community & Wellness:</strong></p>
+                  <ul>
+                    <li>Caregiver support groups and forums</li>
+                    <li>Mental health and wellness resources</li>
+                    <li>Backup care when you need time off</li>
+                    <li>Recognition and appreciation programs</li>
+                  </ul>
+                  
+                  <div class="highlight-box">
+                    <h5>🎯 Dedicated Caregiver Success Team</h5>
+                    <p>Our team is specifically focused on caregiver success and satisfaction. We're here to help you build a thriving childcare career or side income.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legal & Terms -->
+        <div class="faq-section" data-category="legal" id="legal">
+          <h2 class="section-title">
+            Legal & Terms
+          </h2>
+          <div class="faq-grid">
+            <div class="faq-item">
+              <button class="faq-question">
+                What are my legal responsibilities as a family?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>As a family using childcare services, you have several important legal considerations:</strong></p>
+                  
+                  <div class="highlight-box">
+                    <h5>📋 Key Legal Responsibilities</h5>
+                    <ul>
+                      <li><strong>Employment Classification:</strong> Understand if caregivers are employees or contractors</li>
+                      <li><strong>Tax Obligations:</strong> Potential household employee taxes and reporting</li>
+                      <li><strong>Insurance Coverage:</strong> Verify coverage for caregivers in your home</li>
+                      <li><strong>Workers' Compensation:</strong> May be required depending on your state and arrangement</li>
+                    </ul>
+                  </div>
+                  
+                  <p><strong>We Recommend:</strong></p>
+                  <ul>
+                    <li>Consulting with a tax professional for guidance</li>
+                    <li>Reviewing your homeowner's/renter's insurance policy</li>
+                    <li>Understanding your state's household employee laws</li>
+                    <li>Using written agreements for all care arrangements</li>
+                  </ul>
+                  
+                  <p><strong>Opeari's Role:</strong> We provide educational resources and contract templates, but we are not a legal or tax advisor. Professional consultation is always recommended.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                What happens if there's a dispute?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>We have a comprehensive dispute resolution process designed to resolve issues fairly and quickly:</strong></p>
+                  
+                  <div class="highlight-box">
+                    <h5>🤝 Resolution Process</h5>
+                    <ol>
+                      <li><strong>Direct Communication:</strong> We encourage families and caregivers to communicate first</li>
+                      <li><strong>Mediation Support:</strong> Our team provides neutral mediation assistance</li>
+                      <li><strong>Community Review:</strong> Community leaders may help with perspective</li>
+                      <li><strong>Formal Resolution:</strong> Structured process for serious disputes</li>
+                    </ol>
+                  </div>
+                  
+                  <p><strong>Types of Support We Provide:</strong></p>
+                  <ul>
+                    <li>Communication facilitation</li>
+                    <li>Contract interpretation assistance</li>
+                    <li>Community standards guidance</li>
+                    <li>Safety concern investigation</li>
+                    <li>Resolution documentation</li>
+                  </ul>
+                  
+                  <p><strong>Escalation for Serious Issues:</strong></p>
+                  <ul>
+                    <li>Safety concerns are handled immediately</li>
+                    <li>Legal matters may require external consultation</li>
+                    <li>Community violations can result in platform removal</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                How does Opeari handle privacy and data?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>Your privacy is fundamental to our mission.</strong> We handle your family's data with the same care we'd want for our own.</p>
+                  
+                  <div class="highlight-box">
+                    <h5>🔒 Privacy Protection</h5>
+                    <ul>
+                      <li><strong>Data Minimization:</strong> We only collect what's necessary for safety and matching</li>
+                      <li><strong>Encryption:</strong> All data is encrypted in transit and at rest</li>
+                      <li><strong>Access Controls:</strong> Strict limits on who can see your information</li>
+                      <li><strong>No Data Sales:</strong> We never sell your personal information</li>
+                    </ul>
+                  </div>
+                  
+                  <p><strong>What We Collect:</strong></p>
+                  <ul>
+                    <li>Contact information and location (for matching)</li>
+                    <li>Family details and care needs (for safety)</li>
+                    <li>Background check results (for safety verification)</li>
+                    <li>Communication records (for dispute resolution)</li>
+                  </ul>
+                  
+                  <p><strong>Your Rights:</strong></p>
+                  <ul>
+                    <li>Access all your data at any time</li>
+                    <li>Correct inaccurate information</li>
+                    <li>Delete your account and data</li>
+                    <li>Control who sees what information</li>
+                  </ul>
+                  
+                  <p>For complete details, please review our <a href="privacy.html" style="color: var(--teal); text-decoration: underline;">Privacy Policy</a>.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question">
+                What are Opeari's terms of service?
+                <span class="chevron">▼</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p><strong>Our terms are written in plain English because we believe legal documents should be understandable.</strong></p>
+                  
+                  <div class="highlight-box">
+                    <h5>📋 Key Points (TL;DR)</h5>
+                    <ul>
+                      <li><strong>Platform Role:</strong> We connect families and caregivers; we don't provide childcare directly</li>
+                      <li><strong>Your Responsibility:</strong> You make final decisions about childcare arrangements</li>
+                      <li><strong>Safety First:</strong> We provide tools and verification, but you do your own due diligence</li>
+                      <li><strong>Respectful Use:</strong> Treat all community members with respect and honesty</li>
+                    </ul>
+                  </div>
+                  
+                  <p><strong>Platform Responsibilities:</strong></p>
+                  <ul>
+                    <li>Maintain a safe, functional platform</li>
+                    <li>Conduct background checks and verification</li>
+                    <li>Provide customer support and dispute resolution</li>
+                    <li>Protect your privacy and data</li>
+                  </ul>
+                  
+                  <p><strong>User Responsibilities:</strong></p>
+                  <ul>
+                    <li>Provide accurate information in your profile</li>
+                    <li>Conduct your own interviews and reference checks</li>
+                    <li>Follow all applicable laws and regulations</li>
+                    <li>Treat all community members respectfully</li>
+                  </ul>
+                  
+                  <p>Read our complete <a href="terms.html" style="color: var(--teal); text-decoration: underline;">Terms of Service</a> for full details.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Results -->
+        <div class="no-results" id="noResults">
+          <div class="no-results-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5; color: var(--text-color);">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="M21 21l-4.35-4.35"></path>
+              <line x1="11" y1="8" x2="11" y2="12"></line>
+              <line x1="11" y1="16" x2="11.01" y2="16"></line>
+            </svg>
+          </div>
+          <h3>No matching questions found</h3>
+          <p>Try a different search term or browse all categories above.</p>
+          <p>Still need help? <a href="#contact" style="color: var(--teal); text-decoration: underline;">Contact our support team</a>.</p>
+        </div>
+
+        <!-- Contact CTA -->
+        <div class="contact-cta" id="contact">
+          <h3>Still Have Questions?</h3>
+          <p>Our team is here to help! We're parents too, and we understand the questions that matter most to families like yours.</p>
+          <a href="mailto:hello@opeari.com" class="contact-button">
+            Contact Our Team
+          </a>
+          <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+            <strong>Beta Support:</strong> Same day response • Direct founder access<br>
+            <strong>Safety Concerns:</strong> Immediate response 24/7
+          </p>
+          <p style="margin-top: 1rem; font-size: 0.85rem; opacity: 0.7;">
+            Want to help shape Opeari? <a href="mailto:feedback@opeari.com" style="color: var(--teal); text-decoration: underline;">Share your ideas</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="story.html">Our Story</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="community.html">Village Voices</a>
+      <a href="marketplace.html">Marketplace</a>
+      <a href="safety.html">Safety Center</a>
+      <a href="resources.html">Resources</a>
+      <a href="blog.html">Blog</a>
+      <a href="careers.html">Careers</a>
+      <a href="partnerships.html">Partnerships</a>
+      <a href="support.html">Support</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact Us</a>
+    </div>
+    
+    <div class="social-links">
+      <a href="https://instagram.com/opeari.co" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </a>
+      <a href="#" aria-label="Twitter" title="Coming soon">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+        </svg>
+      </a>
+      <a href="#" aria-label="Facebook" title="Coming soon">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+        </svg>
+      </a>
+      <a href="#" aria-label="LinkedIn" title="Coming soon">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+          <rect x="2" y="9" width="4" height="12"></rect>
+          <circle cx="4" cy="4" r="2"></circle>
+        </svg>
+      </a>
+      <a href="#" aria-label="TikTok" title="Coming soon">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path>
+          <path d="M15 8a4 4 0 1 0 0-8 4 4 0 0 0 0-8z"></path>
+          <path d="M15 8v8a4 4 0 0 1-4 4"></path>
+          <line x1="9" y1="16" x2="9" y2="20"></line>
+          <line x1="12" y1="8" x2="20" y2="8"></line>
+        </svg>
+      </a>
+      <a href="#" aria-label="YouTube" title="Coming soon">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+          <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+        </svg>
+      </a>
+    </div>
+    
+    <p class="footer-copyright">© 2025 Opeari, Inc. | Built by parents, for parents</p>
+  </footer>
+
+  <script>
+    // Theme toggle functionality (simplified without icons)
+    const themeToggle = document.querySelector('.theme-toggle');
+    const htmlElement = document.documentElement;
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      htmlElement.setAttribute('data-theme', newTheme);
+    });
+    
+    // Mobile nav toggle with ARIA support - matching index.html
+    const hamburger = document.querySelector('.hamburger');
+    const mobileNav = document.querySelector('.mobile-nav');
+    
+    hamburger.addEventListener('click', () => {
+      const isExpanded = mobileNav.style.display === 'flex';
+      mobileNav.style.display = isExpanded ? 'none' : 'flex';
+      hamburger.setAttribute('aria-expanded', String(!isExpanded));
+      mobileNav.setAttribute('aria-hidden', String(isExpanded));
+    });
+
+    // FAQ Accordion functionality
+    document.querySelectorAll('.faq-question').forEach(question => {
+      question.addEventListener('click', () => {
+        const faqItem = question.parentElement;
+        const isActive = faqItem.classList.contains('active');
+        
+        // Close all other items
+        document.querySelectorAll('.faq-item').forEach(item => {
+          item.classList.remove('active');
+        });
+        
+        // Toggle current item
+        if (!isActive) {
+          faqItem.classList.add('active');
+        }
+      });
+    });
+
+    // Category filtering
+    document.querySelectorAll('.category-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const category = tab.dataset.category;
+        
+        // Update active tab
+        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Show/hide sections
+        document.querySelectorAll('.faq-section').forEach(section => {
+          if (category === 'all' || section.dataset.category === category) {
+            section.classList.remove('hidden');
+          } else {
+            section.classList.add('hidden');
+          }
+        });
+        
+        // Clear search
+        document.getElementById('searchInput').value = '';
+        document.getElementById('noResults').classList.remove('show');
+      });
+    });
+
+    // Enhanced search functionality
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      let hasResults = false;
+      
+      // Reset category filter
+      document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.category === 'all') {
+          tab.classList.add('active');
+        }
+      });
+      
+      // Show all sections for search
+      document.querySelectorAll('.faq-section').forEach(section => {
+        section.classList.remove('hidden');
+      });
+      
+      // Filter FAQ items
+      document.querySelectorAll('.faq-item').forEach(item => {
+        const question = item.querySelector('.faq-question').textContent.toLowerCase();
+        const answer = item.querySelector('.faq-answer-content').textContent.toLowerCase();
+        
+        if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+          item.style.display = 'block';
+          hasResults = true;
+          
+          // Highlight search terms if found
+          if (searchTerm.length > 2) {
+            highlightSearchTerm(item, searchTerm);
+          }
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      
+      // Show/hide no results message
+      if (searchTerm && !hasResults) {
+        document.getElementById('noResults').classList.add('show');
+      } else {
+        document.getElementById('noResults').classList.remove('show');
+      }
+    });
+
+    // Highlight search terms
+    function highlightSearchTerm(item, term) {
+      const question = item.querySelector('.faq-question');
+      const answer = item.querySelector('.faq-answer-content');
+      
+      // Remove existing highlights
+      [question, answer].forEach(element => {
+        element.innerHTML = element.innerHTML.replace(/<mark>/g, '').replace(/<\/mark>/g, '');
+      });
+      
+      // Add new highlights
+      const regex = new RegExp(`(${term})`, 'gi');
+      [question, answer].forEach(element => {
+        element.innerHTML = element.innerHTML.replace(regex, '<mark style="background: var(--peach); color: var(--dark-green); padding: 2px 4px; border-radius: 3px;">$1</mark>');
+      });
+    }
+
+    // Quick link functionality
+    document.querySelectorAll('.quick-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href').substring(1);
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+          // Reset categories to show target section
+          document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.dataset.category === 'all') {
+              tab.classList.add('active');
+            }
+          });
+          
+          document.querySelectorAll('.faq-section').forEach(section => {
+            section.classList.remove('hidden');
+          });
+          
+          // Smooth scroll to target
+          targetElement.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+          
+          // Highlight section briefly
+          targetElement.style.backgroundColor = 'var(--highlight-soft)';
+          setTimeout(() => {
+            targetElement.style.backgroundColor = '';
+          }, 2000);
+        }
+      });
+    });
+
+    // Loading animation and initialization
+    window.addEventListener('load', () => {
+      document.body.classList.remove('loading');
+    });
+
+    // Keyboard navigation enhancement
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        document.body.classList.add('keyboard-navigation');
+      }
+    });
+
+    document.addEventListener('mousedown', () => {
+      document.body.classList.remove('keyboard-navigation');
+    });
+
+    // Performance optimization: Reduce animations on slower devices
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) {
+      document.documentElement.style.setProperty('--animation-duration', '0.1s');
+    }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "name": "Opeari FAQ - Frequently Asked Questions",
+    "description": "Comprehensive FAQ about Opeari's community childcare platform covering safety, beta pricing, rewards system, and community features.",
+    "url": "https://opeari.com/faq.html",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Opeari, Inc.",
+      "url": "https://opeari.com",
+      "description": "Built by parents, for parents - Community childcare platform connecting neighbors for trusted care arrangements"
+    },
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What exactly is Opeari?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Opeari is a community-driven childcare platform that connects parents directly — to share care, support each other, and co-create solutions that fit your life. No agencies. No strangers. Just your village."
+        }
+      },
+      {
+        "@type": "Question", 
+        "name": "How do you ensure safety?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We take a multi-layered approach with community verification, background checks for all care providers, human moderation of profiles and interactions, and 24/7 safety support and dispute resolution."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does Opeari cost?",
+        "acceptedAnswer": {
+          "@type": "Answer", 
+          "text": "Everything is completely FREE during our beta period! We're exploring community-focused monetization like a points and rewards system for active members, and potential optional subscription tiers ($8-30/month) for premium features, but core community connections will always remain accessible."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are there any hidden fees?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely no hidden fees, ever. No signup fees, booking fees, transaction fees between families and caregivers, cancellation fees, or annual contracts. We prioritize building relationships over extracting fees."
+        }
+      }
+    ]
+  }
+  </script>
+</body>
+</html>

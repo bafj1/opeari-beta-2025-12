@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  /* Primary greens */
+  --color-primary-dark: #154a36;
+  --color-primary: #1e6b4e;
+  --color-primary-light: #3ca370;
+  
+  /* Accent / Coral */
+  --color-accent-light: rgba(248, 195, 179, 0.3);
+  --color-accent: #F8C3B3;
+  --color-accent-hover: #f5b2a1;
+  
+  /* Background colors */
+  --color-cream: #fffaf5;
+  --color-mint: #d8f5e5;
+  --color-mint-dark: #e8f4ec;
+  
+  /* Urgent / Error */
+  --color-urgent-light: #fef2f2;
+  --color-urgent: #dc2626;
+  
+  /* Gold */
+  --color-gold: #f4a825;
+  
+  /* Border colors */
+  --color-border-light: #e0f0e8;
+  --color-border: #c8e6d9;
+  
+  /* Text colors */
+  --color-text-primary: #1e6b4e;
+  --color-text-light: #527a6a;
+  --color-text-muted: #8fb89f;
+  
+  /* Font family */
+  --font-family-sans: 'Comfortaa', system-ui, sans-serif;
+  
+  /* Shadows */
+  --shadow-card: 0 4px 20px rgba(30, 107, 78, 0.08);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-btn: 0 4px 12px rgba(30, 107, 78, 0.2);
+  --shadow-btn-hover: 0 6px 16px rgba(30, 107, 78, 0.3);
+  
+  /* Border radius */
+  --radius-btn: 50px;
+  --radius-card: 20px;
+  --radius-input: 10px;
+  
+  /* Animations */
+  --animate-float: float 4s ease-in-out infinite;
+  --animate-slide-in: slideIn 0.3s ease-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes slideIn {
+  0% { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family-sans);
+  background-color: var(--color-cream);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Utility for float animation */
+.animate-float {
+  animation: var(--animate-float);
+}
+
+.animate-slide-in {
+  animation: var(--animate-slide-in);
+}

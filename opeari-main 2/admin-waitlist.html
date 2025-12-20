@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Waitlist Management | Opeari</title>
+  <link rel="icon" href="images/favicon.png" type="image/png" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap');
+    
+    :root {
+      --primary: #1e6b4e;
+      --accent: #f5c9c2;
+      --background: #f8fdf8;
+      --border: #8bd7c7;
+      --error: #e74c3c;
+      --success: #27ae60;
+      --warning: #f39c12;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Comfortaa', sans-serif;
+      background: var(--background);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 2rem;
+    }
+    
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    
+    /* Table */
+    .table-container {
+      background: white;
+      border-radius: 16px;
+      border: 2px solid var(--border);
+      overflow: hidden;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    
+    th {
+      background: var(--background);
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.85rem;
+    }
+    
+    tr:hover {
+      background: #fafffe;
+    }
+    
+    /* Status badges */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .badge-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .badge-approved {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .badge-invited {
+      background: #cce5ff;
+      color: #004085;
+    }
+    
+    /* Action buttons */
+    .action-btn {
+      padding: 0.4rem 0.8rem;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Comfortaa', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .action-btn.approve {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .action-btn.approve:hover {
+      background: #155a3e;
+    }
+    
+    .action-btn.view {
+      background: #eee;
+      color: #333;
+    }
+    
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      display: none;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+    
+    .toast.success {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+    
+    .toast.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    /* Detail Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .modal h2 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    
+    .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+    }
+    
+    .detail-row {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .detail-label {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 0.25rem;
+    }
+    
+    .detail-value {
+      color: var(--primary);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍐 Waitlist Management</h1>
+    <p class="subtitle">Review and approve waitlist signups</p>
+    
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-number" id="totalCount">-</div>
+        <div class="stat-label">Total Signups</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="pendingCount">-</div>
+        <div class="stat-label">Pending Review</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="approvedCount">-</div>
+        <div class="stat-label">Approved</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="invitedCount">-</div>
+        <div class="stat-label">Invited</div>
+      </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="pending">Pending</button>
+      <button class="filter-btn" data-filter="approved">Approved</button>
+      <button class="filter-btn" data-filter="invited">Invited</button>
+    </div>
+    
+    <!-- Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Signed Up</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="waitlistTable">
+          <tr>
+            <td colspan="7" class="empty-state">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+  
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <h2>User Details</h2>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://rvostbkbbddbgcnxqchv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2b3N0YmtiYmRkYmdjbnhxY2h2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzcwMjAsImV4cCI6MjA4MDQ1MzAyMH0.k8LLGt_nCsFO9xINa-80Y49NSPSxryYxCoACwk97E_w';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let waitlistData = [];
+    let currentFilter = 'all';
+    
+    // Load data
+    async function loadWaitlist() {
+      const { data, error } = await supabase
+        .from('waitlist')
+        .select('*')
+        .order('position', { ascending: true });
+      
+      if (error) {
+        console.error('Error loading waitlist:', error);
+        showToast('Failed to load waitlist', 'error');
+        return;
+      }
+      
+      waitlistData = data || [];
+      updateStats();
+      renderTable();
+    }
+    
+    // Update stats
+    function updateStats() {
+      const total = waitlistData.length;
+      const pending = waitlistData.filter(w => !w.approved && !w.invite_sent).length;
+      const approved = waitlistData.filter(w => w.approved && !w.invite_sent).length;
+      const invited = waitlistData.filter(w => w.invite_sent).length;
+      
+      document.getElementById('totalCount').textContent = total;
+      document.getElementById('pendingCount').textContent = pending;
+      document.getElementById('approvedCount').textContent = approved;
+      document.getElementById('invitedCount').textContent = invited;
+    }
+    
+    // Render table
+    function renderTable() {
+      const tbody = document.getElementById('waitlistTable');
+      
+      let filtered = waitlistData;
+      if (currentFilter === 'pending') {
+        filtered = waitlistData.filter(w => !w.approved && !w.invite_sent);
+      } else if (currentFilter === 'approved') {
+        filtered = waitlistData.filter(w => w.approved && !w.invite_sent);
+      } else if (currentFilter === 'invited') {
+        filtered = waitlistData.filter(w => w.invite_sent);
+      }
+      
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No users found</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = filtered.map(user => {
+        const status = user.invite_sent ? 'invited' : (user.approved ? 'approved' : 'pending');
+        const statusLabel = user.invite_sent ? 'Invited' : (user.approved ? 'Approved' : 'Pending');
+        const date = new Date(user.created_at).toLocaleDateString();
+        
+        return `
+          <tr>
+            <td>${user.position || '-'}</td>
+            <td><strong>${user.first_name} ${user.last_name}</strong></td>
+            <td>${user.email}</td>
+            <td>${user.user_type || '-'}</td>
+            <td><span class="badge badge-${status}">${statusLabel}</span></td>
+            <td>${date}</td>
+            <td>
+              <button class="action-btn view" onclick="viewDetails('${user.id}')">View</button>
+              ${!user.invite_sent ? `
+                <button class="action-btn approve" onclick="sendInvite('${user.id}')" id="btn-${user.id}">
+                  ${user.approved ? 'Send Invite' : 'Approve & Invite'}
+                </button>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    // Send invite
+    async function sendInvite(id) {
+      const btn = document.getElementById(`btn-${id}`);
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      
+      try {
+        const response = await fetch('/.netlify/functions/sendApprovalInvite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ waitlistId: id })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          showToast('Invite sent successfully!', 'success');
+          loadWaitlist(); // Reload data
+        } else {
+          throw new Error(result.error || 'Failed to send invite');
+        }
+      } catch (err) {
+        console.error('Invite error:', err);
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Retry';
+      }
+    }
+    
+    // View details
+    function viewDetails(id) {
+      const user = waitlistData.find(w => w.id === id);
+      if (!user) return;
+      
+      const content = `
+        <div class="detail-row">
+          <div class="detail-label">Name</div>
+          <div class="detail-value">${user.first_name} ${user.last_name}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Email</div>
+          <div class="detail-value">${user.email}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">User Type</div>
+          <div class="detail-value">${user.user_type || 'Not specified'}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Position</div>
+          <div class="detail-value">#${user.position || '-'}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Interests</div>
+          <div class="detail-value">${user.interests?.join(', ') || 'None specified'}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Situation</div>
+          <div class="detail-value">${user.situation?.join(', ') || 'None specified'}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Childcare Challenge</div>
+          <div class="detail-value">${user.childcare_challenge || 'Not provided'}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">How They Heard About Us</div>
+          <div class="detail-value">${user.heard_from || 'Not specified'}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Social Handle</div>
+          <div class="detail-value">${user.social_handle || 'Not provided'}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Referral Code</div>
+          <div class="detail-value">${user.referral_code || 'None'}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Signed Up</div>
+          <div class="detail-value">${new Date(user.created_at).toLocaleString()}</div>
+        </div>
+      `;
+      
+      document.getElementById('modalContent').innerHTML = content;
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+    
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+    
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderTable();
+      });
+    });
+    
+    // Toast
+    function showToast(message, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      
+      setTimeout(() => {
+        toast.className = 'toast';
+      }, 4000);
+    }
+    
+    // Close modal on overlay click
+    document.getElementById('modalOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'modalOverlay') closeModal();
+    });
+    
+    // Start
+    loadWaitlist();
+  </script>
+</body>
+</html>

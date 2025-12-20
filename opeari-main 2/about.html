@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" style="scroll-behavior: smooth;">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Opeari | Reimagining Childcare</title>
+  <meta name="description" content="We're not just rethinking child care — we're re-villaging it. Learn the story, mission, and values behind Opeari." />
+  
+  <!-- Performance optimizations -->
+  <link rel="preload" as="image" href="images/pear-connect.png" />
+  <link rel="preload" as="image" href="images/pear-idea.png" />
+  <link rel="preload" as="image" href="images/modern-village.png" />
+  
+  <!-- SEO and Social Sharing -->
+  <link rel="canonical" href="https://opeari.com/about.html" />
+  
+  <!-- Open Graph Tags -->
+  <meta property="og:title" content="About Opeari | Reimagining Childcare" />
+  <meta property="og:description" content="We're not just rethinking child care — we're re-villaging it. Learn the story, mission, and values behind Opeari." />
+  <meta property="og:image" content="https://opeari.com/images/pear-connect.png" />
+  <meta property="og:url" content="https://opeari.com/about.html" />
+  <meta property="og:type" content="website" />
+  
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About Opeari | Reimagining Childcare">
+  <meta name="twitter:description" content="We're not just rethinking child care — we're re-villaging it. Learn the story, mission, and values behind Opeari.">
+  <meta name="twitter:image" content="https://opeari.com/images/pear-connect.png">
+  
+  <link rel="stylesheet" href="styles/style.css" />
+  <link rel="icon" href="images/favicon.png" type="image/png" />
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #056839;
+      --accent: #F2A069;
+      --background: #d8f5e5; /* Updated to mint green */
+      --text: #056839;
+      --text-dark: #124337; /* Improved contrast for accessibility */
+      --light-accent: #F9E3D2;
+      --border-color: rgba(5, 104, 57, 0.1);
+      --btn-pink: #F8C3B3; /* Pink for waitlist button */
+      --footer-bg: var(--background);
+      --divider-color: #8bd7c7;
+      --teal: #5bbfac; /* Brighter teal for accents */
+      --teal-stripe: #8bd7c7; /* Teal for stripes */
+      --secondary-text: #4A6163; /* For footer copyright */
+    }
+    
+    [data-theme="dark"] {
+      --primary: #3CA370;
+      --accent: #F2A069;
+      --background: #1a3c2c; /* Darker mint for dark mode */
+      --text: #E8E8E8;
+      --text-dark: #c5e1d9;
+      --light-accent: #5D4331;
+      --border-color: rgba(60, 163, 112, 0.1);
+      --btn-pink: #F8C3B3;
+      --footer-bg: var(--background);
+      --divider-color: #5b8b7f;
+      --teal: #3CA370;
+      --teal-stripe: #3CA370;
+    }
+    
+    body {
+      font-family: 'Comfortaa', sans-serif;
+      background-color: var(--background);
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    /* Add decorative teal stripes at the top of the page */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background-color: var(--teal-stripe);
+      z-index: 1000;
+    }
+    
+    body::after {
+      content: "";
+      position: fixed;
+      top: 18px;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background-color: var(--teal-stripe);
+      opacity: 0.7;
+      z-index: 1000;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      box-sizing: border-box;
+    }
+    
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+    }
+    
+    .logo {
+      height: 100px;
+      width: auto;
+    }
+    
+    .desktop-nav {
+      display: flex;
+      gap: 1.5rem;
+    }
+    
+    .desktop-nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      padding-bottom: 5px;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+    
+    .desktop-nav a.active {
+      border-bottom: 2px solid var(--btn-pink);
+    }
+    
+    .desktop-nav a:hover {
+      color: var(--btn-pink);
+    }
+    
+    .utility-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .language-toggles {
+      display: flex;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--primary);
+    }
+    
+    .lang-btn {
+      background: none;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      color: var(--primary);
+    }
+    
+    .lang-btn.active {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    /* Simplified toggle without emoji icons */
+    .theme-toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background-color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0 3px;
+      transition: background-color 0.3s;
+      border: none;
+    }
+    
+    .theme-toggle-slider {
+      position: absolute;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: white;
+      transition: transform 0.3s;
+    }
+    
+    [data-theme="dark"] .theme-toggle {
+      background-color: var(--accent);
+    }
+    
+    [data-theme="dark"] .theme-toggle-slider {
+      transform: translateX(20px);
+    }
+    
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: var(--primary);
+      margin: 4px 0;
+    }
+    
+    .mobile-nav {
+      display: none;
+      padding: 1rem;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    header {
+      background: transparent;
+      padding: 1rem 0;
+      position: relative;
+      z-index: 1001;
+    }
+    
+    main {
+      max-width: 1100px; /* Increased from 800px for better content flow */
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    
+    /* Center section title elements */
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    h1, h2 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    h1 {
+      font-size: 2rem; /* Reduced from 2.2rem for better proportion */
+    }
+    
+    h2 {
+      font-size: 1.6rem;
+      margin-top: 3rem;
+    }
+    
+    p, li {
+      font-size: 1rem; /* Reduced from 1.1rem for better readability */
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    
+    ul {
+      padding-left: 1.5rem;
+      list-style-type: none; /* Remove default bullets */
+      margin-bottom: 1.5rem;
+    }
+    
+    ul li {
+      position: relative;
+      padding-left: 1.8rem;
+      margin-bottom: 0.8rem;
+      line-height: 1.5;
+    }
+    
+    /* Consistent custom bullets */
+    ul li::before {
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+    }
+    
+    /* Primary bullet style (→) */
+    .arrow-list li::before {
+      content: "→";
+      left: 0;
+    }
+    
+    /* Secondary bullet style (•) */
+    .dot-list li::before {
+      content: "•";
+      left: 0.2rem;
+      font-size: 1.2rem;
+    }
+    
+    /* Check bullet style (✓) */
+    .check-list li::before {
+      content: "✓";
+      left: 0;
+      color: var(--primary);
+      font-size: 1rem;
+      background: var(--light-accent);
+      width: 1.2rem;
+      height: 1.2rem;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      top: 0.1rem;
+    }
+    
+    .divider {
+      text-align: center;
+      margin: 3rem 0;
+    }
+    
+    .divider::before {
+      content: '⸻';
+      font-size: 1.2rem;
+      color: var(--divider-color);
+    }
+    
+    /* Two-column layout sections */
+    .two-col {
+      display: flex;
+      align-items: center; /* This ensures vertical centering */
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .two-col.reverse {
+      flex-direction: row-reverse;
+    }
+    
+    .text-block, .image-block {
+      flex: 1;
+      min-width: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* Additional centering for content */
+    }
+    
+    .text-block {
+      max-width: 65%; /* Wider text container */
+    }
+    
+    .image-block {
+      max-width: 38%; /* Slightly larger than before */
+      align-items: center; /* Center image horizontally in container */
+      justify-content: center; /* Ensure vertical centering */
+    }
+    
+    .image-block img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    
+    .light-bg {
+      background-color: var(--background);
+    }
+    
+    .alt-bg {
+      background-color: var(--footer-bg);
+    }
+    
+    .center-text {
+      text-align: center;
+    }
+    
+    /* Section anchor system */
+    section {
+      padding: 4rem 0;
+      scroll-margin-top: 100px; /* For anchor navigation */
+    }
+    
+    /* Section icons */
+    .section-icon {
+      display: inline-block;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    /* Animation classes */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Sticky sub-nav */
+    .section-nav {
+      position: sticky;
+      top: 0;
+      background: var(--background);
+      padding: 0.5rem 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: none; /* Hidden by default, shown with JS */
+    }
+    
+    .section-nav-inner {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+    
+    .section-nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.5rem 0;
+      opacity: 0.7;
+      transition: all 0.2s ease;
+    }
+    
+    .section-nav a:hover,
+    .section-nav a.active {
+      opacity: 1;
+      color: var(--btn-pink);
+    }
+    
+    .lead {
+      font-size: 1.2rem; /* Reduced from 1.3rem for better hierarchy */
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    /* COMPACT FOOTER STYLES */
+    footer {
+      text-align: center;
+      padding: 1rem 0 0.75rem; /* Very compact */
+      font-size: 0.8rem;
+      color: var(--primary);
+      background-color: var(--background); /* Mint background */
+      margin-top: 2rem;
+      position: relative;
+      border-top: 1px solid var(--teal-stripe);
+    }
+    
+    /* Three stacked lines at the top */
+    footer::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--teal-stripe);
+      opacity: 0.6;
+    }
+    
+    footer::after {
+      content: "";
+      position: absolute;
+      top: -20px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--teal-stripe);
+      opacity: 0.3;
+    }
+    
+    /* Super compact footer layout */
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    footer a:hover {
+      color: var(--btn-pink);
+    }
+    
+    /* Compact social links */
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin: 0.5rem 0;
+    }
+    
+    .social-icon {
+      width: 24px;
+      height: 24px;
+      opacity: 0.9;
+      transition: all 0.2s ease;
+      color: var(--primary);
+    }
+    
+    .social-icon:hover {
+      opacity: 1;
+      transform: scale(1.1);
+      color: var(--btn-pink);
+    }
+    
+    .footer-copyright {
+      font-size: 0.85rem;
+      color: var(--primary);
+      margin-top: 0.5rem;
+    }
+    
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    a:hover {
+      color: var(--btn-pink);
+    }
+    
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    
+    @media (max-width: 992px) {
+      .text-block, .image-block {
+        max-width: 100%; /* Full width on medium screens */
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .desktop-nav {
+        display: none;
+      }
+      
+      .hamburger {
+        display: block;
+      }
+      
+      .two-col {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .two-col.reverse {
+        flex-direction: column;
+      }
+      
+      .logo {
+        height: 80px; /* Smaller on mobile */
+      }
+      
+      .section-nav {
+        padding: 0.75rem 1rem;
+      }
+      
+      .section-nav-inner {
+        gap: 0.8rem;
+      }
+      
+      .section-nav a {
+        font-size: 0.8rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .footer-links {
+        flex-direction: row; /* Keep horizontal on mobile */
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem 1rem; /* Vertical and horizontal gap */
+      }
+      
+      .social-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+    }
+    
+    /* For print version - hide interactive elements when printing */
+    @media print {
+      header, 
+      .section-nav, 
+      footer, 
+      .utility-nav, 
+      .theme-toggle, 
+      .hamburger {
+        display: none !important;
+      }
+      
+      body {
+        background: white;
+        color: black;
+        font-size: 12pt;
+      }
+      
+      body::before,
+      body::after {
+        display: none;
+      }
+      
+      main {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      section {
+        page-break-inside: avoid;
+        padding: 20pt 0;
+      }
+      
+      img {
+        max-width: 3in;
+      }
+      
+      h1 {
+        font-size: 18pt;
+        color: black;
+      }
+      
+      h2 {
+        font-size: 16pt;
+        color: black;
+      }
+      
+      p, li {
+        font-size: 11pt;
+        line-height: 1.4;
+      }
+      
+      .divider {
+        margin: 10pt 0;
+        border-top: 1pt solid #ddd;
+        height: 0;
+      }
+      
+      .divider::before {
+        content: none;
+      }
+      
+      a {
+        color: black;
+        text-decoration: none;
+      }
+      
+      .container {
+        width: 100%;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-row">
+        <div class="logo-container">
+          <a href="index.html"><img src="images/logo.png" alt="Opeari Logo" class="logo" /></a>
+        </div>
+        <nav class="desktop-nav" aria-label="Main navigation">
+          <a href="index.html">Home</a>
+          <a href="about.html" class="active">About</a>
+          <a href="how-it-works.html">How It Works</a>
+          <a href="waitlist.html">Join</a>
+          <a href="faq.html">FAQ</a>
+        </nav>
+        <div class="utility-nav">
+          <div class="language-toggles">
+            <button class="lang-btn active" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="es">ES</button>
+          </div>
+          <button class="theme-toggle" aria-label="Toggle between light and dark mode" aria-pressed="false">
+            <div class="theme-toggle-slider"></div>
+          </button>
+          <button class="hamburger" aria-label="Menu" aria-expanded="false">
+            <div></div>
+            <div></div>
+            <div></div>
+          </button>
+        </div>
+      </div>
+    </div>
+    <nav class="mobile-nav" aria-label="Mobile navigation" aria-hidden="true">
+      <a href="index.html">Home</a>
+      <a href="about.html" class="active">About</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="waitlist.html">Join</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+    <div class="sr-only" aria-live="polite">Navigation toggled</div>
+  </header>
+
+  <main>
+    <!-- Sticky section navigation -->
+    <nav class="section-nav" aria-label="Section navigation">
+      <div class="container">
+        <div class="section-nav-inner">
+          <a href="#about" class="active">About</a>
+          <a href="#why">Why We Started</a>
+          <a href="#what">What Is Opeari</a>
+          <a href="#promise">Our Promise</a>
+          <a href="#future">Future</a>
+        </div>
+      </div>
+    </nav>
+  
+    <!-- HERO -->
+    <section id="about" class="section-card light-bg fade-in">
+      <div class="container two-col">
+        <div class="text-block">
+          <h1>🍐 About Opeari</h1>
+          <p class="lead">We're not just rethinking child care. We're re-villaging it.</p>
+          <ul class="arrow-list">
+            <li>That parenting shouldn't be so cumbersome.</li>
+            <li>That care should bend with your life — not rule it.</li>
+            <li>That your village? Is real — not just a forgotten Facebook group or endless text or email thread.</li>
+          </ul>
+          <p>It's not a perfect circle. It's pear-shaped — just like real life. Just like your family.</p>
+          <p><strong>So we built something better.</strong></p>
+          <p>We help families find each other, pair up, and share care — not with strangers, but with neighbors, friends, and future friends.</p>
+          <p>It's not an agency. It's not a sitter app.<br>
+          It's a flexible, private care network — built by parents, shaped around you, and designed for how modern families actually live.</p>
+        </div>
+        <div class="image-block">
+          <img src="images/pear-connect.png" alt="Families connecting through Opeari" />
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- WHY WE STARTED -->
+    <section id="why" class="section-card alt fade-in">
+      <div class="container two-col reverse">
+        <div class="image-block">
+          <img src="images/pear-idea.png" alt="Opeari pear mascot with an idea" />
+        </div>
+        <div class="text-block">
+          <div class="section-title">
+            <span class="section-icon inline-icon">🌱</span>
+            <h2>Why We Started</h2>
+          </div>
+          <p>The seed for Opeari was planted between missed meetings, surprise school closures, and the logistical gymnastics every parent knows too well.</p>
+          <p>We saw brilliant, resourceful parents stuck choosing between impossible or unaffordable care options.</p>
+          <p><strong>And we asked:</strong><br>
+            What if the solution wasn't another expensive agency… but each other?<br>
+            What if the real magic was already here — in the people, skills, and support just waiting to be connected?</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- WHAT IS OPEARI -->
+    <section id="what" class="section-card light-bg fade-in">
+      <div class="container two-col">
+        <div class="text-block">
+          <div class="section-title">
+            <span class="section-icon inline-icon">✨</span>
+            <h2>So, What Is Opeari?</h2>
+          </div>
+          <p>Think:</p>
+          <ul class="arrow-list">
+            <li>Part au pair, part neighborhood magic</li>
+            <li>A village that's private, personal, and actually works</li>
+            <li>A tech-powered network for families who want flexibility — without the tradeoffs</li>
+          </ul>
+          <p>Whether you want to:</p>
+          <ul class="dot-list">
+            <li>Share a nanny</li>
+            <li>Trade Thursday afternoons</li>
+            <li>Host a class with your block</li>
+            <li>Build a network of trusted, local parents and caregivers</li>
+          </ul>
+          <p>Opeari helps you connect, co-create, and care — your way.</p>
+        </div>
+        <div class="image-block">
+          <img src="images/modern-village.png" alt="Modern village of connected families" />
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- OUR PROMISE -->
+    <section id="promise" class="section-card alt fade-in center-text">
+      <div class="container center-text">
+        <div class="section-title">
+          <span class="section-icon inline-icon">🤝</span>
+          <h2>Our Promise</h2>
+        </div>
+        <p>We're building this with you — not just for you.</p>
+        <ul class="check-list">
+          <li>No strangers.</li>
+          <li>No algorithms parenting your kid.</li>
+          <li>No one-size-fits-all anything.</li>
+        </ul>
+        <p>Just a smarter, more human way to parent — together.</p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+   <section id="future" class="section-card light-bg fade-in center-text">
+      <div class="container center-text">
+        <h2>The future of care is collaborative. Flexible. Human.</h2>
+        <p>Welcome to Opeari.<br>Your village is waiting.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- UPDATED COMPACT FOOTER -->
+  <footer>
+    <!-- Navigation links in single row -->
+    <div class="footer-links">
+      <a href="about.html">About Us</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
+      <a href="faq.html">FAQ</a>
+      <a href="mailto:hello@opeari.com">Contact Us</a>
+    </div>
+    
+    <!-- Social icons in single row -->
+    <div class="social-links">
+      <a href="https://instagram.com/opeari.co" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </a>
+    </div>
+    
+    <!-- Copyright text with pear emoji -->
+    <p class="footer-copyright">© 2025 Opeari, Inc. | Built by parents, for parents 🍐</p>
+  </footer>
+
+  <script>
+    // Theme toggle functionality
+    const themeToggle = document.querySelector('.theme-toggle');
+    const htmlElement = document.documentElement;
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      htmlElement.setAttribute('data-theme', newTheme);
+      themeToggle.setAttribute('aria-pressed', newTheme === 'dark');
+    });
+    
+    // Mobile nav toggle with ARIA support
+    const hamburger = document.querySelector('.hamburger');
+    const mobileNav = document.querySelector('.mobile-nav');
+    const navToggleAnnouncement = document.querySelector('[aria-live="polite"]');
+    
+    hamburger.addEventListener('click', () => {
+      const isExpanded = mobileNav.style.display === 'flex';
+      mobileNav.style.display = isExpanded ? 'none' : 'flex';
+      hamburger.setAttribute('aria-expanded', String(!isExpanded));
+      mobileNav.setAttribute('aria-hidden', String(isExpanded));
+      
+      // Announce the toggle for screen readers
+      navToggleAnnouncement.textContent = isExpanded ? 'Navigation collapsed' : 'Navigation expanded';
+    });
+    
+    // Language toggle functionality
+    const langButtons = document.querySelectorAll('.lang-btn');
+    
+    langButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Remove active class from all buttons
+        langButtons.forEach(btn => btn.classList.remove('active'));
+        // Add active class to clicked button
+        button.classList.add('active');
+        // Here you would normally handle language change logic
+        // For demonstration purposes only:
+        const lang = button.getAttribute('data-lang');
+        console.log(`Language changed to: ${lang}`);
+      });
+    });
+    
+    // Intersection Observer for fade-in animations
+    document.addEventListener('DOMContentLoaded', () => {
+      const fadeElements = document.querySelectorAll('.fade-in');
+      
+      const fadeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            fadeObserver.unobserve(entry.target); // Stop observing once visible
+          }
+        });
+      }, {
+        root: null,
+        threshold: 0.15, // Trigger when 15% of the element is visible
+        rootMargin: '0px 0px -100px 0px' // Trigger a bit earlier
+      });
+      
+      fadeElements.forEach(element => {
+        fadeObserver.observe(element);
+      });
+      
+      // Section navigation highlighting
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.section-nav a');
+      const sectionNav = document.querySelector('.section-nav');
+      
+      // Show/hide section nav based on scroll position
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) { // Show after scrolling past hero
+          sectionNav.style.display = 'block';
+        } else {
+          sectionNav.style.display = 'none';
+        }
+        
+        // Highlight active section in nav
+        let currentSectionId = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+          if (window.scrollY >= sectionTop - 150 && 
+              window.scrollY < sectionTop + sectionHeight - 150) {
+            currentSectionId = section.getAttribute('id');
+          }
+        });
+        
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${currentSectionId}`) {
+            link.classList.add('active');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
