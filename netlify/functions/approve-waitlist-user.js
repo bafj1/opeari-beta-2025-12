@@ -1,31 +1,41 @@
+
 import { createClient } from '@supabase/supabase-js'
+import { Resend } from 'resend'
 
 export async function handler(event) {
+    // 1. Method Check
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method not allowed' }
     }
 
-    // Security Check
+    // 2. Security Check (Admin Secret)
     const secret = event.headers['x-admin-secret'] || event.headers['X-Admin-Secret']
     if (secret !== process.env.NETLIFY_ADMIN_SECRET) {
         return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) }
     }
 
+    // 3. Env Check
+    const supabaseUrl = process.env.SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const resendApiKey = process.env.RESEND_API_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey || !resendApiKey) {
+        console.error('Missing Env Vars')
+        return { statusCode: 500, body: JSON.stringify({ error: 'Configuration Error' }) }
+    }
+
     try {
-        const supabaseUrl = process.env.SUPABASE_URL
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-        if (!supabaseUrl || !supabaseServiceKey) {
-            return { statusCode: 500, body: JSON.stringify({ error: 'Configuration Error' }) }
-        }
-
         const supabase = createClient(supabaseUrl, supabaseServiceKey)
-        const { id } = JSON.parse(event.body)
+        const resend = new Resend(resendApiKey)
 
-        if (!id) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Missing ID' }) }
+        // 4. Parse Body
+        const { id, email, firstName } = JSON.parse(event.body)
+
+        if (!id || !email) {
+            return { statusCode: 400, body: JSON.stringify({ error: 'Missing ID or Email' }) }
         }
 
+        // 5. Update Supabase
         const { data, error } = await supabase
             .from('waitlist')
             .update({ status: 'approved' })
@@ -34,10 +44,51 @@ export async function handler(event) {
 
         if (error) throw error
 
+        // 6. Send Email (The Fix!)
+        try {
+            const { data: emailData, error: emailError } = await resend.emails.send({
+                from: 'Opeari <breada@opeari.com>',
+                to: [email],
+                subject: 'Welcome to Opeari! 🍐',
+                html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1a4731;">
+                    <h1 style="color: #4A7A4A;">You're in! 🎉</h1>
+                    <p>Hi ${firstName || 'Neighbor'},</p>
+                    <p>We are thrilled to welcome you to Opeari. Changing the way we find childcare starts with you.</p>
+                    <p>You can now create your account and start building your village.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://opeari.com/signup?email=${encodeURIComponent(email)}" 
+                           style="background-color: #4A7A4A; color: white; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block;">
+                           Create My Account
+                        </a>
+                    </div>
+                    <p style="font-size: 14px; color: #666; margin-top: 40px;">
+                        Welcome to the village,<br/>
+                        The Opeari Team
+                    </p>
+                </div>
+                `
+            });
+
+            if (emailError) {
+                console.error('Resend Error:', emailError)
+                // We don't fail the written DB change, but we warn
+                return {
+                    statusCode: 200,
+                    body: JSON.stringify({ ok: true, data, emailSent: false, emailError })
+                }
+            }
+
+            console.log('Email sent to:', email)
+        } catch (mailErr) {
+            console.error('Email Exception:', mailErr)
+        }
+
         return {
             statusCode: 200,
-            body: JSON.stringify({ ok: true, data })
+            body: JSON.stringify({ ok: true, data, emailSent: true })
         }
+
     } catch (err) {
         console.error('Admin Approve Error:', err)
         return {
