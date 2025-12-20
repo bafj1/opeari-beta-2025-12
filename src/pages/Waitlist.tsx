@@ -126,7 +126,18 @@ export default function Waitlist() {
         const response = await fetch('/.netlify/functions/send-waitlist-confirmation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail, firstName: cleanFirstName })
+          body: JSON.stringify({
+            email: cleanEmail,
+            firstName: cleanFirstName,
+            lastName: cleanLastName,
+            zipCode: cleanZip,
+            userType,
+            referralSource,
+            referralName: sanitize(referralName),
+            referralCode: refCode,
+            position: realPosition,
+            childcareChallenge: whyJoin
+          })
         })
 
         // Safely parse JSON only if response might contain it
