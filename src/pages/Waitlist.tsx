@@ -86,14 +86,11 @@ export default function Waitlist() {
           last_name: cleanLastName,
           email: cleanEmail,
           zip_code: cleanZip,
-          // user_type: userType,
-          // urgency: urgency,
-          // referral_source: referralSource,
-          // referral_name: sanitize(referralName) || null,
-          // why_join: sanitize(whyJoin) || null,
-          // referred_by: referredByCode || null,
-          // referral_code: refCode,
-          // created_at: new Date().toISOString()
+          role: userType,
+          hear_about_us: referralSource,
+          referred_by: sanitize(referralName) || null,
+          looking_for: whyJoin ? [sanitize(whyJoin)] : null,
+          referral_code: refCode,
         })
 
       if (dbError) {
