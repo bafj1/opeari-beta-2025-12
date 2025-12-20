@@ -1,10 +1,20 @@
+
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*'
+};
+
 export const handler = async (event) => {
     if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method not allowed' };
+        return {
+            statusCode: 405,
+            headers,
+            body: 'Method not allowed'
+        };
     }
 
     try {
@@ -13,6 +23,7 @@ export const handler = async (event) => {
         if (!email) {
             return {
                 statusCode: 400,
+                headers,
                 body: JSON.stringify({ ok: false, error: 'Email is required' })
             };
         }
@@ -36,8 +47,10 @@ export const handler = async (event) => {
 
         if (error) {
             console.error('Resend Error:', error);
+            // We return 200 so the user still sees "Success" on frontend, even if email fails
             return {
-                statusCode: 200, // Do not block signup
+                statusCode: 200,
+                headers,
                 body: JSON.stringify({
                     ok: true,
                     emailSent: false,
@@ -48,6 +61,7 @@ export const handler = async (event) => {
 
         return {
             statusCode: 200,
+            headers,
             body: JSON.stringify({
                 ok: true,
                 emailSent: true,
@@ -59,6 +73,7 @@ export const handler = async (event) => {
         console.error('Function Error:', err);
         return {
             statusCode: 200, // Do not block signup
+            headers,
             body: JSON.stringify({
                 ok: true,
                 emailSent: false,
