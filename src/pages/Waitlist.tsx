@@ -86,14 +86,13 @@ export default function Waitlist() {
           last_name: cleanLastName,
           email: cleanEmail,
           zip_code: cleanZip,
-          user_type: userType,
-          urgency: urgency,
-          referral_source: referralSource,
-          referral_name: sanitize(referralName) || null,
-          linkedin_url: linkedin || null,
-          why_join: sanitize(whyJoin) || null,
-          referred_by: referredByCode || null,
-          referral_code: refCode,
+          // user_type: userType,
+          // urgency: urgency,
+          // referral_source: referralSource,
+          // referral_name: sanitize(referralName) || null,
+          // why_join: sanitize(whyJoin) || null,
+          // referred_by: referredByCode || null,
+          // referral_code: refCode,
           // created_at: new Date().toISOString()
         })
 
@@ -337,13 +336,6 @@ export default function Waitlist() {
 
           {/* Pears Decoration (Moved from Right Card) */}
           <img
-            src="/pears-entering.png"
-            alt="Neighborhood"
-            loading="lazy"
-            decoding="async"
-            className="w-52 h-auto opacity-90 mx-auto mt-8 pointer-events-none animate-float-pear"
-            onError={(e) => (e.currentTarget.style.display = 'none')}
-          />
         </div>
 
         {/* Form Card */}
@@ -611,6 +603,7 @@ export default function Waitlist() {
 
 
               <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[999]" />
+              <img src={heroImg} alt="Opeari Village" className="w-[240px] mx-auto mb-6 max-w-full h-auto" />
               <h2 className="text-[#1e6b4e] text-[2rem] mb-2 font-bold relative z-10">You're on the list!</h2>
               <p className="text-[#527a6a] mb-8 relative z-10">Thanks, <span className="font-bold">{firstName}</span>. We'll be in touch soon.
                 {emailStatus?.sent === false && (
