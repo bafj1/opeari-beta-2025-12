@@ -18,6 +18,7 @@ export async function handler(event) {
     const supabaseUrl = process.env.SUPABASE_URL
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     const resendApiKey = process.env.RESEND_API_KEY
+    const siteUrl = process.env.URL || 'https://opeari.com'
 
     if (!supabaseUrl || !supabaseServiceKey || !resendApiKey) {
         console.error('Missing Env Vars')
@@ -35,21 +36,41 @@ export async function handler(event) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Missing ID or Email' }) }
         }
 
-        // 5. Update Supabase
+        // 5. Generate Invite Link (Supabase Auth)
+        const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+            type: 'invite',
+            email: email,
+            options: {
+                redirectTo: `${siteUrl}/onboarding`
+            }
+        })
+
+        if (linkError) {
+            console.error('Generate Link Error:', linkError)
+            return { statusCode: 500, body: JSON.stringify({ error: 'Failed to generate invite link' }) }
+        }
+
+        const inviteLink = linkData.properties.action_link
+        console.log('Generated Invite Link:', inviteLink)
+
+        // 6. Update Database (waitlist_entries)
         const { data, error } = await supabase
-            .from('waitlist')
-            .update({ status: 'approved' })
+            .from('waitlist_entries')
+            .update({
+                status: 'approved',
+                invited_at: new Date().toISOString()
+            })
             .eq('id', id)
             .select()
 
         if (error) throw error
 
-        // 6. Send Email (The Fix!)
+        // 7. Send Email (Resend)
         try {
             const { data: emailData, error: emailError } = await resend.emails.send({
                 from: 'Opeari <breada@opeari.com>',
                 to: [email],
-                subject: 'Welcome to Opeari! 🍐',
+                subject: 'You\'re in! 🎉 Welcome to Opeari',
                 html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1a4731;">
                     <h1 style="color: #4A7A4A;">You're in! 🎉</h1>
@@ -57,11 +78,14 @@ export async function handler(event) {
                     <p>We are thrilled to welcome you to Opeari. Changing the way we find childcare starts with you.</p>
                     <p>You can now create your account and start building your village.</p>
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://opeari.com/signup?email=${encodeURIComponent(email)}" 
+                        <a href="${inviteLink}" 
                            style="background-color: #4A7A4A; color: white; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block;">
                            Create My Account
                         </a>
                     </div>
+                    <p style="text-align: center; font-size: 12px; color: #888;">
+                        (Link expires in 24 hours)
+                    </p>
                     <p style="font-size: 14px; color: #666; margin-top: 40px;">
                         Welcome to the village,<br/>
                         The Opeari Team
@@ -72,14 +96,13 @@ export async function handler(event) {
 
             if (emailError) {
                 console.error('Resend Error:', emailError)
-                // We don't fail the written DB change, but we warn
                 return {
                     statusCode: 200,
                     body: JSON.stringify({ ok: true, data, emailSent: false, emailError })
                 }
             }
 
-            console.log('Email sent to:', email)
+            console.log('Invite Email sent to:', email)
         } catch (mailErr) {
             console.error('Email Exception:', mailErr)
         }

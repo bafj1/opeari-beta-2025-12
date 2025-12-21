@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js'
 
 export async function handler(event) {
@@ -20,17 +21,10 @@ export async function handler(event) {
             return { statusCode: 500, body: JSON.stringify({ error: 'Configuration Error' }) }
         }
 
-        // Log Hostname for Data Consistency Verification
-        try {
-            console.log('Connecting to Supabase Host:', new URL(supabaseUrl).hostname)
-        } catch (e) {
-            console.warn('Could not parse Supabase URL for logging')
-        }
-
         const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
         const { data, error } = await supabase
-            .from('waitlist')
+            .from('waitlist_entries')
             .select('*')
             .order('created_at', { ascending: false })
 
