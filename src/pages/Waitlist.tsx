@@ -89,6 +89,7 @@ export default function Waitlist() {
           role: userType,
           hear_about_us: referralSource,
           referred_by: sanitize(referralName) || null,
+          linkedin_url: linkedin ? sanitize(linkedin) : null,
           looking_for: whyJoin ? [sanitize(whyJoin)] : null,
           referral_code: refCode,
         })
@@ -315,7 +316,7 @@ export default function Waitlist() {
           </h1>
           <p className="text-base leading-relaxed text-[#527a6a] mb-5 max-w-[420px] mx-auto max-md:text-[0.95rem]">
             We're launching neighborhood by neighborhood. Claim early access to verified, flexible childcare in your community.
-          {!success && <img src={heroImg} alt="Opeari Village" className="w-[180px] mx-auto mb-4 max-md:w-[140px] max-md:my-3" onError={(e) => (e.currentTarget.style.display = 'none')} />}
+            {!success && <img src={heroImg} alt="Opeari Village" className="w-[180px] mx-auto mb-4 max-md:w-[140px] max-md:my-3" onError={(e) => (e.currentTarget.style.display = 'none')} />}
           </p>
 
 
@@ -520,29 +521,29 @@ export default function Waitlist() {
 
                 {/* Referral Code Toggle */}
                 {(referralSource === '' || referralSource === 'referral_code') && (
-                <div className="mb-4">
-                  <button
-                    type="button"
-                    onClick={() => setReferralSource(prev => prev === 'referral_code' ? '' : 'referral_code')}
-                    className="text-sm font-semibold text-[#1e6b4e] flex items-center gap-2 hover:opacity-80 mb-2"
-                  >
-                    <span className={`transition-transform duration-200 ${referralSource === 'referral_code' ? 'rotate-90' : ''}`}>▶</span>
-                    Have a referral code?
-                  </button>
+                  <div className="mb-4">
+                    <button
+                      type="button"
+                      onClick={() => setReferralSource(prev => prev === 'referral_code' ? '' : 'referral_code')}
+                      className="text-sm font-semibold text-[#1e6b4e] flex items-center gap-2 hover:opacity-80 mb-2"
+                    >
+                      <span className={`transition-transform duration-200 ${referralSource === 'referral_code' ? 'rotate-90' : ''}`}>▶</span>
+                      Have a referral code?
+                    </button>
 
-                  {referralSource === 'referral_code' && (
-                    <div className="mt-2 animate-in slide-in-from-top-2 duration-200">
-                      <label className={labelClass}>Referral Code</label>
-                      <input
-                        type="text"
-                        value={referralName}
-                        onChange={(e) => setReferralName(e.target.value)}
-                        placeholder="Enter referral code"
-                        className={inputClass}
-                      />
-                    </div>
-                  )}
-                </div>
+                    {referralSource === 'referral_code' && (
+                      <div className="mt-2 animate-in slide-in-from-top-2 duration-200">
+                        <label className={labelClass}>Referral Code</label>
+                        <input
+                          type="text"
+                          value={referralName}
+                          onChange={(e) => setReferralName(e.target.value)}
+                          placeholder="Enter referral code"
+                          className={inputClass}
+                        />
+                      </div>
+                    )}
+                  </div>
 
                 )}
 

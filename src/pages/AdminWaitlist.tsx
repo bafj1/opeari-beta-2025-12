@@ -139,6 +139,62 @@ export default function AdminWaitlist() {
         }
     }
 
+    const handleReset = async (entry: WaitlistEntry) => {
+        if (!confirm(`Reset ${entry.first_name} to PENDING? They will need to be re-approved.`)) return
+
+        try {
+            const res = await fetch('/.netlify/functions/reset-waitlist-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-admin-secret': secret
+                },
+                body: JSON.stringify({ id: entry.id })
+            })
+
+            if (res.ok) {
+                fetchEntries(secret)
+            } else {
+                alert('Reset failed')
+            }
+        } catch (err) {
+            console.error(err)
+            alert('Error resetting user')
+        }
+    }
+
+    const handleResend = async (entry: WaitlistEntry) => {
+        // Re-use approve logic which handles email sending
+        if (!confirm(`Resend approval email to ${entry.email}?`)) return
+
+        try {
+            // We call the same approve endpoint, which generates a fresh link and sends email
+            // We pass the same payload
+            const res = await fetch('/.netlify/functions/approve-waitlist-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-admin-secret': secret
+                },
+                body: JSON.stringify({
+                    id: entry.id,
+                    email: entry.email,
+                    firstName: entry.first_name
+                })
+            })
+
+            if (res.ok) {
+                alert(`Invite resent to ${entry.email}`)
+                fetchEntries(secret)
+            } else {
+                alert('Resend failed')
+            }
+        } catch (err) {
+            console.error(err)
+            alert('Error resending invite')
+        }
+    }
+
     const toggleRow = (id: string) => {
         if (expandedId === id) {
             setExpandedId(null)
@@ -311,10 +367,33 @@ export default function AdminWaitlist() {
                                                     </div>
                                                 )}
                                                 {entry.status === 'approved' && (
-                                                    <button onClick={() => handleApprove(entry)} className="text-xs text-text-muted hover:underline">Resend Invite</button>
+                                                    <div className="flex justify-end gap-2 items-center">
+                                                        <button
+                                                            onClick={() => handleReset(entry)}
+                                                            className="text-[10px] font-bold text-gray-400 hover:text-gray-600 border border-gray-200 hover:border-gray-300 px-2 py-1 rounded transition-colors"
+                                                            title="Reset to Pending"
+                                                        >
+                                                            Reset
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleResend(entry)}
+                                                            className="text-[10px] font-bold text-[#1e6b4e] hover:text-[#154a36] hover:bg-[#d8f5e5] px-2 py-1 rounded transition-colors"
+                                                        >
+                                                            Resend Invite
+                                                        </button>
+                                                    </div>
                                                 )}
                                                 {entry.status === 'rejected' && (
-                                                    <span className="text-xs text-red-400 italic">Rejected</span>
+                                                    <div className="flex justify-end gap-2 items-center">
+                                                        <button
+                                                            onClick={() => handleReset(entry)}
+                                                            className="text-[10px] font-bold text-gray-400 hover:text-gray-600 border border-gray-200 hover:border-gray-300 px-2 py-1 rounded transition-colors"
+                                                            title="Reset to Pending"
+                                                        >
+                                                            Reset
+                                                        </button>
+                                                        <span className="text-xs text-red-400 italic px-2">Rejected</span>
+                                                    </div>
                                                 )}
                                             </td>
                                         </tr>
