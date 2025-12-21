@@ -17,7 +17,6 @@ interface WaitlistEntry {
 }
 
 export default function AdminWaitlist() {
-    console.log('AdminWaitlist Component Mounting... [DEBUG-V3]')
     const [entries, setEntries] = useState<WaitlistEntry[]>([])
     const [loading, setLoading] = useState(false)
     const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
