@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { createClient } from '@supabase/supabase-js'
+
 
 const logoImg = '/logo.svg'
 
@@ -233,8 +233,8 @@ export default function AdminWaitlist() {
                                 key={f}
                                 onClick={() => setFilter(f as any)}
                                 className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-colors ${filter === f
-                                        ? 'bg-[#1e6b4e] text-white'
-                                        : 'bg-white text-[#527a6a] hover:bg-[#d8f5e5]'
+                                    ? 'bg-[#1e6b4e] text-white'
+                                    : 'bg-white text-[#527a6a] hover:bg-[#d8f5e5]'
                                     }`}
                             >
                                 {f}
