@@ -17,6 +17,7 @@ interface WaitlistEntry {
 }
 
 export default function AdminWaitlist() {
+    console.log('AdminWaitlist Component Mounting... [DEBUG-V3]')
     const [entries, setEntries] = useState<WaitlistEntry[]>([])
     const [loading, setLoading] = useState(false)
     const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
@@ -241,8 +242,8 @@ export default function AdminWaitlist() {
                                             <td className="p-4 text-text-muted font-mono text-sm">{entry.email}</td>
                                             <td className="p-4">
                                                 <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${entry.user_type === 'caregiver' ? 'bg-purple-100 text-purple-700' :
-                                                        entry.user_type === 'parent' ? 'bg-blue-100 text-blue-700' :
-                                                            'bg-orange-100 text-orange-700'
+                                                    entry.user_type === 'parent' ? 'bg-blue-100 text-blue-700' :
+                                                        'bg-orange-100 text-orange-700'
                                                     }`}>
                                                     {entry.user_type}
                                                 </span>
