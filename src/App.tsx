@@ -10,6 +10,7 @@ import Waitlist from './pages/Waitlist';
 import Login from './pages/Login';
 import Invite from './pages/Invite';
 import AdminWaitlist from './pages/AdminWaitlist';
+import RequestNewLink from './pages/RequestNewLink';
 
 // Onboarding (first-time setup wizard)
 import ProfileWizard from './pages/ProfileWizard';
@@ -40,6 +41,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/invite" element={<Invite />} />
           <Route path="/admin-waitlist" element={<AdminWaitlist />} />
+          <Route path="/request-link" element={<RequestNewLink />} />
 
           {/* Onboarding - first time setup */}
           <Route path="/onboarding" element={<ProfileWizard />} />
