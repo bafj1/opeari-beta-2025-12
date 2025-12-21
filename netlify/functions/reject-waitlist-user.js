@@ -40,7 +40,7 @@ exports.handler = async (event) => {
         }
 
         const { data, error } = await supabase
-            .from('waitlist')
+            .from('waitlist_entries')
             .update({ status: 'rejected' })
             .eq('id', id)
             .select()

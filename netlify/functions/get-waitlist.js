@@ -36,7 +36,7 @@ exports.handler = async (event) => {
         const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
         const { data, error } = await supabase
-            .from('waitlist')
+            .from('waitlist_entries')
             .select('*')
             .order('created_at', { ascending: false })
 

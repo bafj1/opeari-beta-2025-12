@@ -66,7 +66,7 @@ exports.handler = async (event) => {
 
         // 6. Update Database (waitlist)
         const { data, error } = await supabase
-            .from('waitlist')
+            .from('waitlist_entries')
             .update({
                 status: 'approved',
                 invited_at: new Date().toISOString()
