@@ -64,9 +64,9 @@ exports.handler = async (event) => {
         const inviteLink = linkData.properties.action_link
         console.log('Generated Invite Link:', inviteLink)
 
-        // 6. Update Database (waitlist_entries)
+        // 6. Update Database (waitlist)
         const { data, error } = await supabase
-            .from('waitlist_entries')
+            .from('waitlist')
             .update({
                 status: 'approved',
                 invited_at: new Date().toISOString()
