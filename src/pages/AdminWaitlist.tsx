@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { createClient } from '@supabase/supabase-js'
 
 const logoImg = '/logo.svg'
 
@@ -158,12 +159,28 @@ export default function AdminWaitlist() {
 
     // Helper to format Referral
     const formatReferral = (source?: string, name?: string) => {
-        if (!source) return <span className="text-gray-300">-</span>
+        if (!source && !name) {
+            return (
+                <span className="text-gray-400 bg-gray-100 px-2 py-1 rounded text-xs font-medium">
+                    No referral
+                </span>
+            )
+        }
 
-        let label = source.replace(/_/g, ' ') // e.g. social_media -> social media
+        // Handle "No Referral" explicit value if DB stores it that way
+        if (source === 'no_referral' || source === '') {
+            return (
+                <span className="text-gray-400 bg-gray-100 px-2 py-1 rounded text-xs font-medium">
+                    No referral
+                </span>
+            )
+        }
+
+        let label = source?.replace(/_/g, ' ') || 'Unknown'// e.g. social_media -> social media
         if (label === 'friend') label = 'Friend'
         if (label === 'parent group') label = 'Parent Grp'
-        if (label === 'referral_code') label = 'Code'
+        if (label === 'referral code') label = 'Code' // if source was 'referral_code'
+        if (label === 'search') label = 'Google'
 
         return (
             <div className="flex flex-col text-xs">
@@ -308,35 +325,48 @@ export default function AdminWaitlist() {
                                                     <div className="p-6 grid grid-cols-3 gap-8 text-sm animate-in slide-in-from-top-1 duration-200 border-b border-[#eef6f6]">
                                                         <div>
                                                             <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Application Details</h4>
-                                                            <div className="mb-2"><span className="text-text-muted">Urgency:</span> <span className="font-medium">{entry.urgency || 'N/A'}</span></div>
-                                                            <div className="mb-2"><span className="text-text-muted">Why Join:</span>
-                                                                <p className="mt-1 p-2 bg-white border border-[#eef6f6] rounded-lg text-gray-700 italic">
-                                                                    {entry.looking_for ? entry.looking_for[0] : 'No reason provided'}
-                                                                </p>
+                                                            <div className="mb-2">
+                                                                <span className="text-text-muted inline-block w-20">Timeline:</span>
+                                                                <span className={`font-medium ${!entry.urgency ? 'text-gray-400 italic' : ''}`}>
+                                                                    {entry.urgency || 'Not provided'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="mb-2">
+                                                                <div className="text-text-muted mb-1">Why Join:</div>
+                                                                {entry.looking_for && entry.looking_for[0] ? (
+                                                                    <p className="p-3 bg-white border border-[#eef6f6] rounded-lg text-gray-700 italic text-xs leading-relaxed">
+                                                                        "{entry.looking_for[0]}"
+                                                                    </p>
+                                                                ) : (
+                                                                    <span className="text-gray-400 italic text-xs">Not provided</span>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         <div>
                                                             <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Verify Identity</h4>
                                                             <div className="mb-2">
                                                                 {entry.linkedin_url ? (
-                                                                    <a href={entry.linkedin_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
+                                                                    <a href={entry.linkedin_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-1 font-medium">
                                                                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.784 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
                                                                         View LinkedIn Profile
                                                                     </a>
                                                                 ) : (
-                                                                    <span className="text-gray-400 italic">No LinkedIn provided</span>
+                                                                    <div className="text-gray-400 italic flex items-center gap-1">
+                                                                        <svg className="w-4 h-4 opacity-50" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.784 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
+                                                                        No LinkedIn provided
+                                                                    </div>
                                                                 )}
                                                             </div>
-                                                            <div><span className="text-text-muted">Referral ID:</span> <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{entry.id.slice(0, 8)}...</span></div>
+                                                            <div className="mt-4"><span className="text-text-muted">Referral ID:</span> <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded select-all">{entry.id.split('-')[0]}...</span></div>
                                                         </div>
                                                         <div>
                                                             <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Admin Actions</h4>
                                                             <div className="flex flex-col gap-2">
-                                                                <button onClick={() => handleApprove(entry)} className="text-left px-3 py-2 hover:bg-green-50 text-green-700 rounded transition-colors text-xs font-bold">
+                                                                <button onClick={() => handleApprove(entry)} className="text-left px-3 py-2 bg-gray-50 hover:bg-green-50 text-green-700 rounded transition-colors text-xs font-bold border border-transparent hover:border-green-200">
                                                                     Currently: {entry.status ? entry.status.toUpperCase() : 'PENDING'}
                                                                 </button>
                                                                 <div className="text-xs text-gray-400 mt-2">
-                                                                    Created: {new Date(entry.created_at).toLocaleString()}
+                                                                    Joined: {new Date(entry.created_at).toLocaleString()}
                                                                 </div>
                                                             </div>
                                                         </div>
