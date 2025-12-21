@@ -1,97 +1,97 @@
-
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import Toast from '../components/ui/Toast'
+import { createClient } from '@supabase/supabase-js'
+
+const logoImg = '/logo.svg'
 
 interface WaitlistEntry {
     id: string
     created_at: string
+    email: string
     first_name: string
     last_name: string
-    email: string
-    user_type: string
-    status: string
-    referral_source: string
-    // Enriched on frontend
+    zip_code: string
+    role: string            // 'family' | 'caregiver' | 'both'
+    status?: 'approved' | 'rejected' | 'pending'
     position?: number
+    hear_about_us?: string  // 'friend', 'social_media', etc
+    referred_by?: string    // Contains the Name (e.g. "Breada")
+    linkedin_url?: string
+    looking_for?: string[]  // Contains "Why Join" reason
+    urgency?: string
 }
 
 export default function AdminWaitlist() {
     const [entries, setEntries] = useState<WaitlistEntry[]>([])
     const [loading, setLoading] = useState(false)
     const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
-    const [processing, setProcessing] = useState<string | null>(null)
     const [secret, setSecret] = useState('')
-    const [inputSecret, setInputSecret] = useState('')
-    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [authError, setAuthError] = useState('')
+    const [expandedId, setExpandedId] = useState<string | null>(null)
 
-    // On mount, check if secret is already stored
+    // Check session on mount
     useEffect(() => {
-        const stored = sessionStorage.getItem('adminWaitlistSecret')
-        if (stored) {
-            setSecret(stored)
+        const storedSecret = sessionStorage.getItem('admin_secret')
+        if (storedSecret) {
+            setSecret(storedSecret)
+            fetchEntries(storedSecret)
         }
     }, [])
 
-    // Fetch when secret is present
-    useEffect(() => {
-        if (secret) {
-            fetchEntries()
-        }
-    }, [secret])
-
-    const fetchEntries = async () => {
-        setLoading(true)
-        try {
-            const res = await fetch('/.netlify/functions/get-waitlist', {
-                headers: { 'x-admin-secret': secret, 'Cache-Control': 'no-cache' }
-            })
-            if (res.status === 401) {
-                setToast({ message: 'Incorrect Secret. Please try again.', type: 'error' })
-                setSecret('')
-                sessionStorage.removeItem('adminWaitlistSecret')
-                setLoading(false)
-                return
-            }
-            if (!res.ok) throw new Error('Failed to fetch')
-            const rawData = await res.json() || []
-
-            // Calculate "Queue Position" based on absolute Join Date (Oldest = #1)
-            // We sort by date ascending first
-            const sortedByDate = [...rawData].sort((a, b) =>
-                new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-            )
-
-            // Assign positions (1-based)
-            const withPositions = sortedByDate.map((entry, index) => ({
-                ...entry,
-                position: index + 1
-            }))
-
-            // Sort by newest first for the Dashboard View (so you see new requests at top)
-            const dashboardView = withPositions.sort((a, b) =>
-                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-            )
-
-            setEntries(dashboardView)
-        } catch (err) {
-            console.error('Error fetching waitlist:', err)
-            // setToast({ message: 'Error fetching data', type: 'error' })
-        }
-        setLoading(false)
-    }
-
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault()
-        if (!inputSecret) return
-        setSecret(inputSecret)
-        sessionStorage.setItem('adminWaitlistSecret', inputSecret)
+        fetchEntries(secret)
+    }
+
+    const fetchEntries = async (adminSecret: string) => {
+        setLoading(true)
+        setAuthError('')
+        try {
+            const response = await fetch('/.netlify/functions/get-waitlist', {
+                headers: { 'x-admin-secret': adminSecret }
+            })
+
+            if (response.status === 401) {
+                setAuthError('Invalid Secret')
+                setIsAuthenticated(false)
+                sessionStorage.removeItem('admin_secret')
+            } else if (response.ok) {
+                const data = await response.json()
+                setIsAuthenticated(true)
+                sessionStorage.setItem('admin_secret', adminSecret)
+
+                // Sort: Oldest first (to determine queue position)
+                // Then reverse for display (newest first)
+                const rawData = data || []
+                const sortedByDate = [...rawData].sort((a: any, b: any) =>
+                    new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                )
+
+                const withPositions = sortedByDate.map((entry: any, index: number) => ({
+                    ...entry,
+                    position: index + 1
+                }))
+
+                const dashboardView = withPositions.sort((a: any, b: any) =>
+                    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                )
+
+                setEntries(dashboardView)
+            } else {
+                throw new Error('Failed to fetch')
+            }
+        } catch (err) {
+            console.error(err)
+            setAuthError('Error connecting to server')
+        } finally {
+            setLoading(false)
+        }
     }
 
     const handleApprove = async (entry: WaitlistEntry) => {
-        if (!confirm(`Approve ${entry.first_name}? This will SEND the Welcome Email.`)) return
+        if (!confirm(`Approve ${entry.first_name}? This will send them an invite email.`)) return
 
-        setProcessing(entry.id)
         try {
             const res = await fetch('/.netlify/functions/approve-waitlist-user', {
                 method: 'POST',
@@ -99,28 +99,28 @@ export default function AdminWaitlist() {
                     'Content-Type': 'application/json',
                     'x-admin-secret': secret
                 },
-                body: JSON.stringify({ id: entry.id, email: entry.email, firstName: entry.first_name })
+                body: JSON.stringify({
+                    id: entry.id,
+                    email: entry.email,
+                    firstName: entry.first_name
+                })
             })
 
-            const data = await res.json()
-
-            if (res.ok && data.ok) {
-                setToast({ message: `Approved ${entry.first_name}! Email sent.`, type: 'success' })
-                fetchEntries()
+            if (res.ok) {
+                alert('User Approved & Email Sent!')
+                fetchEntries(secret) // Refresh
             } else {
-                throw new Error(data.error || 'Failed to approve')
+                alert('Approval failed')
             }
-        } catch (err: any) {
-            console.error('Approval error:', err)
-            setToast({ message: err.message || 'Error approving user', type: 'error' })
+        } catch (err) {
+            console.error(err)
+            alert('Error approving user')
         }
-        setProcessing(null)
     }
 
     const handleReject = async (entry: WaitlistEntry) => {
-        if (!confirm(`Reject ${entry.first_name}? Status will change to 'rejected'. No email sent.`)) return
+        if (!confirm(`Reject ${entry.first_name}?`)) return
 
-        setProcessing(entry.id)
         try {
             const res = await fetch('/.netlify/functions/reject-waitlist-user', {
                 method: 'POST',
@@ -131,158 +131,228 @@ export default function AdminWaitlist() {
                 body: JSON.stringify({ id: entry.id })
             })
 
-            const data = await res.json()
-
-            if (res.ok && data.ok) {
-                setToast({ message: `Marked ${entry.first_name} as Rejected.`, type: 'info' })
-                fetchEntries()
-            } else {
-                throw new Error(data.error || 'Failed to reject')
+            if (res.ok) {
+                fetchEntries(secret)
             }
-        } catch (err: any) {
-            console.error('Reject error:', err)
-            setToast({ message: err.message || 'Error rejecting user', type: 'error' })
+        } catch (err) {
+            console.error(err)
         }
-        setProcessing(null)
     }
 
-    const filteredEntries = entries.filter(e => {
-        if (filter === 'all') return true
-        return (e.status || 'pending') === filter
-    })
+    const toggleRow = (id: string) => {
+        if (expandedId === id) {
+            setExpandedId(null)
+        } else {
+            setExpandedId(id)
+        }
+    }
 
-    // Login UI
-    if (!secret) {
+    // Helper to format Role/Type
+    const formatRole = (role: string) => {
+        switch (role) {
+            case 'family': return <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">Find Care</span>
+            case 'caregiver': return <span className="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">Give Care</span>
+            case 'both': return <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-bold">Both</span>
+            default: return <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">{role}</span>
+        }
+    }
+
+    // Helper to format Referral
+    const formatReferral = (source?: string, name?: string) => {
+        if (!source) return <span className="text-gray-300">-</span>
+
+        let label = source.replace(/_/g, ' ') // e.g. social_media -> social media
+        if (label === 'friend') label = 'Friend'
+        if (label === 'parent group') label = 'Parent Grp'
+        if (label === 'referral_code') label = 'Code'
+
         return (
-            <div className="min-h-screen bg-[#f8fdf8] flex items-center justify-center p-4">
-                {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#eef6f6] max-w-md w-full text-center">
-                    <h1 className="text-2xl font-headers font-bold text-text-dark mb-2">Admin Access</h1>
-                    <p className="text-text-muted mb-6">Enter the NETLIFY_ADMIN_SECRET to continue.</p>
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        <input
-                            type="password"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none"
-                            placeholder="Enter Secret"
-                            value={inputSecret}
-                            onChange={(e) => setInputSecret(e.target.value)}
-                            autoFocus
-                        />
-                        <button type="submit" className="w-full bg-primary text-white py-3 rounded-lg font-bold">Unlock Dashboard</button>
-                    </form>
-                    <div className="mt-4">
-                        <Link to="/" className="text-sm text-text-muted hover:text-primary">← Back to Home</Link>
+            <div className="flex flex-col text-xs">
+                <span className="font-semibold text-text-muted capitalize">{label}</span>
+                {name && <span className="text-primary italic">Referred by: {name}</span>}
+            </div>
+        )
+    }
+
+    const filteredEntries = filter === 'all'
+        ? entries
+        : entries.filter(e => (e.status || 'pending') === filter)
+
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-[#fffaf5] flex items-center justify-center p-4">
+                <form onSubmit={handleLogin} className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-[#c8e6d9]">
+                    <div className="flex justify-center mb-6">
+                        <img src={logoImg} alt="Opeari" className="h-12" />
                     </div>
-                </div>
+                    <h2 className="text-2xl font-bold text-[#1e6b4e] mb-6 text-center">Admin Access</h2>
+                    {authError && <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm text-center">{authError}</div>}
+                    <input
+                        type="password"
+                        value={secret}
+                        onChange={(e) => setSecret(e.target.value)}
+                        placeholder="Enter Admin Secret"
+                        className="w-full p-3 border border-[#c8e6d9] rounded-lg mb-4 focus:ring-2 focus:ring-[#1e6b4e] focus:outline-none"
+                        autoFocus
+                    />
+                    <button type="submit" disabled={loading} className="w-full bg-[#1e6b4e] text-white py-3 rounded-lg font-bold hover:bg-[#154a36] transition-colors">
+                        {loading ? 'Verifying...' : 'Login'}
+                    </button>
+                </form>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-[#f8fdf8]">
-            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-
-            {/* Header */}
-            <div className="bg-white border-b border-[#eef6f6] sticky top-0 z-10">
-                <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="min-h-screen bg-[#fffaf5] p-8 max-md:p-4">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex justify-between items-center mb-8">
                     <div className="flex items-center gap-4">
-                        <Link to="/" className="text-2xl font-headers font-bold text-primary">🍐 Opeari Admin</Link>
-                        <span className="bg-[#e8f4ec] text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Beta V2</span>
+                        <Link to="/"><img src={logoImg} alt="Opeari" className="h-10" /></Link>
+                        <h1 className="text-2xl font-bold text-[#1e6b4e]">Waitlist Admin</h1>
                     </div>
-                    <div>
-                        <button onClick={() => { setSecret(''); sessionStorage.removeItem('adminWaitlistSecret') }} className="text-sm text-text-muted hover:text-primary">Log Out</button>
+                    <div className="flex gap-2">
+                        {['pending', 'approved', 'rejected', 'all'].map((f) => (
+                            <button
+                                key={f}
+                                onClick={() => setFilter(f as any)}
+                                className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-colors ${filter === f
+                                        ? 'bg-[#1e6b4e] text-white'
+                                        : 'bg-white text-[#527a6a] hover:bg-[#d8f5e5]'
+                                    }`}
+                            >
+                                {f}
+                            </button>
+                        ))}
+                        <button
+                            onClick={() => {
+                                sessionStorage.removeItem('admin_secret')
+                                setIsAuthenticated(false)
+                                setSecret('')
+                            }}
+                            className="ml-4 px-4 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg"
+                        >
+                            Logout
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <div className="max-w-6xl mx-auto px-6 py-8">
-                {/* Stats / Controls */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <div>
-                        <h1 className="text-3xl font-headers font-bold text-text-dark">Waitlist Requests</h1>
-                        <p className="text-text-muted mt-1">Founding member approvals & management.</p>
-                    </div>
-
-                    <div className="flex bg-white rounded-lg p-1 border border-[#eef6f6] shadow-sm">
-                        <button onClick={() => setFilter('pending')} className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${filter === 'pending' ? 'bg-primary text-white shadow-sm' : 'text-text-muted hover:bg-gray-50'}`}>Pending</button>
-                        <button onClick={() => setFilter('approved')} className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${filter === 'approved' ? 'bg-green-600 text-white shadow-sm' : 'text-text-muted hover:bg-gray-50'}`}>Approved</button>
-                        <button onClick={() => setFilter('rejected')} className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${filter === 'rejected' ? 'bg-red-500 text-white shadow-sm' : 'text-text-muted hover:bg-gray-50'}`}>Rejected</button>
-                        <button onClick={() => setFilter('all')} className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${filter === 'all' ? 'bg-gray-600 text-white shadow-sm' : 'text-text-muted hover:bg-gray-50'}`}>All</button>
-                    </div>
-                </div>
-
-                {/* Table */}
                 <div className="bg-white rounded-2xl shadow-sm border border-[#eef6f6] overflow-hidden">
-                    {loading ? (
-                        <div className="p-12 text-center text-text-muted">Loading entries...</div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-[#f0faf4] border-b border-[#eef6f6]">
-                                    <tr>
-                                        <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">#</th>
-                                        <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Date</th>
-                                        <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Name</th>
-                                        <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Email</th>
-                                        <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Type</th>
-                                        <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Referral</th>
-                                        <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Status</th>
-                                        <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-[#eef6f6]">
-                                    {filteredEntries.map((entry) => (
-                                        <tr key={entry.id} className={`transition-colors ${entry.status === 'rejected' ? 'bg-gray-50 opacity-60' : 'hover:bg-[#fcfdfd]'}`}>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-[#f0faf4] border-b border-[#eef6f6]">
+                                <tr>
+                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">#</th>
+                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Date</th>
+                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Name</th>
+                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Email</th>
+                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Zip</th>
+                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Type</th>
+                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Referral</th>
+                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#eef6f6]">
+                                {filteredEntries.map((entry) => (
+                                    <>
+                                        <tr
+                                            key={entry.id}
+                                            className={`transition-colors cursor-pointer ${entry.status === 'rejected' ? 'bg-gray-50 opacity-60' : 'hover:bg-[#fcfdfd]'} ${expandedId === entry.id ? 'bg-[#f0faf4]' : ''}`}
+                                            onClick={() => toggleRow(entry.id)}
+                                        >
                                             <td className="p-4 text-primary font-bold">#{entry.position}</td>
                                             <td className="p-4 text-text-muted text-sm whitespace-nowrap">
-                                                {new Date(entry.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' })}
+                                                <div className="font-bold">{new Date(entry.created_at).toLocaleDateString()}</div>
+                                                <div className="text-xs opacity-70">{new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </td>
-                                            <td className="p-4 font-bold text-text-dark">{entry.first_name} {entry.last_name}</td>
-                                            <td className="p-4 text-text-muted font-mono text-sm">{entry.email}</td>
+                                            <td className="p-4 font-medium text-primary">
+                                                {entry.first_name} {entry.last_name}
+                                                {entry.status === 'approved' && <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] rounded-full uppercase tracking-wider font-bold">Approved</span>}
+                                            </td>
+                                            <td className="p-4 text-text-muted text-sm">{entry.email}</td>
+                                            <td className="p-4 text-text-muted text-sm font-mono">{entry.zip_code}</td>
                                             <td className="p-4">
-                                                <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${entry.user_type === 'caregiver' ? 'bg-purple-100 text-purple-700' :
-                                                    entry.user_type === 'parent' ? 'bg-blue-100 text-blue-700' :
-                                                        'bg-orange-100 text-orange-700'
-                                                    }`}>
-                                                    {entry.user_type}
-                                                </span>
+                                                {formatRole(entry.role)}
                                             </td>
-                                            <td className="p-4 text-[#8faaaa]">{entry.referral_source}</td>
                                             <td className="p-4">
-                                                {entry.status === 'approved' && <span className="text-green-600 font-bold text-sm">✓ Approved</span>}
-                                                {entry.status === 'rejected' && <span className="text-red-500 font-bold text-xs">Rejected</span>}
-                                                {(!entry.status || entry.status === 'pending') && <span className="text-yellow-600 font-bold text-sm bg-yellow-50 px-2 py-1 rounded">Pending</span>}
+                                                {formatReferral(entry.hear_about_us, entry.referred_by)}
                                             </td>
-                                            <td className="p-4 text-right whitespace-nowrap">
-                                                {entry.status === 'pending' && (
+                                            <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
+                                                {(!entry.status || entry.status === 'pending') && (
                                                     <div className="flex justify-end gap-2">
                                                         <button
-                                                            onClick={() => handleReject(entry)} disabled={!!processing}
-                                                            className="text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg font-bold text-xs border border-red-200"
+                                                            onClick={() => handleReject(entry)}
+                                                            className="px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
                                                         >
-                                                            {processing === entry.id ? '...' : 'Reject'}
+                                                            Reject
                                                         </button>
                                                         <button
-                                                            onClick={() => handleApprove(entry)} disabled={!!processing}
-                                                            className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-bold text-xs"
+                                                            onClick={() => handleApprove(entry)}
+                                                            className="px-3 py-1.5 text-xs font-bold text-white bg-[#1e6b4e] hover:bg-[#154a36] rounded-md transition-colors shadow-sm"
                                                         >
-                                                            {processing === entry.id ? '...' : 'Approve'}
+                                                            Approve
                                                         </button>
                                                     </div>
                                                 )}
                                                 {entry.status === 'approved' && (
-                                                    <button onClick={() => handleApprove(entry)} className="text-xs text-text-muted hover:underline">Resend Email</button>
+                                                    <button onClick={() => handleApprove(entry)} className="text-xs text-text-muted hover:underline">Resend Invite</button>
+                                                )}
+                                                {entry.status === 'rejected' && (
+                                                    <span className="text-xs text-red-400 italic">Rejected</span>
                                                 )}
                                             </td>
                                         </tr>
-                                    ))}
-                                    {filteredEntries.length === 0 && (
-                                        <tr><td colSpan={8} className="p-8 text-center text-[#8faaaa]">No entries found.</td></tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                                        {/* Expandable Detail Row */}
+                                        {expandedId === entry.id && (
+                                            <tr className="bg-[#f8fdfb]">
+                                                <td colSpan={8} className="p-0">
+                                                    <div className="p-6 grid grid-cols-3 gap-8 text-sm animate-in slide-in-from-top-1 duration-200 border-b border-[#eef6f6]">
+                                                        <div>
+                                                            <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Application Details</h4>
+                                                            <div className="mb-2"><span className="text-text-muted">Urgency:</span> <span className="font-medium">{entry.urgency || 'N/A'}</span></div>
+                                                            <div className="mb-2"><span className="text-text-muted">Why Join:</span>
+                                                                <p className="mt-1 p-2 bg-white border border-[#eef6f6] rounded-lg text-gray-700 italic">
+                                                                    {entry.looking_for ? entry.looking_for[0] : 'No reason provided'}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Verify Identity</h4>
+                                                            <div className="mb-2">
+                                                                {entry.linkedin_url ? (
+                                                                    <a href={entry.linkedin_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
+                                                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.784 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
+                                                                        View LinkedIn Profile
+                                                                    </a>
+                                                                ) : (
+                                                                    <span className="text-gray-400 italic">No LinkedIn provided</span>
+                                                                )}
+                                                            </div>
+                                                            <div><span className="text-text-muted">Referral ID:</span> <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{entry.id.slice(0, 8)}...</span></div>
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Admin Actions</h4>
+                                                            <div className="flex flex-col gap-2">
+                                                                <button onClick={() => handleApprove(entry)} className="text-left px-3 py-2 hover:bg-green-50 text-green-700 rounded transition-colors text-xs font-bold">
+                                                                    Currently: {entry.status ? entry.status.toUpperCase() : 'PENDING'}
+                                                                </button>
+                                                                <div className="text-xs text-gray-400 mt-2">
+                                                                    Created: {new Date(entry.created_at).toLocaleString()}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </>
+                                ))}
+                                {filteredEntries.length === 0 && (
+                                    <tr><td colSpan={8} className="p-8 text-center text-[#8faaaa]">No entries found.</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
