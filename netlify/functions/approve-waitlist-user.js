@@ -1,17 +1,28 @@
 
-import { createClient } from '@supabase/supabase-js'
-import { Resend } from 'resend'
+const { createClient } = require('@supabase/supabase-js')
+const { Resend } = require('resend')
 
-export async function handler(event) {
-    // 1. Method Check
+exports.handler = async (event) => {
+    // 1. Headers & Method Check
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, x-admin-secret',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Content-Type': 'application/json'
+    }
+
+    if (event.httpMethod === 'OPTIONS') {
+        return { statusCode: 200, headers, body: '' }
+    }
+
     if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method not allowed' }
+        return { statusCode: 405, headers, body: 'Method not allowed' }
     }
 
     // 2. Security Check (Admin Secret)
     const secret = event.headers['x-admin-secret'] || event.headers['X-Admin-Secret']
     if (secret !== process.env.NETLIFY_ADMIN_SECRET) {
-        return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) }
+        return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) }
     }
 
     // 3. Env Check
@@ -22,7 +33,7 @@ export async function handler(event) {
 
     if (!supabaseUrl || !supabaseServiceKey || !resendApiKey) {
         console.error('Missing Env Vars')
-        return { statusCode: 500, body: JSON.stringify({ error: 'Configuration Error' }) }
+        return { statusCode: 500, headers, body: JSON.stringify({ error: 'Configuration Error' }) }
     }
 
     try {
@@ -33,7 +44,7 @@ export async function handler(event) {
         const { id, email, firstName } = JSON.parse(event.body)
 
         if (!id || !email) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Missing ID or Email' }) }
+            return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing ID or Email' }) }
         }
 
         // 5. Generate Invite Link (Supabase Auth)
@@ -47,7 +58,7 @@ export async function handler(event) {
 
         if (linkError) {
             console.error('Generate Link Error:', linkError)
-            return { statusCode: 500, body: JSON.stringify({ error: 'Failed to generate invite link' }) }
+            return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to generate invite link' }) }
         }
 
         const inviteLink = linkData.properties.action_link
@@ -98,6 +109,7 @@ export async function handler(event) {
                 console.error('Resend Error:', emailError)
                 return {
                     statusCode: 200,
+                    headers,
                     body: JSON.stringify({ ok: true, data, emailSent: false, emailError })
                 }
             }
@@ -109,6 +121,7 @@ export async function handler(event) {
 
         return {
             statusCode: 200,
+            headers,
             body: JSON.stringify({ ok: true, data, emailSent: true })
         }
 
@@ -116,6 +129,7 @@ export async function handler(event) {
         console.error('Admin Approve Error:', err)
         return {
             statusCode: 500,
+            headers,
             body: JSON.stringify({ error: err.message })
         }
     }
