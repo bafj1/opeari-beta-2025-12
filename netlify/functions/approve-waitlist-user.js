@@ -64,7 +64,7 @@ exports.handler = async (event) => {
         const inviteLink = linkData.properties.action_link
         console.log('Generated Invite Link:', inviteLink)
 
-        // 6. Update Database (waitlist)
+        // 6. Update Database (waitlist_entries)
         const { data, error } = await supabase
             .from('waitlist_entries')
             .update({
@@ -81,26 +81,69 @@ exports.handler = async (event) => {
             const { data: emailData, error: emailError } = await resend.emails.send({
                 from: 'Opeari <breada@opeari.com>',
                 to: [email],
-                subject: 'You\'re in! 🎉 Welcome to Opeari',
+                subject: 'You\'re in 🎉 Your Opeari access is ready',
                 html: `
-                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1a4731;">
-                    <h1 style="color: #4A7A4A;">You're in! 🎉</h1>
-                    <p>Hi ${firstName || 'Neighbor'},</p>
-                    <p>We are thrilled to welcome you to Opeari. Changing the way we find childcare starts with you.</p>
-                    <p>You can now create your account and start building your village.</p>
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="${inviteLink}" 
-                           style="background-color: #4A7A4A; color: white; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block;">
-                           Create My Account
-                        </a>
+                <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; color: #1a4731;">
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #2D5A3D 0%, #4A7C59 100%); padding: 40px 20px; text-align: center; border-radius: 12px 12px 0 0;">
+                        <div style="font-size: 48px; margin-bottom: 10px;">🎉</div>
+                        <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">You're In!</h1>
+                        <p style="color: #e6f4ea; font-size: 18px; margin-top: 10px; font-weight: 500;">Welcome to the Opeari community</p>
                     </div>
-                    <p style="text-align: center; font-size: 12px; color: #888;">
-                        (Link expires in 24 hours)
-                    </p>
-                    <p style="font-size: 14px; color: #666; margin-top: 40px;">
-                        Welcome to the village,<br/>
-                        The Opeari Team
-                    </p>
+
+                    <!-- Exclusivity Line -->
+                    <div style="background-color: #f0faf4; padding: 15px 20px; text-align: center; border-bottom: 1px solid #e1f0e5;">
+                        <p style="margin: 0; font-size: 14px; color: #2D5A3D; font-weight: 500;">
+                            You're one of the first families invited to help shape a more human way to find childcare.
+                        </p>
+                    </div>
+
+                    <div style="padding: 40px 30px;">
+                        <!-- Greeting + Body -->
+                        <p style="font-size: 16px; line-height: 1.6; color: #333333;">Hey ${firstName || 'Neighbor'},</p>
+                        
+                        <p style="font-size: 16px; line-height: 1.6; color: #333333;">Big news — you've been approved to join Opeari.</p>
+                        
+                        <p style="font-size: 16px; line-height: 1.6; color: #333333;">We're building a trusted, early-access community of families who support each other with childcare — not agencies, not strangers, but real people building real villages. We're so glad you're here.</p>
+
+                        <!-- CTA Button -->
+                        <div style="text-align: center; margin: 40px 0;">
+                            <a href="${inviteLink}" 
+                               style="background-color: #4A7C59; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(45, 90, 61, 0.2);">
+                               Create My Opeari Account
+                            </a>
+                            <p style="font-size: 13px; color: #888888; margin-top: 12px;">This takes about 3 minutes.</p>
+                        </div>
+
+                        <!-- What Happens Next -->
+                        <div style="background-color: #f7fbf8; border-left: 4px solid #4A7C59; padding: 25px; border-radius: 0 8px 8px 0; margin-bottom: 30px;">
+                            <h3 style="margin-top: 0; color: #2D5A3D; font-size: 18px;">Here's what you'll unlock:</h3>
+                            <ul style="padding-left: 20px; margin-bottom: 0; color: #444444;">
+                                <li style="margin-bottom: 10px;">Secure your account and set your preferences</li>
+                                <li style="margin-bottom: 10px;">Complete your family profile (at your own pace)</li>
+                                <li style="margin-bottom: 10px;">Get matched with families nearby</li>
+                                <li style="margin-bottom: 0;">Start building your childcare village — together 🏡</li>
+                            </ul>
+                        </div>
+
+                        <!-- Trust + Urgency -->
+                        <p style="font-size: 14px; color: #666666; font-style: italic; border-top: 1px solid #eeeeee; padding-top: 20px;">
+                            This link expires in 24 hours to keep access secure.<br>
+                            Questions? Just reply to this email — we're real people.
+                        </p>
+
+                        <!-- Footer -->
+                        <div style="margin-top: 40px; font-size: 16px; color: #333333;">
+                            <p>🍐 Welcome to the village!</p>
+                            <p style="font-weight: 500; color: #2D5A3D;">The Opeari Team</p>
+                        </div>
+                        
+                        <div style="margin-top: 30px; border-top: 1px solid #eeeeee; padding-top: 20px; text-align: center;">
+                            <p style="font-size: 12px; color: #999999; margin: 0;">
+                                We open access in waves to protect trust and build strong local communities.
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 `
             });
