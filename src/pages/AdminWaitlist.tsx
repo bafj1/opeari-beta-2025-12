@@ -17,8 +17,16 @@ interface WaitlistEntry {
     hear_about_us?: string  // 'friend', 'social_media', etc
     referred_by?: string    // Contains the Name (e.g. "Breada")
     linkedin_url?: string
-    looking_for?: string[]  // Contains "Why Join" reason
-    urgency?: string
+    looking_for?: string    // Maps to "Timeline / Urgency" (Text)
+    why_join?: string       // Maps to "Why Join" (Text)
+    urgency?: string        // Legacy
+}
+
+// Helper for LinkedIn URL
+const getLinkedinUrl = (url?: string) => {
+    if (!url) return '#'
+    if (url.startsWith('http://') || url.startsWith('https://')) return url
+    return `https://${url}`
 }
 
 export default function AdminWaitlist() {
@@ -406,15 +414,15 @@ export default function AdminWaitlist() {
                                                             <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Application Details</h4>
                                                             <div className="mb-2">
                                                                 <span className="text-text-muted inline-block w-20">Timeline:</span>
-                                                                <span className={`font-medium ${!entry.urgency ? 'text-gray-400 italic' : ''}`}>
-                                                                    {entry.urgency || 'Not provided'}
+                                                                <span className={`font-medium ${!entry.looking_for ? 'text-gray-400 italic' : ''}`}>
+                                                                    {entry.looking_for || 'Not provided'}
                                                                 </span>
                                                             </div>
                                                             <div className="mb-2">
                                                                 <div className="text-text-muted mb-1">Why Join:</div>
-                                                                {entry.looking_for && entry.looking_for[0] ? (
+                                                                {entry.why_join ? (
                                                                     <p className="p-3 bg-white border border-[#eef6f6] rounded-lg text-gray-700 italic text-xs leading-relaxed">
-                                                                        "{entry.looking_for[0]}"
+                                                                        "{entry.why_join}"
                                                                     </p>
                                                                 ) : (
                                                                     <span className="text-gray-400 italic text-xs">Not provided</span>
@@ -425,7 +433,7 @@ export default function AdminWaitlist() {
                                                             <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Verify Identity</h4>
                                                             <div className="mb-2">
                                                                 {entry.linkedin_url ? (
-                                                                    <a href={entry.linkedin_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-1 font-medium">
+                                                                    <a href={getLinkedinUrl(entry.linkedin_url)} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-1 font-medium">
                                                                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.784 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
                                                                         View LinkedIn Profile
                                                                     </a>
