@@ -87,11 +87,13 @@ export default function Waitlist() {
           email: cleanEmail,
           zip_code: cleanZip,
           role: userType,
-          looking_for: [urgency],
+          // Mapping urgency to 'looking_for' column (Text) per schema Plan A
+          looking_for: urgency,
+          // Mapping 'why_join' column explicitly
+          why_join: whyJoin ? sanitize(whyJoin) : null,
           hear_about_us: referralSource,
           referred_by: sanitize(referralName) || null,
           linkedin_url: linkedin ? sanitize(linkedin) : null,
-          why_join: whyJoin ? sanitize(whyJoin) : null,
           referral_code: refCode,
         })
 
