@@ -57,6 +57,32 @@ exports.handler = async (event) => {
         })
 
         if (linkError) {
+            // If user already exists, we can still mark them as approved in the DB
+            // and maybe send them a "Welcome Back" or just a password reset link?
+            // For now, per instructions: Prevent Crash & update status.
+            if (linkError.code === 'email_exists' || linkError.message?.includes('registered')) {
+                console.log('User already registered. Skipping invite link generation.')
+
+                // Update specific status for clarity, or just proceed?
+                // We'll proceed to update DB status to 'approved' below.
+                const { data, error } = await supabase
+                    .from('waitlist_entries')
+                    .update({
+                        status: 'approved',
+                        invited_at: new Date().toISOString()
+                    })
+                    .eq('id', id)
+                    .select()
+
+                if (error) throw error
+
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({ ok: true, message: 'User already has an account. Status updated to approved.' })
+                }
+            }
+
             console.error('Generate Link Error:', linkError)
             return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to generate invite link' }) }
         }
@@ -129,6 +155,7 @@ exports.handler = async (event) => {
                         <!-- Trust + Urgency -->
                         <p style="font-size: 14px; color: #666666; font-style: italic; border-top: 1px solid #eeeeee; padding-top: 20px;">
                             This link expires in 24 hours to keep access secure.<br>
+                            Link expired? <a href="https://opeari.com/request-link" style="color: #4A7C59;">Get a new one here</a>.<br>
                             Questions? Just reply to this email — we're real people.
                         </p>
 

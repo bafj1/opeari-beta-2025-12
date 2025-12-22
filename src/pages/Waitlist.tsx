@@ -87,6 +87,7 @@ export default function Waitlist() {
           email: cleanEmail,
           zip_code: cleanZip,
           role: userType,
+          urgency: urgency,
           hear_about_us: referralSource,
           referred_by: sanitize(referralName) || null,
           linkedin_url: linkedin ? sanitize(linkedin) : null,
