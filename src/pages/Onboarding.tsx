@@ -61,9 +61,9 @@ const SITUATION_OPTIONS = [
 ]
 
 const CARE_TYPE_OPTIONS = [
-    { value: 'nanny_share', label: 'Nanny Share', desc: 'Share a nanny with another family' },
-    { value: 'care_coop', label: 'Care Co-op', desc: 'Trade childcare with other parents' },
-    { value: 'backup_care', label: 'Backup Care', desc: 'Emergency or last-minute help' }
+    { value: 'nanny_share', label: 'Nanny Share', desc: 'Split costs with 1-2 families' },
+    { value: 'care_coop', label: 'Care Co-op', desc: 'Trade time instead of money' },
+    { value: 'backup_care', label: 'Backup Care', desc: 'For emergencies or last-minute needs' }
 ]
 
 const ALSO_OPEN_TO_OPTIONS = [
@@ -90,7 +90,7 @@ export default function Onboarding() {
     const [data, setData] = useState<OnboardingData>(INITIAL_DATA)
     const [loading, setLoading] = useState(false)
     const [user, setUser] = useState<any>(null)
-    const [success, setSuccess] = useState(false) // New success state
+    const [success, setSuccess] = useState(false)
 
     // Auth Check
     useEffect(() => {
@@ -123,20 +123,12 @@ export default function Onboarding() {
     }
 
     const validateStep = (currentStep: number): boolean => {
-        // Minimal validation for Trust-Focused flow. 
-        // We removed 'error' state display to users, but we still prevent empty required fields silently or simple UI hint?
-        // User requested "Show inline errors" previously, but now "Hide all database errors".
-        // Let's keep simple validation but maybe not block aggressively or show clean UI.
-        // Actually earlier prompt said "Validation: Disable Next until required fields are filled".
-        // Let's stick to that pattern - but without scary error banners.
-
-        // Simple check (returns bool)
+        // Validation logic - ensuring essential fields are filled
         switch (currentStep) {
             case 1: return !!(data.firstName && data.zipCode && data.zipCode.length === 5)
             case 2: return !!data.situation
             case 3: return data.careTypes.length > 0
             case 5:
-                // If kids added, need info. If no kids, ok.
                 if (data.kids.length === 0) return true
                 return data.kids.every(k => k.firstName && k.age)
             case 6: return !!data.timeline
@@ -165,7 +157,7 @@ export default function Onboarding() {
         try {
             let userId = user?.id
 
-            // Clean Payload (No schedule_flexible at top level)
+            // Clean Payload
             const userPayload = {
                 first_name: data.firstName,
                 last_name: data.lastName,
@@ -174,7 +166,7 @@ export default function Onboarding() {
                 role: 'parent',
                 care_types: data.careTypes,
                 also_open_to: data.alsoOpenTo,
-                // schedule_flexible REMOVED from top level to prevent DB error
+                // schedule_flexible REMOVED from top level
                 schedule_preferences: JSON.stringify({
                     flexible: data.scheduleFlexible,
                     grid: data.schedule
@@ -187,7 +179,6 @@ export default function Onboarding() {
             }
 
             if (userId) {
-                // Try/Catch wrapper for User Update
                 try {
                     const { error } = await supabase
                         .from('users')
@@ -196,11 +187,10 @@ export default function Onboarding() {
                     if (error) throw error
                 } catch (e) {
                     console.error('Profile Save Error (Silent):', e)
-                    // We continue anyway
                 }
             }
 
-            // Save Kids - Silent Fail Safe
+            // Save Kids
             if (data.kids.length > 0 && userId) {
                 try {
                     const kidsPayload = data.kids.map(k => ({
@@ -217,14 +207,12 @@ export default function Onboarding() {
                 }
             }
 
-            // Show Success Screen instead of immediate redirect
             setSuccess(true)
             setLoading(false)
 
         } catch (err: any) {
             console.error('Critical Onboarding Error:', err)
-            // Even if critical fail, show success to user? Or maybe just redirect?
-            // "User experience > perfect data"
+            // Always show success to user
             setSuccess(true)
             setLoading(false)
         }
@@ -239,7 +227,7 @@ export default function Onboarding() {
                     <div className="text-6xl mb-6">🍐</div>
                     <h2 className="text-3xl font-bold text-[#1B4D3E] mb-4">You're all set!</h2>
                     <p className="text-lg text-gray-600 mb-8 max-w-sm mx-auto">
-                        Welcome to the village. We're matching you with families nearby.
+                        Welcome to the village. We're matching you with families nearby who have similar needs and schedules. Check your dashboard to see who's around.
                     </p>
                     <button
                         onClick={() => navigate('/dashboard')}
@@ -255,8 +243,15 @@ export default function Onboarding() {
             case 1: return (
                 <div className="space-y-6 animate-fade-in">
                     <div>
-                        <h2 className="text-2xl font-semibold text-[#1B4D3E]">Let's get started</h2>
-                        <p className="text-sm text-gray-500 mt-1">We'll use this to connect you with families nearby.</p>
+                        <h2 className="text-2xl font-semibold text-[#1B4D3E]">Let's start building your village</h2>
+                        <h3 className="text-sm font-medium text-[#1B4D3E] mt-1 mb-4">Opeari helps families build trusted, flexible childcare networks — without starting from scratch.</h3>
+
+                        {/* Orientation / Explainer Block */}
+                        <div className="bg-[#f0faf4] p-5 rounded-xl border-l-4 border-[#1B4D3E] text-gray-700 text-sm leading-relaxed mb-6">
+                            <p className="mb-2">We're not another Care.com or Facebook group.</p>
+                            <p className="mb-2">Opeari helps families connect with each other to share care, try nanny shares, trade time through co-ops, and build a reliable network over time.</p>
+                            <p>This just helps us understand your situation — nothing is locked in.</p>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -288,12 +283,14 @@ export default function Onboarding() {
                             onChange={(v: string) => updateData('zipCode', v.replace(/\D/g, '').slice(0, 5))}
                             required
                             placeholder="12345"
+                            subtext="Helps us find families near you"
                         />
                         <Input
                             label="Neighborhood"
                             value={data.neighborhood}
                             onChange={(v: string) => updateData('neighborhood', v)}
                             placeholder="(Optional)"
+                            subtext="Helpful for local matches and carpools"
                         />
                     </div>
                 </div>
@@ -363,7 +360,7 @@ export default function Onboarding() {
                 <div className="space-y-6 animate-fade-in">
                     <div>
                         <h2 className="text-2xl font-semibold text-[#1B4D3E]">Your Schedule</h2>
-                        <p className="text-sm text-gray-500 mt-1">Just a rough idea helps — nothing is locked in.</p>
+                        <p className="text-sm text-gray-500 mt-1">Just a rough idea — nothing is locked in.</p>
                     </div>
 
                     <div
@@ -448,7 +445,7 @@ export default function Onboarding() {
                 <div className="space-y-6 animate-fade-in">
                     <div>
                         <h2 className="text-2xl font-semibold text-[#1B4D3E]">Your Kids</h2>
-                        <p className="text-sm text-gray-500 mt-1">This helps us find age-compatible matches.</p>
+                        <p className="text-sm text-gray-500 mt-1">This helps us find age-compatible matches and care ideas.</p>
                     </div>
 
                     {data.kids.map((kid, idx) => (
@@ -477,7 +474,7 @@ export default function Onboarding() {
 
                                 {/* Year Dropdown */}
                                 <div className="w-full">
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
+                                    <label className="block text-xs font-bold text-[#1B4D3E] uppercase tracking-wide mb-1.5">
                                         Year Born
                                     </label>
                                     <select
@@ -543,7 +540,7 @@ export default function Onboarding() {
     // --- UI Structure ---
 
     return (
-        <div className="min-h-screen bg-[#F5F1EB] flex flex-col items-center py-10 px-4 font-sans text-gray-800">
+        <div className="min-h-screen bg-[#F5F1EB] flex flex-col items-center py-10 px-4 font-sans text-gray-800" style={{ fontFamily: "'Comfortaa', 'DM Sans', 'Inter', system-ui, sans-serif" }}>
             {/* Progress */}
             {!success && (
                 <div className="w-full max-w-md mb-8">
@@ -558,7 +555,6 @@ export default function Onboarding() {
 
             {/* Card */}
             <div className="w-full max-w-md bg-white rounded-3xl shadow-[0_4px_24px_rgba(27,77,62,0.08)] p-8 border border-white/80">
-                {/* No Error Banner shown to user */}
 
                 {renderStep()}
 
@@ -575,7 +571,7 @@ export default function Onboarding() {
                         )}
                         <button
                             onClick={step === 6 ? handleFinish : nextStep}
-                            disabled={loading || !validateStep(step)} // Disable if invalid, but clean UI
+                            disabled={loading || !validateStep(step)}
                             className={`flex-1 py-3 font-bold rounded-xl shadow-[0_4px_12px_rgba(27,77,62,0.2)] transition-all 
                             ${loading || !validateStep(step)
                                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
@@ -599,14 +595,14 @@ export default function Onboarding() {
 
 const Input = ({ label, value, onChange, type = 'text', required, placeholder, subtext }: any) => (
     <div className="w-full">
-        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
+        <label className="block text-xs font-bold text-[#1B4D3E] uppercase tracking-wide mb-1.5">
             {label} {required && <span className="text-red-400">*</span>}
         </label>
         <input
             type={type}
             value={value}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-[#1B4D3E] focus:ring-4 focus:ring-[#1B4D3E]/10 transition-all placeholder:text-gray-300"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-[#1B4D3E] focus:ring-4 focus:ring-[#1B4D3E]/10 transition-all placeholder:text-gray-300 accent-[#1B4D3E]"
             placeholder={placeholder}
         />
         {subtext && <p className="text-[10px] text-gray-400 mt-1">{subtext}</p>}
@@ -619,7 +615,7 @@ const SelectionCard = ({ label, desc, selected, onClick }: any) => (
         className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-4 relative overflow-hidden
         ${selected
                 ? 'border-[#1B4D3E] bg-[#f0faf4] shadow-sm'
-                : 'border-gray-100 bg-white hover:border-[#c8e6d9] hover:shadow-sm'
+                : 'border-gray-200 bg-white hover:border-[#8bd7c7] hover:shadow-sm'
             }`}
     >
         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors
