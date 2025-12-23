@@ -63,12 +63,7 @@ exports.handler = async (event) => {
             console.log('Generated Invite Link:', inviteLink)
         } else {
             // Error handling & Fallback to Magic Link
-            console.error('Generate Link Error Details:', {
-                code: linkError?.code,
-                message: linkError?.message,
-                status: linkError?.status,
-                email: email
-            })
+            console.error('Generate Link Error Details:', JSON.stringify(linkError))
 
             // If user exists or other error, try magic link as fallback
             console.log('Attempting Magic Link fallback...')
@@ -113,7 +108,7 @@ exports.handler = async (event) => {
             const { data: emailData, error: emailError } = await resend.emails.send({
                 from: 'Opeari <breada@opeari.com>',
                 to: [email],
-                subject: 'You\'re in 🎉 Your Opeari access is ready',
+                subject: '🎉 You\'ve been approved - set up your Opeari profile! 🍐',
                 html: `
                 <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; color: #1a4731;">
                     <!-- Header -->
