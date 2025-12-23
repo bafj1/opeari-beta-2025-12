@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Invite from './pages/Invite';
 import AdminWaitlist from './pages/AdminWaitlist';
 import RequestNewLink from './pages/RequestNewLink';
+import SignIn from './pages/SignIn';
 
 // Onboarding (first-time setup wizard)
 // Onboarding (first-time setup wizard)
@@ -34,28 +35,92 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public pages */}
+          {/* Public Pages */}
           <Route path="/" element={<Home />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/about" element={<About />} />
           <Route path="/waitlist" element={<Waitlist />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signin" element={<SignIn />} />
           <Route path="/invite" element={<Invite />} />
           <Route path="/admin-waitlist" element={<AdminWaitlist />} />
           <Route path="/request-link" element={<RequestNewLink />} />
 
-          {/* Onboarding - first time setup */}
-          <Route path="/onboarding" element={<Onboarding />} />
+          {/* Onboarding - Protected */}
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <Onboarding />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* Main logged-in experience */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/build-your-village" element={<BuildYourVillage />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/member/:id" element={<MemberProfile />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/messages/:id" element={<Messages />} />
-          <Route path="/connections" element={<Connections />} />
+          {/* Main logged-in experience - Protected */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/build-your-village"
+            element={
+              <ProtectedRoute>
+                <BuildYourVillage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/member/:id"
+            element={
+              <ProtectedRoute>
+                <MemberProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages/:id"
+            element={
+              <ProtectedRoute>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/connections"
+            element={
+              <ProtectedRoute>
+                <Connections />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/invite-friends"
             element={

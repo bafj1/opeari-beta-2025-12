@@ -154,7 +154,15 @@ export default function Onboarding() {
         setLoading(true)
 
         try {
-            let userId = user?.id
+            // Re-fetch auth user to ensure ID is fresh and valid
+            const { data: { user: authUser } } = await supabase.auth.getUser()
+
+            if (!authUser) {
+                console.error('No authenticated user found during finish')
+                return
+            }
+
+            let userId = authUser.id
 
             // Clean Payload
             const userPayload = {

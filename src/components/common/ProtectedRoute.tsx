@@ -1,24 +1,43 @@
+import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
+import { supabase } from '../../lib/supabase'
 
 interface ProtectedRouteProps {
-  children: React.ReactNode
+    children: React.ReactNode
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth()
+    const [loading, setLoading] = useState(true)
+    const [authenticated, setAuthenticated] = useState(false)
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
-        <div className="text-primary font-semibold">Loading...</div>
-      </div>
-    )
-  }
+    useEffect(() => {
+        const checkAuth = async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            setAuthenticated(!!session)
+            setLoading(false)
+        }
 
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
+        checkAuth()
 
-  return <>{children}</>
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setAuthenticated(!!session)
+        })
+
+        return () => subscription.unsubscribe()
+    }, [])
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#F5F1EB]">
+                <div className="text-[#1B4D3E] font-bold animate-pulse">Loading...</div>
+            </div>
+        )
+    }
+
+    if (!authenticated) {
+        return <Navigate to="/signin" replace />
+    }
+
+    return <>{children}</>
 }
