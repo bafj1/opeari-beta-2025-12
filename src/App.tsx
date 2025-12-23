@@ -13,7 +13,8 @@ import AdminWaitlist from './pages/AdminWaitlist';
 import RequestNewLink from './pages/RequestNewLink';
 
 // Onboarding (first-time setup wizard)
-import ProfileWizard from './pages/ProfileWizard';
+// Onboarding (first-time setup wizard)
+import Onboarding from './pages/Onboarding';
 
 // Main logged-in experience
 import Dashboard from './pages/Dashboard';
@@ -44,7 +45,7 @@ function App() {
           <Route path="/request-link" element={<RequestNewLink />} />
 
           {/* Onboarding - first time setup */}
-          <Route path="/onboarding" element={<ProfileWizard />} />
+          <Route path="/onboarding" element={<Onboarding />} />
 
           {/* Main logged-in experience */}
           <Route path="/dashboard" element={<Dashboard />} />
