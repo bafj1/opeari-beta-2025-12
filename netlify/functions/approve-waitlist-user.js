@@ -48,6 +48,8 @@ exports.handler = async (event) => {
         }
 
         // 5. Generate Invite Link (Supabase Auth)
+        let inviteLink = `${siteUrl}/signin` // Default fallback
+
         const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
             type: 'invite',
             email: email,
@@ -56,41 +58,41 @@ exports.handler = async (event) => {
             }
         })
 
-        if (linkError) {
-            // If user already exists, we can still mark them as approved in the DB
-            // and maybe send them a "Welcome Back" or just a password reset link?
-            // For now, per instructions: Prevent Crash & update status.
-            if (linkError.code === 'email_exists' || linkError.message?.includes('registered')) {
-                console.log('User already registered. Skipping invite link generation.')
+        if (!linkError && linkData && linkData.properties) {
+            inviteLink = linkData.properties.action_link
+            console.log('Generated Invite Link:', inviteLink)
+        } else {
+            // Error handling & Fallback to Magic Link
+            console.error('Generate Link Error Details:', {
+                code: linkError?.code,
+                message: linkError?.message,
+                status: linkError?.status,
+                email: email
+            })
 
-                // Update specific status for clarity, or just proceed?
-                // We'll proceed to update DB status to 'approved' below.
-                const { data, error } = await supabase
-                    .from('waitlist_entries')
-                    .update({
-                        status: 'approved',
-                        invited_at: new Date().toISOString()
-                    })
-                    .eq('id', id)
-                    .select()
-
-                if (error) throw error
-
-                return {
-                    statusCode: 200,
-                    headers,
-                    body: JSON.stringify({ ok: true, message: 'User already has an account. Status updated to approved.' })
+            // If user exists or other error, try magic link as fallback
+            console.log('Attempting Magic Link fallback...')
+            const { data: magicData, error: magicError } = await supabase.auth.admin.generateLink({
+                type: 'magiclink',
+                email: email,
+                options: {
+                    redirectTo: `${siteUrl}/onboarding`
                 }
-            }
+            })
 
-            console.error('Generate Link Error:', linkError)
-            return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to generate invite link' }) }
+            if (!magicError && magicData && magicData.properties) {
+                inviteLink = magicData.properties.action_link
+                console.log('Using Magic Link instead:', inviteLink)
+            } else {
+                console.error('Magic link also failed:', JSON.stringify(magicError))
+                console.log('Using generic signin link as final fallback.')
+                // inviteLink remains as /signin
+            }
         }
 
-        const inviteLink = linkData.properties.action_link
-        console.log('Generated Invite Link:', inviteLink)
-
         // 6. Update Database (waitlist_entries)
+        // We do this REGARDLESS of link generation success/failure
+        // to ensure the user is approved and receives the email.
         const { data, error } = await supabase
             .from('waitlist_entries')
             .update({
@@ -100,7 +102,11 @@ exports.handler = async (event) => {
             .eq('id', id)
             .select()
 
-        if (error) throw error
+        if (error) {
+            console.error('Database Update Error:', error)
+            throw error // If DB fails, we probably should stop? Or still send email? 
+            // Better to throw so we know approval didn't persist.
+        }
 
         // 7. Send Email (Resend)
         try {
