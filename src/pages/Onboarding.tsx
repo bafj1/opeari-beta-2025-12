@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { User, Users, Car, Plane, Calendar, Clock, HelpCircle, Check, ChevronDown, Eye, EyeOff } from 'lucide-react'
+import { User, Users, Car, Plane, Calendar, Clock, HelpCircle, Check, ChevronDown, Eye, EyeOff, MessageSquare } from 'lucide-react'
 import confetti from 'canvas-confetti'
 
 // --- Types ---
@@ -33,7 +33,7 @@ interface OnboardingData {
     // Step 4: Kids
     kids: Child[]
     expecting: boolean
-    dueDate?: string // "Within a few months", etc.
+    expectingTiming?: string // Dropdown value
 
     // Step 5: Password
     password?: string
@@ -50,28 +50,25 @@ const INITIAL_DATA: OnboardingData = {
     schedule: {},
     kids: [],
     expecting: false,
-    dueDate: '',
+    expectingTiming: '',
     password: ''
 }
 
 // --- Constants ---
 
 const CARE_OPTIONS = [
-    { id: 'babysitter', icon: User, label: 'Babysitter', desc: 'Date nights or occasional help' },
+    { id: 'babysitter', icon: User, label: 'Babysitter', desc: 'Date nights & occasional help' },
     { id: 'nanny', icon: User, label: 'Nanny', desc: 'Regular in-home care' },
-    { id: 'nanny_share', icon: Users, label: 'Shared Nanny', desc: 'Split costs with another family' },
+    { id: 'nanny_share', icon: Users, label: 'Shared Nanny', desc: 'Share costs with a family' },
     { id: 'care_coop', icon: Users, label: 'Care Co-op', desc: 'Trade time instead of money' },
-    { id: 'carpool', icon: Car, label: 'School / Activity Rides', desc: 'Coordinate pickups & dropoffs' },
+    { id: 'carpool', icon: Car, label: 'School / Activity Rides', desc: 'Coordinate school rides' },
     { id: 'travel', icon: Plane, label: 'Travel Care', desc: 'Help while traveling' },
     { id: 'playdates', icon: Calendar, label: 'Playdates', desc: 'Meet families with kids similar ages' },
-    { id: 'backup', icon: Clock, label: 'Backup Care', desc: 'Last-minute or emergency help' },
-    { id: 'exploring', icon: HelpCircle, label: 'Just exploring', desc: "Not sure yet - that's okay!" },
+    { id: 'backup', icon: Clock, label: 'Backup Care', desc: 'Emergency & backup help' },
+    // "Just exploring" and "Something else" handled manually in render for layout control
 ]
 
-// TIMELINE_OPTIONS removed as per step consolidation requirements.
-
-
-const DUE_DATE_OPTIONS = [
+const EXPECTING_TIMING_OPTIONS = [
     'Within the next few months',
     'Later this year',
     'Early next year',
@@ -81,11 +78,12 @@ const DUE_DATE_OPTIONS = [
 const CURRENT_YEAR = new Date().getFullYear()
 const BIRTH_YEARS = Array.from({ length: 18 }, (_, i) => (CURRENT_YEAR - i).toString())
 
+// Updated Copy Per Step
 const STEPS = [
-    { id: 1, img: '/opeari-welcome-green.png', text: "You're early — and that matters. Early families help shape how Opeari grows in their community." },
+    { id: 1, img: '/opeari-welcome-green.png', text: "You're early — and that matters. Early families help shape how Opeari grows in their neighborhood." },
     { id: 2, img: '/opeari-explore.png', text: "No pressure. Just possibilities. We'll figure out what works together." },
-    { id: 3, img: '/opeari-happy.png', text: "Flexibility is the whole point. Many families start without a fixed schedule." },
-    { id: 4, img: '/opeari-connect.png', text: "Your family, your village. We match based on what matters to you." },
+    { id: 3, img: '/opeari-happy.png', text: "Flexibility is the whole point. Most families don't have a fixed schedule — and that's okay." },
+    { id: 4, img: '/opeari-connect.png', text: "Your family. Your village. We match based on what matters to you." },
     { id: 5, img: '/opeari-proud.png', text: "Almost there. Save your progress so you can come back anytime." },
 ]
 
@@ -99,6 +97,7 @@ export default function Onboarding() {
     const [showSuccess, setShowSuccess] = useState(false)
     const [passwordConfirm, setPasswordConfirm] = useState('')
     const [showPassword, setShowPassword] = useState(false)
+    const [showSomethingElseInput, setShowSomethingElseInput] = useState(false)
 
     // Auth Check
     useEffect(() => {
@@ -134,10 +133,14 @@ export default function Onboarding() {
 
     const toggleCareOption = (id: string) => {
         let newOptions = [...data.careOptions]
+
+        // "Just exploring" exclusivity logic
         if (id === 'exploring') {
             newOptions = newOptions.includes('exploring') ? [] : ['exploring']
         } else {
+            // Remove exploring if selecting something else
             if (newOptions.includes('exploring')) newOptions = []
+
             if (newOptions.includes(id)) {
                 newOptions = newOptions.filter(i => i !== id)
             } else {
@@ -147,10 +150,23 @@ export default function Onboarding() {
         updateData('careOptions', newOptions)
     }
 
+    // Is Something Else selected? We track this via the boolean state for UI, 
+    // but we can also treat 'something_else' as an ID in careOptions if we wanted.
+    // However, user requirement says: "Something else" text saved to `other_needs`.
+    // Let's assume selecting the tile behaves like a toggle for the visual state.
+
+    const toggleSomethingElse = () => {
+        setShowSomethingElseInput(!showSomethingElseInput)
+        // If selecting specific needs, should we clear 'exploring'?
+        if (!showSomethingElseInput && data.careOptions.includes('exploring')) {
+            updateData('careOptions', [])
+        }
+    }
+
     const isStepValid = () => {
         switch (step) {
             case 1: return !!(data.firstName?.trim() && data.zipCode?.trim() && data.zipCode.length === 5)
-            case 2: return data.careOptions.length > 0
+            case 2: return data.careOptions.length > 0 || showSomethingElseInput
             case 3: return true
             case 4: return true
             case 5: return !!(data.password && data.password.length >= 8 && data.password === passwordConfirm)
@@ -172,15 +188,11 @@ export default function Onboarding() {
     const handleFinish = async () => {
         setLoading(true)
         try {
-            // 1. Get or Update User Auth (Set Password)
             const { data: { user: authUser } } = await supabase.auth.getUser()
 
             if (authUser && data.password) {
                 await supabase.auth.updateUser({ password: data.password })
             }
-            // If no authUser, we might be creating one? 
-            // In this flow, usually user comes from /signin magic link or is anonymous. 
-            // For now assume update or fallback to just saving data if auth already exists.
 
             if (!authUser) throw new Error('No user session found')
 
@@ -190,20 +202,22 @@ export default function Onboarding() {
                 zip_code: data.zipCode,
                 address: data.neighborhood,
                 role: 'parent',
-                care_types: data.careOptions,
+                care_types: data.careOptions, // Array of IDs
                 schedule_preferences: JSON.stringify({
                     flexible: data.scheduleFlexible,
                     grid: data.schedule
                 }),
+                is_flexible: data.scheduleFlexible,
                 num_kids: data.kids.length,
                 kids_ages: data.kids.map(k => parseInt(k.age) || 0),
-                bio: `Looking for: ${data.careOptions.join(', ')}` + (data.specificNeeds ? ` [Notes: ${data.specificNeeds}]` : ''),
-                timeline: 'asap', // Default since step removed
+                bio: `Looking for: ${data.careOptions.join(', ')}`,
+                timeline: 'asap',
                 profile_complete: true,
+                other_needs: showSomethingElseInput ? data.specificNeeds : null,
+                just_exploring: data.careOptions.includes('exploring'),
                 metadata: {
                     expecting: data.expecting,
-                    due_date_timing: data.dueDate,
-                    specific_needs: data.specificNeeds
+                    expecting_timing: data.expectingTiming, // Changed from due_date
                 }
             }
 
@@ -215,7 +229,6 @@ export default function Onboarding() {
             setShowSuccess(true)
         } catch (err) {
             console.error('Save error:', err)
-            // Procedural success even if error for UX flow unless critical
             setShowSuccess(true)
         } finally {
             setLoading(false)
@@ -224,7 +237,6 @@ export default function Onboarding() {
 
     // --- Render Logic ---
 
-    // Success Screen
     if (showSuccess) {
         return (
             <div className="min-h-screen bg-[#FDF8F3] flex items-center justify-center p-4 font-sans text-gray-800">
@@ -258,7 +270,7 @@ export default function Onboarding() {
 
             <div className="w-full max-w-6xl md:h-[min(800px,90vh)] bg-white md:rounded-3xl md:shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-screen md:min-h-0">
 
-                {/* LEFT PANEL (Desktop Only) */}
+                {/* LEFT PANEL */}
                 <div className="hidden md:flex md:w-[40%] bg-[#FDF8F3] border-r border-[#E8DCC8] flex-col items-center justify-center p-12 text-center relative transition-all duration-500">
                     <div className="absolute top-8 left-8">
                         <span className="font-bold text-[#1B4D3E] text-xl tracking-tight">Opeari</span>
@@ -276,7 +288,7 @@ export default function Onboarding() {
                     </p>
                 </div>
 
-                {/* RIGHT PANEL (Form) */}
+                {/* RIGHT PANEL */}
                 <div className="w-full md:w-[60%] flex flex-col h-full bg-white relative">
 
                     {/* Progress Bar */}
@@ -290,48 +302,31 @@ export default function Onboarding() {
                     <div className="flex-1 overflow-y-auto p-6 md:p-12">
                         <div className="max-w-xl mx-auto space-y-8 min-h-[50vh]">
 
-                            {/* Step Headers */}
+                            {/* Mobile Step 1 Illustration */}
                             {step === 1 && (
-                                <div>
-                                    <h2 className="text-3xl md:text-4xl font-bold text-[#1B4D3E] mb-2">Let's start building your village.</h2>
-                                    <p className="text-gray-500">First, where are you located?</p>
-                                </div>
-                            )}
-                            {step === 2 && (
-                                <div>
-                                    <h2 className="text-3xl md:text-4xl font-bold text-[#1B4D3E] mb-2">What would be helpful right now?</h2>
-                                    <p className="text-gray-500">Choose any that apply — most families pick 2-3.</p>
-                                </div>
-                            )}
-                            {step === 3 && (
-                                <div>
-                                    <h2 className="text-3xl md:text-4xl font-bold text-[#1B4D3E] mb-2">Your Schedule</h2>
-                                    <p className="text-gray-500">Just a rough idea.</p>
-                                </div>
-                            )}
-                            {step === 4 && (
-                                <div>
-                                    <h2 className="text-3xl md:text-4xl font-bold text-[#1B4D3E] mb-2">Tell us about your family</h2>
-                                    <p className="text-gray-500">This helps us match you with families whose kids would actually play well together.</p>
-                                </div>
-                            )}
-                            {step === 5 && (
-                                <div>
-                                    <h2 className="text-3xl md:text-4xl font-bold text-[#1B4D3E] mb-2">Save your progress</h2>
-                                    <p className="text-gray-500">Create a password to access your village anytime.</p>
+                                <div className="md:hidden flex justify-center mb-4">
+                                    <img src="/opeari-welcome-green.png" alt="Welcome" className="w-32 h-32 object-contain" />
                                 </div>
                             )}
 
-                            {/* STEP CONTENT */}
+                            {/* Active Step Headers */}
+                            {step === 1 && <StepHeader title="Let's start building your village." subtitle="First, where are you located?" />}
+                            {step === 2 && <StepHeader title="What would be helpful right now?" subtitle="Choose any that apply — most families pick 2-3." />}
+                            {step === 3 && <StepHeader title="Your Schedule" subtitle="Just a rough idea." />}
+                            {step === 4 && <StepHeader title="Tell us about your family" subtitle="This helps us match you with families whose kids would actually play well together." />}
+                            {step === 5 && <StepHeader title="Save your spot in the village" subtitle="Create a password so you can come back anytime." />}
+
+                            {/* STEP 1: LOCATION */}
                             {step === 1 && (
                                 <div className="space-y-5 animate-fade-in">
                                     <Input label="First Name" value={data.firstName} onChange={(v: any) => updateData('firstName', v)} required placeholder="e.g. Sarah" />
                                     <Input label="Zip Code" value={data.zipCode} onChange={(v: any) => updateData('zipCode', v)} required placeholder="e.g. 94110" maxLength={5} />
-                                    <Input label="Neighborhood" value={data.neighborhood} onChange={(v: any) => updateData('neighborhood', v)} placeholder="(Optional)" subtext="Helpful for local matches" />
+                                    <Input label="Neighborhood" value={data.neighborhood} onChange={(v: any) => updateData('neighborhood', v)} placeholder="(Optional)" subtext="Helpful for local matches & carpools" />
                                     <InfoBanner>Opeari connects families for shared care, backup help, and community — not strangers from the internet.</InfoBanner>
                                 </div>
                             )}
 
+                            {/* STEP 2: NEEDS */}
                             {step === 2 && (
                                 <div className="space-y-6 animate-fade-in">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -345,27 +340,34 @@ export default function Onboarding() {
                                                 onClick={() => toggleCareOption(opt.id)}
                                             />
                                         ))}
+                                        {/* Last Row: Just Exploring + Something Else */}
+                                        <SelectionCard
+                                            icon={HelpCircle}
+                                            label="Just exploring"
+                                            desc="Not sure yet - that's okay!"
+                                            selected={data.careOptions.includes('exploring')}
+                                            onClick={() => toggleCareOption('exploring')}
+                                        />
+                                        <SelectionCard
+                                            icon={MessageSquare}
+                                            label="Something else"
+                                            desc="Tell us what you need"
+                                            selected={showSomethingElseInput}
+                                            onClick={toggleSomethingElse}
+                                        />
                                     </div>
 
-                                    {/* Something else section */}
-                                    <div className="pt-4 border-t border-gray-100">
-                                        <div
-                                            onClick={() => updateData('specificNeeds', data.specificNeeds === undefined ? '' : undefined)}
-                                            className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 ${data.specificNeeds !== undefined ? 'border-[#1B4D3E] bg-[#f0faf4]' : 'border-gray-200 hover:border-[#8bd7c7]'}`}
-                                        >
-                                            <div className="font-bold text-lg">💬</div>
-                                            <div className="font-semibold text-[#1B4D3E]">Something else</div>
-                                        </div>
-                                        {data.specificNeeds !== undefined && (
+                                    {showSomethingElseInput && (
+                                        <div className="animate-fade-in">
                                             <textarea
-                                                className="w-full mt-3 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1B4D3E] focus:outline-none"
+                                                className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1B4D3E] focus:outline-none placeholder:text-gray-400 text-sm"
                                                 rows={3}
                                                 placeholder="What specific situation are you navigating?"
                                                 value={data.specificNeeds || ''}
                                                 onChange={(e) => updateData('specificNeeds', e.target.value)}
                                             />
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
 
                                     <div className="mt-4 p-4 bg-[#f0faf4] border-l-4 border-[#1B4D3E] rounded-r-lg">
                                         <p className="text-[#1B4D3E] text-sm">
@@ -375,6 +377,7 @@ export default function Onboarding() {
                                 </div>
                             )}
 
+                            {/* STEP 3: SCHEDULE */}
                             {step === 3 && (
                                 <div className="space-y-6 animate-fade-in">
                                     <div
@@ -390,7 +393,8 @@ export default function Onboarding() {
                                         </div>
                                     </div>
 
-                                    <div className={`transition-opacity duration-300 ${data.scheduleFlexible ? 'opacity-60' : 'opacity-100'}`}>
+                                    {/* Grid - Dimmed if flexible, but still interactive */}
+                                    <div className={`transition-all duration-300 ${data.scheduleFlexible ? 'opacity-60 grayscale-[0.5]' : 'opacity-100'}`}>
                                         <ScheduleGrid
                                             value={data.schedule}
                                             onChange={(v: any) => updateData('schedule', v)}
@@ -399,6 +403,7 @@ export default function Onboarding() {
                                 </div>
                             )}
 
+                            {/* STEP 4: FAMILY */}
                             {step === 4 && (
                                 <div className="space-y-6 animate-fade-in">
                                     {data.kids.map((kid, idx) => (
@@ -444,12 +449,12 @@ export default function Onboarding() {
                                             </div>
                                         </label>
                                         {data.expecting && (
-                                            <div className="mt-3">
+                                            <div className="mt-3 animate-fade-in">
                                                 <label className="block text-xs font-bold text-[#1B4D3E] uppercase tracking-wide mb-1.5">When is baby arriving?</label>
                                                 <div className="relative">
-                                                    <select value={data.dueDate || ''} onChange={e => updateData('dueDate', e.target.value)} className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white appearance-none">
+                                                    <select value={data.expectingTiming || ''} onChange={e => updateData('expectingTiming', e.target.value)} className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white appearance-none text-sm">
                                                         <option value="" disabled>Select one...</option>
-                                                        {DUE_DATE_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
+                                                        {EXPECTING_TIMING_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
                                                     </select>
                                                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
                                                 </div>
@@ -459,6 +464,7 @@ export default function Onboarding() {
                                 </div>
                             )}
 
+                            {/* STEP 5: PASSWORD */}
                             {step === 5 && (
                                 <div className="space-y-6 animate-fade-in">
                                     <div className="relative">
@@ -524,6 +530,13 @@ export default function Onboarding() {
 
 // --- Sub Components ---
 
+const StepHeader = ({ title, subtitle }: { title: string, subtitle: string }) => (
+    <div className="animate-fade-in">
+        <h2 className="text-3xl md:text-4xl font-bold text-[#1B4D3E] mb-2">{title}</h2>
+        <p className="text-gray-500">{subtitle}</p>
+    </div>
+)
+
 const Input = ({ label, value, onChange, type = 'text', required, placeholder, subtext, maxLength }: any) => (
     <div className="w-full">
         <label className="block text-xs font-bold text-[#1B4D3E] uppercase tracking-wide mb-1.5">{label} {required && <span className="text-red-400">*</span>}</label>
@@ -539,7 +552,7 @@ const InfoBanner = ({ children }: any) => (
 )
 
 const SelectionCard = ({ icon: Icon, label, desc, selected, onClick }: any) => (
-    <div onClick={onClick} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden ${selected ? 'border-[#1B4D3E] bg-[#f0faf4] shadow-sm' : 'border-gray-200 bg-white hover:border-[#8bd7c7] hover:shadow-sm'}`}>
+    <div onClick={onClick} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden min-h-[82px] ${selected ? 'border-[#1B4D3E] bg-[#f0faf4] shadow-sm' : 'border-gray-200 bg-white hover:border-[#8bd7c7] hover:shadow-sm'}`}>
         <div className={`p-2.5 rounded-lg flex-shrink-0 transition-colors ${selected ? 'bg-[#1B4D3E] text-white' : 'bg-[#F5F1EB] text-[#1B4D3E]'}`}>
             <Icon size={20} strokeWidth={2} />
         </div>
@@ -569,7 +582,7 @@ const ScheduleGrid = ({ value, onChange }: any) => {
 
     return (
         <div className="border border-gray-200 rounded-xl p-2 md:p-4 bg-white overflow-x-auto">
-            <div className="min-w-[300px] grid grid-cols-[auto_repeat(7,1fr)] gap-y-2 gap-x-1 text-center text-xs">
+            <div className="min-w-[400px] grid grid-cols-[auto_repeat(7,1fr)] gap-y-2 gap-x-1 text-center text-xs">
                 <div />
                 {days.map(d => <div key={d} className="font-bold text-[#1B4D3E] py-2">{d}</div>)}
 
