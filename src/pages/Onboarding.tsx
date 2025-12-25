@@ -1,41 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { User, Users, Car, Plane, Calendar, Clock, HelpCircle, Check, ChevronDown, Eye, EyeOff, MessageSquare } from 'lucide-react'
+import { User, Users, Car, Plane, Calendar, Clock, HelpCircle, Check, ChevronDown, Eye, EyeOff, MessageSquare, ArrowRight } from 'lucide-react'
 import confetti from 'canvas-confetti'
 
-// --- Types ---
+// --- Types & Constants ---
 
 interface Child {
     id: string
     firstName: string
     nickname: string
-    age: string // year
-    month?: string // for young kids
+    age: string
+    month?: string
 }
 
 interface OnboardingData {
-    // Step 1: Basic
     firstName: string
     lastName: string
     email: string
     zipCode: string
     neighborhood: string
-
-    // Step 2: Care Selection
     careOptions: string[]
-    specificNeeds?: string // "Something else" text
-
-    // Step 3: Schedule
+    specificNeeds?: string
     scheduleFlexible: boolean
     schedule: Record<string, string[]>
-
-    // Step 4: Kids
     kids: Child[]
     expecting: boolean
-    expectingTiming?: string // Dropdown value
-
-    // Step 5: Password
+    expectingTiming?: string
     password?: string
 }
 
@@ -54,8 +45,6 @@ const INITIAL_DATA: OnboardingData = {
     password: ''
 }
 
-// --- Constants ---
-
 const CARE_OPTIONS = [
     { id: 'babysitter', icon: User, label: 'Babysitter', desc: 'Date nights & occasional help' },
     { id: 'nanny', icon: User, label: 'Nanny', desc: 'Regular in-home care' },
@@ -65,7 +54,6 @@ const CARE_OPTIONS = [
     { id: 'travel', icon: Plane, label: 'Travel Care', desc: 'Help while traveling' },
     { id: 'playdates', icon: Calendar, label: 'Playdates', desc: 'Meet families with kids similar ages' },
     { id: 'backup', icon: Clock, label: 'Backup Care', desc: 'Emergency & backup help' },
-    // "Just exploring" and "Something else" handled manually in render for layout control
 ]
 
 const EXPECTING_TIMING_OPTIONS = [
@@ -78,7 +66,6 @@ const EXPECTING_TIMING_OPTIONS = [
 const CURRENT_YEAR = new Date().getFullYear()
 const BIRTH_YEARS = Array.from({ length: 18 }, (_, i) => (CURRENT_YEAR - i).toString())
 
-// Updated Copy Per Step
 const STEPS = [
     { id: 1, img: '/opeari-welcome-green.png', text: "You're early — and that matters. Early families help shape how Opeari grows in their neighborhood." },
     { id: 2, img: '/opeari-explore.png', text: "No pressure. Just possibilities. We'll figure out what works together." },
@@ -122,7 +109,7 @@ export default function Onboarding() {
                 particleCount: 150,
                 spread: 70,
                 origin: { y: 0.6 },
-                colors: ['#4A7C59', '#E8B4A0', '#F5E6D3', '#8FBC8F']
+                colors: ['#4A7C59', '#E8B4A0', '#F5E6D3', '#8FBC8F'] // Brand colors
             })
         }
     }, [showSuccess])
@@ -133,14 +120,10 @@ export default function Onboarding() {
 
     const toggleCareOption = (id: string) => {
         let newOptions = [...data.careOptions]
-
-        // "Just exploring" exclusivity logic
         if (id === 'exploring') {
             newOptions = newOptions.includes('exploring') ? [] : ['exploring']
         } else {
-            // Remove exploring if selecting something else
             if (newOptions.includes('exploring')) newOptions = []
-
             if (newOptions.includes(id)) {
                 newOptions = newOptions.filter(i => i !== id)
             } else {
@@ -150,14 +133,8 @@ export default function Onboarding() {
         updateData('careOptions', newOptions)
     }
 
-    // Is Something Else selected? We track this via the boolean state for UI, 
-    // but we can also treat 'something_else' as an ID in careOptions if we wanted.
-    // However, user requirement says: "Something else" text saved to `other_needs`.
-    // Let's assume selecting the tile behaves like a toggle for the visual state.
-
     const toggleSomethingElse = () => {
         setShowSomethingElseInput(!showSomethingElseInput)
-        // If selecting specific needs, should we clear 'exploring'?
         if (!showSomethingElseInput && data.careOptions.includes('exploring')) {
             updateData('careOptions', [])
         }
@@ -202,7 +179,7 @@ export default function Onboarding() {
                 zip_code: data.zipCode,
                 address: data.neighborhood,
                 role: 'parent',
-                care_types: data.careOptions, // Array of IDs
+                care_types: data.careOptions,
                 schedule_preferences: JSON.stringify({
                     flexible: data.scheduleFlexible,
                     grid: data.schedule
@@ -217,7 +194,7 @@ export default function Onboarding() {
                 just_exploring: data.careOptions.includes('exploring'),
                 metadata: {
                     expecting: data.expecting,
-                    expecting_timing: data.expectingTiming, // Changed from due_date
+                    expecting_timing: data.expectingTiming,
                 }
             }
 
@@ -266,7 +243,7 @@ export default function Onboarding() {
     const currentStepConfig = STEPS.find(s => s.id === step) || STEPS[0]
 
     return (
-        <div className="min-h-screen bg-[#FDF8F3] flex items-center justify-center p-0 md:p-6 font-sans text-gray-800" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <div className="min-h-screen bg-[#FDF8F3] flex items-center justify-center p-0 md:p-6" style={{ fontFamily: "'Comfortaa', sans-serif" }}>
 
             <div className="w-full max-w-6xl md:h-[min(800px,90vh)] bg-white md:rounded-3xl md:shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-screen md:min-h-0">
 
@@ -340,7 +317,6 @@ export default function Onboarding() {
                                                 onClick={() => toggleCareOption(opt.id)}
                                             />
                                         ))}
-                                        {/* Last Row: Just Exploring + Something Else */}
                                         <SelectionCard
                                             icon={HelpCircle}
                                             label="Just exploring"
@@ -369,9 +345,10 @@ export default function Onboarding() {
                                         </div>
                                     )}
 
-                                    <div className="mt-4 p-4 bg-[#f0faf4] border-l-4 border-[#1B4D3E] rounded-r-lg">
+                                    {/* Updated 'What happens next' Banner Style */}
+                                    <div className="mt-4 p-4 bg-[#fff7d6] border-2 border-[#F8C3B3] rounded-xl">
                                         <p className="text-[#1B4D3E] text-sm">
-                                            <span className="font-semibold">What happens next:</span> We'll connect you with families nearby based on your selections — nothing is locked in.
+                                            <strong className="text-[#1e6b4e]">What happens next:</strong> We'll connect you with families nearby based on your selections — nothing is locked in.
                                         </p>
                                     </div>
                                 </div>
@@ -410,9 +387,9 @@ export default function Onboarding() {
                                         <div key={kid.id} className="p-5 bg-white border border-gray-200 rounded-xl relative shadow-sm">
                                             <button
                                                 onClick={() => {
-                                                    const newKids = [...data.kids]
-                                                    newKids.splice(idx, 1)
-                                                    updateData('kids', newKids)
+                                                    const updatedKids = [...data.kids]
+                                                    updatedKids.splice(idx, 1)
+                                                    updateData('kids', updatedKids)
                                                 }}
                                                 className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
                                             >✕</button>
@@ -436,7 +413,8 @@ export default function Onboarding() {
                                             </div>
                                         </div>
                                     ))}
-                                    <button onClick={() => updateData('kids', [...data.kids, { id: Math.random().toString(), firstName: '', nickname: '', age: '' }])} className="w-full py-3 border-2 border-dashed border-gray-200 text-[#1B4D3E] font-bold rounded-xl hover:bg-[#e8f5ee] transition-all">+ Add Child</button>
+                                    {/* Updated Add Child Button Style */}
+                                    <button onClick={() => updateData('kids', [...data.kids, { id: Math.random().toString(), firstName: '', nickname: '', age: '' }])} className="w-full py-3 border-2 border-dashed border-[#8bd7c7] text-[#1e6b4e] font-bold rounded-xl hover:bg-[#e8f5f0] hover:border-[#1e6b4e] transition-all">+ Add Child</button>
 
                                     {/* Expecting */}
                                     <div className="mt-6 pt-6 border-t border-gray-100">
@@ -489,7 +467,8 @@ export default function Onboarding() {
                                         required
                                         placeholder="••••••••"
                                     />
-                                    <div className="bg-blue-50 text-blue-800 p-4 rounded-xl text-sm flex gap-3">
+                                    {/* Fix Blue Banner -> Mint Banner */}
+                                    <div className="bg-[#e8f5f0] text-[#1e6b4e] border-l-4 border-[#8bd7c7] p-4 rounded-lg text-sm flex gap-3">
                                         <span className="text-lg">ℹ️</span>
                                         <p>You'll use <strong>{data.email}</strong> and this password to sign in and access your village.</p>
                                     </div>
@@ -503,14 +482,17 @@ export default function Onboarding() {
                                         Back
                                     </button>
                                 )}
+
                                 <button
                                     onClick={step === 5 ? handleFinish : nextStep}
                                     disabled={!isStepValid() || loading}
-                                    className={`flex-1 py-4 rounded-xl font-bold text-lg text-white shadow-lg transition-all
-                                        ${!isStepValid() || loading ? 'bg-gray-300 cursor-not-allowed shadow-none' : 'bg-[#1B4D3E] hover:bg-[#2D5A3D] hover:-translate-y-0.5'}
+                                    className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg text-white shadow-lg transition-all flex items-center justify-center gap-2
+                                        ${!isStepValid() || loading ? 'bg-[#e0e0e0] text-[#9e9e9e] cursor-not-allowed shadow-none' : 'bg-[#1e6b4e] hover:bg-[#155a3e] hover:-translate-y-0.5'}
                                     `}
                                 >
-                                    {loading ? 'Saving...' : step === 5 ? 'Complete Setup arrow_forward' : 'Next'}
+                                    {loading ? 'Saving...' : step === 5 ? (
+                                        <>Complete Setup <ArrowRight size={20} /></>
+                                    ) : 'Next'}
                                 </button>
                             </div>
 
@@ -564,6 +546,8 @@ const SelectionCard = ({ icon: Icon, label, desc, selected, onClick }: any) => (
     </div>
 )
 
+// --- Schedule Grid with Quick Select ---
+
 const ScheduleGrid = ({ value, onChange }: any) => {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     const times = ['Morning', 'Afternoon', 'Evening']
@@ -580,27 +564,95 @@ const ScheduleGrid = ({ value, onChange }: any) => {
         onChange(newSchedule)
     }
 
-    return (
-        <div className="border border-gray-200 rounded-xl p-2 md:p-4 bg-white overflow-x-auto">
-            <div className="min-w-[400px] grid grid-cols-[auto_repeat(7,1fr)] gap-y-2 gap-x-1 text-center text-xs">
-                <div />
-                {days.map(d => <div key={d} className="font-bold text-[#1B4D3E] py-2">{d}</div>)}
+    const QUICK_SELECTS = [
+        { label: 'Weekdays (M-F)', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], times: ['Morning', 'Afternoon', 'Evening'] },
+        { label: 'Mornings', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], times: ['Morning'] },
+        { label: 'Afternoons', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], times: ['Afternoon'] },
+        { label: 'Weekends', days: ['Sat', 'Sun'], times: ['Morning', 'Afternoon', 'Evening'] },
+    ]
 
-                {times.map(time => (
-                    <React.Fragment key={time}>
-                        <div className="text-left font-medium text-gray-400 self-center text-[11px] pr-2">{time}</div>
-                        {days.map(day => {
-                            const isSel = value[day.toLowerCase()]?.includes(time)
-                            return (
-                                <button
-                                    key={`${day}-${time}`}
-                                    onClick={() => toggle(day, time)}
-                                    className={`h-9 rounded-lg border transition-all ${isSel ? 'bg-[#1B4D3E] border-[#1B4D3E]' : 'bg-gray-50 border-gray-100 hover:bg-[#e8f5ee]'}`}
-                                />
-                            )
-                        })}
-                    </React.Fragment>
+    const handleQuickSelect = (q: any) => {
+        const newSchedule = { ...value }
+        let allUnselected = true
+
+        // Check if all slots in this quick select are already selected
+        for (const d of q.days) {
+            const dayLower = d.toLowerCase()
+            const current = newSchedule[dayLower] || []
+            // If any expected time is missing, then it's not "all selected"
+            if (!q.times.every((t: string) => current.includes(t))) {
+                allUnselected = false
+                break
+            }
+        }
+
+        if (allUnselected) {
+            // Deselect all
+            for (const d of q.days) {
+                const dayLower = d.toLowerCase()
+                const current = newSchedule[dayLower] || []
+                newSchedule[dayLower] = current.filter((t: string) => !q.times.includes(t))
+            }
+        } else {
+            // Select all
+            for (const d of q.days) {
+                const dayLower = d.toLowerCase()
+                const current = newSchedule[dayLower] || []
+                // Add unique
+                newSchedule[dayLower] = Array.from(new Set([...current, ...q.times]))
+            }
+        }
+        onChange(newSchedule)
+    }
+
+    const clearAll = () => onChange({})
+
+    return (
+        <div className="space-y-4">
+            {/* Quick Select Buttons */}
+            <div className="flex flex-wrap gap-2">
+                {QUICK_SELECTS.map(q => (
+                    <button
+                        key={q.label}
+                        onClick={() => handleQuickSelect(q)}
+                        className="px-4 py-2 bg-[#e8f5f0] text-[#1e6b4e] border border-[#8bd7c7] rounded-full text-sm font-bold hover:bg-[#d8f5e5] hover:border-[#1e6b4e] transition-all"
+                    >
+                        {q.label}
+                    </button>
                 ))}
+                <button
+                    onClick={clearAll}
+                    className="px-4 py-2 bg-gray-50 text-gray-500 border border-gray-200 rounded-full text-sm font-bold hover:bg-gray-100 hover:text-gray-700 transition-all"
+                >
+                    Clear All
+                </button>
+            </div>
+
+            <div className="border border-gray-200 rounded-xl p-2 md:p-4 bg-white overflow-x-auto">
+                <div className="min-w-[400px] grid grid-cols-[auto_repeat(7,1fr)] gap-y-2 gap-x-1 text-center text-xs">
+                    <div />
+                    {days.map(d => <div key={d} className="font-bold text-[#1B4D3E] py-2">{d}</div>)}
+
+                    {times.map(time => (
+                        <React.Fragment key={time}>
+                            <div className="text-left font-medium text-gray-400 self-center text-[11px] pr-2">{time}</div>
+                            {days.map(day => {
+                                const isSel = value[day.toLowerCase()]?.includes(time)
+                                return (
+                                    <button
+                                        key={`${day}-${time}`}
+                                        onClick={() => toggle(day, time)}
+                                        className={`h-9 rounded-lg border transition-all 
+                                            ${isSel
+                                                ? 'bg-[#d8f5e5] border-[#1e6b4e] border-2 shadow-inner'
+                                                : 'bg-gray-50 border-gray-100 hover:bg-[#e8f5f0] hover:border-[#8bd7c7]'}
+                                        `}
+                                    />
+                                )
+                            })}
+                        </React.Fragment>
+                    ))}
+                </div>
             </div>
         </div>
     )
