@@ -27,6 +27,17 @@
   --opeari-border: #8BD7C7;
   --opeari-shadow: rgba(0, 0, 0, 0.05);
   --opeari-shadow-hover: rgba(0, 0, 0, 0.08);
+
+  /* LEGACY MAPPINGS (Backward Compatibility) */
+  --color-cream: var(--opeari-bg);
+  --color-text-primary: var(--opeari-text-body);
+  --color-text-secondary: var(--opeari-text-secondary);
+  --color-primary: var(--opeari-green);
+  --color-mint: var(--opeari-mint);
+  --color-coral: var(--opeari-coral);
+  --color-peach: var(--opeari-peach);
+  --color-accent: var(--opeari-coral);
+  --color-background: var(--opeari-bg);
 }
 
 body {
