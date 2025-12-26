@@ -5,11 +5,11 @@ import Button from '../components/common/Button'
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-cream">
+    <div className="min-h-screen flex flex-col">
       <Header />
 
       {/* Hero Section */}
-      <section className="pt-24 pb-20 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32 bg-cream">
+      <section className="pt-24 pb-20 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8">
             {/* Left - Text block */}
@@ -161,7 +161,7 @@ export default function Home() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 sm:py-24 bg-cream">
+      <section className="py-20 sm:py-24">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-primary">
             Ready to find your village?

@@ -7,6 +7,20 @@ export default {
   theme: {
     extend: {
       colors: {
+        opeari: {
+          'bg': 'var(--opeari-bg)',
+          'bg-secondary': 'var(--opeari-bg-secondary)',
+          'bg-card': 'var(--opeari-bg-card)',
+          'heading': 'var(--opeari-text-heading)',
+          'text': 'var(--opeari-text-body)',
+          'text-secondary': 'var(--opeari-text-secondary)',
+          'green': 'var(--opeari-green)',
+          'green-dark': 'var(--opeari-green-dark)',
+          'mint': 'var(--opeari-mint)',
+          'coral': 'var(--opeari-coral)',
+          'coral-hover': 'var(--opeari-coral-hover)',
+          'border': 'var(--opeari-border)',
+        },
         // Core Brand Colors
         'primary': '#1e6b4e',      // Evergreen - Primary Actions, Headlines
         'primary-dark': '#155a3e', // Hover state
@@ -36,19 +50,27 @@ export default {
         'success': '#1e6b4e',
       },
       fontFamily: {
+        'comfortaa': ['Comfortaa', 'sans-serif'],
         'sans': ['Comfortaa', 'sans-serif'],
       },
       borderRadius: {
+        'button': '50px',
+        'card': '20px',
+        'input': '12px',
+        'image': '16px',
+        'modal': '20px',
+        'tag': '50px',
         'xl': '16px',
         '2xl': '20px',
         '3xl': '24px',
         'full': '9999px',
       },
       boxShadow: {
-        'card': '0 4px 16px rgba(0, 0, 0, 0.05)',
-        'card-hover': '0 8px 24px rgba(0, 0, 0, 0.08)',
-        'button': '0 4px 12px rgba(30, 107, 78, 0.18)',
+        'card': '0 4px 16px var(--opeari-shadow)',
+        'card-hover': '0 8px 24px var(--opeari-shadow-hover)',
+        'button': '0 4px 12px rgba(30, 107, 78, 0.2)',
         'button-hover': '0 6px 16px rgba(30, 107, 78, 0.25)',
+        'input-focus': '0 0 0 3px rgba(30, 107, 78, 0.1)',
         'input': '0 0 0 1px rgba(139, 215, 199, 0.3)',
       },
     },

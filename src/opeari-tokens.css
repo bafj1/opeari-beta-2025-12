@@ -1,0 +1,221 @@
+/**
+ * Opeari Design Tokens v1.1
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap');
+
+:root {
+  /* BACKGROUNDS */
+  --opeari-bg: #fffaf5;
+  --opeari-bg-secondary: #F9E3D2;
+  --opeari-bg-card: rgba(255, 255, 255, 0.6);
+
+  /* TEXT */
+  --opeari-text-heading: #1E6B4E;
+  --opeari-text-body: #2F3E34;
+  --opeari-text-secondary: #546E5C;
+
+  /* ACCENTS */
+  --opeari-green: #1E6B4E;
+  --opeari-green-dark: #155a3e;
+  --opeari-mint: #8BD7C7;
+  --opeari-coral: #F8C3B3;
+  --opeari-coral-hover: #f5b2a1;
+  --opeari-peach: #F9E3D2;
+
+  /* BORDERS & SHADOWS */
+  --opeari-border: #8BD7C7;
+  --opeari-shadow: rgba(0, 0, 0, 0.05);
+  --opeari-shadow-hover: rgba(0, 0, 0, 0.08);
+}
+
+body {
+  font-family: 'Comfortaa', sans-serif;
+  background-color: var(--opeari-bg);
+  color: var(--opeari-text-body);
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--opeari-text-heading);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--opeari-green);
+  color: white;
+  font-weight: 600;
+  padding: 0.875rem 1.75rem;
+  border-radius: 50px;
+  border: none;
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(30, 107, 78, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: var(--opeari-green-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(30, 107, 78, 0.25);
+}
+
+.btn-accent {
+  background-color: var(--opeari-coral);
+  color: var(--opeari-green);
+  font-weight: 600;
+  padding: 0.875rem 1.75rem;
+  border-radius: 50px;
+  border: none;
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+  background-color: var(--opeari-coral-hover);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--opeari-green);
+  font-weight: 600;
+  padding: 0.875rem 1.75rem;
+  border-radius: 50px;
+  border: 2px solid var(--opeari-green);
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  background-color: rgba(30, 107, 78, 0.1);
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-md {
+  padding: 0.875rem 1.75rem;
+  font-size: 1rem;
+}
+
+.btn-lg {
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+/* Cards */
+.card {
+  background-color: var(--opeari-bg-card);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid var(--opeari-border);
+  box-shadow: 0 4px 16px var(--opeari-shadow);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--opeari-shadow-hover);
+}
+
+.feature-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid #e8f5f0;
+  text-align: center;
+}
+
+/* Highlight boxes */
+.highlight-box {
+  background-color: var(--opeari-peach);
+  border: 2px solid var(--opeari-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  color: var(--opeari-text-body);
+}
+
+.highlight-box-trust {
+  background: linear-gradient(135deg, #1e6b4e 0%, #3ca370 100%);
+  color: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+/* Form elements */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--opeari-border);
+  border-radius: 12px;
+  background-color: white;
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 1rem;
+  color: var(--opeari-text-body);
+  transition: all 0.3s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--opeari-green);
+  box-shadow: 0 0 0 3px rgba(30, 107, 78, 0.1);
+}
+
+input::placeholder {
+  color: var(--opeari-text-secondary);
+  opacity: 0.7;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  color: var(--opeari-text-heading);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tag-primary {
+  background-color: #e8f5f0;
+  color: var(--opeari-green);
+}
+
+.tag-accent {
+  background-color: #fff7d6;
+  color: var(--opeari-green);
+}
+
+.tag-highlight {
+  background-color: var(--opeari-green);
+  color: white;
+}
