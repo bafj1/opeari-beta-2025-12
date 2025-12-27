@@ -250,6 +250,7 @@ export default function Header() {
               to="/waitlist"
               variant="primary"
               size="sm"
+              className="bg-[#1E6B4E] text-white hover:opacity-90 border-none"
             >
               Join Waitlist
             </Button>

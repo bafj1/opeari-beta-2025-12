@@ -122,37 +122,37 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
               icon={<CalendarIcon />}
-              iconBg="bg-opeari-mint"
+              iconBg="bg-[#F9E3D2]"
               title="Flexible Schedules"
               description="Find care that works with your calendar, not against it"
             />
             <FeatureCard
               icon={<HomeIcon />}
-              iconBg="bg-opeari-coral"
+              iconBg="bg-[#F9E3D2]"
               title="Local Community"
               description="Connect with families in your neighborhood"
             />
             <FeatureCard
               icon={<PiggyBankIcon />}
-              iconBg="bg-[#FEF3C7]"
+              iconBg="bg-[#F9E3D2]"
               title="Share Costs"
               description="Split nanny costs with compatible families"
             />
             <FeatureCard
               icon={<PlaneIcon />}
-              iconBg="bg-opeari-mint"
+              iconBg="bg-[#F9E3D2]"
               title="Travel Support"
               description="Find backup care when you're away from home"
             />
             <FeatureCard
               icon={<HeartHandIcon />}
-              iconBg="bg-opeari-coral"
+              iconBg="bg-[#F9E3D2]"
               title="Trusted Network"
               description="Every family is verified and vouched for"
             />
             <FeatureCard
               icon={<ShieldIcon />}
-              iconBg="bg-[#FEF3C7]"
+              iconBg="bg-[#F9E3D2]"
               title="Safe & Secure"
               description="Your family's privacy is our priority"
             />
@@ -173,7 +173,7 @@ export default function Home() {
             to="/waitlist"
             variant="primary"
             size="lg"
-            className="px-12 text-lg"
+            className="px-12 text-lg bg-[#F8C3B3] text-[#1E6B4E] hover:bg-[#f5b2a1] hover:text-white border-none"
           >
             Join the Waitlist
           </Button>
@@ -239,7 +239,7 @@ function FeatureCard({ icon, iconBg, title, description }: {
 // Pain Point Card
 function PainPointCard({ text }: { text: string }) {
   return (
-    <div className="p-5 rounded-xl bg-white border border-opeari-border">
+    <div className="p-5 rounded-xl bg-white border border-[#8BD7C7]">
       <p className="text-sm font-medium text-opeari-text-secondary">{text}</p>
     </div>
   )
