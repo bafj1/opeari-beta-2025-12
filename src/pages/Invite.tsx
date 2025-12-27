@@ -211,7 +211,7 @@ export default function Invite() {
   if (step === 'invalid' || step === 'expired') {
     return (
       <div className="min-h-screen bg-[#fffaf5] flex items-center justify-center p-4">
-        <div className="max-w-sm w-full text-center bg-white p-8 rounded-3xl shadow-xl border border-[#8bd7c7]/30">
+        <div className="max-w-sm w-full text-center bg-white p-8 rounded-3xl shadow-[0_20px_25px_-5px_rgba(30,107,78,0.1),0_10px_10px_-5px_rgba(30,107,78,0.04)] border border-[#8bd7c7]/30">
           <div className="w-16 h-16 bg-[#F8C3B3]/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-[#F8C3B3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -250,7 +250,7 @@ export default function Invite() {
 
           <Link
             to="/waitlist"
-            className="inline-block px-8 py-3 bg-[#F8C3B3] text-[#1e6b4e] font-bold rounded-full hover:bg-[#f5a08a] transition-all text-sm shadow-md hover:-translate-y-0.5"
+            className="inline-block px-8 py-3 bg-[#F8C3B3] text-[#1e6b4e] font-bold rounded-full hover:bg-[#f5a08a] transition-all text-sm shadow-[0_4px_6px_-1px_rgba(30,107,78,0.1),0_2px_4px_-1px_rgba(30,107,78,0.06)] hover:-translate-y-0.5"
           >
             Join Waitlist
           </Link>
@@ -268,7 +268,7 @@ export default function Invite() {
   if (step === 'success') {
     return (
       <div className="min-h-screen bg-[#fffaf5] flex items-center justify-center p-4">
-        <div className="max-w-sm w-full text-center bg-white p-8 rounded-3xl shadow-xl border border-[#8bd7c7]/30">
+        <div className="max-w-sm w-full text-center bg-white p-8 rounded-3xl shadow-[0_20px_25px_-5px_rgba(30,107,78,0.1),0_10px_10px_-5px_rgba(30,107,78,0.04)] border border-[#8bd7c7]/30">
           <div className="w-16 h-16 bg-[#d8f5e5] rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-[#1e6b4e]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -280,7 +280,7 @@ export default function Invite() {
           </p>
           <button
             onClick={() => navigate('/onboarding')}
-            className="w-full max-w-xs px-6 py-3.5 bg-[#1e6b4e] text-white font-bold rounded-full hover:bg-[#154a36] hover:shadow-lg hover:-translate-y-0.5 transition-all"
+            className="w-full max-w-xs px-6 py-3.5 bg-[#1e6b4e] text-white font-bold rounded-full hover:bg-[#154a36] hover:shadow-[0_10px_15px_-3px_rgba(30,107,78,0.1),0_4px_6px_-2px_rgba(30,107,78,0.05)] hover:-translate-y-0.5 transition-all"
           >
             Complete Profile
           </button>
@@ -308,7 +308,7 @@ export default function Invite() {
       {/* Form */}
       <main className="flex-1 flex items-center justify-center p-4 pb-12">
         <div className="max-w-[500px] w-full">
-          <div className="bg-white rounded-3xl border border-[#8bd7c7]/30 shadow-xl p-8 sm:p-10 relative overflow-hidden">
+          <div className="bg-white rounded-3xl border border-[#8bd7c7]/30 shadow-[0_20px_25px_-5px_rgba(30,107,78,0.1),0_10px_10px_-5px_rgba(30,107,78,0.04)] p-8 sm:p-10 relative overflow-hidden">
             {/* Decor */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#d8f5e5]/50 rounded-bl-full -z-0 pointer-events-none" />
 
@@ -466,7 +466,7 @@ export default function Invite() {
               <button
                 type="submit"
                 disabled={loading || !formData.firstName || !isValidEmail(formData.email) || !isValidPassword(formData.password) || !doPasswordsMatch}
-                className="w-full py-4 bg-[#1e6b4e] text-white font-bold rounded-full hover:bg-[#154a36] hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full py-4 bg-[#1e6b4e] text-white font-bold rounded-full hover:bg-[#154a36] hover:shadow-[0_10px_15px_-3px_rgba(30,107,78,0.1),0_4px_6px_-2px_rgba(30,107,78,0.05)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">

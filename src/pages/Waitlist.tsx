@@ -296,7 +296,7 @@ export default function Waitlist() {
         }
       `}</style>
       {/* Header */}
-      <header className="px-[5%] bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-[#1e6b4e]/5 h-[85px] flex items-center max-md:px-4 max-md:h-[60px]">
+      <header className="px-[5%] bg-white/90 backdrop-blur-md sticky top-0 z-50 h-[85px] flex items-center max-md:px-4 max-md:h-[60px]">
         <div className="w-full max-w-[1200px] mx-auto flex justify-between items-center">
           <Link to="/" className="flex items-center">
             <img src={logoImg} alt="Opeari" className="h-20 w-auto max-md:h-[45px]" />

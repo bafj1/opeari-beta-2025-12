@@ -47,7 +47,7 @@ export default function PhotoUpload({
 
     setError(null)
     setIsUploading(true)
-    
+
     try {
       await onPhotoChange(file)
     } catch (err) {
@@ -91,8 +91,8 @@ export default function PhotoUpload({
         className={`
           ${sizeClasses[size]} rounded-full cursor-pointer relative
           overflow-hidden transition-all
-          ${dragOver 
-            ? 'ring-4 ring-primary ring-offset-2' 
+          ${dragOver
+            ? 'ring-4 ring-primary ring-offset-2'
             : 'hover:ring-4 hover:ring-primary/30 hover:ring-offset-2'
           }
           ${isUploading ? 'opacity-50' : ''}
@@ -115,25 +115,25 @@ export default function PhotoUpload({
 
         {/* Overlay on hover */}
         <div className={`
-          absolute inset-0 bg-black/50 flex items-center justify-center
+          absolute inset-0 bg-opeari-green/50 flex items-center justify-center
           opacity-0 hover:opacity-100 transition-opacity
         `}>
-          <svg 
-            className="w-8 h-8 text-white" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor" 
+          <svg
+            className="w-8 h-8 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
             strokeWidth={2}
           >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" 
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
             />
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" 
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
             />
           </svg>
         </div>
@@ -164,7 +164,7 @@ export default function PhotoUpload({
         >
           {currentPhotoUrl ? 'Change photo' : 'Add photo'}
         </button>
-        
+
         {currentPhotoUrl && onPhotoRemove && (
           <button
             type="button"

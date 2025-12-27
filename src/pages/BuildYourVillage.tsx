@@ -542,7 +542,7 @@ export default function BuildYourVillage() {
               <div className="flex flex-col sm:flex-row items-center gap-3 justify-center">
                 <Link
                   to="/invite"
-                  className="inline-block px-6 py-3 rounded-full font-semibold shadow-sm hover:shadow-md transition-all"
+                  className="inline-block px-6 py-3 rounded-full font-semibold shadow-[0_1px_3px_0_rgba(30,107,78,0.1),0_1px_2px_-1px_rgba(30,107,78,0.06)] hover:shadow-[0_4px_6px_-1px_rgba(30,107,78,0.1),0_2px_4px_-1px_rgba(30,107,78,0.06)] transition-all"
                   style={{ backgroundColor: COLORS.primary, color: 'white' }}
                 >
                   Invite Friends
@@ -623,7 +623,7 @@ function MatchCard({ family, compact = false }: {
   return (
     <Link
       to={`/member/${family.id}`}
-      className="block rounded-2xl overflow-hidden transition-all hover:shadow-lg"
+      className="block rounded-2xl overflow-hidden transition-all hover:shadow-[0_10px_15px_-3px_rgba(30,107,78,0.1),0_4px_6px_-2px_rgba(30,107,78,0.05)]"
       style={{
         backgroundColor: COLORS.cream,
         border: hasHighlightReasons ? `2px solid ${COLORS.coral}` : `1px solid ${COLORS.mintDark}`,

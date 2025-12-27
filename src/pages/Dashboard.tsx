@@ -255,7 +255,7 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <Link
                   to="/build-your-village"
-                  className="bg-white border-2 border-opeari-green rounded-xl p-5 hover:bg-opeari-mint/20 hover:-translate-y-0.5 hover:shadow-md transition-all group"
+                  className="bg-white border-2 border-opeari-green rounded-xl p-5 hover:bg-opeari-mint/20 hover:-translate-y-0.5 hover:shadow-[0_4px_6px_-1px_rgba(30,107,78,0.1),0_2px_4px_-1px_rgba(30,107,78,0.06)] transition-all group"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-opeari-mint/20 rounded-xl flex items-center justify-center group-hover:bg-opeari-green transition-colors">
@@ -273,7 +273,7 @@ export default function Dashboard() {
 
                 <Link
                   to="/build-your-village?filter=asap"
-                  className="bg-white border-2 border-red-100 rounded-xl p-5 hover:border-red-400 hover:-translate-y-0.5 hover:shadow-md transition-all"
+                  className="bg-white border-2 border-red-100 rounded-xl p-5 hover:border-red-400 hover:-translate-y-0.5 hover:shadow-[0_4px_6px_-1px_rgba(30,107,78,0.1),0_2px_4px_-1px_rgba(30,107,78,0.06)] transition-all"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">

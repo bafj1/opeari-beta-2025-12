@@ -27,10 +27,10 @@ export default function Toast({ message, type = 'success', onClose, duration = 3
 
   return (
     <div className="fixed top-20 right-4 z-50 animate-slide-in">
-      <div className={`${bgColor} text-white px-6 py-4 rounded-2xl shadow-lg flex items-center gap-3 max-w-sm`}>
+      <div className={`${bgColor} text-white px-6 py-4 rounded-2xl shadow-[0_10px_15px_-3px_rgba(30,107,78,0.1),0_4px_6px_-2px_rgba(30,107,78,0.05)] flex items-center gap-3 max-w-sm`}>
         <span className="text-2xl">{icon}</span>
         <p className="font-medium">{message}</p>
-        <button 
+        <button
           onClick={onClose}
           className="ml-2 text-white/80 hover:text-white"
         >

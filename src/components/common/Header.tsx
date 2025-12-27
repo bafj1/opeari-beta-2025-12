@@ -2,7 +2,6 @@ import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
-import Button from './Button'
 
 export default function Header() {
   const { user } = useAuth()
@@ -43,7 +42,7 @@ export default function Header() {
           to={user ? '/dashboard' : '/'}
           className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
         >
-          <img src="/logo.svg" alt="Opeari" className="h-11 sm:h-12" />
+          <img src="/logo.svg" alt="Opeari" className="h-12 sm:h-14" />
         </Link>
 
         {/* Right side */}
@@ -97,8 +96,8 @@ export default function Header() {
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
                   className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-opeari-green/30 ${menuOpen
-                    ? 'bg-opeari-green shadow-md scale-105'
-                    : 'bg-opeari-mint hover:bg-opeari-green hover:shadow-md hover:scale-105 active:scale-95'
+                    ? 'bg-opeari-green shadow-[0_4px_12px_rgba(30,107,78,0.2)] scale-105'
+                    : 'bg-opeari-mint hover:bg-opeari-green hover:shadow-[0_4px_12px_rgba(30,107,78,0.2)] hover:scale-105 active:scale-95'
                     } group`}
                 >
                   <svg
@@ -116,7 +115,7 @@ export default function Header() {
                 {menuOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-opeari-border py-2 z-20">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-[0_10px_25px_rgba(30,107,78,0.15)] border border-opeari-border py-2 z-20">
                       <Link
                         to="/profile"
                         onClick={() => setMenuOpen(false)}
@@ -166,7 +165,7 @@ export default function Header() {
 
             {/* Mobile Menu Overlay */}
             {menuOpen && (
-              <div className="absolute top-full left-0 w-full bg-white border-b border-opeari-border shadow-xl p-4 flex flex-col gap-1 sm:hidden animate-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 w-full bg-white border-b border-opeari-border shadow-[0_4px_24px_rgba(30,107,78,0.15)] p-4 flex flex-col gap-1 sm:hidden animate-in slide-in-from-top-2 duration-200">
                 <Link
                   to="/dashboard"
                   onClick={() => setMenuOpen(false)}
@@ -238,23 +237,22 @@ export default function Header() {
             )}
           </>
         ) : (
-          <div className="flex items-center gap-4">
-            <Button
+          <div className="flex items-center gap-3">
+            <Link
               to="/login"
-              variant="tertiary"
-              className="text-opeari-heading font-semibold"
+              className="text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity"
             >
               Login
-            </Button>
+            </Link>
             <Link
               to="/waitlist"
-              className="inline-flex items-center justify-center px-5 py-2.5 bg-[#1E6B4E] text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity leading-none shrink-0 whitespace-nowrap"
+              className="inline-flex items-center justify-center h-10 px-5 bg-[#F8C3B3] text-[#1E6B4E] text-sm font-semibold rounded-full hover:bg-[#f5b5a3] transition-colors"
             >
               Join Waitlist
             </Link>
           </div>
         )}
       </div>
-    </header>
+    </header >
   )
 }

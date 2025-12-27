@@ -214,7 +214,7 @@ export default function Onboarding() {
     if (showSuccess) {
         return (
             <div className="min-h-screen bg-[#FDF8F3] flex items-center justify-center p-4 font-sans text-gray-800">
-                <div className="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center animate-fade-in relative overflow-hidden">
+                <div className="bg-white rounded-3xl shadow-[0_20px_25px_-5px_rgba(30,107,78,0.1),0_10px_10px_-5px_rgba(30,107,78,0.04)] p-8 max-w-md w-full text-center animate-fade-in relative overflow-hidden">
                     <div className="w-32 h-32 mx-auto mb-6">
                         <img src="/opeari-match.png" alt="Welcome" className="w-full h-full object-contain" />
                     </div>
@@ -228,7 +228,7 @@ export default function Onboarding() {
                     </div>
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="w-full bg-[#1B4D3E] text-white py-4 rounded-xl font-bold hover:bg-[#2D5A3D] transition-transform hover:-translate-y-0.5 shadow-lg"
+                        className="w-full bg-[#1B4D3E] text-white py-4 rounded-xl font-bold hover:bg-[#2D5A3D] transition-transform hover:-translate-y-0.5 shadow-[0_10px_15px_-3px_rgba(30,107,78,0.1),0_4px_6px_-2px_rgba(30,107,78,0.05)]"
                     >
                         Go to My Dashboard
                     </button>
@@ -242,7 +242,7 @@ export default function Onboarding() {
     return (
         <div className="min-h-screen bg-[#FDF8F3] flex items-center justify-center p-0 md:p-6" style={{ fontFamily: "'Comfortaa', sans-serif" }}>
 
-            <div className="w-full max-w-6xl md:h-[min(800px,90vh)] bg-white md:rounded-3xl md:shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-screen md:min-h-0">
+            <div className="w-full max-w-6xl md:h-[min(800px,90vh)] bg-white md:rounded-3xl md:shadow-[0_25px_50px_-12px_rgba(30,107,78,0.25)] overflow-hidden flex flex-col md:flex-row min-h-screen md:min-h-0">
 
                 {/* LEFT PANEL */}
                 <div className="hidden md:flex md:w-[40%] bg-[#FDF8F3] border-r border-[#E8DCC8] flex-col items-center justify-center p-12 text-center relative transition-all duration-500">
@@ -560,7 +560,7 @@ export default function Onboarding() {
                                 <button
                                     onClick={step === 5 ? handleFinish : nextStep}
                                     disabled={!isStepValid() || loading}
-                                    className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg text-white shadow-lg transition-all flex items-center justify-center gap-2
+                                    className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg text-white shadow-[0_10px_15px_-3px_rgba(30,107,78,0.1),0_4px_6px_-2px_rgba(30,107,78,0.05)] transition-all flex items-center justify-center gap-2
                                         ${!isStepValid() || loading ? 'bg-[#e0e0e0] text-[#9e9e9e] cursor-not-allowed shadow-none' : 'bg-[#1e6b4e] hover:bg-[#155a3e] hover:-translate-y-0.5'}
                                     `}
                                 >

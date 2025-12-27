@@ -1,4 +1,5 @@
 
+import { Link } from 'react-router-dom'
 import { Header } from '../components/Header'
 import { Footer } from '../components/Footer'
 import Button from '../components/common/Button'
@@ -27,14 +28,12 @@ export default function Home() {
 
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button
+                <Link
                   to="/waitlist"
-                  variant="accent"
-                  size="lg"
-                  className="px-8"
+                  className="inline-flex items-center justify-center h-14 px-8 bg-[#F8C3B3] text-[#1E6B4E] text-base font-semibold rounded-full hover:bg-[#f5b5a3] transition-colors"
                 >
                   Join the Waitlist
-                </Button>
+                </Link>
 
                 <Button
                   to="/how-it-works"

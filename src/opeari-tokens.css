@@ -34,8 +34,8 @@
      BORDERS & SHADOWS
      ================================ */
   --opeari-border: #8BD7C7;
-  --opeari-shadow: rgba(0, 0, 0, 0.05);
-  --opeari-shadow-hover: rgba(0, 0, 0, 0.08);
+  --opeari-shadow: rgba(30, 107, 78, 0.1);
+  --opeari-shadow-hover: rgba(30, 107, 78, 0.15);
 
   /* ================================
      LEGACY VARIABLE MAPPINGS
