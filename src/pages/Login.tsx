@@ -146,12 +146,9 @@ export default function Login() {
             <div className="relative z-10 flex justify-center mt-6">
               <div className="absolute w-36 h-36 lg:w-44 lg:h-44 rounded-full bg-white/10 -translate-y-2" />
               <img
-                src="/images/opeari-welcome-green.png"
-                alt="Opeari Pear"
-                className="relative w-32 lg:w-40 h-auto drop-shadow-md"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none'
-                }}
+                src="/opeari-welcome-green.png"
+                alt="Opeari mascot waving"
+                className="w-32 h-32 mt-8 opacity-90 relative z-10"
               />
             </div>
 

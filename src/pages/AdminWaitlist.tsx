@@ -421,7 +421,7 @@ export default function AdminWaitlist() {
                                                             <div className="mb-2">
                                                                 <div className="text-opeari-text-secondary mb-1">Why Join:</div>
                                                                 {entry.why_join ? (
-                                                                    <p className="p-3 bg-white border border-opeari-border rounded-lg text-gray-700 italic text-xs leading-relaxed">
+                                                                    <p className="p-3 bg-white border border-opeari-border rounded-lg text-opeari-text-secondary italic text-xs leading-relaxed">
                                                                         "{entry.why_join}"
                                                                     </p>
                                                                 ) : (

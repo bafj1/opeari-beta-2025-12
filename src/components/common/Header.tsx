@@ -1,14 +1,24 @@
 import { Link, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 
 export default function Header() {
   const { user } = useAuth()
   const location = useLocation()
-  // const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  // Handle scroll detection for dynamic header styling
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const isActive = (path: string) => {
     return location.pathname === path
@@ -34,15 +44,24 @@ export default function Header() {
     window.location.href = '/'
   }
 
+  // Dynamic Header Classes - completely borderless
+  const headerClasses = `
+    fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out
+    ${isScrolled
+      ? 'bg-opeari-bg/95 backdrop-blur-sm py-3'
+      : 'bg-transparent shadow-none py-5 sm:py-6'}
+  `
+
   return (
-    <header className="bg-opeari-bg sticky top-0 z-50">
-      <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
+    <header className={headerClasses}>
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
         <Link
           to={user ? '/dashboard' : '/'}
-          className="flex items-center hover:opacity-80 transition-opacity focus:outline-none"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none decoration-transparent"
         >
-          <img src="/logo.svg" alt="Opeari" className="h-12 sm:h-14" />
+          <img src="/icon.svg" alt="Opeari" className="h-8 w-auto sm:h-10" />
+          <span className="text-2xl font-bold text-[#1E6B4E] tracking-tight -mb-1">Opeari</span>
         </Link>
 
         {/* Right side */}
@@ -60,35 +79,6 @@ export default function Header() {
                 >
                   Dashboard
                 </Link>
-                {/* Hidden while unfinished
-                <Link
-                  to="/build-your-village"
-                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/build-your-village')
-                    ? 'text-opeari-heading font-bold'
-                    : 'text-opeari-text-secondary hover:text-opeari-heading'
-                    }`}
-                >
-                  Find Matches
-                </Link>
-                <Link
-                  to="/connections"
-                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/connections')
-                    ? 'text-opeari-heading font-bold'
-                    : 'text-opeari-text-secondary hover:text-opeari-heading'
-                    }`}
-                >
-                  My Village
-                </Link>
-                <Link
-                  to="/messages"
-                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/messages')
-                    ? 'text-opeari-heading font-bold'
-                    : 'text-opeari-text-secondary hover:text-opeari-heading'
-                    }`}
-                >
-                  Messages
-                </Link>
-                */}
               </nav>
 
               {/* Profile Dropdown (Desktop Only) */}
@@ -237,20 +227,38 @@ export default function Header() {
             )}
           </>
         ) : (
-          <div className="flex items-center gap-3">
-            <Link
-              to="/login"
-              className="text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity"
-            >
-              Login
-            </Link>
-            <Link
-              to="/waitlist"
-              className="inline-flex items-center justify-center h-10 px-5 bg-[#F8C3B3] text-[#1E6B4E] text-sm font-semibold rounded-full hover:bg-[#f5b5a3] transition-colors"
-            >
-              Join Waitlist
-            </Link>
-          </div>
+
+          <>
+            {/* Center Nav */}
+            <nav className="hidden sm:flex items-center gap-8">
+              <Link to="/about" className="text-opeari-heading text-sm font-medium hover:opacity-70 transition-opacity">
+                About
+              </Link>
+              <Link to="/faq" className="text-opeari-heading text-sm font-medium hover:opacity-70 transition-opacity">
+                FAQ
+              </Link>
+            </nav>
+
+            {/* Right Side */}
+            <div className="flex items-center gap-4">
+              <Link
+                to="/login"
+                className="text-opeari-heading text-sm font-medium hover:opacity-70 transition-opacity"
+              >
+                Login
+              </Link>
+              <Link
+                to="/waitlist"
+                className="inline-flex items-center justify-center h-10 px-6 text-sm font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none"
+                style={{
+                  backgroundColor: 'var(--opeari-coral)',
+                  color: 'var(--opeari-text-heading)'
+                }}
+              >
+                Join Waitlist
+              </Link>
+            </div>
+          </>
         )}
       </div>
     </header >

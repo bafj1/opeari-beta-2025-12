@@ -32,7 +32,7 @@ export default {
         'peach': 'var(--color-peach)',
       },
       fontFamily: {
-        'comfortaa': ['Comfortaa', 'sans-serif'],
+        sans: ['Comfortaa', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       },
       borderRadius: {
         'button': '50px',

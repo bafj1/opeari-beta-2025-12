@@ -231,7 +231,7 @@ export default function Dashboard() {
                   <span className="text-opeari-heading font-bold">{pendingRequests}</span>
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-800">
+                  <p className="font-semibold text-opeari-heading">
                     {pendingRequests} connection {pendingRequests === 1 ? 'request' : 'requests'}
                   </p>
                   <p className="text-sm text-gray-500">Tap to review</p>
@@ -310,7 +310,7 @@ export default function Dashboard() {
                             {conn.other_member?.first_name?.charAt(0) || '?'}
                           </span>
                         </div>
-                        <p className="text-sm font-medium text-gray-700 truncate">
+                        <p className="text-sm font-medium text-opeari-text-secondary truncate">
                           {conn.other_member?.first_name || 'Family'}
                         </p>
                       </Link>

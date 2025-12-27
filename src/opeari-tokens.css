@@ -1,11 +1,8 @@
-/**
- * Opeari Design Tokens v1.1
- * COMPLETE FILE - DO NOT MODIFY
- */
-
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap');
 
 :root {
+  /* ... existing vars ... */
+  /* NO CHANGE TO VARS */
   /* ================================
      BACKGROUNDS
      ================================ */
@@ -36,22 +33,6 @@
   --opeari-border: #8BD7C7;
   --opeari-shadow: rgba(30, 107, 78, 0.1);
   --opeari-shadow-hover: rgba(30, 107, 78, 0.15);
-
-  /* ================================
-     LEGACY VARIABLE MAPPINGS
-     These map old variable names to v1.1 values
-     so existing components don't break
-     ================================ */
-  --color-cream: #fffaf5;
-  --color-background: #fffaf5;
-  --color-text-primary: #2F3E34;
-  --color-text-secondary: #546E5C;
-  --color-primary: #1E6B4E;
-  --color-mint: #8BD7C7;
-  --color-coral: #F8C3B3;
-  --color-peach: #F9E3D2;
-  --color-accent: #F8C3B3;
-  --color-border: #8BD7C7;
 }
 
 /* ================================

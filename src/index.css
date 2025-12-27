@@ -1,2 +1,32 @@
 @import './opeari-tokens.css';
 @import "tailwindcss";
+
+body {
+    font-family: 'Comfortaa', sans-serif;
+}
+
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+.animate-float {
+    animation: float 7s ease-in-out infinite;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Comfortaa', cursive, sans-serif !important;
+}

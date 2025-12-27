@@ -1,294 +1,247 @@
-
 import { Link } from 'react-router-dom'
-import { Header } from '../components/Header'
-import { Footer } from '../components/Footer'
-import Button from '../components/common/Button'
+import { Calendar, Home as HomeIcon, PiggyBank, Plane, Shield, Lock } from 'lucide-react'
 
-export default function Home() {
+// --- LOCAL COMPONENTS ---
+
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-
-      {/* Hero Section - Warm White */}
-      <section className="pt-24 pb-20 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32 bg-opeari-bg">
-        <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8">
-            {/* Left - Text block */}
-            <div className="text-center lg:text-left lg:max-w-[480px] lg:flex-shrink-0">
-              {/* Main tagline - Removed italics per system update */}
-              <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-bold leading-[1.1] mb-6 text-opeari-heading">
-                <span className="block">Flexible care,</span>
-                <span className="block">perfectly paired.</span>
-              </h1>
-
-              {/* Sub-tagline */}
-              <p className="text-lg sm:text-xl mb-10 max-w-md mx-auto lg:mx-0 leading-relaxed font-light text-opeari-text-secondary">
-                Childcare that fits your life—not the other way around.
-              </p>
-
-              {/* Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link
-                  to="/waitlist"
-                  className="inline-flex items-center justify-center h-14 px-8 bg-[#F8C3B3] text-[#1E6B4E] text-base font-semibold rounded-full hover:bg-[#f5b5a3] transition-colors"
-                >
-                  Join the Waitlist
-                </Link>
-
-                <Button
-                  to="/how-it-works"
-                  variant="secondary"
-                  size="lg"
-                  className="px-8 border-2 border-[#1E6B4E] text-[#1E6B4E] hover:bg-[#1E6B4E] hover:text-white"
-                >
-                  See How It Works
-                </Button>
-              </div>
-            </div>
-
-            {/* Right - Hero Image */}
-            <div className="flex justify-center lg:justify-end lg:flex-1 lg:mr-4">
-              <img
-                src="/opeari-village-hero.png"
-                alt="Families sharing childcare"
-                className="w-full max-w-[280px] sm:max-w-[380px] lg:max-w-[420px] xl:max-w-[480px] drop-shadow-xl"
-              />
-            </div>
-          </div>
+    <div className="group">
+      {/* Increased icon container size and spacing per polish request */}
+      <div className="w-14 h-14 bg-[#F8C3B3]/30 rounded-2xl flex items-center justify-center mb-5 group-hover:bg-[#F8C3B3]/50 transition-colors">
+        {/* Slightly larger icon */}
+        <div className="[&>svg]:w-7 [&>svg]:h-7 text-[#1E6B4E]">
+          {icon}
         </div>
-      </section>
-
-      {/* Sound Familiar? - White for contrast */}
-      <section className="py-16 sm:py-20 bg-opeari-bg-secondary">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-12 text-opeari-heading">
-            Sound familiar?
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
-            <PainPointCard text="Nanny calls out sick. Again." />
-            <PainPointCard text="Work trip next week. No backup plan." />
-            <PainPointCard text="Want a nanny share but don't know where to start." />
-            <PainPointCard text="Just need more options that actually fit your life." />
-          </div>
-
-          <p className="text-center text-lg max-w-2xl mx-auto text-opeari-text-secondary">
-            You're not alone. <span className="font-semibold text-opeari-heading">Opeari connects you with families nearby looking for the same support you are.</span>
-          </p>
-        </div>
-      </section>
-
-      {/* FIND → MATCH → CONNECT - Mint */}
-      <section className="py-20 sm:py-24 bg-opeari-mint">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-3 text-opeari-heading">
-            How it works
-          </h2>
-          <p className="text-center text-lg mb-14 text-opeari-text-secondary">
-            Three simple steps to finding your village
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-14">
-            <StepCard
-              image="/opeari-explore.png"
-              step="1"
-              title="Find"
-              description="Discover families nearby who need care when you do"
-            />
-            <StepCard
-              image="/opeari-match.png"
-              step="2"
-              title="Match"
-              description="We show you why each family could be the right fit"
-            />
-            <StepCard
-              image="/opeari-happy.png"
-              step="3"
-              title="Connect"
-              description="Build your village and share care together"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Why Families Love Opeari - Warm White */}
-      <section className="py-20 sm:py-24 bg-opeari-bg">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-14 text-opeari-heading">
-            Why families love Opeari
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={<CalendarIcon />}
-              iconBg="bg-[#F9E3D2]"
-              title="Flexible Schedules"
-              description="Find care that works with your calendar, not against it"
-            />
-            <FeatureCard
-              icon={<HomeIcon />}
-              iconBg="bg-[#F9E3D2]"
-              title="Local Community"
-              description="Connect with families in your neighborhood"
-            />
-            <FeatureCard
-              icon={<PiggyBankIcon />}
-              iconBg="bg-[#F9E3D2]"
-              title="Share Costs"
-              description="Split nanny costs with compatible families"
-            />
-            <FeatureCard
-              icon={<PlaneIcon />}
-              iconBg="bg-[#F9E3D2]"
-              title="Travel Support"
-              description="Find backup care when you're away from home"
-            />
-            <FeatureCard
-              icon={<HeartHandIcon />}
-              iconBg="bg-[#F9E3D2]"
-              title="Trusted Network"
-              description="Every family is verified and vouched for"
-            />
-            <FeatureCard
-              icon={<ShieldIcon />}
-              iconBg="bg-[#F9E3D2]"
-              title="Safe & Secure"
-              description="Your family's privacy is our priority"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA - Peach */}
-      <section className="py-20 sm:py-24 bg-opeari-bg-secondary">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-opeari-heading">
-            Ready to find your village?
-          </h2>
-          <p className="text-lg mb-10 text-opeari-text-secondary">
-            Join families building flexible childcare together.
-          </p>
-          <Button
-            to="/waitlist"
-            variant="primary"
-            size="lg"
-            className="px-12 text-lg !bg-[#F8C3B3] !text-[#1E6B4E] hover:!bg-[#f5b2a1] hover:!text-white border-none opacity-100 text-center"
-          >
-            Join the Waitlist
-          </Button>
-        </div>
-      </section>
-
-      <Footer />
+      </div>
+      <h3 className="text-[#1E6B4E] font-semibold mb-3 text-lg">{title}</h3>
+      <p className="text-[#5a6e5a] text-sm sm:text-base leading-relaxed">{description}</p>
     </div>
   )
 }
 
-// Step Card
-function StepCard({ image, step, title, description }: {
-  image: string
-  step: string
-  title: string
-  description: string
-}) {
+function StepCard({ number, image, title, description }: { number: string, image: string, title: string, description: string }) {
   return (
-    <div className="text-center p-8 rounded-2xl transition-all cursor-default hover:bg-opeari-bg hover:shadow-card-hover hover:-translate-y-1 bg-opeari-bg-card">
-      <div className="w-36 h-36 mx-auto mb-5 flex items-center justify-center">
+    <div className="text-center group">
+      <div className="relative mb-6 inline-block">
+        <div className="absolute inset-0 bg-[#8bd7c7]/10 rounded-full scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-contain"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none'
-          }}
+          className="w-24 h-24 sm:w-32 sm:h-32 mx-auto object-contain relative z-10 hover:-translate-y-1 transition-transform duration-300"
+          loading="lazy"
         />
       </div>
-      <div className="inline-flex items-center justify-center w-9 h-9 rounded-full text-sm font-bold mb-4 bg-opeari-coral text-opeari-heading">
-        {step}
+      <div className="flex flex-col items-center">
+        <span className="text-[#8bd7c7] text-sm font-bold tracking-widest uppercase mb-2">{number}</span>
+        <h3 className="text-[#1E6B4E] text-xl font-semibold mb-3">{title}</h3>
+        <p className="text-[#5a6e5a] text-sm sm:text-base leading-relaxed max-w-xs mx-auto">{description}</p>
       </div>
-      <h3 className="text-xl font-bold mb-2 text-opeari-heading">{title}</h3>
-      <p className="text-sm leading-relaxed max-w-[200px] mx-auto text-opeari-text-secondary">{description}</p>
     </div>
   )
 }
 
-// Feature Card
-function FeatureCard({ icon, iconBg, title, description }: {
-  icon: React.ReactNode
-  iconBg: string
-  title: string
-  description: string
-}) {
-  // Handle arbitary hex backgrounds if needed (like the yellow), otherwise use the class
-  const isHex = iconBg.startsWith('#');
-  const style = isHex ? { backgroundColor: iconBg } : {};
-  const className = `w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${!isHex ? iconBg : ''}`;
+type PainPointVariant = 'coral' | 'mint' | 'yellow' | 'neutral';
+
+function PainPointCard({ title, variant = 'neutral' }: { title: string, variant?: PainPointVariant }) {
+  // Define subtle tint colors for hover states
+  const hoverStyles = {
+    coral: 'hover:bg-[#F8C3B3]/10 hover:border-[#F8C3B3]/50',
+    mint: 'hover:bg-[#8bd7c7]/10 hover:border-[#8bd7c7]/50',
+    yellow: 'hover:bg-[#F9E3D2]/30 hover:border-[#F9E3D2]', // Peach/Yellow tone
+    neutral: 'hover:bg-gray-50 hover:border-[#1E6B4E]/30',
+  };
 
   return (
-    <div className="p-7 rounded-2xl transition-all duration-300 bg-opeari-bg-card hover:bg-opeari-mint hover:shadow-lg hover:-translate-y-1 border border-transparent hover:border-opeari-mint">
-      <div className={className} style={style}>
-        {icon}
-      </div>
-      <h3 className="text-lg font-bold mb-2 text-opeari-heading">{title}</h3>
-      <p className="text-sm leading-relaxed text-opeari-text-secondary">{description}</p>
+    <div className={`bg-white rounded-xl p-6 border border-[#e8e4de] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 h-full flex items-center justify-center text-center ${hoverStyles[variant]}`}>
+      <p className="text-[#1E6B4E] text-base font-medium">{title}</p>
     </div>
   )
 }
 
-// Pain Point Card
-function PainPointCard({ text }: { text: string }) {
-  return (
-    <div className="p-5 rounded-xl bg-white border border-[#8BD7C7]">
-      <p className="text-sm font-medium text-opeari-text-secondary">{text}</p>
-    </div>
-  )
-}
+// --- MAIN PAGE ---
 
-// Icons
-function CalendarIcon() {
+export default function Home() {
   return (
-    <svg className="w-6 h-6 text-opeari-heading" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-  )
-}
+    <main className="bg-[#fffaf5] font-sans min-h-screen">
 
-function HomeIcon() {
-  return (
-    <svg className="w-6 h-6 text-opeari-heading" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-    </svg>
-  )
-}
+      {/* 
+        SECTION 1: HERO 
+        Layout: Split Content / Image
+      */}
+      <section className="pt-32 pb-16 sm:pt-40 sm:pb-24 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            {/* Left Content */}
+            <div className="flex-1 text-center lg:text-left">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#1E6B4E] leading-[1.1] mb-6 font-display">
+                Flexible care, <br />
+                <span className="text-[#1E6B4E]">perfectly paired.</span>
+              </h1>
 
-function PiggyBankIcon() {
-  return (
-    <svg className="w-6 h-6 text-opeari-heading" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  )
-}
+              <p className="text-lg sm:text-xl text-[#5a6e5a] mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                Childcare that fits your life—not the other way around. Connect with local families to share costs and build your village.
+              </p>
 
-function PlaneIcon() {
-  return (
-    <svg className="w-6 h-6 text-opeari-heading" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-    </svg>
-  )
-}
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                <Link
+                  to="/waitlist"
+                  className="inline-flex items-center justify-center h-12 sm:h-14 px-8 rounded-full bg-[#F8C3B3] text-[#1E6B4E] font-semibold hover:bg-[#f0b5a5] hover:-translate-y-0.5 transition-all duration-300 shadow-sm hover:shadow-md"
+                >
+                  Join the Waitlist
+                </Link>
+                <Link
+                  to="/how-it-works"
+                  className="inline-flex items-center justify-center h-12 sm:h-14 px-8 rounded-full border-2 border-[#1E6B4E] text-[#1E6B4E] font-semibold hover:bg-[#1E6B4E]/5 transition-all duration-300"
+                >
+                  See How It Works
+                </Link>
+              </div>
+            </div>
 
-function HeartHandIcon() {
-  return (
-    <svg className="w-6 h-6 text-opeari-heading" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-    </svg>
-  )
-}
+            {/* Right Image */}
+            <div className="flex-1 w-full max-w-[500px] lg:max-w-none relative">
+              {/* Removed white card wrapper. Applied floating animation directly. */}
+              <div className="animate-float">
+                <img
+                  src="/opeari-village-hero.png"
+                  alt="Opeari Village"
+                  className="w-full h-auto drop-shadow-xl" // Added drop-shadow for depth without card
+                  loading="eager"
+                />
+              </div>
+              {/* Decorative blobs */}
+              <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[#8bd7c7]/10 rounded-full blur-3xl pointer-events-none" />
+            </div>
+          </div>
+        </div>
+      </section>
 
-function ShieldIcon() {
-  return (
-    <svg className="w-6 h-6 text-opeari-heading" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-    </svg>
+      {/* 
+        SECTION 2: PAIN POINTS
+        "Sound familiar?"
+      */}
+      <section className="py-20 sm:py-24 bg-white/50 border-y border-[#e8e4de]/50">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1E6B4E] mb-4">Sound familiar?</h2>
+            <p className="text-[#5a6e5a] text-lg">Parenting wasn't meant to be done alone.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <PainPointCard title="Nanny calls out sick. Again." variant="coral" />
+            <PainPointCard title="Work trip next week. No backup." variant="mint" />
+            <PainPointCard title="Want a nanny share but don't know who to ask." variant="yellow" />
+            <PainPointCard title="Just need more options that actually fit." variant="neutral" />
+          </div>
+
+          <p className="text-center text-[#5a6e5a] mt-12 max-w-2xl mx-auto text-sm sm:text-base">
+            You're not alone. Opeari connects you with families nearby looking for the same support you are.
+          </p>
+        </div>
+      </section>
+
+      {/* 
+        SECTION 3: HOW IT WORKS
+        "Three simple steps"
+      */}
+      <section className="py-20 sm:py-24">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#1E6B4E] mb-4">How it works</h2>
+            <p className="text-[#5a6e5a] text-lg">Three simple steps to finding your village.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
+            <StepCard
+              number="STEP 1"
+              image="/opeari-explore.png"
+              title="Find"
+              description="Discover families nearby who need care when you do."
+            />
+            <StepCard
+              number="STEP 2"
+              image="/opeari-match.png"
+              title="Match"
+              description="We connect you based on schedule, values, and parenting styles."
+            />
+            <StepCard
+              number="STEP 3"
+              image="/opeari-happy.png"
+              title="Connect"
+              description="Build your village, split costs, and share care together."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 
+        SECTION 4: FEATURES
+        "Why families love Opeari"
+      */}
+      <section className="py-20 sm:py-24 bg-white border-y border-[#e8e4de]/50">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#1E6B4E] mb-16 text-center">Why families love Opeari</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8 lg:gap-y-12">
+            <FeatureCard
+              icon={<Calendar className="w-6 h-6 text-[#1E6B4E]" />}
+              title="Flexible Schedules"
+              description="Find care that works with your calendar, not against it. Odd hours? No problem."
+            />
+            <FeatureCard
+              icon={<HomeIcon className="w-6 h-6 text-[#1E6B4E]" />}
+              title="Local Community"
+              description="Connect with families in your actual neighborhood, so help is just a walk away."
+            />
+            <FeatureCard
+              icon={<PiggyBank className="w-6 h-6 text-[#1E6B4E]" />}
+              title="Share Costs"
+              description="Split nanny costs with compatible families and save up to 40% on childcare."
+            />
+            <FeatureCard
+              icon={<Plane className="w-6 h-6 text-[#1E6B4E]" />}
+              title="Travel Support"
+              description="Find trusted backup care even when you're away from home on business."
+            />
+            <FeatureCard
+              icon={<Shield className="w-6 h-6 text-[#1E6B4E]" />}
+              title="Trusted Network"
+              description="Every family is verified and vouched for. Safety is our foundation."
+            />
+            <FeatureCard
+              icon={<Lock className="w-6 h-6 text-[#1E6B4E]" />}
+              title="Safe & Secure"
+              description="Your family's privacy is our priority. You control what you share."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 
+        SECTION 5: FINAL CTA
+      */}
+      <section className="py-24 sm:py-32 bg-[#1E6B4E]/5 relative overflow-hidden">
+        {/* Background pear decoration */}
+        <img
+          src="/pears-entering.png"
+          alt=""
+          className="absolute -bottom-10 -left-10 w-48 opacity-20 pointer-events-none"
+        />
+
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <h2 className="text-4xl sm:text-5xl font-bold text-[#1E6B4E] mb-6">Ready to find your village?</h2>
+          <p className="text-lg sm:text-xl text-[#5a6e5a] mb-10">
+            Join families building flexible childcare together.
+          </p>
+          <Link
+            to="/waitlist"
+            className="inline-flex items-center justify-center h-12 sm:h-14 px-8 rounded-full bg-[#F8C3B3] text-[#1E6B4E] font-semibold hover:bg-[#f0b5a5] hover:-translate-y-0.5 transition-all duration-300 shadow-sm hover:shadow-md"
+          >
+            Join the Waitlist
+          </Link>
+        </div>
+      </section>
+
+    </main>
   )
 }

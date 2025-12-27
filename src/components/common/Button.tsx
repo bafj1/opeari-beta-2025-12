@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 interface ButtonProps {
     children: React.ReactNode;
-    variant?: 'primary' | 'secondary' | 'tertiary' | 'accent';
+    variant?: 'primary' | 'secondary' | 'tertiary' | 'accent' | 'outline';
     size?: 'sm' | 'md' | 'lg';
     fullWidth?: boolean;
     to?: string;            // If provided, renders as Link
@@ -37,6 +37,7 @@ const Button: React.FC<ButtonProps> = ({
         secondary: `bg-opeari-bg text-opeari-green border-2 border-opeari-border hover:border-opeari-green hover:text-opeari-green-dark hover:-translate-y-0.5 disabled:hover:border-opeari-border disabled:hover:translate-y-0 focus:ring-opeari-green/20`,
         tertiary: `bg-transparent text-opeari-green hover:text-opeari-coral hover:underline focus:ring-0 px-0 shadow-none`,
         accent: `btn-accent shadow-button hover:shadow-button-hover active:translate-y-0`,
+        outline: `bg-transparent text-opeari-heading border-2 border-opeari-heading hover:bg-opeari-heading hover:text-white shadow-none active:translate-y-0`,
     };
 
     // Sizes
