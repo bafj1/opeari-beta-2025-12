@@ -60,8 +60,8 @@ export default function Header() {
           to={user ? '/dashboard' : '/'}
           className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none decoration-transparent"
         >
-          <img src="/icon.svg" alt="Opeari" className="h-8 w-auto sm:h-10" />
-          <span className="text-2xl font-bold text-[#1E6B4E] tracking-tight -mb-1">Opeari</span>
+          <img src="/icon.svg" alt="" className="h-7 w-7 sm:h-8 sm:w-8" />
+          <span className="text-[#1E6B4E] font-bold text-xl sm:text-2xl">Opeari</span>
         </Link>
 
         {/* Right side */}
