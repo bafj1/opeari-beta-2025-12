@@ -6,7 +6,7 @@ export function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     return (
-        <header className="relative z-50 bg-opeari-bg border-b border-mint-dark/40 overflow-visible">
+        <header className="relative z-50 bg-opeari-bg border-b border-opeari-border overflow-visible">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                 {/* Logo */}
                 <Link to="/" className="flex items-center mr-8 focus:outline-none opacity-100 hover:opacity-80 transition-opacity">
@@ -19,7 +19,7 @@ export function Header() {
                         <Link
                             key={item}
                             to={`/${item.toLowerCase()}`}
-                            className="text-sm font-medium text-text-secondary hover:text-primary transition-colors focus:outline-none focus:text-primary"
+                            className="text-sm font-medium text-opeari-text-secondary hover:text-opeari-heading transition-colors focus:outline-none focus:text-opeari-heading"
                         >
                             {item}
                         </Link>
@@ -31,7 +31,7 @@ export function Header() {
                     <Button
                         to="/login"
                         variant="tertiary"
-                        className="font-semibold text-primary"
+                        className="font-semibold text-opeari-heading"
                     >
                         Login
                     </Button>
@@ -46,7 +46,7 @@ export function Header() {
 
                 {/* Mobile Menu Button */}
                 <button
-                    className="md:hidden p-2 rounded-lg text-primary hover:bg-mint/50 transition-colors"
+                    className="md:hidden p-2 rounded-lg text-opeari-heading hover:bg-opeari-mint/50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     aria-label="Toggle menu"
                 >
@@ -64,11 +64,11 @@ export function Header() {
 
             {/* Mobile Menu Dropdown */}
             {isMobileMenuOpen && (
-                <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-card border-t border-mint-dark/20 py-4 px-6 flex flex-col gap-4">
-                    <Link to="/about" className="text-lg font-medium text-primary" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
-                    <Link to="/faq" className="text-lg font-medium text-primary" onClick={() => setIsMobileMenuOpen(false)}>FAQ</Link>
-                    <div className="h-px bg-mint-dark/20 my-1" />
-                    <Link to="/login" className="text-lg font-medium text-primary" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
+                <div className="md:hidden absolute top-full left-0 w-full bg-opeari-bg shadow-card border-t border-opeari-border/20 py-4 px-6 flex flex-col gap-4">
+                    <Link to="/about" className="text-lg font-medium text-opeari-heading" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
+                    <Link to="/faq" className="text-lg font-medium text-opeari-heading" onClick={() => setIsMobileMenuOpen(false)}>FAQ</Link>
+                    <div className="h-px bg-opeari-border/20 my-1" />
+                    <Link to="/login" className="text-lg font-medium text-opeari-heading" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
 
                     <Button
                         to="/waitlist"

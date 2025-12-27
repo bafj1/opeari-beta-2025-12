@@ -66,68 +66,68 @@ export default function Matches() {
         const local: Match[] = []
         const travel: Match[] = []
 
-        ;(members || []).forEach((member) => {
-          const currentYear = new Date().getFullYear()
-          const kidsWithAges = (member.kids || []).map((kid: any) => ({
-            id: kid.id,
-            name: kid.name,
-            age: kid.birth_year ? currentYear - kid.birth_year : kid.age || 0,
-            interests: kid.interests || [],
-          }))
+          ; (members || []).forEach((member) => {
+            const currentYear = new Date().getFullYear()
+            const kidsWithAges = (member.kids || []).map((kid: any) => ({
+              id: kid.id,
+              name: kid.name,
+              age: kid.birth_year ? currentYear - kid.birth_year : kid.age || 0,
+              interests: kid.interests || [],
+            }))
 
-          const displayName = member.first_name || 'A Family'
+            const displayName = member.first_name || 'A Family'
 
-          const compatibilityReasons: string[] = []
-          if (member.looking_for?.includes('nanny_share')) {
-            compatibilityReasons.push('Looking for nanny share')
-          }
-          if (member.looking_for?.includes('care_share')) {
-            compatibilityReasons.push('Open to care sharing')
-          }
-          if (member.looking_for?.includes('backup_care')) {
-            compatibilityReasons.push('Available for backup care')
-          }
+            const compatibilityReasons: string[] = []
+            if (member.looking_for?.includes('nanny_share')) {
+              compatibilityReasons.push('Looking for nanny share')
+            }
+            if (member.looking_for?.includes('care_share')) {
+              compatibilityReasons.push('Open to care sharing')
+            }
+            if (member.looking_for?.includes('backup_care')) {
+              compatibilityReasons.push('Available for backup care')
+            }
 
-          const connection = (userConnections || []).find(
-            (c: Connection) => 
-              (c.member_id === currentMember.id && c.connected_member_id === member.id) ||
-              (c.connected_member_id === currentMember.id && c.member_id === member.id)
-          )
+            const connection = (userConnections || []).find(
+              (c: Connection) =>
+                (c.member_id === currentMember.id && c.connected_member_id === member.id) ||
+                (c.connected_member_id === currentMember.id && c.member_id === member.id)
+            )
 
-          const match: Match = {
-            id: member.id,
-            family: {
+            const match: Match = {
               id: member.id,
-              name: displayName,
-              neighborhood: member.location || 'Nearby',
-              distance_miles: 0,
-              bio: member.bio || '',
-              looking_for: member.looking_for || [],
-              nanny_share_experience: member.nannyshare_experience || 'new_to_it',
-            },
-            kids: kidsWithAges,
-            compatibility_reasons: compatibilityReasons.length > 0 
-              ? compatibilityReasons 
-              : ['New to Opeari'],
-            mutual_connections: [],
-            is_available_now: member.care_timeline === 'asap',
-            is_new: isNewMember(member.created_at),
-            is_best_match: false,
-            connection_status: connection?.status || null,
-            connection_initiated_by_me: connection?.member_id === currentMember.id,
-          }
+              family: {
+                id: member.id,
+                name: displayName,
+                neighborhood: member.location || 'Nearby',
+                distance_miles: 0,
+                bio: member.bio || '',
+                looking_for: member.looking_for || [],
+                nanny_share_experience: member.nannyshare_experience || 'new_to_it',
+              },
+              kids: kidsWithAges,
+              compatibility_reasons: compatibilityReasons.length > 0
+                ? compatibilityReasons
+                : ['New to Opeari'],
+              mutual_connections: [],
+              is_available_now: member.care_timeline === 'asap',
+              is_new: isNewMember(member.created_at),
+              is_best_match: false,
+              connection_status: connection?.status || null,
+              connection_initiated_by_me: connection?.member_id === currentMember.id,
+            }
 
-          const memberZipPrefix = member.location?.match(/\d{3}/)?.[0] || ''
-          const isLocal = memberZipPrefix === userZipPrefix || memberZipPrefix === ''
+            const memberZipPrefix = member.location?.match(/\d{3}/)?.[0] || ''
+            const isLocal = memberZipPrefix === userZipPrefix || memberZipPrefix === ''
 
-          if (isLocal) {
-            match.family.distance_miles = Math.round((Math.random() * 3 + 0.2) * 10) / 10
-            local.push(match)
-          } else {
-            match.family.distance_miles = Math.round(Math.random() * 500 + 50)
-            travel.push(match)
-          }
-        })
+            if (isLocal) {
+              match.family.distance_miles = Math.round((Math.random() * 3 + 0.2) * 10) / 10
+              local.push(match)
+            } else {
+              match.family.distance_miles = Math.round(Math.random() * 500 + 50)
+              travel.push(match)
+            }
+          })
 
         if (local.length > 0) {
           local[0].is_best_match = true
@@ -177,7 +177,7 @@ export default function Matches() {
     try {
       const existingConnection = connections.find(
         c => (c.member_id === currentMemberId && c.connected_member_id === matchId) ||
-             (c.connected_member_id === currentMemberId && c.member_id === matchId)
+          (c.connected_member_id === currentMemberId && c.member_id === matchId)
       )
 
       if (existingConnection) {
@@ -189,7 +189,7 @@ export default function Matches() {
 
           if (error) throw error
 
-          setConnections(prev => prev.map(c => 
+          setConnections(prev => prev.map(c =>
             c.id === existingConnection.id ? { ...c, status: 'accepted' } : c
           ))
           updateMatchConnectionStatus(matchId, 'accepted')
@@ -251,12 +251,12 @@ export default function Matches() {
   }
 
   const updateMatchConnectionStatus = (matchId: string, status: string, initiatedByMe = false) => {
-    const updateFn = (matches: Match[]) => 
-      matches.map(m => m.id === matchId 
-        ? { ...m, connection_status: status, connection_initiated_by_me: initiatedByMe } 
+    const updateFn = (matches: Match[]) =>
+      matches.map(m => m.id === matchId
+        ? { ...m, connection_status: status, connection_initiated_by_me: initiatedByMe }
         : m
       )
-    
+
     setLocalMatches(updateFn)
     setTravelMatches(updateFn)
   }
@@ -268,39 +268,39 @@ export default function Matches() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen bg-opeari-bg">
         <div className="max-w-5xl mx-auto px-5 py-5">
           <div className="bg-white rounded-xl px-4 py-3 mb-5">
-            <p className="text-[13px] text-text-secondary">
+            <p className="text-[13px] text-opeari-text-secondary">
               {newFamiliesCount > 0 ? (
                 <>
-                  <span className="font-bold text-primary">{newFamiliesCount} new {newFamiliesCount === 1 ? 'family' : 'families'}</span> near you this week
+                  <span className="font-bold text-opeari-heading">{newFamiliesCount} new {newFamiliesCount === 1 ? 'family' : 'families'}</span> near you this week
                 </>
               ) : (
-                <span className="text-text-muted">Finding families near you...</span>
+                <span className="text-opeari-text-secondary">Finding families near you...</span>
               )}
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5">
             <div className="space-y-5">
-              <CTACards 
+              <CTACards
                 matchingFamiliesCount={matchingFamiliesCount}
                 availableNowCount={availableNowCount}
               />
 
               <div className="bg-white rounded-2xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-border-light flex flex-wrap justify-between items-center gap-3">
-                  <h2 className="text-base font-bold text-primary">Your Matches</h2>
-                  <FilterPills 
+                <div className="px-5 py-4 border-b border-opeari-border flex flex-wrap justify-between items-center gap-3">
+                  <h2 className="text-base font-bold text-opeari-heading">Your Matches</h2>
+                  <FilterPills
                     activeFilter={activeFilter}
                     onFilterChange={setActiveFilter}
                   />
                 </div>
-                
+
                 <div className="max-h-[600px] overflow-y-auto">
                   {loading ? (
-                    <div className="p-8 text-center text-text-muted">
+                    <div className="p-8 text-center text-opeari-text-secondary">
                       <div className="animate-pulse">Finding your matches...</div>
                     </div>
                   ) : filteredLocal.length > 0 ? (
@@ -315,13 +315,13 @@ export default function Matches() {
                     ))
                   ) : localMatches.length === 0 ? (
                     <div className="p-8 text-center">
-                      <p className="text-text-muted mb-2">No local families found yet.</p>
-                      <p className="text-sm text-text-secondary">
+                      <p className="text-opeari-text-secondary mb-2">No local families found yet.</p>
+                      <p className="text-sm text-opeari-text-secondary">
                         Invite friends to grow your village!
                       </p>
                     </div>
                   ) : (
-                    <div className="p-8 text-center text-text-muted">
+                    <div className="p-8 text-center text-opeari-text-secondary">
                       No matches found for this filter.
                     </div>
                   )}
@@ -330,13 +330,13 @@ export default function Matches() {
 
               {travelMatches.length > 0 && (
                 <div className="bg-white rounded-2xl overflow-hidden">
-                  <div className="px-5 py-4 border-b border-border-light">
-                    <h2 className="text-base font-bold text-primary">Travel Matches</h2>
-                    <p className="text-[12px] text-text-secondary mt-1">
+                  <div className="px-5 py-4 border-b border-opeari-border">
+                    <h2 className="text-base font-bold text-opeari-heading">Travel Matches</h2>
+                    <p className="text-[12px] text-opeari-text-secondary mt-1">
                       Families in other areas — great for trips or relocating
                     </p>
                   </div>
-                  
+
                   <div className="max-h-[400px] overflow-y-auto">
                     {filteredTravel.map(match => (
                       <MatchCard
@@ -354,33 +354,33 @@ export default function Matches() {
 
             <div className="space-y-4">
               <div className="bg-white rounded-2xl overflow-hidden">
-                <div className="px-4 py-3 border-b border-border-light">
-                  <h3 className="text-[14px] font-bold text-text-primary">Nearby</h3>
+                <div className="px-4 py-3 border-b border-opeari-border">
+                  <h3 className="text-[14px] font-bold text-opeari-text">Nearby</h3>
                 </div>
-                <div className="h-[180px] bg-mint flex items-center justify-center text-text-muted text-sm">
+                <div className="h-[180px] bg-opeari-mint flex items-center justify-center text-opeari-text-secondary text-sm">
                   Map coming soon
                 </div>
               </div>
 
               <div className="bg-white rounded-2xl p-5 text-center">
-                <h3 className="text-[14px] font-bold text-primary mb-1">Grow Your Village</h3>
-                <p className="text-[12px] text-text-secondary mb-4 leading-relaxed">
+                <h3 className="text-[14px] font-bold text-opeari-heading mb-1">Grow Your Village</h3>
+                <p className="text-[12px] text-opeari-text-secondary mb-4 leading-relaxed">
                   Know a family who'd be a great fit? Invite them to Opeari.
                 </p>
-                <button className="w-full py-2.5 text-[13px] font-bold bg-mint text-primary border-2 border-primary rounded-full hover:bg-primary hover:text-white transition-colors">
+                <button className="w-full py-2.5 text-[13px] font-bold bg-opeari-mint text-opeari-heading border-2 border-opeari-green rounded-full hover:bg-opeari-green hover:text-white transition-colors">
                   Invite Friends
                 </button>
               </div>
 
               <div className="bg-white rounded-2xl p-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-[14px] font-bold text-primary">My Village</h3>
-                  <a href="/village" className="text-[11px] font-semibold text-primary-light hover:underline">
+                  <h3 className="text-[14px] font-bold text-opeari-heading">My Village</h3>
+                  <a href="/village" className="text-[11px] font-semibold text-opeari-green hover:underline">
                     View →
                   </a>
                 </div>
-                <div className="bg-cream border-2 border-dashed border-border rounded-xl p-4 text-center">
-                  <p className="text-[12px] text-text-muted leading-relaxed">
+                <div className="bg-opeari-bg border-2 border-dashed border-opeari-border rounded-xl p-4 text-center">
+                  <p className="text-[12px] text-opeari-text-secondary leading-relaxed">
                     Connect with families to start building your trusted village.
                   </p>
                 </div>
@@ -391,10 +391,10 @@ export default function Matches() {
       </div>
 
       {toast && (
-        <Toast 
-          message={toast.message} 
-          type={toast.type} 
-          onClose={() => setToast(null)} 
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </>

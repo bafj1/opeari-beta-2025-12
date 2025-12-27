@@ -473,7 +473,7 @@ export default function BuildYourVillage() {
                   Perfect Timeline Matches
                 </h2>
               </div>
-              <p className="text-sm text-text-secondary mb-4 ml-5">
+              <p className="text-sm text-opeari-text-secondary mb-4 ml-5">
                 Families whose care needs align with yours perfectly.
               </p>
 

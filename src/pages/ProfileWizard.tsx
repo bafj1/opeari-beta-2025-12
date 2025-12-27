@@ -496,8 +496,8 @@ export default function ProfileWizard() {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-cream flex items-center justify-center">
-          <div className="text-primary font-semibold animate-pulse">Loading...</div>
+        <div className="min-h-screen bg-opeari-bg flex items-center justify-center">
+          <div className="text-opeari-heading font-semibold animate-pulse">Loading...</div>
         </div>
       </>
     )
@@ -506,14 +506,14 @@ export default function ProfileWizard() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-cream py-8 px-4">
+      <div className="min-h-screen bg-opeari-bg py-8 px-4">
         <div className="max-w-xl mx-auto">
           {/* Progress */}
           <div className="flex gap-2 mb-8">
             {[1, 2, 3, 4, 5].map(s => (
               <div
                 key={s}
-                className={`h-1.5 flex-1 rounded-full transition-all ${s <= step ? 'bg-primary' : 'bg-border'
+                className={`h-1.5 flex-1 rounded-full transition-all ${s <= step ? 'bg-opeari-green' : 'bg-opeari-border'
                   }`}
               />
             ))}
@@ -526,52 +526,52 @@ export default function ProfileWizard() {
             </div>
           )}
 
-          <div className="bg-white rounded-2xl p-6 md:p-8 border border-border shadow-sm">
+          <div className="bg-white rounded-2xl p-6 md:p-8 border border-opeari-border shadow-sm">
 
             {/* Step 1: About You */}
             {step === 1 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary mb-2">Let's get started</h2>
-                  <p className="text-text-secondary">Tell us a bit about yourself</p>
+                  <h2 className="text-2xl font-bold text-opeari-heading mb-2">Let's get started</h2>
+                  <p className="text-opeari-text-secondary">Tell us a bit about yourself</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-text-primary mb-2">
+                    <label className="block text-sm font-semibold text-opeari-text mb-2">
                       First name *
                     </label>
                     <input
                       type="text"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full px-4 py-3 bg-cream border-2 border-border rounded-xl focus:outline-none focus:border-primary transition-colors"
+                      className="w-full px-4 py-3 bg-opeari-bg border-2 border-opeari-border rounded-xl focus:outline-none focus:border-opeari-green transition-colors"
                       placeholder="Your first name"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-text-primary mb-2">
+                    <label className="block text-sm font-semibold text-opeari-text mb-2">
                       Last name
                     </label>
                     <input
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="w-full px-4 py-3 bg-cream border-2 border-border rounded-xl focus:outline-none focus:border-primary transition-colors"
+                      className="w-full px-4 py-3 bg-opeari-bg border-2 border-opeari-border rounded-xl focus:outline-none focus:border-opeari-green transition-colors"
                       placeholder="Your last name"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-2">
+                  <label className="block text-sm font-semibold text-opeari-text mb-2">
                     Where do you live? *
                   </label>
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full px-4 py-3 bg-cream border-2 border-border rounded-xl focus:outline-none focus:border-primary transition-colors"
+                    className="w-full px-4 py-3 bg-opeari-bg border-2 border-opeari-border rounded-xl focus:outline-none focus:border-opeari-green transition-colors"
                     placeholder="Neighborhood or zip code"
                   />
                 </div>
@@ -582,14 +582,14 @@ export default function ProfileWizard() {
             {step === 2 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary mb-2">Your little ones</h2>
-                  <p className="text-text-secondary">This helps us find age-compatible matches</p>
+                  <h2 className="text-2xl font-bold text-opeari-heading mb-2">Your little ones</h2>
+                  <p className="text-opeari-text-secondary">This helps us find age-compatible matches</p>
                 </div>
 
                 {kids.map((kid, index) => (
-                  <div key={index} className="p-4 bg-cream rounded-xl space-y-4">
+                  <div key={index} className="p-4 bg-opeari-bg rounded-xl space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="font-semibold text-primary text-sm">Child {index + 1}</span>
+                      <span className="font-semibold text-opeari-heading text-sm">Child {index + 1}</span>
                       {kids.length > 1 && (
                         <button
                           onClick={() => removeKid(index)}
@@ -604,7 +604,7 @@ export default function ProfileWizard() {
                       type="text"
                       value={kid.name}
                       onChange={(e) => updateKid(index, 'name', e.target.value)}
-                      className="w-full px-4 py-3 bg-white border-2 border-border rounded-xl focus:outline-none focus:border-primary transition-colors"
+                      className="w-full px-4 py-3 bg-white border-2 border-opeari-border rounded-xl focus:outline-none focus:border-opeari-green transition-colors"
                       placeholder="Name or nickname"
                     />
 
@@ -612,7 +612,7 @@ export default function ProfileWizard() {
                       <select
                         value={kid.birth_month}
                         onChange={(e) => updateKid(index, 'birth_month', e.target.value ? parseInt(e.target.value) : '')}
-                        className="w-full px-4 py-3 bg-white border-2 border-border rounded-xl focus:outline-none focus:border-primary transition-colors"
+                        className="w-full px-4 py-3 bg-white border-2 border-opeari-border rounded-xl focus:outline-none focus:border-opeari-green transition-colors"
                       >
                         <option value="">Month</option>
                         {Array.from({ length: 12 }, (_, i) => (
@@ -624,7 +624,7 @@ export default function ProfileWizard() {
                       <select
                         value={kid.birth_year}
                         onChange={(e) => updateKid(index, 'birth_year', e.target.value ? parseInt(e.target.value) : '')}
-                        className="w-full px-4 py-3 bg-white border-2 border-border rounded-xl focus:outline-none focus:border-primary transition-colors"
+                        className="w-full px-4 py-3 bg-white border-2 border-opeari-border rounded-xl focus:outline-none focus:border-opeari-green transition-colors"
                       >
                         <option value="">Year</option>
                         {Array.from({ length: 10 }, (_, i) => {
@@ -638,7 +638,7 @@ export default function ProfileWizard() {
 
                 <button
                   onClick={addKid}
-                  className="w-full py-3 border-2 border-dashed border-border rounded-xl text-primary font-semibold hover:bg-mint transition-colors"
+                  className="w-full py-3 border-2 border-dashed border-opeari-border rounded-xl text-opeari-heading font-semibold hover:bg-opeari-mint transition-colors"
                 >
                   + Add another child
                 </button>
@@ -648,9 +648,9 @@ export default function ProfileWizard() {
                     type="checkbox"
                     checked={expecting}
                     onChange={(e) => setExpecting(e.target.checked)}
-                    className="w-5 h-5 rounded border-2 border-border text-primary focus:ring-primary"
+                    className="w-5 h-5 rounded border-2 border-opeari-border text-opeari-green focus:ring-opeari-green"
                   />
-                  <span className="text-text-primary">We're expecting</span>
+                  <span className="text-opeari-text">We're expecting</span>
                 </label>
               </div>
             )}
@@ -659,13 +659,13 @@ export default function ProfileWizard() {
             {step === 3 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary mb-2">What are you looking for?</h2>
-                  <p className="text-text-secondary">This helps us show you the right matches</p>
+                  <h2 className="text-2xl font-bold text-opeari-heading mb-2">What are you looking for?</h2>
+                  <p className="text-opeari-text-secondary">This helps us show you the right matches</p>
                 </div>
 
                 {/* NEW: Nanny situation */}
                 <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-3">
+                  <label className="block text-sm font-semibold text-opeari-text mb-3">
                     Your situation *
                   </label>
                   <div className="space-y-3">
@@ -675,15 +675,15 @@ export default function ProfileWizard() {
                         type="button"
                         onClick={() => setNannySituation(option.id)}
                         className={`w-full p-4 rounded-xl border-2 text-left transition-all ${nannySituation === option.id
-                          ? 'border-primary bg-mint'
-                          : 'border-border hover:border-primary/50 bg-white'
+                          ? 'border-opeari-green bg-opeari-mint'
+                          : 'border-opeari-border hover:border-opeari-green/50 bg-white'
                           }`}
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-2xl">{option.icon}</span>
                           <div>
-                            <div className="font-semibold text-text-primary">{option.title}</div>
-                            <div className="text-sm text-text-secondary">{option.subtitle}</div>
+                            <div className="font-semibold text-opeari-text">{option.title}</div>
+                            <div className="text-sm text-opeari-text-secondary">{option.subtitle}</div>
                           </div>
                         </div>
                       </button>
@@ -693,7 +693,7 @@ export default function ProfileWizard() {
 
                 {/* Looking for */}
                 <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-3">
+                  <label className="block text-sm font-semibold text-opeari-text mb-3">
                     I'm interested in... *
                   </label>
                   <div className="space-y-2">
@@ -703,17 +703,17 @@ export default function ProfileWizard() {
                         type="button"
                         onClick={() => toggleLookingFor(option.id)}
                         className={`w-full p-4 rounded-xl border-2 text-left transition-all ${lookingFor.includes(option.id)
-                          ? 'border-primary bg-mint'
-                          : 'border-border hover:border-primary/50 bg-white'
+                          ? 'border-opeari-green bg-opeari-mint'
+                          : 'border-opeari-border hover:border-opeari-green/50 bg-white'
                           }`}
                       >
                         <div className="flex justify-between items-center">
                           <div>
-                            <div className="font-semibold text-text-primary">{option.label}</div>
-                            <div className="text-sm text-text-secondary">{option.desc}</div>
+                            <div className="font-semibold text-opeari-text">{option.label}</div>
+                            <div className="text-sm text-opeari-text-secondary">{option.desc}</div>
                           </div>
                           {lookingFor.includes(option.id) && (
-                            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                            <div className="w-6 h-6 rounded-full bg-opeari-green flex items-center justify-center">
                               <span className="text-white text-sm">✓</span>
                             </div>
                           )}
@@ -725,7 +725,7 @@ export default function ProfileWizard() {
 
                 {/* NEW: Also open to */}
                 <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-3">
+                  <label className="block text-sm font-semibold text-opeari-text mb-3">
                     Also open to (optional)
                   </label>
                   <div className="space-y-2">
@@ -735,17 +735,17 @@ export default function ProfileWizard() {
                         type="button"
                         onClick={() => toggleOpenTo(option.id)}
                         className={`w-full p-3 rounded-xl border-2 text-left transition-all ${openTo.includes(option.id)
-                          ? 'border-coral bg-peach/20'
-                          : 'border-border hover:border-coral/50 bg-white'
+                          ? 'border-opeari-coral bg-opeari-bg-secondary'
+                          : 'border-opeari-border hover:border-opeari-coral/50 bg-white'
                           }`}
                       >
                         <div className="flex justify-between items-center">
                           <div>
-                            <span className="font-semibold text-text-primary">{option.label}</span>
-                            <span className="text-sm text-text-secondary ml-2">— {option.desc}</span>
+                            <span className="font-semibold text-opeari-text">{option.label}</span>
+                            <span className="text-sm text-opeari-text-secondary ml-2">— {option.desc}</span>
                           </div>
                           {openTo.includes(option.id) && (
-                            <div className="w-5 h-5 rounded-full bg-coral flex items-center justify-center">
+                            <div className="w-5 h-5 rounded-full bg-opeari-coral flex items-center justify-center">
                               <span className="text-white text-xs">✓</span>
                             </div>
                           )}
@@ -758,7 +758,7 @@ export default function ProfileWizard() {
                 {/* Experience & Timeline */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-text-primary mb-3">
+                    <label className="block text-sm font-semibold text-opeari-text mb-3">
                       Experience level
                     </label>
                     <div className="space-y-2">
@@ -766,8 +766,8 @@ export default function ProfileWizard() {
                         <label
                           key={option.id}
                           className={`block p-3 rounded-xl border-2 cursor-pointer transition-all ${experience === option.id
-                            ? 'border-primary bg-mint'
-                            : 'border-border hover:border-primary/50'
+                            ? 'border-opeari-green bg-opeari-mint'
+                            : 'border-opeari-border hover:border-opeari-green/50'
                             }`}
                         >
                           <input
@@ -777,14 +777,14 @@ export default function ProfileWizard() {
                             onChange={() => setExperience(option.id)}
                             className="sr-only"
                           />
-                          <span className="text-text-primary text-sm">{option.label}</span>
+                          <span className="text-opeari-text text-sm">{option.label}</span>
                         </label>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-text-primary mb-3">
+                    <label className="block text-sm font-semibold text-opeari-text mb-3">
                       Timeline
                     </label>
                     <div className="space-y-2">
@@ -792,8 +792,8 @@ export default function ProfileWizard() {
                         <label
                           key={option.id}
                           className={`block p-3 rounded-xl border-2 cursor-pointer transition-all ${timeline === option.id
-                            ? 'border-primary bg-mint'
-                            : 'border-border hover:border-primary/50'
+                            ? 'border-opeari-green bg-opeari-mint'
+                            : 'border-opeari-border hover:border-opeari-green/50'
                             }`}
                         >
                           <input
@@ -803,7 +803,7 @@ export default function ProfileWizard() {
                             onChange={() => setTimeline(option.id)}
                             className="sr-only"
                           />
-                          <span className="text-text-primary text-sm">{option.label}</span>
+                          <span className="text-opeari-text text-sm">{option.label}</span>
                         </label>
                       ))}
                     </div>
@@ -816,8 +816,8 @@ export default function ProfileWizard() {
             {step === 4 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary mb-2">Your ideal schedule</h2>
-                  <p className="text-text-secondary">When do you need care? (Optional)</p>
+                  <h2 className="text-2xl font-bold text-opeari-heading mb-2">Your ideal schedule</h2>
+                  <p className="text-opeari-text-secondary">When do you need care? (Optional)</p>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -826,7 +826,7 @@ export default function ProfileWizard() {
                       <tr>
                         <th className="w-24"></th>
                         {DAYS.map((day) => (
-                          <th key={day} className="text-center text-sm font-semibold text-text-primary p-2">
+                          <th key={day} className="text-center text-sm font-semibold text-opeari-text p-2">
                             {day}
                           </th>
                         ))}
@@ -835,7 +835,7 @@ export default function ProfileWizard() {
                     <tbody>
                       {TIMES.map(time => (
                         <tr key={time}>
-                          <td className="text-sm text-text-secondary py-2 pr-3">
+                          <td className="text-sm text-opeari-text-secondary py-2 pr-3">
                             {time === 'morning' ? 'Morning' : 'Afternoon'}
                           </td>
                           {DAYS.map((day, dayIndex) => (
@@ -844,8 +844,8 @@ export default function ProfileWizard() {
                                 type="button"
                                 onClick={() => toggleSchedule(dayIndex, time)}
                                 className={`w-full h-12 rounded-lg border-2 transition-all ${isScheduleSelected(dayIndex, time)
-                                  ? 'border-primary bg-primary text-white'
-                                  : 'border-border bg-cream hover:border-primary/50'
+                                  ? 'border-opeari-green bg-opeari-green text-white'
+                                  : 'border-opeari-border bg-opeari-bg hover:border-opeari-green/50'
                                   }`}
                               >
                                 {isScheduleSelected(dayIndex, time) && '✓'}
@@ -863,19 +863,19 @@ export default function ProfileWizard() {
                     type="checkbox"
                     checked={irregularSchedule}
                     onChange={(e) => setIrregularSchedule(e.target.checked)}
-                    className="w-5 h-5 rounded border-2 border-border text-primary focus:ring-primary"
+                    className="w-5 h-5 rounded border-2 border-opeari-border text-opeari-green focus:ring-opeari-green"
                   />
-                  <span className="text-text-primary">My schedule changes — I'll work out specifics later</span>
+                  <span className="text-opeari-text">My schedule changes — I'll work out specifics later</span>
                 </label>
 
                 <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-2">
+                  <label className="block text-sm font-semibold text-opeari-text mb-2">
                     Anything else about your schedule?
                   </label>
                   <textarea
                     value={scheduleNotes}
                     onChange={(e) => setScheduleNotes(e.target.value)}
-                    className="w-full px-4 py-3 bg-cream border-2 border-border rounded-xl focus:outline-none focus:border-primary transition-colors resize-none"
+                    className="w-full px-4 py-3 bg-opeari-bg border-2 border-opeari-border rounded-xl focus:outline-none focus:border-opeari-green transition-colors resize-none"
                     rows={3}
                     placeholder="e.g., Flexible on Fridays, need early drop-off..."
                   />
@@ -887,25 +887,25 @@ export default function ProfileWizard() {
             {step === 5 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary mb-2">Almost done!</h2>
-                  <p className="text-text-secondary">Help families get to know you (optional)</p>
+                  <h2 className="text-2xl font-bold text-opeari-heading mb-2">Almost done!</h2>
+                  <p className="text-opeari-text-secondary">Help families get to know you (optional)</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-2">
+                  <label className="block text-sm font-semibold text-opeari-text mb-2">
                     About your family
                   </label>
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    className="w-full px-4 py-3 bg-cream border-2 border-border rounded-xl focus:outline-none focus:border-primary transition-colors resize-none"
+                    className="w-full px-4 py-3 bg-opeari-bg border-2 border-opeari-border rounded-xl focus:outline-none focus:border-opeari-green transition-colors resize-none"
                     rows={4}
                     placeholder="What should other families know about you?"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-3">
+                  <label className="block text-sm font-semibold text-opeari-text mb-3">
                     Parenting style
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -915,8 +915,8 @@ export default function ProfileWizard() {
                         type="button"
                         onClick={() => toggleParentingStyle(style)}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${parentingStyle.includes(style)
-                          ? 'bg-primary text-white'
-                          : 'bg-cream text-text-primary hover:bg-mint border border-border'
+                          ? 'bg-opeari-green text-white'
+                          : 'bg-opeari-bg text-opeari-text hover:bg-opeari-mint border border-opeari-border'
                           }`}
                       >
                         {style}
@@ -926,7 +926,7 @@ export default function ProfileWizard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-3">
+                  <label className="block text-sm font-semibold text-opeari-text mb-3">
                     Your kids love...
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -936,8 +936,8 @@ export default function ProfileWizard() {
                         type="button"
                         onClick={() => toggleInterest(interest)}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${interests.includes(interest)
-                          ? 'bg-coral text-white'
-                          : 'bg-cream text-text-primary hover:bg-peach/30 border border-border'
+                          ? 'bg-opeari-coral text-white'
+                          : 'bg-opeari-bg text-opeari-text hover:bg-opeari-peach/30 border border-opeari-border'
                           }`}
                       >
                         {interest}
@@ -949,12 +949,12 @@ export default function ProfileWizard() {
             )}
 
             {/* Navigation */}
-            <div className="flex justify-between mt-8 pt-6 border-t border-border">
+            <div className="flex justify-between mt-8 pt-6 border-t border-opeari-border">
               {step > 1 ? (
                 <button
                   onClick={prevStep}
                   disabled={saving}
-                  className="px-6 py-3 text-primary font-semibold hover:bg-cream rounded-full transition-colors disabled:opacity-50"
+                  className="px-6 py-3 text-opeari-heading font-semibold hover:bg-opeari-bg rounded-full transition-colors disabled:opacity-50"
                   type="button"
                 >
                   ← Back
@@ -967,7 +967,7 @@ export default function ProfileWizard() {
                 <button
                   onClick={nextStep}
                   disabled={saving}
-                  className="px-8 py-3 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition-colors shadow-md disabled:opacity-70 disabled:cursor-wait"
+                  className="px-8 py-3 bg-opeari-green text-white font-semibold rounded-full hover:bg-opeari-green-dark transition-colors shadow-md disabled:opacity-70 disabled:cursor-wait"
                   type="button"
                 >
                   {saving ? 'Saving...' : 'Continue'}
@@ -976,7 +976,7 @@ export default function ProfileWizard() {
                 <button
                   onClick={handleSubmit}
                   disabled={saving}
-                  className="px-8 py-3 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition-colors shadow-md disabled:opacity-70 disabled:cursor-wait"
+                  className="px-8 py-3 bg-opeari-green text-white font-semibold rounded-full hover:bg-opeari-green-dark transition-colors shadow-md disabled:opacity-70 disabled:cursor-wait"
                   type="button"
                 >
                   {saving ? 'Saving Profile...' : 'Complete Profile'}

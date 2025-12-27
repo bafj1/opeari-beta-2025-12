@@ -203,8 +203,8 @@ export default function Connections() {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-cream flex items-center justify-center">
-          <div className="text-primary font-semibold animate-pulse">Loading...</div>
+        <div className="min-h-screen bg-opeari-bg flex items-center justify-center">
+          <div className="text-opeari-heading font-semibold animate-pulse">Loading...</div>
         </div>
       </>
     )
@@ -213,14 +213,14 @@ export default function Connections() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen bg-opeari-bg">
         <div className="max-w-3xl mx-auto px-5 py-6">
 
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl font-bold text-primary">Connections</h1>
+            <h1 className="text-xl font-bold text-opeari-heading">Connections</h1>
             <Link
               to="/dashboard"
-              className="text-sm text-text-secondary hover:text-primary"
+              className="text-sm text-opeari-text-secondary hover:text-opeari-heading"
             >
               ← Back
             </Link>
@@ -229,8 +229,8 @@ export default function Connections() {
           {/* Pending Received */}
           {pendingReceived.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-                <span className="w-6 h-6 bg-coral rounded-full flex items-center justify-center text-white text-xs font-bold">
+              <h2 className="text-lg font-bold text-opeari-heading mb-4 flex items-center gap-2">
+                <span className="w-6 h-6 bg-opeari-coral rounded-full flex items-center justify-center text-white text-xs font-bold">
                   {pendingReceived.length}
                 </span>
                 Requests for You
@@ -239,33 +239,33 @@ export default function Connections() {
                 {pendingReceived.map(request => (
                   <div
                     key={request.id}
-                    className="bg-white rounded-xl border-2 border-coral/30 p-4"
+                    className="bg-white rounded-xl border-2 border-opeari-coral/30 p-4"
                   >
                     <div className="flex items-start gap-4">
                       <Link
                         to={`/member/${request.member.id}`}
-                        className="w-14 h-14 bg-mint rounded-full flex items-center justify-center flex-shrink-0 hover:bg-primary transition-colors group"
+                        className="w-14 h-14 bg-opeari-mint rounded-full flex items-center justify-center flex-shrink-0 hover:bg-opeari-green transition-colors group"
                       >
-                        <span className="text-xl font-bold text-primary group-hover:text-white">
+                        <span className="text-xl font-bold text-opeari-heading group-hover:text-white">
                           {request.member.first_name?.charAt(0) || 'F'}
                         </span>
                       </Link>
                       <div className="flex-1">
                         <Link
                           to={`/member/${request.member.id}`}
-                          className="font-bold text-primary hover:underline"
+                          className="font-bold text-opeari-heading hover:underline"
                         >
                           {request.member.first_name}'s Family
                         </Link>
-                        <p className="text-sm text-text-secondary">
+                        <p className="text-sm text-opeari-text-secondary">
                           {formatLocation(request.member.location)}
                         </p>
                         {request.member.tagline && (
-                          <p className="text-sm text-text-secondary mt-1 italic">
+                          <p className="text-sm text-opeari-text-secondary mt-1 italic">
                             "{request.member.tagline}"
                           </p>
                         )}
-                        <p className="text-xs text-text-muted mt-2">
+                        <p className="text-xs text-opeari-text-secondary mt-2">
                           Sent {formatDate(request.created_at)}
                         </p>
                       </div>
@@ -274,14 +274,14 @@ export default function Connections() {
                       <button
                         onClick={() => handleAccept(request.id)}
                         disabled={processing === request.id}
-                        className="flex-1 py-2.5 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition-colors disabled:opacity-50"
+                        className="flex-1 py-2.5 bg-opeari-green text-white font-semibold rounded-full hover:bg-opeari-green-dark transition-colors disabled:opacity-50"
                       >
                         {processing === request.id ? 'Accepting...' : 'Accept'}
                       </button>
                       <button
                         onClick={() => handleDecline(request.id)}
                         disabled={processing === request.id}
-                        className="flex-1 py-2.5 bg-white text-text-secondary font-semibold rounded-full border-2 border-border hover:border-red-300 hover:text-red-500 transition-colors disabled:opacity-50"
+                        className="flex-1 py-2.5 bg-white text-opeari-text-secondary font-semibold rounded-full border-2 border-opeari-border hover:border-red-300 hover:text-red-500 transition-colors disabled:opacity-50"
                       >
                         Decline
                       </button>
@@ -295,9 +295,9 @@ export default function Connections() {
           {/* Pending Sent */}
           {pendingSent.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-lg font-bold text-text-secondary mb-4">
+              <h2 className="text-lg font-bold text-opeari-text-secondary mb-4">
                 Awaiting Response
-                <span className="text-sm font-normal text-text-muted ml-2">
+                <span className="text-sm font-normal text-opeari-text-secondary ml-2">
                   ({pendingSent.length})
                 </span>
               </h2>
@@ -305,32 +305,32 @@ export default function Connections() {
                 {pendingSent.map(request => (
                   <div
                     key={request.id}
-                    className="bg-white rounded-xl border border-border p-4"
+                    className="bg-white rounded-xl border border-opeari-border p-4"
                   >
                     <div className="flex items-center gap-4">
                       <Link
                         to={`/member/${request.member.id}`}
-                        className="w-12 h-12 bg-cream rounded-full flex items-center justify-center flex-shrink-0 hover:bg-mint transition-colors"
+                        className="w-12 h-12 bg-opeari-bg rounded-full flex items-center justify-center flex-shrink-0 hover:bg-opeari-mint transition-colors"
                       >
-                        <span className="text-lg font-bold text-text-secondary">
+                        <span className="text-lg font-bold text-opeari-text-secondary">
                           {request.member.first_name?.charAt(0) || 'F'}
                         </span>
                       </Link>
                       <div className="flex-1">
                         <Link
                           to={`/member/${request.member.id}`}
-                          className="font-semibold text-primary hover:underline"
+                          className="font-semibold text-opeari-heading hover:underline"
                         >
                           {request.member.first_name}'s Family
                         </Link>
-                        <p className="text-sm text-text-secondary">
+                        <p className="text-sm text-opeari-text-secondary">
                           {formatLocation(request.member.location)}
                         </p>
                       </div>
                       <button
                         onClick={() => handleCancel(request.id)}
                         disabled={processing === request.id}
-                        className="px-4 py-1.5 text-sm text-text-muted hover:text-red-500 transition-colors"
+                        className="px-4 py-1.5 text-sm text-opeari-text-secondary hover:text-red-500 transition-colors"
                       >
                         Cancel
                       </button>
@@ -343,9 +343,9 @@ export default function Connections() {
 
           {/* Accepted Connections */}
           <div>
-            <h2 className="text-lg font-bold text-primary mb-4">
+            <h2 className="text-lg font-bold text-opeari-heading mb-4">
               Your Village
-              <span className="text-sm font-normal text-text-muted ml-2">
+              <span className="text-sm font-normal text-opeari-text-secondary ml-2">
                 ({accepted.length} connections)
               </span>
             </h2>
@@ -355,30 +355,30 @@ export default function Connections() {
                 {accepted.map(conn => (
                   <div
                     key={conn.id}
-                    className="bg-white rounded-xl border border-border p-4 flex items-center gap-4"
+                    className="bg-white rounded-xl border border-opeari-border p-4 flex items-center gap-4"
                   >
                     <Link
                       to={`/member/${conn.other_member.id}`}
-                      className="w-12 h-12 bg-mint rounded-full flex items-center justify-center flex-shrink-0 hover:bg-primary transition-colors group"
+                      className="w-12 h-12 bg-opeari-mint rounded-full flex items-center justify-center flex-shrink-0 hover:bg-opeari-green transition-colors group"
                     >
-                      <span className="text-lg font-bold text-primary group-hover:text-white">
+                      <span className="text-lg font-bold text-opeari-heading group-hover:text-white">
                         {conn.other_member.first_name?.charAt(0) || 'F'}
                       </span>
                     </Link>
                     <div className="flex-1 min-w-0">
                       <Link
                         to={`/member/${conn.other_member.id}`}
-                        className="font-semibold text-primary hover:underline block truncate"
+                        className="font-semibold text-opeari-heading hover:underline block truncate"
                       >
                         {conn.other_member.first_name}'s Family
                       </Link>
-                      <p className="text-sm text-text-secondary truncate">
+                      <p className="text-sm text-opeari-text-secondary truncate">
                         {formatLocation(conn.other_member.location)}
                       </p>
                     </div>
                     <Link
                       to={`/messages/${conn.other_member.id}`}
-                      className="p-2 text-text-secondary hover:text-primary hover:bg-mint rounded-full transition-colors"
+                      className="p-2 text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint rounded-full transition-colors"
                       title="Message"
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -389,22 +389,22 @@ export default function Connections() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-border p-8 text-center">
-                <div className="w-16 h-16 bg-mint rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <div className="bg-white rounded-xl border border-opeari-border p-8 text-center">
+                <div className="w-16 h-16 bg-opeari-mint rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-opeari-heading" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                     <circle cx="9" cy="7" r="4" />
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                 </div>
-                <h3 className="font-semibold text-text-primary mb-1">Your village starts here</h3>
-                <p className="text-sm text-text-secondary mb-4">
+                <h3 className="font-semibold text-opeari-text mb-1">Your village starts here</h3>
+                <p className="text-sm text-opeari-text-secondary mb-4">
                   Connect with local families to swap care.
                 </p>
                 <Link
                   to="/build-your-village"
-                  className="inline-block px-6 py-2.5 bg-primary text-white font-semibold rounded-full text-sm"
+                  className="inline-block px-6 py-2.5 bg-opeari-green text-white font-semibold rounded-full text-sm"
                 >
                   Find Local Families
                 </Link>

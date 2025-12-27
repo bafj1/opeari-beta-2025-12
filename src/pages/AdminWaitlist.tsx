@@ -248,8 +248,8 @@ export default function AdminWaitlist() {
 
         return (
             <div className="flex flex-col text-xs">
-                <span className="font-semibold text-text-muted capitalize">{label}</span>
-                {name && <span className="text-primary italic">Referred by: {name}</span>}
+                <span className="font-semibold text-opeari-text-secondary capitalize">{label}</span>
+                {name && <span className="text-opeari-heading italic">Referred by: {name}</span>}
             </div>
         )
     }
@@ -260,22 +260,22 @@ export default function AdminWaitlist() {
 
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen bg-[#fffaf5] flex items-center justify-center p-4">
-                <form onSubmit={handleLogin} className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-[#c8e6d9]">
+            <div className="min-h-screen bg-opeari-bg flex items-center justify-center p-4">
+                <form onSubmit={handleLogin} className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-opeari-border">
                     <div className="flex justify-center mb-6">
                         <img src={logoImg} alt="Opeari" className="h-12" />
                     </div>
-                    <h2 className="text-2xl font-bold text-[#1e6b4e] mb-6 text-center">Admin Access</h2>
+                    <h2 className="text-2xl font-bold text-opeari-heading mb-6 text-center">Admin Access</h2>
                     {authError && <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm text-center">{authError}</div>}
                     <input
                         type="password"
                         value={secret}
                         onChange={(e) => setSecret(e.target.value)}
                         placeholder="Enter Admin Secret"
-                        className="w-full p-3 border border-[#c8e6d9] rounded-lg mb-4 focus:ring-2 focus:ring-[#1e6b4e] focus:outline-none"
+                        className="w-full p-3 border border-opeari-border rounded-lg mb-4 focus:ring-2 focus:ring-opeari-green focus:outline-none"
                         autoFocus
                     />
-                    <button type="submit" disabled={loading} className="w-full bg-[#1e6b4e] text-white py-3 rounded-lg font-bold hover:bg-[#154a36] transition-colors">
+                    <button type="submit" disabled={loading} className="w-full bg-opeari-green text-white py-3 rounded-lg font-bold hover:bg-opeari-green-dark transition-colors">
                         {loading ? 'Verifying...' : 'Login'}
                     </button>
                 </form>
@@ -284,12 +284,12 @@ export default function AdminWaitlist() {
     }
 
     return (
-        <div className="min-h-screen bg-[#fffaf5] p-8 max-md:p-4">
+        <div className="min-h-screen bg-opeari-bg p-8 max-md:p-4">
             <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
                     <div className="flex items-center gap-4">
                         <Link to="/"><img src={logoImg} alt="Opeari" className="h-10" /></Link>
-                        <h1 className="text-2xl font-bold text-[#1e6b4e]">Waitlist Admin</h1>
+                        <h1 className="text-2xl font-bold text-opeari-heading">Waitlist Admin</h1>
                     </div>
                     <div className="flex gap-2">
                         {['pending', 'approved', 'rejected', 'all'].map((f) => (
@@ -297,8 +297,8 @@ export default function AdminWaitlist() {
                                 key={f}
                                 onClick={() => setFilter(f as any)}
                                 className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-colors ${filter === f
-                                    ? 'bg-[#1e6b4e] text-white'
-                                    : 'bg-white text-[#527a6a] hover:bg-[#d8f5e5]'
+                                    ? 'bg-opeari-green text-white'
+                                    : 'bg-white text-opeari-heading/70 hover:bg-opeari-mint'
                                     }`}
                             >
                                 {f}
@@ -317,40 +317,40 @@ export default function AdminWaitlist() {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-[#eef6f6] overflow-hidden">
+                <div className="bg-white rounded-2xl shadow-sm border border-opeari-border overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
-                            <thead className="bg-[#f0faf4] border-b border-[#eef6f6]">
+                            <thead className="bg-opeari-bg-secondary border-b border-opeari-border">
                                 <tr>
-                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">#</th>
-                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Date</th>
-                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Name</th>
-                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Email</th>
-                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Zip</th>
-                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Type</th>
-                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider">Referral</th>
-                                    <th className="p-4 font-bold text-primary text-sm uppercase tracking-wider text-right">Actions</th>
+                                    <th className="p-4 font-bold text-opeari-heading text-sm uppercase tracking-wider">#</th>
+                                    <th className="p-4 font-bold text-opeari-heading text-sm uppercase tracking-wider">Date</th>
+                                    <th className="p-4 font-bold text-opeari-heading text-sm uppercase tracking-wider">Name</th>
+                                    <th className="p-4 font-bold text-opeari-heading text-sm uppercase tracking-wider">Email</th>
+                                    <th className="p-4 font-bold text-opeari-heading text-sm uppercase tracking-wider">Zip</th>
+                                    <th className="p-4 font-bold text-opeari-heading text-sm uppercase tracking-wider">Type</th>
+                                    <th className="p-4 font-bold text-opeari-heading text-sm uppercase tracking-wider">Referral</th>
+                                    <th className="p-4 font-bold text-opeari-heading text-sm uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#eef6f6]">
+                            <tbody className="divide-y divide-opeari-border">
                                 {filteredEntries.map((entry) => (
                                     <>
                                         <tr
                                             key={entry.id}
-                                            className={`transition-colors cursor-pointer ${entry.status === 'rejected' ? 'bg-gray-50 opacity-60' : 'hover:bg-[#fcfdfd]'} ${expandedId === entry.id ? 'bg-[#f0faf4]' : ''}`}
+                                            className={`transition-colors cursor-pointer ${entry.status === 'rejected' ? 'bg-gray-50 opacity-60' : 'hover:bg-opeari-bg'} ${expandedId === entry.id ? 'bg-opeari-bg-secondary' : ''}`}
                                             onClick={() => toggleRow(entry.id)}
                                         >
-                                            <td className="p-4 text-primary font-bold">#{entry.position}</td>
-                                            <td className="p-4 text-text-muted text-sm whitespace-nowrap">
+                                            <td className="p-4 text-opeari-heading font-bold">#{entry.position}</td>
+                                            <td className="p-4 text-opeari-text-secondary text-sm whitespace-nowrap">
                                                 <div className="font-bold">{new Date(entry.created_at).toLocaleDateString()}</div>
                                                 <div className="text-xs opacity-70">{new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </td>
-                                            <td className="p-4 font-medium text-primary">
+                                            <td className="p-4 font-medium text-opeari-heading">
                                                 {entry.first_name} {entry.last_name}
                                                 {entry.status === 'approved' && <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] rounded-full uppercase tracking-wider font-bold">Approved</span>}
                                             </td>
-                                            <td className="p-4 text-text-muted text-sm">{entry.email}</td>
-                                            <td className="p-4 text-text-muted text-sm font-mono">{entry.zip_code}</td>
+                                            <td className="p-4 text-opeari-text-secondary text-sm">{entry.email}</td>
+                                            <td className="p-4 text-opeari-text-secondary text-sm font-mono">{entry.zip_code}</td>
                                             <td className="p-4">
                                                 {formatRole(entry.role)}
                                             </td>
@@ -368,7 +368,7 @@ export default function AdminWaitlist() {
                                                         </button>
                                                         <button
                                                             onClick={() => handleApprove(entry)}
-                                                            className="px-3 py-1.5 text-xs font-bold text-white bg-[#1e6b4e] hover:bg-[#154a36] rounded-md transition-colors shadow-sm"
+                                                            className="px-3 py-1.5 text-xs font-bold text-white bg-opeari-green hover:bg-opeari-green-dark rounded-md transition-colors shadow-sm"
                                                         >
                                                             Approve
                                                         </button>
@@ -385,7 +385,7 @@ export default function AdminWaitlist() {
                                                         </button>
                                                         <button
                                                             onClick={() => handleResend(entry)}
-                                                            className="text-[10px] font-bold text-[#1e6b4e] hover:text-[#154a36] hover:bg-[#d8f5e5] px-2 py-1 rounded transition-colors"
+                                                            className="text-[10px] font-bold text-opeari-green hover:text-opeari-green-dark hover:bg-opeari-mint px-2 py-1 rounded transition-colors"
                                                         >
                                                             Resend Invite
                                                         </button>
@@ -407,21 +407,21 @@ export default function AdminWaitlist() {
                                         </tr>
                                         {/* Expandable Detail Row */}
                                         {expandedId === entry.id && (
-                                            <tr className="bg-[#f8fdfb]">
+                                            <tr className="bg-opeari-bg">
                                                 <td colSpan={8} className="p-0">
-                                                    <div className="p-6 grid grid-cols-3 gap-8 text-sm animate-in slide-in-from-top-1 duration-200 border-b border-[#eef6f6]">
+                                                    <div className="p-6 grid grid-cols-3 gap-8 text-sm animate-in slide-in-from-top-1 duration-200 border-b border-opeari-border">
                                                         <div>
-                                                            <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Application Details</h4>
+                                                            <h4 className="font-bold text-opeari-heading mb-2 uppercase tracking-wider text-xs">Application Details</h4>
                                                             <div className="mb-2">
-                                                                <span className="text-text-muted inline-block w-20">Timeline:</span>
+                                                                <span className="text-opeari-text-secondary inline-block w-20">Timeline:</span>
                                                                 <span className={`font-medium ${!entry.looking_for ? 'text-gray-400 italic' : ''}`}>
                                                                     {entry.looking_for || 'Not provided'}
                                                                 </span>
                                                             </div>
                                                             <div className="mb-2">
-                                                                <div className="text-text-muted mb-1">Why Join:</div>
+                                                                <div className="text-opeari-text-secondary mb-1">Why Join:</div>
                                                                 {entry.why_join ? (
-                                                                    <p className="p-3 bg-white border border-[#eef6f6] rounded-lg text-gray-700 italic text-xs leading-relaxed">
+                                                                    <p className="p-3 bg-white border border-opeari-border rounded-lg text-gray-700 italic text-xs leading-relaxed">
                                                                         "{entry.why_join}"
                                                                     </p>
                                                                 ) : (
@@ -430,7 +430,7 @@ export default function AdminWaitlist() {
                                                             </div>
                                                         </div>
                                                         <div>
-                                                            <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Verify Identity</h4>
+                                                            <h4 className="font-bold text-opeari-heading mb-2 uppercase tracking-wider text-xs">Verify Identity</h4>
                                                             <div className="mb-2">
                                                                 {entry.linkedin_url ? (
                                                                     <a href={getLinkedinUrl(entry.linkedin_url)} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center gap-1 font-medium">
@@ -444,10 +444,10 @@ export default function AdminWaitlist() {
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            <div className="mt-4"><span className="text-text-muted">Referral ID:</span> <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded select-all">{entry.id.split('-')[0]}...</span></div>
+                                                            <div className="mt-4"><span className="text-opeari-text-secondary">Referral ID:</span> <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded select-all">{entry.id.split('-')[0]}...</span></div>
                                                         </div>
                                                         <div>
-                                                            <h4 className="font-bold text-[#1e6b4e] mb-2 uppercase tracking-wider text-xs">Admin Actions</h4>
+                                                            <h4 className="font-bold text-opeari-heading mb-2 uppercase tracking-wider text-xs">Admin Actions</h4>
                                                             <div className="flex flex-col gap-2">
                                                                 <button onClick={() => handleApprove(entry)} className="text-left px-3 py-2 bg-gray-50 hover:bg-green-50 text-green-700 rounded transition-colors text-xs font-bold border border-transparent hover:border-green-200">
                                                                     Currently: {entry.status ? entry.status.toUpperCase() : 'PENDING'}
@@ -464,7 +464,7 @@ export default function AdminWaitlist() {
                                     </>
                                 ))}
                                 {filteredEntries.length === 0 && (
-                                    <tr><td colSpan={8} className="p-8 text-center text-[#8faaaa]">No entries found.</td></tr>
+                                    <tr><td colSpan={8} className="p-8 text-center text-opeari-text-secondary">No entries found.</td></tr>
                                 )}
                             </tbody>
                         </table>

@@ -36,7 +36,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white border-b border-border sticky top-0 z-50">
+    <header className="bg-opeari-bg border-b border-opeari-border sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link
@@ -54,9 +54,9 @@ export default function Header() {
               <nav className="flex items-center gap-6">
                 <Link
                   to="/dashboard"
-                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-primary ${isActive('/dashboard')
-                    ? 'text-primary font-bold'
-                    : 'text-text-secondary hover:text-primary'
+                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/dashboard')
+                    ? 'text-opeari-heading font-bold'
+                    : 'text-opeari-text-secondary hover:text-opeari-heading'
                     }`}
                 >
                   Dashboard
@@ -64,27 +64,27 @@ export default function Header() {
                 {/* Hidden while unfinished
                 <Link
                   to="/build-your-village"
-                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-primary ${isActive('/build-your-village')
-                    ? 'text-primary font-bold'
-                    : 'text-text-secondary hover:text-primary'
+                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/build-your-village')
+                    ? 'text-opeari-heading font-bold'
+                    : 'text-opeari-text-secondary hover:text-opeari-heading'
                     }`}
                 >
                   Find Matches
                 </Link>
                 <Link
                   to="/connections"
-                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-primary ${isActive('/connections')
-                    ? 'text-primary font-bold'
-                    : 'text-text-secondary hover:text-primary'
+                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/connections')
+                    ? 'text-opeari-heading font-bold'
+                    : 'text-opeari-text-secondary hover:text-opeari-heading'
                     }`}
                 >
                   My Village
                 </Link>
                 <Link
                   to="/messages"
-                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-primary ${isActive('/messages')
-                    ? 'text-primary font-bold'
-                    : 'text-text-secondary hover:text-primary'
+                  className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/messages')
+                    ? 'text-opeari-heading font-bold'
+                    : 'text-opeari-text-secondary hover:text-opeari-heading'
                     }`}
                 >
                   Messages
@@ -96,13 +96,13 @@ export default function Header() {
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30 ${menuOpen
-                    ? 'bg-primary shadow-md scale-105'
-                    : 'bg-mint hover:bg-primary hover:shadow-md hover:scale-105 active:scale-95'
+                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-opeari-green/30 ${menuOpen
+                    ? 'bg-opeari-green shadow-md scale-105'
+                    : 'bg-opeari-mint hover:bg-opeari-green hover:shadow-md hover:scale-105 active:scale-95'
                     } group`}
                 >
                   <svg
-                    className={`w-5 h-5 transition-colors ${menuOpen ? 'text-white' : 'text-primary group-hover:text-white'}`}
+                    className={`w-5 h-5 transition-colors ${menuOpen ? 'text-white' : 'text-opeari-heading group-hover:text-white'}`}
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -116,26 +116,26 @@ export default function Header() {
                 {menuOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-border py-2 z-20">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-opeari-border py-2 z-20">
                       <Link
                         to="/profile"
                         onClick={() => setMenuOpen(false)}
-                        className="block px-4 py-2 text-sm text-text-primary hover:bg-mint transition-colors"
+                        className="block px-4 py-2 text-sm text-opeari-text hover:bg-opeari-mint transition-colors"
                       >
                         Profile
                       </Link>
                       <Link
                         to="/settings"
                         onClick={() => setMenuOpen(false)}
-                        className="block px-4 py-2 text-sm text-text-primary hover:bg-mint transition-colors"
+                        className="block px-4 py-2 text-sm text-opeari-text hover:bg-opeari-mint transition-colors"
                       >
                         Settings
                       </Link>
-                      <div className="border-t border-border my-2" />
+                      <div className="border-t border-opeari-border my-2" />
                       <button
                         onClick={handleLogout}
                         disabled={loggingOut}
-                        className="block w-full text-left px-4 py-2 text-sm text-coral hover:bg-coral/10 transition-colors font-medium disabled:opacity-50"
+                        className="block w-full text-left px-4 py-2 text-sm text-opeari-coral hover:bg-opeari-coral/10 transition-colors font-medium disabled:opacity-50"
                       >
                         {loggingOut ? 'Signing out...' : 'Sign out'}
                       </button>
@@ -149,7 +149,7 @@ export default function Header() {
             <div className="sm:hidden flex items-center">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="p-2 text-primary hover:bg-mint rounded-full transition-colors"
+                className="p-2 text-opeari-heading hover:bg-opeari-mint rounded-full transition-colors"
                 aria-label="Toggle menu"
               >
                 {menuOpen ? (
@@ -166,13 +166,13 @@ export default function Header() {
 
             {/* Mobile Menu Overlay */}
             {menuOpen && (
-              <div className="absolute top-full left-0 w-full bg-white border-b border-border shadow-xl p-4 flex flex-col gap-1 sm:hidden animate-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 w-full bg-white border-b border-opeari-border shadow-xl p-4 flex flex-col gap-1 sm:hidden animate-in slide-in-from-top-2 duration-200">
                 <Link
                   to="/dashboard"
                   onClick={() => setMenuOpen(false)}
                   className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/dashboard')
-                    ? 'bg-mint text-primary font-bold'
-                    : 'text-text-primary hover:bg-mint/50'
+                    ? 'bg-opeari-mint text-opeari-heading font-bold'
+                    : 'text-opeari-text hover:bg-opeari-mint/50'
                     }`}
                 >
                   Dashboard
@@ -181,8 +181,8 @@ export default function Header() {
                   to="/build-your-village"
                   onClick={() => setMenuOpen(false)}
                   className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/build-your-village')
-                    ? 'bg-mint text-primary font-bold'
-                    : 'text-text-primary hover:bg-mint/50'
+                    ? 'bg-opeari-mint text-opeari-heading font-bold'
+                    : 'text-opeari-text hover:bg-opeari-mint/50'
                     }`}
                 >
                   Find Matches
@@ -191,8 +191,8 @@ export default function Header() {
                   to="/connections"
                   onClick={() => setMenuOpen(false)}
                   className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/connections')
-                    ? 'bg-mint text-primary font-bold'
-                    : 'text-text-primary hover:bg-mint/50'
+                    ? 'bg-opeari-mint text-opeari-heading font-bold'
+                    : 'text-opeari-text hover:bg-opeari-mint/50'
                     }`}
                 >
                   My Village
@@ -201,36 +201,36 @@ export default function Header() {
                   to="/messages"
                   onClick={() => setMenuOpen(false)}
                   className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/messages')
-                    ? 'bg-mint text-primary font-bold'
-                    : 'text-text-primary hover:bg-mint/50'
+                    ? 'bg-opeari-mint text-opeari-heading font-bold'
+                    : 'text-opeari-text hover:bg-opeari-mint/50'
                     }`}
                 >
                   Messages
                 </Link>
 
-                <div className="h-px bg-border my-2" />
+                <div className="h-px bg-opeari-border my-2" />
 
                 <Link
                   to="/profile"
                   onClick={() => setMenuOpen(false)}
-                  className="p-3 rounded-lg text-sm text-text-primary hover:bg-mint/50 transition-all"
+                  className="p-3 rounded-lg text-sm text-opeari-text hover:bg-opeari-mint/50 transition-all"
                 >
                   Profile
                 </Link>
                 <Link
                   to="/settings"
                   onClick={() => setMenuOpen(false)}
-                  className="p-3 rounded-lg text-sm text-text-primary hover:bg-mint/50 transition-all"
+                  className="p-3 rounded-lg text-sm text-opeari-text hover:bg-opeari-mint/50 transition-all"
                 >
                   Settings
                 </Link>
 
-                <div className="h-px bg-border my-2" />
+                <div className="h-px bg-opeari-border my-2" />
 
                 <button
                   onClick={handleLogout}
                   disabled={loggingOut}
-                  className="p-3 rounded-lg text-sm font-bold text-coral hover:bg-coral/10 text-left transition-all disabled:opacity-50"
+                  className="p-3 rounded-lg text-sm font-bold text-opeari-coral hover:bg-opeari-coral/10 text-left transition-all disabled:opacity-50"
                 >
                   {loggingOut ? 'Signing out...' : 'Sign out'}
                 </button>
@@ -242,7 +242,7 @@ export default function Header() {
             <Button
               to="/login"
               variant="tertiary"
-              className="text-primary font-semibold"
+              className="text-opeari-heading font-semibold"
             >
               Login
             </Button>

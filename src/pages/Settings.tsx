@@ -46,6 +46,7 @@ interface ProfileData {
   schedule_notes: string
   pets: string[]
   household_notes: string
+  parenting_style: string[]
 }
 
 const TABS = [
@@ -89,13 +90,14 @@ export default function Settings() {
     schedule_notes: '',
     pets: [],
     household_notes: '',
+    parenting_style: [],
   })
 
   const [kids, setKids] = useState<Kid[]>([])
   const [email, setEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const showPassword = false
+  const [showPassword, setShowPassword] = useState(false)
   const [showPasswordForm, setShowPasswordForm] = useState(false)
 
   useEffect(() => {
@@ -141,6 +143,7 @@ export default function Settings() {
         schedule_notes: member.schedule_notes || '',
         pets: member.pets || [],
         household_notes: member.household_notes || '',
+        parenting_style: member.parenting_style || [],
       })
 
       const { data: kidsData } = await supabase
@@ -196,6 +199,7 @@ export default function Settings() {
           schedule_notes: profile.schedule_notes,
           pets: profile.pets,
           household_notes: profile.household_notes,
+          parenting_style: profile.parenting_style,
           updated_at: new Date().toISOString(),
         })
         .eq('id', memberId)
@@ -315,8 +319,8 @@ export default function Settings() {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-[#d8f5e5] flex items-center justify-center">
-          <div className="text-[#1e6b4e] font-semibold animate-pulse">Loading...</div>
+        <div className="min-h-screen bg-opeari-mint flex items-center justify-center">
+          <div className="text-opeari-heading font-semibold animate-pulse">Loading...</div>
         </div>
       </>
     )
@@ -326,13 +330,13 @@ export default function Settings() {
     <>
       <Header />
       {/* MINT BACKGROUND - Not white */}
-      <div className="min-h-screen bg-[#d8f5e5] pb-24">
+      <div className="min-h-screen bg-opeari-mint/10 pb-24">
         <div className="max-w-4xl mx-auto px-4 py-6">
 
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-[#1e6b4e]">Settings</h1>
-            <Link to="/profile" className="text-sm text-[#F8C3B3] font-semibold hover:underline">
+            <h1 className="text-2xl font-bold text-opeari-heading">Settings</h1>
+            <Link to="/profile" className="text-sm text-opeari-coral font-semibold hover:underline">
               View Profile →
             </Link>
           </div>
@@ -343,12 +347,10 @@ export default function Settings() {
               <button
                 key={tab.id}
                 onClick={() => setSearchParams({ tab: tab.id })}
-                style={{
-                  backgroundColor: activeTab === tab.id ? '#1e6b4e' : '#fffaf5',
-                  color: activeTab === tab.id ? 'white' : '#1e6b4e',
-                  border: activeTab === tab.id ? 'none' : '1px solid #8bd7c7',
-                }}
-                className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0"
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex-shrink-0 border transition-colors ${activeTab === tab.id
+                  ? 'bg-opeari-heading text-white border-transparent'
+                  : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/50'
+                  }`}
               >
                 {tab.label}
               </button>
@@ -359,16 +361,15 @@ export default function Settings() {
 
             {/* Desktop Sidebar */}
             <div className="hidden sm:block">
-              <div className="bg-[#fffaf5] rounded-2xl border border-[#8bd7c7] p-2 sticky top-20">
+              <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-2 sticky top-20">
                 {TABS.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setSearchParams({ tab: tab.id })}
-                    style={{
-                      backgroundColor: activeTab === tab.id ? 'rgba(248, 195, 179, 0.2)' : 'transparent',
-                      color: activeTab === tab.id ? '#F8C3B3' : '#1e6b4e',
-                    }}
-                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium"
+                    className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === tab.id
+                      ? 'bg-opeari-coral/20 text-opeari-coral'
+                      : 'text-opeari-heading hover:bg-opeari-mint/30'
+                      }`}
                   >
                     {tab.label}
                   </button>
@@ -382,56 +383,56 @@ export default function Settings() {
               {/* PROFILE TAB */}
               {activeTab === 'profile' && (
                 <div className="space-y-4">
-                  <div className="bg-[#fffaf5] rounded-2xl border border-[#8bd7c7] p-5">
-                    <h2 className="text-lg font-bold text-[#1e6b4e] mb-4">Basic Info</h2>
+                  <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-5">
+                    <h2 className="text-lg font-bold text-opeari-heading mb-4">Basic Info</h2>
 
                     <div className="grid grid-cols-2 gap-3 mb-4">
                       <div>
-                        <label className="block text-xs font-medium text-[#1e6b4e] mb-1">First Name</label>
+                        <label className="block text-xs font-medium text-opeari-heading mb-1">First Name</label>
                         <input
                           type="text"
                           value={profile.first_name}
                           onChange={(e) => updateProfile({ first_name: e.target.value })}
-                          className="w-full px-4 py-3 border border-[#8bd7c7] rounded-xl text-base bg-white focus:outline-none focus:border-[#F8C3B3]"
+                          className="w-full px-4 py-3 border border-opeari-border rounded-xl text-base bg-white focus:outline-none focus:border-opeari-coral"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-[#1e6b4e] mb-1">Last Name</label>
+                        <label className="block text-xs font-medium text-opeari-heading mb-1">Last Name</label>
                         <input
                           type="text"
                           value={profile.last_name}
                           onChange={(e) => updateProfile({ last_name: e.target.value })}
-                          className="w-full px-3 py-2.5 border border-[#8bd7c7] rounded-xl text-sm bg-white focus:outline-none focus:border-[#F8C3B3]"
+                          className="w-full px-3 py-2.5 border border-opeari-border rounded-xl text-sm bg-white focus:outline-none focus:border-opeari-coral"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 mb-4">
                       <div>
-                        <label className="block text-xs font-medium text-[#1e6b4e] mb-1">ZIP Code</label>
+                        <label className="block text-xs font-medium text-opeari-heading mb-1">ZIP Code</label>
                         <input
                           type="text"
                           value={profile.location}
                           onChange={(e) => updateProfile({ location: e.target.value })}
                           maxLength={5}
-                          className="w-full px-3 py-2.5 border border-[#8bd7c7] rounded-xl text-sm bg-white focus:outline-none focus:border-[#F8C3B3]"
+                          className="w-full px-3 py-2.5 border border-opeari-border rounded-xl text-sm bg-white focus:outline-none focus:border-opeari-coral"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-[#1e6b4e] mb-1">Neighborhood</label>
+                        <label className="block text-xs font-medium text-opeari-heading mb-1">Neighborhood</label>
                         <input
                           type="text"
                           value={profile.neighborhood}
                           onChange={(e) => updateProfile({ neighborhood: e.target.value })}
                           placeholder="e.g., Manhattan Beach"
-                          className="w-full px-3 py-2.5 border border-[#8bd7c7] rounded-xl text-sm bg-white focus:outline-none focus:border-[#F8C3B3]"
+                          className="w-full px-3 py-2.5 border border-opeari-border rounded-xl text-sm bg-white focus:outline-none focus:border-opeari-coral"
                         />
                       </div>
                     </div>
 
                     {/* Care Description - Highlighted */}
-                    <div className="mb-4 p-4 bg-[#F9E3D2] rounded-xl">
-                      <label className="block text-sm font-semibold text-[#1e6b4e] mb-2">
+                    <div className="mb-4 p-4 bg-opeari-bg-secondary rounded-xl">
+                      <label className="block text-sm font-semibold text-opeari-heading mb-2">
                         What are you looking for?
                       </label>
                       <input
@@ -440,44 +441,43 @@ export default function Settings() {
                         onChange={(e) => updateProfile({ tagline: e.target.value })}
                         placeholder="e.g., Looking for Tue/Thu afternoon care partner"
                         maxLength={120}
-                        className="w-full px-4 py-3 border-2 border-[#F8C3B3] rounded-xl text-sm bg-white focus:outline-none"
+                        className="w-full px-4 py-3 border-2 border-opeari-coral rounded-xl text-sm bg-white focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-[#1e6b4e] mb-1">About Your Family</label>
-                      <p className="text-xs text-[#4A6163] mb-2">Share what matters: your work schedule, childcare needs, parenting style, or what you're hoping to find.</p>
+                      <label className="block text-xs font-medium text-opeari-heading mb-1">About Your Family</label>
+                      <p className="text-xs text-opeari-text-secondary mb-2">Share what matters: your work schedule, childcare needs, parenting style, or what you're hoping to find.</p>
                       <textarea
                         value={profile.bio}
                         onChange={(e) => updateProfile({ bio: e.target.value })}
                         placeholder="Example: Working parents with a toddler seeking consistent, flexible childcare. Looking to share costs with a like-minded family and build lasting community connections."
                         rows={4}
-                        className="w-full px-3 py-2.5 border border-[#8bd7c7] rounded-xl text-sm bg-white focus:outline-none focus:border-[#F8C3B3] resize-none"
+                        className="w-full px-3 py-2.5 border border-opeari-border rounded-xl text-sm bg-white focus:outline-none focus:border-opeari-coral resize-none"
                       />
                     </div>
                   </div>
 
                   {/* Care Needs */}
-                  <div className="bg-[#fffaf5] rounded-2xl border border-[#8bd7c7] p-5">
-                    <h2 className="text-lg font-bold text-[#1e6b4e] mb-4">Care Needs</h2>
+                  <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-5">
+                    <h2 className="text-lg font-bold text-opeari-heading mb-4">Care Needs</h2>
 
                     {/* Situation */}
                     <div className="mb-5">
-                      <label className="block text-sm font-medium text-[#1e6b4e] mb-2">Your Situation</label>
+                      <label className="block text-sm font-medium text-opeari-heading mb-2">Your Situation</label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {NANNY_SITUATION_OPTIONS.map(option => (
                           <button
                             key={option.id}
                             type="button"
                             onClick={() => updateProfile({ nanny_situation: option.id })}
-                            style={{
-                              backgroundColor: profile.nanny_situation === option.id ? 'rgba(248, 195, 179, 0.15)' : 'white',
-                              borderColor: profile.nanny_situation === option.id ? '#F8C3B3' : '#8bd7c7',
-                              borderWidth: '2px',
-                            }}
-                            className="p-3 rounded-xl text-left"
+                            className={`p-3 rounded-xl text-left border-2 transition-all ${profile.nanny_situation === option.id
+                              ? 'bg-opeari-coral/15 border-opeari-coral'
+                              : 'bg-white border-opeari-border'
+                              }`}
                           >
-                            <span style={{ color: profile.nanny_situation === option.id ? '#F8C3B3' : '#1e6b4e' }} className="block text-sm font-medium">
+                            <span className={`block text-sm font-medium ${profile.nanny_situation === option.id ? 'text-opeari-coral' : 'text-opeari-heading'
+                              }`}>
                               {option.label}
                             </span>
                           </button>
@@ -487,7 +487,7 @@ export default function Settings() {
 
                     {/* Looking For - CORAL PILLS */}
                     <div className="mb-5">
-                      <label className="block text-sm font-medium text-[#1e6b4e] mb-2">Looking For</label>
+                      <label className="block text-sm font-medium text-opeari-heading mb-2">Looking For</label>
                       <div className="flex flex-wrap gap-2">
                         {LOOKING_FOR_OPTIONS.map(option => {
                           const isSelected = profile.looking_for.includes(option.id)
@@ -498,12 +498,10 @@ export default function Settings() {
                               onClick={() => updateProfile({
                                 looking_for: toggleArrayItem(profile.looking_for, option.id)
                               })}
-                              style={{
-                                backgroundColor: isSelected ? '#F8C3B3' : '#fffaf5',
-                                color: isSelected ? 'white' : '#1e6b4e',
-                                border: isSelected ? 'none' : '1px solid #8bd7c7',
-                              }}
-                              className="px-4 py-2 rounded-full text-sm font-medium"
+                              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${isSelected
+                                ? 'bg-opeari-coral text-white border-transparent'
+                                : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
+                                }`}
                             >
                               {isSelected && '✓ '}{option.label}
                             </button>
@@ -514,7 +512,7 @@ export default function Settings() {
 
                     {/* Open To */}
                     <div className="mb-5">
-                      <label className="block text-sm font-medium text-[#1e6b4e] mb-2">Also Open To</label>
+                      <label className="block text-sm font-medium text-opeari-heading mb-2">Also Open To</label>
                       <div className="flex flex-wrap gap-2">
                         {OPEN_TO_OPTIONS.map(option => {
                           const isSelected = profile.open_to.includes(option.id)
@@ -525,12 +523,10 @@ export default function Settings() {
                               onClick={() => updateProfile({
                                 open_to: toggleArrayItem(profile.open_to, option.id)
                               })}
-                              style={{
-                                backgroundColor: isSelected ? '#F8C3B3' : '#fffaf5',
-                                color: isSelected ? 'white' : '#1e6b4e',
-                                border: isSelected ? 'none' : '1px solid #8bd7c7',
-                              }}
-                              className="px-4 py-2 rounded-full text-sm font-medium"
+                              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${isSelected
+                                ? 'bg-opeari-coral text-white border-transparent'
+                                : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
+                                }`}
                             >
                               {isSelected && '✓ '}{option.label}
                             </button>
@@ -541,23 +537,21 @@ export default function Settings() {
 
                     {/* Parenting Vibe */}
                     <div className="mb-5">
-                      <label className="block text-sm font-medium text-[#1e6b4e] mb-2">Parenting Vibe</label>
+                      <label className="block text-sm font-medium text-opeari-heading mb-2">Parenting Vibe</label>
                       <div className="flex flex-wrap gap-2">
                         {PARENTING_VALUES.map(option => {
-                          const isSelected = profile.looking_for.includes(option.id)
+                          const isSelected = profile.parenting_style.includes(option.id)
                           return (
                             <button
                               key={option.id}
                               type="button"
                               onClick={() => updateProfile({
-                                looking_for: toggleArrayItem(profile.looking_for, option.id)
+                                parenting_style: toggleArrayItem(profile.parenting_style, option.id)
                               })}
-                              style={{
-                                backgroundColor: isSelected ? '#1e6b4e' : '#fffaf5',
-                                color: isSelected ? 'white' : '#1e6b4e',
-                                border: isSelected ? 'none' : '1px solid #1e6b4e',
-                              }}
-                              className="px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105"
+                              className={`px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105 border ${isSelected
+                                ? 'bg-opeari-green text-white border-transparent'
+                                : 'bg-opeari-bg text-opeari-heading border-opeari-green'
+                                }`}
                             >
                               {isSelected && '✓ '}{option.label}
                             </button>
@@ -568,21 +562,20 @@ export default function Settings() {
 
                     {/* Timeline */}
                     <div className="mb-5">
-                      <label className="block text-sm font-medium text-[#1e6b4e] mb-2">Timeline</label>
+                      <label className="block text-sm font-medium text-opeari-heading mb-2">Timeline</label>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {TIMELINE_OPTIONS.map(option => (
                           <button
                             key={option.id}
                             type="button"
                             onClick={() => updateProfile({ care_timeline: option.id })}
-                            style={{
-                              backgroundColor: profile.care_timeline === option.id ? 'rgba(248, 195, 179, 0.15)' : 'white',
-                              borderColor: profile.care_timeline === option.id ? '#F8C3B3' : '#8bd7c7',
-                              borderWidth: '2px',
-                            }}
-                            className="p-3 rounded-xl text-center"
+                            className={`p-3 rounded-xl text-center border-2 transition-all ${profile.care_timeline === option.id
+                              ? 'bg-opeari-coral/15 border-opeari-coral'
+                              : 'bg-white border-opeari-border'
+                              }`}
                           >
-                            <span style={{ color: profile.care_timeline === option.id ? '#F8C3B3' : '#1e6b4e' }} className="text-sm font-medium">
+                            <span className={`text-sm font-medium ${profile.care_timeline === option.id ? 'text-opeari-coral' : 'text-opeari-heading'
+                              }`}>
                               {option.label}
                             </span>
                           </button>
@@ -592,7 +585,7 @@ export default function Settings() {
 
                     {/* Pets */}
                     <div>
-                      <label className="block text-sm font-medium text-[#1e6b4e] mb-2">Pets</label>
+                      <label className="block text-sm font-medium text-opeari-heading mb-2">Pets</label>
                       <div className="flex flex-wrap gap-2">
                         {PET_OPTIONS.map(option => {
                           const isSelected = profile.pets.includes(option.id)
@@ -609,12 +602,10 @@ export default function Settings() {
                                   })
                                 }
                               }}
-                              style={{
-                                backgroundColor: isSelected ? '#F8C3B3' : '#fffaf5',
-                                color: isSelected ? 'white' : '#1e6b4e',
-                                border: isSelected ? 'none' : '1px solid #8bd7c7',
-                              }}
-                              className="px-4 py-2 rounded-full text-sm font-medium"
+                              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${isSelected
+                                ? 'bg-opeari-coral text-white border-transparent'
+                                : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
+                                }`}
                             >
                               {isSelected && '✓ '}{option.label}
                             </button>
@@ -628,9 +619,9 @@ export default function Settings() {
 
               {/* SCHEDULE TAB */}
               {activeTab === 'schedule' && (
-                <div className="bg-[#fffaf5] rounded-2xl border border-[#8bd7c7] p-5">
-                  <h2 className="text-lg font-bold text-[#1e6b4e] mb-1">Your Schedule</h2>
-                  <p className="text-sm text-[#3d8c6c] mb-6">When do you need childcare?</p>
+                <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-5">
+                  <h2 className="text-lg font-bold text-opeari-heading mb-1">Your Schedule</h2>
+                  <p className="text-sm text-opeari-green mb-6">When do you need childcare?</p>
 
                   <ScheduleGrid
                     schedule={profile.schedule}
@@ -640,13 +631,13 @@ export default function Settings() {
                   />
 
                   <div className="mt-6">
-                    <label className="block text-sm font-medium text-[#1e6b4e] mb-2">Schedule Notes</label>
+                    <label className="block text-sm font-medium text-opeari-heading mb-2">Schedule Notes</label>
                     <textarea
                       value={profile.schedule_notes}
                       onChange={(e) => updateProfile({ schedule_notes: e.target.value })}
                       placeholder="Any additional details..."
                       rows={2}
-                      className="w-full px-3 py-2.5 border border-[#8bd7c7] rounded-xl text-sm bg-white focus:outline-none focus:border-[#F8C3B3] resize-none"
+                      className="w-full px-3 py-2.5 border border-opeari-border rounded-xl text-sm bg-white focus:outline-none focus:border-opeari-coral resize-none"
                     />
                   </div>
                 </div>
@@ -654,46 +645,45 @@ export default function Settings() {
 
               {/* KIDS TAB */}
               {activeTab === 'kids' && (
-                <div className="bg-[#fffaf5] rounded-2xl border border-[#8bd7c7] p-5">
+                <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-5">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h2 className="text-lg font-bold text-[#1e6b4e]">Kids</h2>
-                      <p className="text-sm text-[#3d8c6c]">Add your children</p>
+                      <h2 className="text-lg font-bold text-opeari-heading">Kids</h2>
+                      <p className="text-sm text-opeari-green">Add your children</p>
                     </div>
                     <button
                       type="button"
                       onClick={addKid}
-                      style={{ backgroundColor: '#F8C3B3', color: '#1e6b4e' }}
-                      className="px-4 py-2 font-semibold rounded-full text-sm"
+                      className="px-4 py-2 font-semibold rounded-full text-sm bg-opeari-coral text-opeari-heading"
                     >
                       + Add Child
                     </button>
                   </div>
 
                   {kids.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed border-[#8bd7c7] rounded-xl">
-                      <p className="text-[#4A6163] mb-2">No children added yet</p>
-                      <button type="button" onClick={addKid} style={{ color: '#F8C3B3' }} className="font-medium hover:underline">
+                    <div className="text-center py-8 border-2 border-dashed border-opeari-border rounded-xl">
+                      <p className="text-opeari-text-secondary mb-2">No children added yet</p>
+                      <button type="button" onClick={addKid} className="font-medium hover:underline text-opeari-coral">
                         Add your first child
                       </button>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {kids.map((kid, index) => (
-                        <div key={kid.id || `new-${index}`} className="border border-[#8bd7c7] rounded-xl p-4 bg-white">
+                        <div key={kid.id || `new-${index}`} className="border border-opeari-border rounded-xl p-4 bg-white">
                           {/* Kid Header */}
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
-                              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-coral/20">
-                                <span className="font-bold text-base text-coral">
+                              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-opeari-coral/20">
+                                <span className="font-bold text-base text-opeari-coral">
                                   {kid.first_name ? kid.first_name.charAt(0).toUpperCase() : '?'}
                                 </span>
                               </div>
-                              <span className="font-semibold text-[#1e6b4e]">
+                              <span className="font-semibold text-opeari-heading">
                                 {kid.first_name || 'New Child'}
                               </span>
                               {kid.birth_month && kid.birth_year && (
-                                <span className="text-xs text-[#4A6163] bg-[#d8f5e5] px-2 py-0.5 rounded-full">
+                                <span className="text-xs text-opeari-text-secondary bg-opeari-mint px-2 py-0.5 rounded-full">
                                   {calculateKidAge(kid.birth_month as number, kid.birth_year as number)}
                                 </span>
                               )}
@@ -701,8 +691,7 @@ export default function Settings() {
                             <button
                               type="button"
                               onClick={() => removeKid(index)}
-                              style={{ color: '#F8C3B3' }}
-                              className="text-xs hover:underline"
+                              className="text-xs hover:underline text-opeari-coral"
                             >
                               Remove
                             </button>
@@ -711,20 +700,20 @@ export default function Settings() {
                           {/* Name + Birthday */}
                           <div className="grid grid-cols-3 gap-2 mb-3">
                             <div>
-                              <label className="block text-xs text-[#4A6163] mb-1">Name</label>
+                              <label className="block text-xs text-opeari-text-secondary mb-1">Name</label>
                               <input
                                 type="text"
                                 value={kid.first_name}
                                 onChange={(e) => updateKid(index, 'first_name', e.target.value)}
-                                className="w-full px-3 py-2 border border-[#8bd7c7] rounded-lg text-sm focus:outline-none focus:border-[#F8C3B3]"
+                                className="w-full px-3 py-2 border border-opeari-border rounded-lg text-sm focus:outline-none focus:border-opeari-coral"
                               />
                             </div>
                             <div>
-                              <label className="block text-xs text-[#4A6163] mb-1">Month</label>
+                              <label className="block text-xs text-opeari-text-secondary mb-1">Month</label>
                               <select
                                 value={kid.birth_month}
                                 onChange={(e) => updateKid(index, 'birth_month', e.target.value ? parseInt(e.target.value) : '')}
-                                className="w-full px-2 py-2 border border-[#8bd7c7] rounded-lg text-sm focus:outline-none focus:border-[#F8C3B3] bg-white"
+                                className="w-full px-2 py-2 border border-opeari-border rounded-lg text-sm focus:outline-none focus:border-opeari-coral bg-white"
                               >
                                 <option value="">-</option>
                                 {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((month, i) => (
@@ -733,11 +722,11 @@ export default function Settings() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs text-[#4A6163] mb-1">Year</label>
+                              <label className="block text-xs text-opeari-text-secondary mb-1">Year</label>
                               <select
                                 value={kid.birth_year}
                                 onChange={(e) => updateKid(index, 'birth_year', e.target.value ? parseInt(e.target.value) : '')}
-                                className="w-full px-2 py-2 border border-[#8bd7c7] rounded-lg text-sm focus:outline-none focus:border-[#F8C3B3] bg-white"
+                                className="w-full px-2 py-2 border border-opeari-border rounded-lg text-sm focus:outline-none focus:border-opeari-coral bg-white"
                               >
                                 <option value="">-</option>
                                 {Array.from({ length: 18 }, (_, i) => new Date().getFullYear() - i).map(year => (
@@ -749,7 +738,7 @@ export default function Settings() {
 
                           {/* Gender */}
                           <div className="mb-3">
-                            <label className="block text-xs text-[#4A6163] mb-1">Gender (optional)</label>
+                            <label className="block text-xs text-opeari-text-secondary mb-1">Gender (optional)</label>
                             <div className="flex gap-2">
                               {GENDER_OPTIONS.map(option => {
                                 const isSelected = kid.gender === option.id
@@ -758,12 +747,10 @@ export default function Settings() {
                                     key={option.id}
                                     type="button"
                                     onClick={() => updateKid(index, 'gender', isSelected ? null : option.id)}
-                                    style={{
-                                      backgroundColor: isSelected ? '#F8C3B3' : '#fffaf5',
-                                      color: isSelected ? 'white' : '#1e6b4e',
-                                      border: isSelected ? 'none' : '1px solid #8bd7c7',
-                                    }}
-                                    className="px-3 py-1.5 rounded-full text-xs font-medium"
+                                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${isSelected
+                                      ? 'bg-opeari-coral text-white border-transparent'
+                                      : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
+                                      }`}
                                   >
                                     {isSelected && '✓ '}{option.label}
                                   </button>
@@ -774,8 +761,8 @@ export default function Settings() {
 
                           {/* ALLERGIES - CORAL WHEN SELECTED */}
                           <div className="mb-3">
-                            <label className="block text-xs text-[#4A6163] mb-1">
-                              Allergies <span style={{ color: '#F8C3B3' }} className="font-medium">*important</span>
+                            <label className="block text-xs text-opeari-text-secondary mb-1">
+                              Allergies <span className="font-medium text-opeari-coral">*important</span>
                             </label>
                             <div className="flex flex-wrap gap-1.5">
                               {COMMON_ALLERGIES.map(allergy => {
@@ -785,12 +772,10 @@ export default function Settings() {
                                     key={allergy.id}
                                     type="button"
                                     onClick={() => toggleKidAllergy(index, allergy.id)}
-                                    style={{
-                                      backgroundColor: isSelected ? '#F8C3B3' : '#fffaf5',
-                                      color: isSelected ? 'white' : '#1e6b4e',
-                                      border: isSelected ? '2px solid #F8C3B3' : '1px solid #8bd7c7',
-                                    }}
-                                    className="px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1"
+                                    className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 border transition-colors ${isSelected
+                                      ? 'bg-opeari-coral text-white border-opeari-coral'
+                                      : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
+                                      }`}
                                   >
                                     {isSelected && '✓ '}{allergy.label}
                                   </button>
@@ -801,13 +786,13 @@ export default function Settings() {
 
                           {/* Notes */}
                           <div>
-                            <label className="block text-xs text-[#4A6163] mb-1">Notes</label>
+                            <label className="block text-xs text-opeari-text-secondary mb-1">Notes</label>
                             <input
                               type="text"
                               value={kid.notes}
                               onChange={(e) => updateKid(index, 'notes', e.target.value)}
                               placeholder="Special considerations..."
-                              className="w-full px-3 py-2 border border-[#8bd7c7] rounded-lg text-sm focus:outline-none focus:border-[#F8C3B3]"
+                              className="w-full px-3 py-2 border border-opeari-border rounded-lg text-sm focus:outline-none focus:border-opeari-coral"
                             />
                           </div>
                         </div>
@@ -820,22 +805,22 @@ export default function Settings() {
               {/* ACCOUNT TAB */}
               {activeTab === 'account' && (
                 <div className="space-y-4">
-                  <div className="bg-[#fffaf5] rounded-2xl border border-[#8bd7c7] p-5">
-                    <h3 className="font-semibold text-[#1e6b4e] mb-4">Account</h3>
+                  <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-5">
+                    <h3 className="font-semibold text-opeari-heading mb-4">Account</h3>
                     <div>
-                      <label className="block text-xs text-[#4A6163] mb-1">Email</label>
+                      <label className="block text-xs text-opeari-text-secondary mb-1">Email</label>
                       <div className="flex items-center gap-3">
-                        <span className="text-[#1e6b4e]">{email}</span>
-                        <span className="text-xs text-white bg-[#1e6b4e] px-2 py-0.5 rounded-full">Verified</span>
+                        <span className="text-opeari-heading">{email}</span>
+                        <span className="text-xs text-white bg-opeari-heading px-2 py-0.5 rounded-full">Verified</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-[#fffaf5] rounded-2xl border border-[#8bd7c7] p-5">
+                  <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-5">
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-semibold text-[#1e6b4e]">Password</h3>
+                      <h3 className="font-semibold text-opeari-heading">Password</h3>
                       {!showPasswordForm && (
-                        <button onClick={() => setShowPasswordForm(true)} style={{ color: '#F8C3B3' }} className="text-sm font-medium hover:underline">
+                        <button onClick={() => setShowPasswordForm(true)} className="text-sm font-medium hover:underline text-opeari-coral">
                           Change
                         </button>
                       )}
@@ -844,42 +829,59 @@ export default function Settings() {
                     {showPasswordForm ? (
                       <div className="space-y-3">
                         <div>
-                          <label className="block text-xs text-[#4A6163] mb-1">New Password</label>
-                          <input
-                            type={showPassword ? 'text' : 'password'}
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full px-3 py-2.5 border border-[#8bd7c7] rounded-xl text-sm focus:outline-none focus:border-[#F8C3B3]"
-                          />
+                          <label className="block text-xs text-opeari-text-secondary mb-1">New Password</label>
+                          <div className="relative">
+                            <input
+                              type={showPassword ? 'text' : 'password'}
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              className="w-full px-3 py-2.5 border border-opeari-border rounded-xl text-sm focus:outline-none focus:border-opeari-coral pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            >
+                              {showPassword ? (
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                </svg>
+                              ) : (
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
                         </div>
                         <div>
-                          <label className="block text-xs text-[#4A6163] mb-1">Confirm</label>
+                          <label className="block text-xs text-opeari-text-secondary mb-1">Confirm</label>
                           <input
                             type={showPassword ? 'text' : 'password'}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-3 py-2.5 border border-[#8bd7c7] rounded-xl text-sm focus:outline-none focus:border-[#F8C3B3]"
+                            className="w-full px-3 py-2.5 border border-opeari-border rounded-xl text-sm focus:outline-none focus:border-opeari-coral"
                           />
                         </div>
                         <div className="flex gap-2 pt-2">
                           <button
                             onClick={() => { setShowPasswordForm(false); setNewPassword(''); setConfirmPassword(''); }}
-                            className="flex-1 py-2.5 border border-[#8bd7c7] rounded-xl text-[#1e6b4e] text-sm font-medium"
+                            className="flex-1 py-2.5 border border-opeari-border rounded-xl text-opeari-heading text-sm font-medium hover:bg-opeari-bg-secondary"
                           >
                             Cancel
                           </button>
                           <button
                             onClick={changePassword}
                             disabled={saving}
-                            style={{ backgroundColor: '#F8C3B3' }}
-                            className="flex-1 py-2.5 text-white rounded-xl text-sm font-medium disabled:opacity-50"
+                            className="flex-1 py-2.5 bg-opeari-coral text-white rounded-xl text-sm font-medium disabled:opacity-50 hover:bg-opeari-coral/90"
                           >
                             {saving ? 'Updating...' : 'Update'}
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <p className="text-sm text-[#4A6163]">••••••••</p>
+                      <p className="text-sm text-opeari-text-secondary">••••••••</p>
                     )}
                   </div>
                 </div>
@@ -890,14 +892,13 @@ export default function Settings() {
 
         {/* Floating Save Button - MORE PROMINENT with dark green text */}
         {hasChanges && (
-          <div className="fixed bottom-0 left-0 right-0 bg-[#F9E3D2] border-t-2 border-[#F8C3B3] p-4 shadow-xl z-50">
+          <div className="fixed bottom-0 left-0 right-0 bg-opeari-bg-secondary border-t-2 border-opeari-coral p-4 shadow-xl z-50">
             <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-              <p style={{ color: '#1e6b4e' }} className="text-sm font-medium">You have unsaved changes</p>
+              <p className="text-sm font-medium text-opeari-heading">You have unsaved changes</p>
               <button
                 onClick={saveAll}
                 disabled={saving}
-                style={{ backgroundColor: '#F8C3B3', color: '#1e6b4e' }}
-                className="px-8 py-3 font-bold rounded-full disabled:opacity-50 shadow-lg text-base"
+                className="px-8 py-3 font-bold rounded-full disabled:opacity-50 shadow-lg text-base bg-opeari-coral text-opeari-heading hover:bg-opeari-coral/90"
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </button>
@@ -908,8 +909,8 @@ export default function Settings() {
         {/* Toast */}
         {saveMessage && (
           <div
-            style={{ backgroundColor: saveMessage.type === 'success' ? '#1e6b4e' : '#F8C3B3' }}
-            className="fixed bottom-20 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full shadow-lg z-50 text-white"
+            className={`fixed bottom-20 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full shadow-lg z-50 text-white ${saveMessage.type === 'success' ? 'bg-opeari-heading' : 'bg-opeari-coral'
+              }`}
           >
             {saveMessage.text}
           </div>

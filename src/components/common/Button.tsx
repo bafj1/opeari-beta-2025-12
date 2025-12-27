@@ -33,9 +33,9 @@ const Button: React.FC<ButtonProps> = ({
 
     // Variants
     const variants = {
-        primary: `bg-primary text-white hover:bg-primary-dark hover:-translate-y-0.5 shadow-button hover:shadow-button-hover active:translate-y-0 disabled:hover:translate-y-0 disabled:shadow-none focus:ring-primary/30`,
-        secondary: `bg-white text-primary border-2 border-mint-dark hover:border-primary hover:text-primary-dark hover:-translate-y-0.5 disabled:hover:border-mint-dark disabled:hover:translate-y-0 focus:ring-primary/20`,
-        tertiary: `bg-transparent text-primary hover:text-coral hover:underline focus:ring-0 px-0 shadow-none`,
+        primary: `bg-opeari-green text-white hover:bg-opeari-green-dark hover:-translate-y-0.5 shadow-button hover:shadow-button-hover active:translate-y-0 disabled:hover:translate-y-0 disabled:shadow-none focus:ring-opeari-green/30`,
+        secondary: `bg-opeari-bg text-opeari-green border-2 border-opeari-border hover:border-opeari-green hover:text-opeari-green-dark hover:-translate-y-0.5 disabled:hover:border-opeari-border disabled:hover:translate-y-0 focus:ring-opeari-green/20`,
+        tertiary: `bg-transparent text-opeari-green hover:text-opeari-coral hover:underline focus:ring-0 px-0 shadow-none`,
         accent: `btn-accent shadow-button hover:shadow-button-hover active:translate-y-0`,
     };
 

@@ -122,16 +122,16 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
+    <div className="min-h-screen bg-opeari-bg flex flex-col">
       {/* Header */}
-      <header className="bg-white px-4 sm:px-8 py-4 flex justify-between items-center border-b border-mint-dark">
+      <header className="bg-opeari-bg px-4 sm:px-8 py-4 flex justify-between items-center border-b border-opeari-border">
         <Link to="/" className="flex items-center">
           <img src="/logo.svg" alt="Opeari" className="h-12 sm:h-14" />
         </Link>
         <Button
           to="/waitlist"
           variant="tertiary"
-          className="font-bold text-primary hover:text-coral"
+          className="font-bold text-opeari-heading hover:text-opeari-coral"
         >
           Join Waitlist
         </Button>
@@ -139,10 +139,10 @@ export default function Login() {
 
       {/* Main */}
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="flex max-w-[900px] w-full bg-white rounded-3xl overflow-hidden shadow-card border border-mint-dark">
+        <div className="flex max-w-[900px] w-full bg-white rounded-3xl overflow-hidden shadow-card border border-opeari-border">
 
           {/* Left Side - Branding (hidden on mobile) */}
-          <div className="hidden md:flex flex-1 bg-gradient-to-br from-primary to-primary-light p-8 lg:p-10 flex-col justify-between text-white relative overflow-hidden min-h-[500px]">
+          <div className="hidden md:flex flex-1 bg-gradient-to-br from-opeari-green to-opeari-green-dark p-8 lg:p-10 flex-col justify-between text-white relative overflow-hidden min-h-[500px]">
             <div className="relative z-10">
               <h2 className="text-2xl lg:text-3xl font-bold mb-4 leading-tight">
                 Welcome back to your village
@@ -183,10 +183,10 @@ export default function Login() {
           </div>
 
           {/* Right Side - Form */}
-          <div className="flex-1 p-6 sm:p-8 lg:p-10 flex flex-col justify-center bg-cream">
+          <div className="flex-1 p-6 sm:p-8 lg:p-10 flex flex-col justify-center bg-opeari-bg">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-primary mb-1">Sign in</h1>
-              <p className="text-sm text-text-muted">Enter your details to access your account</p>
+              <h1 className="text-2xl font-bold text-opeari-heading mb-1">Sign in</h1>
+              <p className="text-sm text-opeari-text-secondary">Enter your details to access your account</p>
             </div>
 
             {/* Error Message (Refined: Soft Terracotta) */}
@@ -201,7 +201,7 @@ export default function Login() {
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label htmlFor="email" className="block font-bold text-sm text-primary mb-1.5 align-middle">
+                <label htmlFor="email" className="block font-bold text-sm text-opeari-heading mb-1.5 align-middle">
                   Email address
                 </label>
                 <input
@@ -221,9 +221,9 @@ export default function Login() {
                   placeholder="you@example.com"
                   required
                   autoComplete="email"
-                  className={`w-full px-4 py-3 border-2 rounded-xl text-primary bg-white transition-all focus:outline-none focus:ring-2 focus:ring-primary/10 placeholder:text-text-muted/40 text-base ${emailError
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-opeari-heading bg-white transition-all focus:outline-none focus:ring-2 focus:ring-opeari-green/10 placeholder:text-opeari-text-secondary/40 text-base ${emailError
                     ? 'border-error/50 focus:border-error'
-                    : 'border-mint-dark focus:border-primary'
+                    : 'border-opeari-border focus:border-opeari-green'
                     }`}
                 />
                 {emailError && (
@@ -232,7 +232,7 @@ export default function Login() {
               </div>
 
               <div>
-                <label htmlFor="password" className="block font-bold text-sm text-primary mb-1.5">
+                <label htmlFor="password" className="block font-bold text-sm text-opeari-heading mb-1.5">
                   Password
                 </label>
                 <div className="relative">
@@ -252,15 +252,15 @@ export default function Login() {
                     placeholder="Enter your password"
                     required
                     autoComplete="current-password"
-                    className={`w-full px-4 py-3 pr-12 border-2 rounded-xl text-primary bg-white transition-all focus:outline-none focus:ring-2 focus:ring-primary/10 placeholder:text-text-muted/40 text-base ${passwordError
+                    className={`w-full px-4 py-3 pr-12 border-2 rounded-xl text-opeari-heading bg-white transition-all focus:outline-none focus:ring-2 focus:ring-opeari-green/10 placeholder:text-opeari-text-secondary/40 text-base ${passwordError
                       ? 'border-error/50 focus:border-error'
-                      : 'border-mint-dark focus:border-primary'
+                      : 'border-opeari-border focus:border-opeari-green'
                       }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-opeari-text-secondary hover:text-opeari-heading transition-colors"
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -280,12 +280,12 @@ export default function Login() {
               </div>
 
               <div className="flex justify-between items-center text-sm">
-                <label className="flex items-center gap-2 cursor-pointer text-text-muted">
+                <label className="flex items-center gap-2 cursor-pointer text-opeari-text-secondary">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 cursor-pointer rounded border-mint-dark text-primary focus:ring-primary"
+                    className="w-4 h-4 cursor-pointer rounded border-opeari-border text-opeari-green focus:ring-opeari-green"
                     style={{ accentColor: '#1e6b4e' }}
                   />
                   Remember me
@@ -310,7 +310,7 @@ export default function Login() {
               </Button>
             </form>
 
-            <div className="mt-8 text-center text-sm text-text-muted">
+            <div className="mt-8 text-center text-sm text-opeari-text-secondary">
               <p>
                 Don't have an invite code?{' '}
                 <Button to="/waitlist" variant="tertiary" className="font-bold px-0 py-0 h-auto">
@@ -323,11 +323,11 @@ export default function Login() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white px-4 py-6 text-center text-xs text-text-muted border-t border-mint-dark">
+      <footer className="bg-white px-4 py-6 text-center text-xs text-opeari-text-secondary border-t border-opeari-border">
         <div className="flex justify-center gap-6 mb-3">
-          <Button to="/" variant="tertiary" className="text-text-muted font-normal hover:text-primary text-xs px-0 py-0">Home</Button>
-          <Button to="/privacy" variant="tertiary" className="text-text-muted font-normal hover:text-primary text-xs px-0 py-0">Privacy</Button>
-          <Button to="/terms" variant="tertiary" className="text-text-muted font-normal hover:text-primary text-xs px-0 py-0">Terms</Button>
+          <Button to="/" variant="tertiary" className="text-opeari-text-secondary font-normal hover:text-opeari-heading text-xs px-0 py-0">Home</Button>
+          <Button to="/privacy" variant="tertiary" className="text-opeari-text-secondary font-normal hover:text-opeari-heading text-xs px-0 py-0">Privacy</Button>
+          <Button to="/terms" variant="tertiary" className="text-opeari-text-secondary font-normal hover:text-opeari-heading text-xs px-0 py-0">Terms</Button>
         </div>
         <div className="opacity-60">© 2025 Opeari</div>
       </footer>

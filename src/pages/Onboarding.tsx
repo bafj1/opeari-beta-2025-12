@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { User, Users, Car, Plane, Calendar, Clock, HelpCircle, Check, ChevronDown, Eye, EyeOff, MessageSquare, ArrowRight } from 'lucide-react'
+import { User, Check, ChevronDown, Eye, EyeOff, MessageSquare, ArrowRight } from 'lucide-react'
 import confetti from 'canvas-confetti'
 
 // --- Types & Constants ---
@@ -28,6 +28,7 @@ interface OnboardingData {
     expecting: boolean
     expectingTiming?: string
     password?: string
+    userIntent?: 'seeking' | 'providing' | null
 }
 
 const INITIAL_DATA: OnboardingData = {
@@ -42,19 +43,11 @@ const INITIAL_DATA: OnboardingData = {
     kids: [],
     expecting: false,
     expectingTiming: '',
-    password: ''
+    password: '',
+    userIntent: null
 }
 
-const CARE_OPTIONS = [
-    { id: 'babysitter', icon: User, label: 'Babysitter', desc: 'Date nights & occasional help' },
-    { id: 'nanny', icon: User, label: 'Nanny', desc: 'Regular in-home care' },
-    { id: 'nanny_share', icon: Users, label: 'Shared Nanny', desc: 'Share costs with a family' },
-    { id: 'care_coop', icon: Users, label: 'Care Co-op', desc: 'Trade time instead of money' },
-    { id: 'carpool', icon: Car, label: 'School / Activity Rides', desc: 'Coordinate school rides' },
-    { id: 'travel', icon: Plane, label: 'Travel Care', desc: 'Help while traveling' },
-    { id: 'playdates', icon: Calendar, label: 'Playdates', desc: 'Meet families with kids similar ages' },
-    { id: 'backup', icon: Clock, label: 'Backup Care', desc: 'Emergency & backup help' },
-]
+
 
 const EXPECTING_TIMING_OPTIONS = [
     'Within the next few months',
@@ -67,6 +60,7 @@ const CURRENT_YEAR = new Date().getFullYear()
 const BIRTH_YEARS = Array.from({ length: 18 }, (_, i) => (CURRENT_YEAR - i).toString())
 
 const STEPS = [
+    { id: 0, img: '/opeari-welcome-green.png', text: "What brings you to Opeari? Start by telling us what you're looking for." },
     { id: 1, img: '/opeari-welcome-green.png', text: "You're early — and that matters. Early families help shape how Opeari grows in their neighborhood." },
     { id: 2, img: '/opeari-explore.png', text: "No pressure. Just possibilities. We'll figure out what works together." },
     { id: 3, img: '/opeari-happy.png', text: "Flexibility is the whole point. Most families don't have a fixed schedule — and that's okay." },
@@ -78,8 +72,9 @@ const STEPS = [
 
 export default function Onboarding() {
     const navigate = useNavigate()
-    const [step, setStep] = useState(1)
+    const [step, setStep] = useState(0)
     const [data, setData] = useState<OnboardingData>(INITIAL_DATA)
+    const [hostingInterest, setHostingInterest] = useState(false)
     const [loading, setLoading] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false)
     const [passwordConfirm, setPasswordConfirm] = useState('')
@@ -142,6 +137,7 @@ export default function Onboarding() {
 
     const isStepValid = () => {
         switch (step) {
+            case 0: return !!data.userIntent
             case 1: return !!(data.firstName?.trim() && data.zipCode?.trim() && data.zipCode.length === 5)
             case 2: return data.careOptions.length > 0 || showSomethingElseInput
             case 3: return true
@@ -195,7 +191,8 @@ export default function Onboarding() {
                 metadata: {
                     expecting: data.expecting,
                     expecting_timing: data.expectingTiming,
-                }
+                },
+                user_intent: data.userIntent
             }
 
             const { error } = await supabase
@@ -272,7 +269,7 @@ export default function Onboarding() {
                     <div className="h-1 bg-gray-100 w-full">
                         <div
                             className="h-full bg-[#1B4D3E] transition-all duration-500"
-                            style={{ width: `${(step / 5) * 100}%` }}
+                            style={{ width: `${(step / 6) * 100}%` }}
                         />
                     </div>
 
@@ -287,11 +284,59 @@ export default function Onboarding() {
                             )}
 
                             {/* Active Step Headers */}
+                            {step === 0 && <StepHeader title="What brings you to Opeari?" subtitle="Select what fits you best" />}
                             {step === 1 && <StepHeader title="Let's start building your village." subtitle="First, where are you located?" />}
                             {step === 2 && <StepHeader title="What would be helpful right now?" subtitle="Choose any that apply — most families pick 2-3." />}
                             {step === 3 && <StepHeader title="Your Schedule" subtitle="Just a rough idea." />}
                             {step === 4 && <StepHeader title="Tell us about your family" subtitle="This helps us match you with families whose kids would actually play well together." />}
                             {step === 5 && <StepHeader title="Save your spot in the village" subtitle="Create a password so you can come back anytime." />}
+
+                            {/* STEP 0: INTENT */}
+                            {step === 0 && (
+                                <div className="space-y-6 animate-fade-in">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div
+                                            onClick={() => updateData('userIntent', 'seeking')}
+                                            className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'seeking' ? 'border-[#1B4D3E] bg-[#f0faf4]' : 'border-gray-200 bg-white hover:border-[#8bd7c7]'}`}
+                                        >
+                                            <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'seeking' ? 'bg-[#1B4D3E] text-white' : 'bg-[#fffaf5] text-[#1e6b4e]'}`}>
+                                                <User size={24} />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-[#1B4D3E]">I'm looking for childcare</h3>
+                                                <p className="text-xs text-gray-500 mt-1">Find nanny shares, backup care, and trusted support</p>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            onClick={() => updateData('userIntent', 'providing')}
+                                            className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'providing' ? 'border-[#1B4D3E] bg-[#f0faf4]' : 'border-gray-200 bg-white hover:border-[#8bd7c7]'}`}
+                                        >
+                                            <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'providing' ? 'bg-[#1B4D3E] text-white' : 'bg-[#fffaf5] text-[#1e6b4e]'}`}>
+                                                <Check size={24} />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-[#1B4D3E]">I provide childcare</h3>
+                                                <p className="text-xs text-gray-500 mt-1">Connect with families who need help</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {data.userIntent === 'seeking' && (
+                                        <div className="animate-fade-in pt-2">
+                                            <label className="flex items-center gap-3 p-3 rounded-lg bg-[#e8f5f0] cursor-pointer hover:bg-[#d8f5e5] transition-colors">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={hostingInterest}
+                                                    onChange={(e) => setHostingInterest(e.target.checked)}
+                                                    className="w-5 h-5 rounded border-gray-300 text-[#1B4D3E] focus:ring-[#1B4D3E]"
+                                                />
+                                                <span className="text-sm font-medium text-[#1B4D3E]">I'm open to hosting care at my home sometimes</span>
+                                            </label>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {/* STEP 1: LOCATION */}
                             {step === 1 && (
@@ -306,30 +351,66 @@ export default function Onboarding() {
                             {/* STEP 2: NEEDS */}
                             {step === 2 && (
                                 <div className="space-y-6 animate-fade-in">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        {CARE_OPTIONS.map((opt) => (
-                                            <SelectionCard
-                                                key={opt.id}
-                                                icon={opt.icon}
-                                                label={opt.label}
-                                                desc={opt.desc}
-                                                selected={data.careOptions.includes(opt.id)}
-                                                onClick={() => toggleCareOption(opt.id)}
-                                            />
-                                        ))}
-                                        <SelectionCard
-                                            icon={HelpCircle}
-                                            label="Just exploring"
-                                            desc="Not sure yet - that's okay!"
-                                            selected={data.careOptions.includes('exploring')}
-                                            onClick={() => toggleCareOption('exploring')}
-                                        />
+
+                                    {/* Find Support */}
+                                    <div className="space-y-3">
+                                        <h3 className="font-bold text-[#1B4D3E] text-lg">Find Support</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="findSupportInterests">
+                                            {[
+                                                { id: 'nannyshare', label: 'Nanny Share', desc: 'Split costs with another family' },
+                                                { id: 'backup-care', label: 'Backup Care', desc: 'Sick days & emergencies' },
+                                                { id: 'babysitter', label: 'Babysitter', desc: 'Date nights & occasional help' },
+                                                { id: 'school-pickups', label: 'School Pickups', desc: 'Drop-off & pickup help' },
+                                                { id: 'playdates', label: 'Playdates', desc: 'Connect kids with friends' },
+                                                { id: 'travel-care', label: 'Travel / Au Pair', desc: 'Vacation & live-in care' }
+                                            ].map(opt => (
+                                                <SelectionCard
+                                                    key={opt.id}
+                                                    icon={Check}
+                                                    label={opt.label}
+                                                    desc={opt.desc}
+                                                    selected={data.careOptions.includes(opt.id)}
+                                                    onClick={() => toggleCareOption(opt.id)}
+                                                    isCheckboxStyle={true}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Offer Support */}
+                                    <div className="space-y-3 mt-6">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="font-bold text-[#1B4D3E] text-lg">Offer Support</h3>
+                                            <span className="text-xs text-gray-400 uppercase tracking-wide">Optional</span>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="offerSupportInterests">
+                                            {[
+                                                { id: 'offer-backup', label: 'Backup Care', desc: 'Help in emergencies' },
+                                                { id: 'offer-pickups', label: 'School Pickups', desc: 'Share driving duties' },
+                                                { id: 'host-share', label: 'Host Nanny Share', desc: 'Host at your home' },
+                                                { id: 'care-exchange', label: 'Care Exchange', desc: 'Trade hours with neighbors' }
+                                            ].map(opt => (
+                                                <SelectionCard
+                                                    key={opt.id}
+                                                    icon={Check}
+                                                    label={opt.label}
+                                                    desc={opt.desc}
+                                                    selected={data.careOptions.includes(opt.id)}
+                                                    onClick={() => toggleCareOption(opt.id)}
+                                                    isCheckboxStyle={true}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4">
                                         <SelectionCard
                                             icon={MessageSquare}
                                             label="Something else"
                                             desc="Tell us what you need"
                                             selected={showSomethingElseInput}
                                             onClick={toggleSomethingElse}
+                                            isCheckboxStyle={true}
                                         />
                                     </div>
 
@@ -344,13 +425,6 @@ export default function Onboarding() {
                                             />
                                         </div>
                                     )}
-
-                                    {/* Updated 'What happens next' Banner Style */}
-                                    <div className="mt-4 p-4 bg-[#fff7d6] border-2 border-[#F8C3B3] rounded-xl">
-                                        <p className="text-[#1B4D3E] text-sm">
-                                            <strong className="text-[#1e6b4e]">What happens next:</strong> We'll connect you with families nearby based on your selections — nothing is locked in.
-                                        </p>
-                                    </div>
                                 </div>
                             )}
 
@@ -477,7 +551,7 @@ export default function Onboarding() {
 
                             {/* Navigation Footer */}
                             <div className="pt-8 mt-4 border-t border-gray-100 flex gap-4">
-                                {step > 1 && (
+                                {step > 0 && (
                                     <button onClick={prevStep} className="px-6 py-4 font-bold text-[#1B4D3E] bg-[#f0faf4] rounded-xl hover:bg-[#e1f5e9] transition-colors">
                                         Back
                                     </button>
@@ -533,16 +607,22 @@ const InfoBanner = ({ children }: any) => (
     </div>
 )
 
-const SelectionCard = ({ icon: Icon, label, desc, selected, onClick }: any) => (
-    <div onClick={onClick} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden min-h-[82px] ${selected ? 'border-[#1B4D3E] bg-[#f0faf4] shadow-sm' : 'border-gray-200 bg-white hover:border-[#8bd7c7] hover:shadow-sm'}`}>
-        <div className={`p-2.5 rounded-lg flex-shrink-0 transition-colors ${selected ? 'bg-[#1B4D3E] text-white' : 'bg-[#F5F1EB] text-[#1B4D3E]'}`}>
-            <Icon size={20} strokeWidth={2} />
-        </div>
+const SelectionCard = ({ icon: Icon, label, desc, selected, onClick, isCheckboxStyle }: any) => (
+    <div onClick={onClick} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden min-h-[60px] ${selected ? 'border-[#1B4D3E] bg-[#f0faf4] shadow-sm' : 'border-gray-200 bg-white hover:border-[#8bd7c7] hover:shadow-sm'}`}>
+        {isCheckboxStyle ? (
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selected ? 'bg-[#1B4D3E] border-[#1B4D3E]' : 'border-gray-300'}`}>
+                {selected && <Check size={14} className="text-white" />}
+            </div>
+        ) : (
+            <div className={`p-2.5 rounded-lg flex-shrink-0 transition-colors ${selected ? 'bg-[#1B4D3E] text-white' : 'bg-[#F5F1EB] text-[#1B4D3E]'}`}>
+                <Icon size={20} strokeWidth={2} />
+            </div>
+        )}
         <div className="flex-1 min-w-0">
-            <p className="font-bold text-[#1B4D3E] text-[15px] truncate">{label}</p>
+            <p className="font-bold text-[#1B4D3E] text-[14px] truncate">{label}</p>
             <p className="text-xs text-gray-500 leading-tight line-clamp-2">{desc}</p>
         </div>
-        {selected && <div className="absolute top-2 right-2"><Check size={16} className="text-[#1B4D3E]" /></div>}
+        {selected && !isCheckboxStyle && <div className="absolute top-2 right-2"><Check size={16} className="text-[#1B4D3E]" /></div>}
     </div>
 )
 
@@ -565,44 +645,23 @@ const ScheduleGrid = ({ value, onChange }: any) => {
     }
 
     const QUICK_SELECTS = [
-        { label: 'Weekdays (M-F)', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], times: ['Morning', 'Afternoon', 'Evening'] },
-        { label: 'Mornings', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], times: ['Morning'] },
-        { label: 'Afternoons', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], times: ['Afternoon'] },
+        { label: 'M-F 9-5', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], times: ['Morning', 'Afternoon'] },
+        { label: 'Mornings', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], times: ['Morning'] },
+        { label: 'Afternoons', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], times: ['Afternoon'] },
+        { label: 'Evenings', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], times: ['Evening'] },
         { label: 'Weekends', days: ['Sat', 'Sun'], times: ['Morning', 'Afternoon', 'Evening'] },
     ]
 
     const handleQuickSelect = (q: any) => {
-        const newSchedule = { ...value }
-        let allUnselected = true
+        const freshSchedule: Record<string, string[]> = {};
 
-        // Check if all slots in this quick select are already selected
+        // Select preset (Replace logic)
         for (const d of q.days) {
             const dayLower = d.toLowerCase()
-            const current = newSchedule[dayLower] || []
-            // If any expected time is missing, then it's not "all selected"
-            if (!q.times.every((t: string) => current.includes(t))) {
-                allUnselected = false
-                break
-            }
+            freshSchedule[dayLower] = [...q.times]
         }
 
-        if (allUnselected) {
-            // Deselect all
-            for (const d of q.days) {
-                const dayLower = d.toLowerCase()
-                const current = newSchedule[dayLower] || []
-                newSchedule[dayLower] = current.filter((t: string) => !q.times.includes(t))
-            }
-        } else {
-            // Select all
-            for (const d of q.days) {
-                const dayLower = d.toLowerCase()
-                const current = newSchedule[dayLower] || []
-                // Add unique
-                newSchedule[dayLower] = Array.from(new Set([...current, ...q.times]))
-            }
-        }
-        onChange(newSchedule)
+        onChange(freshSchedule)
     }
 
     const clearAll = () => onChange({})

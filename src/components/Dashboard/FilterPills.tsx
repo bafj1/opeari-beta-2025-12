@@ -22,12 +22,12 @@ export default function FilterPills({ activeFilter, onFilterChange }: FilterPill
           className={`
             px-3 py-1.5 text-[11px] font-semibold rounded-full transition-all
             ${activeFilter === filter.value
-              ? filter.urgent 
+              ? filter.urgent
                 ? 'bg-urgent text-white'
-                : 'bg-primary text-white'
+                : 'bg-opeari-heading text-white'
               : filter.urgent
                 ? 'bg-urgent/10 text-urgent hover:bg-urgent/20'
-                : 'bg-cream text-text-secondary hover:bg-mint hover:text-text-primary'
+                : 'bg-opeari-bg text-opeari-text-secondary hover:bg-opeari-mint hover:text-opeari-text'
             }
           `}
         >

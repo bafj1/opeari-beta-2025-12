@@ -18,7 +18,7 @@ export default function SetupJourney({ firstName, hasProfile, hasBrowsed, hasInv
     // Dynamic Copy based on Phase
     let headline = `Let's get you set up, ${firstName}!`
     let subhead = "Complete these steps to activate your village."
-    let primaryColor = "bg-mint/30"
+    let primaryColor = "bg-opeari-mint/30"
 
     if (phase === 'stalled') {
         headline = "It's quiet... for now."
@@ -65,29 +65,29 @@ export default function SetupJourney({ firstName, hasProfile, hasBrowsed, hasInv
     const progress = Math.round((completedCount / steps.length) * 100)
 
     return (
-        <div className="bg-white rounded-2xl border-2 border-primary/10 overflow-hidden mb-8">
+        <div className="bg-white rounded-2xl border-2 border-opeari-green/10 overflow-hidden mb-8">
             {/* Header */}
-            <div className={`${primaryColor} p-6 border-b border-primary/10 transition-colors`}>
+            <div className={`${primaryColor} p-6 border-b border-opeari-green/10 transition-colors`}>
                 <div className="flex items-center justify-between mb-4">
                     <div>
-                        <h2 className="text-xl font-bold text-primary">{headline}</h2>
-                        <p className="text-sm text-text-secondary">{subhead}</p>
+                        <h2 className="text-xl font-bold text-opeari-heading">{headline}</h2>
+                        <p className="text-sm text-opeari-text-secondary">{subhead}</p>
                     </div>
                     <div className="text-right">
-                        <span className="text-2xl font-bold text-primary">{progress}%</span>
+                        <span className="text-2xl font-bold text-opeari-heading">{progress}%</span>
                     </div>
                 </div>
 
                 {/* Progress Bar */}
                 <div className="w-full h-2 bg-white rounded-full overflow-hidden mb-2">
                     <div
-                        className="h-full bg-primary transition-all duration-500 ease-out"
+                        className="h-full bg-opeari-green transition-all duration-500 ease-out"
                         style={{ width: `${progress}%` }}
                     />
                 </div>
 
                 {/* Motivation Text */}
-                <p className="text-xs text-primary/70 font-medium text-right">
+                <p className="text-xs text-opeari-heading/70 font-medium text-right">
                     {progress === 0 && "Let's get started."}
                     {progress === 33 && "You've taken the first step. Better than 50% of visitors."}
                     {progress === 66 && "You're winning! Only 1 step left."}
@@ -103,11 +103,11 @@ export default function SetupJourney({ firstName, hasProfile, hasBrowsed, hasInv
                         className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${step.highlight
                             ? 'bg-orange-50 border-orange-200 shadow-sm'
                             : step.done
-                                ? 'bg-mint/10 border-mint'
-                                : 'bg-white border-border hover:border-primary/50'
+                                ? 'bg-opeari-mint/10 border-opeari-border'
+                                : 'bg-white border-opeari-border hover:border-opeari-green/50'
                             }`}
                     >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${step.done ? 'bg-mint text-primary' : step.highlight ? 'bg-orange-200 text-orange-700' : 'bg-gray-100 text-gray-400'
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${step.done ? 'bg-opeari-mint text-opeari-heading' : step.highlight ? 'bg-orange-200 text-orange-700' : 'bg-gray-100 text-gray-400'
                             }`}>
                             {step.done ? (
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -118,10 +118,10 @@ export default function SetupJourney({ firstName, hasProfile, hasBrowsed, hasInv
                             )}
                         </div>
                         <div className="flex-1">
-                            <h3 className={`font-bold ${step.highlight ? 'text-orange-900' : step.done ? 'text-primary' : 'text-text-primary'}`}>
+                            <h3 className={`font-bold ${step.highlight ? 'text-orange-900' : step.done ? 'text-opeari-heading' : 'text-opeari-text'}`}>
                                 {step.label} {step.highlight && <span className="ml-2 text-xs bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full">Priority</span>}
                             </h3>
-                            <p className="text-sm text-text-secondary">
+                            <p className="text-sm text-opeari-text-secondary">
                                 {step.description}
                             </p>
                         </div>
