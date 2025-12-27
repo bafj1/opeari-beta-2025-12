@@ -36,7 +36,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-opeari-bg border-b border-opeari-border sticky top-0 z-50">
+    <header className="bg-opeari-bg sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link
@@ -250,7 +250,7 @@ export default function Header() {
               to="/waitlist"
               variant="primary"
               size="sm"
-              className="bg-[#1E6B4E] text-white hover:opacity-90 border-none shrink-0 whitespace-nowrap"
+              className="bg-[#1E6B4E] text-white hover:opacity-90 border-none shrink-0 whitespace-nowrap flex items-center justify-center leading-none"
             >
               Join Waitlist
             </Button>

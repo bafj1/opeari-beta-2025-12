@@ -31,7 +31,11 @@ export default function SignIn() {
         <div className="min-h-screen bg-[#F5F1EB] flex items-center justify-center p-4 font-sans text-gray-800" style={{ fontFamily: "'Comfortaa', 'DM Sans', 'Inter', system-ui, sans-serif" }}>
             <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full border border-white/80">
                 <div className="text-center mb-6">
-                    <div className="text-4xl mb-4">🍐</div>
+                    <img
+                        src="/opeari-welcome-green.png"
+                        alt="Opeari mascot"
+                        className="w-16 h-16 mx-auto mb-4"
+                    />
                     <h1 className="text-2xl font-bold text-[#1B4D3E] mb-2">Welcome back</h1>
                     <p className="text-gray-600">Sign in to your Opeari account</p>
                 </div>
