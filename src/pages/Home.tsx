@@ -135,7 +135,7 @@ export default function Home() {
           </div>
 
           <p className="text-center text-[#5a6e5a] mt-12 max-w-2xl mx-auto text-sm sm:text-base">
-            You're not alone. Opeari connects you with families nearby looking for the same support you are.
+            Opeari connects you with nearby families who need the same support you do.
           </p>
         </div>
       </section>

@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Loading from './components/common/Loading';
 import Header from './components/common/Header';
+import Footer from './components/common/Footer';
 
 // Lazy load pages for performance
 const Home = lazy(() => import('./pages/Home'));
@@ -78,6 +79,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
+        <Footer />
       </Router>
     </AuthProvider>
   );
