@@ -246,14 +246,12 @@ export default function Header() {
             >
               Login
             </Button>
-            <Button
+            <Link
               to="/waitlist"
-              variant="primary"
-              size="sm"
-              className="bg-[#1E6B4E] text-white hover:opacity-90 border-none shrink-0 whitespace-nowrap flex items-center justify-center leading-none"
+              className="inline-flex items-center justify-center px-5 py-2.5 bg-[#1E6B4E] text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity leading-none shrink-0 whitespace-nowrap"
             >
               Join Waitlist
-            </Button>
+            </Link>
           </div>
         )}
       </div>
