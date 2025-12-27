@@ -40,7 +40,7 @@ export default function Home() {
                   to="/how-it-works"
                   variant="secondary"
                   size="lg"
-                  className="px-8"
+                  className="px-8 border-2 border-[#1E6B4E] text-[#1E6B4E] hover:bg-[#1E6B4E] hover:text-white"
                 >
                   See How It Works
                 </Button>
@@ -173,7 +173,7 @@ export default function Home() {
             to="/waitlist"
             variant="primary"
             size="lg"
-            className="px-12 text-lg bg-[#F8C3B3] text-[#1E6B4E] hover:bg-[#f5b2a1] hover:text-white border-none"
+            className="px-12 text-lg !bg-[#F8C3B3] !text-[#1E6B4E] hover:!bg-[#f5b2a1] hover:!text-white border-none opacity-100 text-center"
           >
             Join the Waitlist
           </Button>
@@ -226,7 +226,7 @@ function FeatureCard({ icon, iconBg, title, description }: {
   const className = `w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${!isHex ? iconBg : ''}`;
 
   return (
-    <div className="p-7 rounded-2xl transition-all bg-opeari-bg-card hover:bg-opeari-mint hover:shadow-card hover:-translate-y-1 border border-transparent hover:border-opeari-mint">
+    <div className="p-7 rounded-2xl transition-all duration-300 bg-opeari-bg-card hover:bg-opeari-mint hover:shadow-lg hover:-translate-y-1 border border-transparent hover:border-opeari-mint">
       <div className={className} style={style}>
         {icon}
       </div>
