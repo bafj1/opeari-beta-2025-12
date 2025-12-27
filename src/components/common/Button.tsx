@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 interface ButtonProps {
     children: React.ReactNode;
-    variant?: 'primary' | 'secondary' | 'tertiary';
+    variant?: 'primary' | 'secondary' | 'tertiary' | 'accent';
     size?: 'sm' | 'md' | 'lg';
     fullWidth?: boolean;
     to?: string;            // If provided, renders as Link
@@ -36,6 +36,7 @@ const Button: React.FC<ButtonProps> = ({
         primary: `bg-primary text-white hover:bg-primary-dark hover:-translate-y-0.5 shadow-button hover:shadow-button-hover active:translate-y-0 disabled:hover:translate-y-0 disabled:shadow-none focus:ring-primary/30`,
         secondary: `bg-white text-primary border-2 border-mint-dark hover:border-primary hover:text-primary-dark hover:-translate-y-0.5 disabled:hover:border-mint-dark disabled:hover:translate-y-0 focus:ring-primary/20`,
         tertiary: `bg-transparent text-primary hover:text-coral hover:underline focus:ring-0 px-0 shadow-none`,
+        accent: `btn-accent shadow-button hover:shadow-button-hover active:translate-y-0`,
     };
 
     // Sizes

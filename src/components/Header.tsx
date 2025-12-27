@@ -6,7 +6,7 @@ export function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     return (
-        <header className="relative z-50 bg-opeari-bg border-b border-mint-dark/40">
+        <header className="relative z-50 bg-opeari-bg border-b border-mint-dark/40 overflow-visible">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                 {/* Logo */}
                 <Link to="/" className="flex items-center mr-8 focus:outline-none opacity-100 hover:opacity-80 transition-opacity">

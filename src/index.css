@@ -1,7 +1,2 @@
-/**
- * Opeari Design Tokens v1.1
- */
 @import './opeari-tokens.css';
 @import "tailwindcss";
-
-/* Legacy styles removed to favor opeari-tokens.css */

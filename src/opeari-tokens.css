@@ -1,21 +1,28 @@
 /**
  * Opeari Design Tokens v1.1
+ * COMPLETE FILE - DO NOT MODIFY
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&display=swap');
 
 :root {
-  /* BACKGROUNDS */
+  /* ================================
+     BACKGROUNDS
+     ================================ */
   --opeari-bg: #fffaf5;
   --opeari-bg-secondary: #F9E3D2;
   --opeari-bg-card: rgba(255, 255, 255, 0.6);
 
-  /* TEXT */
+  /* ================================
+     TEXT HIERARCHY
+     ================================ */
   --opeari-text-heading: #1E6B4E;
   --opeari-text-body: #2F3E34;
   --opeari-text-secondary: #546E5C;
 
-  /* ACCENTS */
+  /* ================================
+     BRAND ACCENTS
+     ================================ */
   --opeari-green: #1E6B4E;
   --opeari-green-dark: #155a3e;
   --opeari-mint: #8BD7C7;
@@ -23,22 +30,33 @@
   --opeari-coral-hover: #f5b2a1;
   --opeari-peach: #F9E3D2;
 
-  /* BORDERS & SHADOWS */
+  /* ================================
+     BORDERS & SHADOWS
+     ================================ */
   --opeari-border: #8BD7C7;
   --opeari-shadow: rgba(0, 0, 0, 0.05);
   --opeari-shadow-hover: rgba(0, 0, 0, 0.08);
 
-  /* LEGACY MAPPINGS (Backward Compatibility) */
-  --color-cream: var(--opeari-bg);
-  --color-text-primary: var(--opeari-text-body);
-  --color-text-secondary: var(--opeari-text-secondary);
-  --color-primary: var(--opeari-green);
-  --color-mint: var(--opeari-mint);
-  --color-coral: var(--opeari-coral);
-  --color-peach: var(--opeari-peach);
-  --color-accent: var(--opeari-coral);
-  --color-background: var(--opeari-bg);
+  /* ================================
+     LEGACY VARIABLE MAPPINGS
+     These map old variable names to v1.1 values
+     so existing components don't break
+     ================================ */
+  --color-cream: #fffaf5;
+  --color-background: #fffaf5;
+  --color-text-primary: #2F3E34;
+  --color-text-secondary: #546E5C;
+  --color-primary: #1E6B4E;
+  --color-mint: #8BD7C7;
+  --color-coral: #F8C3B3;
+  --color-peach: #F9E3D2;
+  --color-accent: #F8C3B3;
+  --color-border: #8BD7C7;
 }
+
+/* ================================
+   BASE STYLES
+   ================================ */
 
 body {
   font-family: 'Comfortaa', sans-serif;
@@ -56,7 +74,10 @@ h6 {
   color: var(--opeari-text-heading);
 }
 
-/* Buttons */
+/* ================================
+   BUTTONS
+   ================================ */
+
 .btn-primary {
   background-color: var(--opeari-green);
   color: white;
@@ -69,6 +90,9 @@ h6 {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(30, 107, 78, 0.2);
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
 }
 
 .btn-primary:hover {
@@ -88,6 +112,9 @@ h6 {
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
 }
 
 .btn-accent:hover {
@@ -107,6 +134,9 @@ h6 {
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
 }
 
 .btn-outline:hover {
@@ -132,7 +162,10 @@ h6 {
   width: 100%;
 }
 
-/* Cards */
+/* ================================
+   CARDS
+   ================================ */
+
 .card {
   background-color: var(--opeari-bg-card);
   border-radius: 20px;
@@ -155,7 +188,10 @@ h6 {
   text-align: center;
 }
 
-/* Highlight boxes */
+/* ================================
+   HIGHLIGHT BOXES
+   ================================ */
+
 .highlight-box {
   background-color: var(--opeari-peach);
   border: 2px solid var(--opeari-border);
@@ -171,7 +207,10 @@ h6 {
   padding: 1.5rem;
 }
 
-/* Form elements */
+/* ================================
+   FORM ELEMENTS
+   ================================ */
+
 input,
 textarea,
 select {
@@ -207,7 +246,10 @@ label {
   font-size: 0.95rem;
 }
 
-/* Tags */
+/* ================================
+   TAGS
+   ================================ */
+
 .tag {
   display: inline-block;
   padding: 0.25rem 0.75rem;

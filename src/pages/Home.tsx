@@ -29,7 +29,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button
                   to="/waitlist"
-                  variant="primary"
+                  variant="accent"
                   size="lg"
                   className="px-8"
                 >
