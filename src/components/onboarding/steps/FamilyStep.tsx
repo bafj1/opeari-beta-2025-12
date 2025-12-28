@@ -68,16 +68,16 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
             {/* Add Child Button */}
             <button
                 onClick={() => updateData('kids', [...data.kids, { id: Math.random().toString(), firstName: '', nickname: '', age: '' }])}
-                className="w-full py-3 border-2 border-dashed border-opeari-mint text-opeari-green font-bold rounded-xl hover:bg-[#e8f5f0] hover:border-opeari-green transition-all"
+                className="w-full py-3 border-2 border-dashed border-opeari-mint text-[#1e6b4e] font-bold rounded-xl hover:bg-[#e8f5f0] hover:border-[#1e6b4e] transition-all"
             >
                 + Add Child
             </button>
 
             {/* Expecting */}
             <div className="mt-6 pt-6 border-t border-gray-100">
-                <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${data.expecting ? 'border-opeari-heading bg-[#f0faf4]' : 'border-gray-200'}`}>
+                <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${data.expecting ? 'border-[#1e6b4e] bg-[#f0faf4]' : 'border-gray-200'}`}>
                     <input type="checkbox" checked={data.expecting} onChange={e => updateData('expecting', e.target.checked)} className="sr-only" />
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${data.expecting ? 'bg-opeari-heading border-opeari-heading' : 'border-gray-300'}`}>
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${data.expecting ? 'bg-[#1e6b4e] border-[#1e6b4e]' : 'bg-white border-gray-300'}`}>
                         {data.expecting && <Check size={14} className="text-white" />}
                     </div>
                     <div>

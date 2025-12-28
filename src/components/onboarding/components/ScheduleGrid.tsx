@@ -30,15 +30,35 @@ export const ScheduleGrid = ({ value, onChange }: ScheduleGridProps) => {
     ];
 
     const handleQuickSelect = (q: any) => {
-        const freshSchedule: Record<string, string[]> = {};
+        const newSchedule = { ...value };
+        let isFullySelected = true;
 
-        // Select preset
+        // Check if currently fully selected
         for (const d of q.days) {
             const dayLower = d.toLowerCase();
-            freshSchedule[dayLower] = [...q.times];
+            const currentTimes = newSchedule[dayLower] || [];
+            if (q.times.some((t: string) => !currentTimes.includes(t))) {
+                isFullySelected = false;
+                break;
+            }
         }
 
-        onChange(freshSchedule);
+        // Toggle logic
+        for (const d of q.days) {
+            const dayLower = d.toLowerCase();
+            const currentTimes = newSchedule[dayLower] || [];
+
+            if (isFullySelected) {
+                // Remove
+                newSchedule[dayLower] = currentTimes.filter((t: string) => !q.times.includes(t));
+            } else {
+                // Add (Union) - ensure unique
+                const combined = [...currentTimes, ...q.times];
+                newSchedule[dayLower] = combined.filter((item, index) => combined.indexOf(item) === index);
+            }
+        }
+
+        onChange(newSchedule);
     };
 
     const clearAll = () => onChange({});

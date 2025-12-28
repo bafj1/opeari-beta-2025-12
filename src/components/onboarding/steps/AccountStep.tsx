@@ -40,8 +40,7 @@ export default function AccountStep({ data, updateData, passwordConfirm, setPass
                 placeholder="••••••••"
             />
 
-            <div className="bg-[#e8f5f0] text-[#1e6b4e] border-l-4 border-opeari-mint p-4 rounded-lg text-sm flex gap-3">
-                <span className="text-lg">ℹ️</span>
+            <div className="bg-[#e8f5f0] text-[#1e6b4e] border-l-4 border-opeari-mint p-4 rounded-lg text-sm">
                 <p>You'll use <strong>{data.email}</strong> and this password to sign in and access your village.</p>
             </div>
         </div>

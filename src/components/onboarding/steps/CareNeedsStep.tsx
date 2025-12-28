@@ -41,14 +41,19 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
 
     return (
         <div className="space-y-6 animate-fade-in">
-            <StepHeader title="What support would help?" subtitle="Your village can take many forms." />
+            <StepHeader
+                title="What support would help?"
+                subtitle={<span className="font-semibold text-[#f5b2a1]">Your village can take many forms.</span>}
+            />
 
             {/* Find Support */}
             <div className="space-y-3">
                 <div className="mb-2">
-                    <h3 className="font-bold text-opeari-heading text-lg leading-tight">Find Support</h3>
-                    <p className="font-medium text-opeari-heading mt-1 leading-snug">We connect families with similar needs — many care solutions are built together.</p>
-                    <p className="text-sm text-gray-500 mt-1">Choose any that apply — most families pick 2–3.</p>
+                    <h3 className="text-lg leading-tight">
+                        <span className="font-bold text-opeari-heading">Find Support</span>
+                        <span className="text-gray-500 font-normal"> — choose any that apply, most families pick 2–3.</span>
+                    </h3>
+                    <p className="font-medium text-[#F8C3B3] mt-1 leading-snug">We connect families with similar needs — many care solutions are built together.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="findSupportInterests">
                     {[
@@ -90,7 +95,10 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
             {/* Offer Support */}
             <div className="space-y-3 mt-8">
                 <div>
-                    <h3 className="font-bold text-opeari-heading text-lg">Offer Support (Optional)</h3>
+                    <h3 className="font-bold text-opeari-heading text-lg">
+                        Offer Support <span className="text-gray-400 font-normal">(Optional)</span>
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">Help neighbors when you can — no commitment required.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="offerSupportInterests">
                     {[
@@ -111,9 +119,6 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                         </div>
                     ))}
                 </div>
-                <p className="text-xs text-gray-400 mt-6 text-center leading-relaxed">
-                    During beta, Opeari focuses on matching families to coordinate shared schedules. Professional caregiver profiles are coming soon.
-                </p>
             </div>
         </div>
     );
