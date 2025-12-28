@@ -32,20 +32,20 @@ export const InfoBanner = ({ children }: { children: ReactNode }) => (
 );
 
 export const SelectionCard = ({ icon: Icon, label, desc, selected, onClick, isCheckboxStyle }: any) => (
-    <div onClick={onClick} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden min-h-[60px] ${selected ? 'border-opeari-heading bg-[#f0faf4] shadow-sm' : 'border-gray-200 bg-white hover:border-opeari-mint hover:shadow-sm'}`}>
+    <div onClick={onClick} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden h-full ${selected ? 'border-opeari-green bg-[#f0faf4] shadow-sm' : 'border-gray-200 bg-white hover:border-opeari-mint hover:shadow-sm'}`}>
         {isCheckboxStyle ? (
-            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selected ? 'bg-opeari-heading border-opeari-heading' : 'border-gray-300'}`}>
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selected ? 'bg-opeari-green border-opeari-green' : 'border-gray-300'}`}>
                 {selected && <Check size={14} className="text-white" />}
             </div>
         ) : (
-            <div className={`p-2.5 rounded-lg flex-shrink-0 transition-colors ${selected ? 'bg-opeari-heading text-white' : 'bg-[#F5F1EB] text-opeari-heading'}`}>
+            <div className={`p-2.5 rounded-lg flex-shrink-0 transition-colors ${selected ? 'bg-opeari-green text-white' : 'bg-[#F5F1EB] text-opeari-heading'}`}>
                 <Icon size={20} strokeWidth={2} />
             </div>
         )}
         <div className="flex-1 min-w-0">
-            <p className="font-bold text-opeari-heading text-[14px] truncate">{label}</p>
-            <p className="text-xs text-gray-500 leading-tight line-clamp-2">{desc}</p>
+            <p className="font-bold text-opeari-heading text-[14px] leading-tight break-words pr-2">{label}</p>
+            {desc && <p className="text-xs text-gray-500 leading-tight mt-0.5 line-clamp-2">{desc}</p>}
         </div>
-        {selected && !isCheckboxStyle && <div className="absolute top-2 right-2"><Check size={16} className="text-opeari-heading" /></div>}
+        {selected && !isCheckboxStyle && <div className="absolute top-2 right-2"><Check size={16} className="text-opeari-green" /></div>}
     </div>
 );

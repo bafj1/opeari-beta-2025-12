@@ -43,15 +43,15 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="findSupportInterests">
                     {[
                         { id: 'shared-nanny', label: 'Shared Nanny', desc: 'Seasonal or ongoing care with 1–2 families' },
-                        { id: 'part-time-nanny', label: 'Part-Time / Split-Schedule Nanny', desc: 'Mornings, afternoons, or a few days a week', isPopular: true },
+                        { id: 'part-time-nanny', label: 'Part-Time / Split Nanny', desc: 'Mornings, afternoons, or a few days a week', isPopular: true },
                         { id: 'trusted-babysitter', label: 'Trusted Babysitter', desc: 'Date nights & occasional help' },
                         { id: 'backup-care', label: 'Backup Care', desc: 'Last-minute gaps & schedule changes' },
-                        { id: 'school-pickups', label: 'School Pickups & Drop-Offs', desc: 'Drop-off & pickup help' },
+                        { id: 'school-pickups', label: 'School Pickups', desc: 'Drop-off & pickup help' },
                         { id: 'extra-hands', label: 'Extra Hands at Home', desc: 'Help while you work from home' },
-                        { id: 'live-in', label: 'Live-In or Travel Support', desc: 'Vacation & extended stays' },
+                        { id: 'live-in', label: 'Live-In / Travel Care', desc: 'Vacation & extended stays' },
                         { id: 'something-else', label: 'Something else', desc: 'Tell us what you need' }
                     ].map(opt => (
-                        <div key={opt.id} className="relative">
+                        <div key={opt.id} className="relative h-full">
                             <SelectionCard
                                 icon={Check}
                                 label={opt.label}
@@ -62,13 +62,13 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                             />
                             {/* Visual Elevation for Part-Time */}
                             {opt.isPopular && (
-                                <div className="absolute -top-2 -right-2 bg-opeari-teal text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm z-10 pointer-events-none">
+                                <div className="absolute -top-2 -right-2 bg-[#8bd7c7] text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm z-10 pointer-events-none">
                                     Popular
                                 </div>
                             )}
                             {/* Highlight border for popular */}
                             {opt.isPopular && (
-                                <div className="absolute inset-0 border-2 border-opeari-teal/30 rounded-xl pointer-events-none" />
+                                <div className="absolute inset-0 border-2 border-[#8bd7c7]/30 rounded-xl pointer-events-none" />
                             )}
                         </div>
                     ))}
@@ -79,29 +79,32 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
             <div className="space-y-3 mt-6">
                 <div>
                     <h3 className="font-bold text-opeari-heading text-lg">Offer Support (Optional)</h3>
-                    <p className="text-sm text-gray-500 mt-1">Share only if you're open to helping occasionally — this helps us understand availability in your area.</p>
+                    <p className="text-sm text-gray-500 mt-1">Optional — share if you're open to helping.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="offerSupportInterests">
                     {[
+                        { id: 'offer-backup', label: 'Backup Care', desc: 'Available to help neighbors in a pinch' },
                         { id: 'offer-pickups', label: 'School Pickups', desc: 'Open to sharing routine drop-off or pickup responsibilities' },
                         { id: 'host-share', label: 'Host Nanny Share', desc: 'Open to hosting care at your home' },
                         { id: 'care-exchange', label: 'Care Exchange', desc: 'Open to occasional care swaps with families you know' }
                     ].map(opt => (
-                        <SelectionCard
-                            key={opt.id}
-                            icon={Check}
-                            label={opt.label}
-                            desc={opt.desc}
-                            selected={data.careOptions.includes(opt.id)}
-                            onClick={() => toggleCareOption(opt.id)}
-                            isCheckboxStyle={true}
-                        />
+                        <div key={opt.id} className="h-full">
+                            <SelectionCard
+                                icon={Check}
+                                label={opt.label}
+                                desc={opt.desc}
+                                selected={data.careOptions.includes(opt.id)}
+                                onClick={() => toggleCareOption(opt.id)}
+                                isCheckboxStyle={true}
+                            />
+                        </div>
                     ))}
                 </div>
             </div>
 
             {showSomethingElseInput && (
-                <div className="animate-fade-in">
+                <div className="animate-fade-in pt-4">
+                    <label className="block text-sm text-gray-500 mb-2">Need something specific? (Optional)</label>
                     <textarea
                         className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-opeari-green focus:outline-none placeholder:text-gray-400 text-sm"
                         rows={3}
