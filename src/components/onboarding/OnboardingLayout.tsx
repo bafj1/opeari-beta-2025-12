@@ -22,7 +22,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
                             key={`img-${step}`}
                             src={currentStepConfig.img}
                             alt={`Step ${step}`}
-                            className="w-full h-full object-contain animate-fade-in"
+                            className={`w-full h-full object-contain animate-fade-in ${step === 2 ? 'opacity-20' : ''}`}
                         />
                     </div>
                     <p key={`txt-${step}`} className="text-xl text-[#1e6b4e] font-medium leading-relaxed animate-fade-in whitespace-pre-line">
