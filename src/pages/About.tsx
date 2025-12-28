@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 
 // Colors
 const COLORS = {
@@ -16,6 +17,22 @@ const COLORS = {
 export default function About() {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: COLORS.cream }}>
+      <Helmet>
+        <title>Opeari - About Us</title>
+        <meta name="description" content="We're reimagining childcare to be more flexible, affordable, and community-driven. It takes a village—we help you build yours." />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Opeari - About Us" />
+        <meta property="og:description" content="We're reimagining childcare to be more flexible, affordable, and community-driven. It takes a village—we help you build yours." />
+        <meta property="og:image" content="https://opeari.com/opeari-proud.png" />
+        <meta property="og:url" content="https://opeari.com/about" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Opeari - About Us" />
+        <meta name="twitter:description" content="We're reimagining childcare to be more flexible, affordable, and community-driven. It takes a village—we help you build yours." />
+        <meta name="twitter:image" content="https://opeari.com/opeari-proud.png" />
+      </Helmet>
       {/* Hero - Warm white with illustration */}
       <section className="pt-32 pb-16 sm:pt-40 sm:pb-20 lg:pt-44 lg:pb-24" style={{ backgroundColor: COLORS.cream }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6">

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Calendar, Home as HomeIcon, PiggyBank, Plane, Shield, Lock } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
 
 // --- LOCAL COMPONENTS ---
 
@@ -63,6 +64,22 @@ function PainPointCard({ title, variant = 'neutral' }: { title: string, variant?
 export default function Home() {
   return (
     <main className="bg-[#fffaf5] font-sans min-h-screen">
+      <Helmet>
+        <title>Opeari - Flexible Childcare & Nanny Shares</title>
+        <meta name="description" content="Childcare that fits your life. Connect with local families for nanny shares, backup care, and trusted support in your neighborhood." />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Opeari - Flexible Childcare & Nanny Shares" />
+        <meta property="og:description" content="Childcare that fits your life. Connect with local families for nanny shares, backup care, and trusted support in your neighborhood." />
+        <meta property="og:image" content="https://opeari.com/opeari-village-hero.png" />
+        <meta property="og:url" content="https://opeari.com/" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Opeari - Flexible Childcare & Nanny Shares" />
+        <meta name="twitter:description" content="Childcare that fits your life. Connect with local families for nanny shares, backup care, and trusted support in your neighborhood." />
+        <meta name="twitter:image" content="https://opeari.com/opeari-village-hero.png" />
+      </Helmet>
 
       {/* 
         SECTION 1: HERO 

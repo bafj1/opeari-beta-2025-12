@@ -4,12 +4,16 @@ import './index.css'
 import App from './App.tsx'
 import { ErrorBoundary } from './ErrorBoundary'
 
+import { HelmetProvider } from 'react-helmet-async'
+
 console.log('Main.tsx executing...');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
-      <App />
+      <HelmetProvider>
+        <App />
+      </HelmetProvider>
     </ErrorBoundary>
   </StrictMode>,
 )

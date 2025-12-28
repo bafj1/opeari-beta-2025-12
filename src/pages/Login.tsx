@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { Eye, EyeOff } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -61,6 +62,22 @@ export default function Login() {
 
   return (
     <main className="min-h-screen bg-[#fffaf5] flex">
+      <Helmet>
+        <title>Opeari - Login</title>
+        <meta name="description" content="Welcome back to your village. Log in to manage your care schedule and connect with families." />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Opeari - Login" />
+        <meta property="og:description" content="Welcome back to your village. Log in to manage your care schedule and connect with families." />
+        <meta property="og:image" content="https://opeari.com/opeari-village-hero.png" />
+        <meta property="og:url" content="https://opeari.com/login" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Opeari - Login" />
+        <meta name="twitter:description" content="Welcome back to your village. Log in to manage your care schedule and connect with families." />
+        <meta name="twitter:image" content="https://opeari.com/opeari-village-hero.png" />
+      </Helmet>
       {/* Left Panel - Branding */}
       <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-[#1E6B4E] to-[#2d7a5e] p-12 pt-12 flex-col justify-between text-white relative overflow-hidden">
         {/* Decorative circles */}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../data/mockStore';
+import { Helmet } from 'react-helmet-async';
 // import type { NannyShare as NannyShareType } from '../data/types';
 
 export default function NannyShare() {
@@ -32,6 +33,22 @@ export default function NannyShare() {
 
     return (
         <div className="container">
+            <Helmet>
+                <title>Opeari - Nanny Shares Made Simple</title>
+                <meta name="description" content="Cut childcare costs by up to 40% without sacrificing quality. Find the perfect family to share a nanny with today." />
+
+                {/* Open Graph */}
+                <meta property="og:title" content="Opeari - Nanny Shares Made Simple" />
+                <meta property="og:description" content="Cut childcare costs by up to 40% without sacrificing quality. Find the perfect family to share a nanny with today." />
+                <meta property="og:image" content="https://opeari.com/opeari-village-hero.png" />
+                <meta property="og:url" content="https://opeari.com/nanny-share" />
+
+                {/* Twitter */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="Opeari - Nanny Shares Made Simple" />
+                <meta name="twitter:description" content="Cut childcare costs by up to 40% without sacrificing quality. Find the perfect family to share a nanny with today." />
+                <meta name="twitter:image" content="https://opeari.com/opeari-village-hero.png" />
+            </Helmet>
             <div style={{ maxWidth: '600px', margin: '2rem auto' }}>
                 <h1>Nanny Share Builder</h1>
                 <p style={{ marginBottom: '2rem' }}>Define the structure of your share to ensure fairness and clarity.</p>

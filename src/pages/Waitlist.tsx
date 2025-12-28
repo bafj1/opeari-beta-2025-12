@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { Helmet } from 'react-helmet-async'
 
 const logoImg = '/logo.svg'
 const heroImg = '/opeari-waitlist.png'
@@ -8,6 +9,7 @@ const heroImg = '/opeari-waitlist.png'
 export default function Waitlist() {
   const [searchParams] = useSearchParams()
   const referredByCode = searchParams.get('ref')
+
 
   // Form state
   const [firstName, setFirstName] = useState('')
@@ -283,6 +285,22 @@ export default function Waitlist() {
 
   return (
     <div className="min-h-screen bg-[#fffaf5] font-[Comfortaa] text-[#1e6b4e] flex flex-col">
+      <Helmet>
+        <title>Opeari - Join the Waitlist</title>
+        <meta name="description" content="Be the first to build your village. Join neighbors sharing childcare costs and creating flexible support networks." />
+
+        {/* Open Graph */}
+        <meta property="og:title" content="Opeari - Join the Waitlist" />
+        <meta property="og:description" content="Be the first to build your village. Join neighbors sharing childcare costs and creating flexible support networks." />
+        <meta property="og:image" content="https://opeari.com/opeari-waitlist.png" />
+        <meta property="og:url" content="https://opeari.com/waitlist" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Opeari - Join the Waitlist" />
+        <meta name="twitter:description" content="Be the first to build your village. Join neighbors sharing childcare costs and creating flexible support networks." />
+        <meta name="twitter:image" content="https://opeari.com/opeari-waitlist.png" />
+      </Helmet>
       <style>{`
         @keyframes float-pear {
           0%, 100% { transform: translateY(0); }

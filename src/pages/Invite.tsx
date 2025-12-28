@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { Helmet } from 'react-helmet-async'
 
 export default function Invite() {
   const [searchParams] = useSearchParams()
@@ -199,6 +200,22 @@ export default function Invite() {
   if (step === 'validating') {
     return (
       <div className="min-h-screen bg-[#fffaf5] flex items-center justify-center p-4">
+        <Helmet>
+          <title>Opeari - Invite Your Village</title>
+          <meta name="description" content="The more neighbors who join, the stronger the network. Invite friends to unlock flexible, local childcare." />
+
+          {/* Open Graph */}
+          <meta property="og:title" content="Opeari - Invite Your Village" />
+          <meta property="og:description" content="The more neighbors who join, the stronger the network. Invite friends to unlock flexible, local childcare." />
+          <meta property="og:image" content="https://opeari.com/opeari-village-hero.png" />
+          <meta property="og:url" content="https://opeari.com/invite" />
+
+          {/* Twitter */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="Opeari - Invite Your Village" />
+          <meta name="twitter:description" content="The more neighbors who join, the stronger the network. Invite friends to unlock flexible, local childcare." />
+          <meta name="twitter:image" content="https://opeari.com/opeari-village-hero.png" />
+        </Helmet>
         <div className="text-center">
           <div className="w-10 h-10 border-3 border-[#1e6b4e] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[#1e6b4e] font-medium text-sm">Validating your invite...</p>
