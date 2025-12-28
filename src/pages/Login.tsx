@@ -62,12 +62,18 @@ export default function Login() {
   return (
     <main className="min-h-screen bg-[#fffaf5] flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-[#1E6B4E] to-[#2d7a5e] p-12 flex-col justify-between text-white relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-[#1E6B4E] to-[#2d7a5e] p-12 pt-12 flex-col justify-between text-white relative overflow-hidden">
         {/* Decorative circles */}
         <div className="absolute top-20 right-20 w-32 h-32 bg-white/5 rounded-full" />
         <div className="absolute bottom-40 left-10 w-24 h-24 bg-white/5 rounded-full" />
 
         <div className="relative z-10">
+          {/* Logo with spacing */}
+          <Link to="/" className="flex items-center gap-2 mb-12 hover:opacity-90 transition-opacity inline-flex">
+            <img src="/icon.svg" alt="Opeari" className="w-8 h-8" />
+            <span className="text-xl font-bold text-white">Opeari</span>
+          </Link>
+
           <h2 className="text-3xl font-bold mb-4">Welcome back to your village</h2>
           <p className="text-white/80 text-lg mb-10">
             Connect with trusted families nearby and build your childcare community.
@@ -97,9 +103,21 @@ export default function Login() {
         />
       </div>
 
-      {/* Right Panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-        <div className="w-full max-w-md">
+      {/* Right Panel - Form (and Nav) */}
+      <div className="flex-1 flex flex-col items-center justify-center relative bg-[#fffaf5]">
+        {/* Simplified Nav inside Right Panel */}
+        <nav className="absolute top-0 right-0 w-full flex justify-end items-center gap-6 p-6 overflow-visible z-10">
+          <Link to="/about" className="text-sm text-[#1e6b4e] hover:underline">About</Link>
+          <Link to="/faq" className="text-sm text-[#1e6b4e] hover:underline">FAQ</Link>
+          <Link
+            to="/waitlist"
+            className="px-5 py-2 bg-[#F8C3B3] text-[#1e6b4e] rounded-full text-sm font-semibold hover:bg-[#f5b2a1] transition-colors whitespace-nowrap"
+          >
+            Join Waitlist
+          </Link>
+        </nav>
+
+        <div className="w-full max-w-md p-6 lg:p-12 mt-16 lg:mt-0">
           <div className="bg-white rounded-2xl shadow-sm border border-[#e8e4de] p-8">
             {/* Header */}
             <div className="mb-8">
@@ -126,7 +144,7 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full px-4 py-3 rounded-xl border border-[#e8e4de] text-[#1E6B4E] placeholder-[#9ca3af] focus:outline-none focus:border-[#1E6B4E] focus:ring-2 focus:ring-[#1E6B4E]/20 transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-[#8bd7c7] text-[#1E6B4E] placeholder-[#9ca3af] focus:outline-none focus:border-[#1E6B4E] focus:ring-2 focus:ring-[#1E6B4E]/20 transition-all"
                 />
               </div>
 
@@ -154,15 +172,33 @@ export default function Login() {
               </div>
 
               <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 cursor-pointer text-[#5a6e5a]">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-[#e8e4de] text-[#1E6B4E] focus:ring-[#1E6B4E]/20"
-                  />
-                  Remember me
+                {/* Custom Checkbox */}
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all
+                        ${rememberMe
+                          ? 'bg-[#1e6b4e] border-[#1e6b4e]'
+                          : 'bg-white border-[#8bd7c7]'
+                        }
+                        peer-focus:ring-2 peer-focus:ring-[#1e6b4e]/20 peer-focus:ring-offset-1`}
+                    >
+                      {rememberMe && (
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-sm text-[#2F3E34]">Remember me</span>
                 </label>
+
                 <Link
                   to="/request-link"
                   className="text-[#1E6B4E] font-medium hover:underline"
@@ -181,9 +217,9 @@ export default function Login() {
             </form>
 
             {/* Footer */}
-            <p className="text-center text-sm text-[#5a6e5a] mt-8">
+            <p className="text-center text-sm text-[#546E5C] mt-8">
               Don't have an invite code?{' '}
-              <Link to="/waitlist" className="text-[#1E6B4E] font-semibold hover:underline">
+              <Link to="/waitlist" className="text-[#F8C3B3] font-semibold hover:text-[#1e6b4e] transition-colors">
                 Join the Waitlist
               </Link>
             </p>
