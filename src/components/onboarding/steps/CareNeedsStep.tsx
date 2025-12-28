@@ -47,6 +47,7 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
             <div className="space-y-3">
                 <div className="mb-2">
                     <h3 className="font-bold text-opeari-heading text-lg leading-tight">Find Support</h3>
+                    <p className="font-medium text-opeari-heading mt-1 leading-snug">We connect families with similar needs — many care solutions are built together.</p>
                     <p className="text-sm text-gray-500 mt-1">Choose any that apply — most families pick 2–3.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="findSupportInterests">
@@ -110,6 +111,9 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                         </div>
                     ))}
                 </div>
+                <p className="text-xs text-gray-400 mt-6 text-center leading-relaxed">
+                    During beta, Opeari focuses on matching families to coordinate shared schedules. Professional caregiver profiles are coming soon.
+                </p>
             </div>
         </div>
     );
