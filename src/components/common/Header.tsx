@@ -52,7 +52,7 @@ export default function Header() {
       : 'bg-transparent shadow-none py-5 sm:py-6'}
   `
 
-  if (location.pathname === '/login') return null
+  if (location.pathname === '/login' || location.pathname === '/admin-waitlist') return null
 
   return (
     <header className={headerClasses}>

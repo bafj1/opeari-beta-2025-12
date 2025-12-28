@@ -17,9 +17,9 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div
                     onClick={() => updateData('userIntent', 'seeking')}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'seeking' ? 'border-opeari-heading bg-[#f0faf4]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'seeking' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
                 >
-                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'seeking' ? 'bg-opeari-heading text-white' : 'bg-[#fffaf5] text-[#1e6b4e]'}`}>
+                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'seeking' ? 'bg-[#1e6b4e] text-white' : 'bg-[#fffaf5] text-[#1e6b4e]'}`}>
                         <User size={24} />
                     </div>
                     <div>
@@ -30,9 +30,9 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
 
                 <div
                     onClick={() => updateData('userIntent', 'providing')}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'providing' ? 'border-opeari-heading bg-[#f0faf4]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'providing' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
                 >
-                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'providing' ? 'bg-opeari-heading text-white' : 'bg-[#fffaf5] text-[#1e6b4e]'}`}>
+                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'providing' ? 'bg-[#1e6b4e] text-white' : 'bg-[#fffaf5] text-[#1e6b4e]'}`}>
                         <Check size={24} />
                     </div>
                     <div>
@@ -44,14 +44,25 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
 
             {data.userIntent === 'seeking' && (
                 <div className="animate-fade-in pt-2">
-                    <label className="flex items-center gap-3 p-3 rounded-lg bg-[#e8f5f0] cursor-pointer hover:bg-[#d8f5e5] transition-colors">
-                        <input
-                            type="checkbox"
-                            checked={hostingInterest}
-                            onChange={(e) => setHostingInterest(e.target.checked)}
-                            className="w-5 h-5 rounded border-gray-300 text-opeari-heading focus:ring-opeari-heading"
-                        />
-                        <span className="text-sm font-medium text-opeari-heading">I'm open to hosting care at my home sometimes</span>
+                    <label className="flex items-center gap-3 p-3 rounded-lg bg-[#e8f5f0] cursor-pointer hover:bg-[#d8f5e5] transition-colors select-none">
+                        <div className="relative">
+                            <input
+                                type="checkbox"
+                                checked={hostingInterest}
+                                onChange={(e) => setHostingInterest(e.target.checked)}
+                                className="sr-only peer"
+                            />
+                            <div
+                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all bg-white border-[#8bd7c7] peer-checked:bg-[#1e6b4e] peer-checked:border-[#1e6b4e]`}
+                            >
+                                {hostingInterest && (
+                                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                )}
+                            </div>
+                        </div>
+                        <span className="text-sm font-medium text-opeari-heading">I can host care at my home</span>
                     </label>
                 </div>
             )}

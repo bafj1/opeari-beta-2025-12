@@ -297,8 +297,8 @@ export default function AdminWaitlist() {
                                 key={f}
                                 onClick={() => setFilter(f as any)}
                                 className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-colors ${filter === f
-                                    ? 'bg-opeari-green text-white'
-                                    : 'bg-white text-opeari-heading/70 hover:bg-opeari-mint'
+                                    ? 'bg-[#1E6B4E] text-white shadow-md'
+                                    : 'bg-white text-[#1E6B4E]/70 hover:bg-[#8BD7C7]/30'
                                     }`}
                             >
                                 {f}
@@ -368,7 +368,7 @@ export default function AdminWaitlist() {
                                                         </button>
                                                         <button
                                                             onClick={() => handleApprove(entry)}
-                                                            className="px-3 py-1.5 text-xs font-bold text-white bg-opeari-green hover:bg-opeari-green-dark rounded-md transition-colors shadow-sm"
+                                                            className="px-3 py-1.5 text-xs font-bold text-white bg-[#1E6B4E] hover:bg-[#155a3e] rounded-md transition-colors shadow-sm"
                                                         >
                                                             Approve
                                                         </button>
@@ -385,7 +385,7 @@ export default function AdminWaitlist() {
                                                         </button>
                                                         <button
                                                             onClick={() => handleResend(entry)}
-                                                            className="text-[10px] font-bold text-opeari-green hover:text-opeari-green-dark hover:bg-opeari-mint px-2 py-1 rounded transition-colors"
+                                                            className="text-[10px] font-bold text-[#1E6B4E] hover:text-[#155a3e] hover:bg-[#8BD7C7]/30 px-2 py-1 rounded transition-colors"
                                                         >
                                                             Resend Invite
                                                         </button>

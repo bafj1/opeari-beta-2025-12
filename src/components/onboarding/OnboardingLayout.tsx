@@ -16,9 +16,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
 
                 {/* LEFT PANEL */}
                 <div className="hidden md:flex md:w-[40%] bg-opeari-bg border-r border-opeari-peach flex-col items-center justify-center p-12 text-center relative transition-all duration-500">
-                    <div className="absolute top-8 left-8">
-                        <span className="font-bold text-opeari-heading text-xl tracking-tight">Opeari</span>
-                    </div>
+
                     <div className="w-64 h-64 mb-8 transition-opacity duration-500">
                         <img
                             key={`img-${step}`}

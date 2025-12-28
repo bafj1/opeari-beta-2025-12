@@ -13,7 +13,8 @@ const About = lazy(() => import('./pages/About'));
 const Waitlist = lazy(() => import('./pages/Waitlist'));
 const Login = lazy(() => import('./pages/Login'));
 const Invite = lazy(() => import('./pages/Invite'));
-const AdminWaitlist = lazy(() => import('./pages/AdminWaitlist'));
+import AdminWaitlist from './pages/AdminWaitlist';
+
 const RequestNewLink = lazy(() => import('./pages/RequestNewLink'));
 const SignIn = lazy(() => import('./pages/SignIn'));
 
@@ -52,11 +53,7 @@ function App() {
             {/* Onboarding - Protected */}
             <Route
               path="/onboarding"
-              element={
-                <ProtectedRoute>
-                  <Onboarding />
-                </ProtectedRoute>
-              }
+              element={<Onboarding />}
             />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/build-your-village" element={<ProtectedRoute><BuildYourVillage /></ProtectedRoute>} />

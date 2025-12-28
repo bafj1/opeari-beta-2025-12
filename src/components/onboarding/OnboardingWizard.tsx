@@ -80,8 +80,8 @@ export default function OnboardingWizard() {
                 <button
                     onClick={step === 5 ? handleFinish : nextStep}
                     disabled={!isStepValid() || loading}
-                    className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg text-white shadow-button transition-all flex items-center justify-center gap-2
-                        ${!isStepValid() || loading ? 'bg-[#e0e0e0] text-[#9e9e9e] cursor-not-allowed shadow-none' : 'bg-opeari-green hover:bg-opeari-green-dark hover:-translate-y-0.5'}
+                    className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg shadow-button transition-all flex items-center justify-center gap-2
+                        ${!isStepValid() || loading ? 'bg-[#e0e0e0] text-[#9e9e9e] cursor-not-allowed shadow-none' : 'bg-[#F8C3B3] text-[#1e6b4e] hover:bg-[#f5b2a1] hover:-translate-y-0.5'}
                     `}
                 >
                     {loading ? 'Saving...' : step === 5 ? (

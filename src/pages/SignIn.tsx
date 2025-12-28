@@ -32,7 +32,7 @@ export default function SignIn() {
             <div className="bg-white rounded-2xl shadow-[0_10px_15px_-3px_rgba(30,107,78,0.1),0_4px_6px_-2px_rgba(30,107,78,0.05)] p-8 max-w-md w-full border border-white/80">
                 <div className="text-center mb-6">
                     <img
-                        src="/images/opeari-welcome-green.png"
+                        src="/opeari-welcome-green.png"
                         alt="Opeari mascot"
                         className="w-16 h-16 mx-auto mb-4 object-contain"
                     />
