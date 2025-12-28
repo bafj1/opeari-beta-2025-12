@@ -63,7 +63,7 @@ export default function Header() {
           className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none decoration-transparent"
         >
           <img src="/icon.svg" alt="" className="h-7 w-7 sm:h-8 sm:w-8" />
-          <span className="text-[#1E6B4E] font-bold text-xl sm:text-2xl">Opeari</span>
+          <span className="text-[#1E6B4E] font-bold text-lg sm:text-2xl">Opeari</span>
         </Link>
 
         {/* Right side */}
@@ -230,19 +230,19 @@ export default function Header() {
           </>
         ) : (
 
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-3 sm:gap-6">
             <Link to="/about" className="hidden sm:block text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
               About
             </Link>
             <Link to="/faq" className="hidden sm:block text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
               FAQ
             </Link>
-            <Link to="/login" className="text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
+            <Link to="/login" className="text-[#1E6B4E] text-xs sm:text-sm font-medium hover:opacity-70 transition-opacity">
               Login
             </Link>
             <Link
               to="/waitlist"
-              className="inline-flex items-center justify-center h-10 px-5 bg-[#F8C3B3] text-[#1E6B4E] text-sm font-semibold rounded-full hover:bg-[#f0b5a5] transition-colors"
+              className="inline-flex items-center justify-center h-9 sm:h-10 px-4 sm:px-5 bg-[#F8C3B3] text-[#1E6B4E] text-xs sm:text-sm font-semibold rounded-full hover:bg-[#f0b5a5] transition-colors"
             >
               Join Waitlist
             </Link>

@@ -40,7 +40,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
                         />
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 md:p-12">
+                    <div className="flex-1 overflow-y-auto p-6 pt-24 md:p-12">
                         <div className="max-w-xl mx-auto space-y-8 min-h-[50vh]">
                             {/* Mobile Step 1 Illustration - Only show on relevant steps if needed, or keeping generic for now */}
                             {step === 1 && (
