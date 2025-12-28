@@ -25,7 +25,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
                             className="w-full h-full object-contain animate-fade-in"
                         />
                     </div>
-                    <p key={`txt-${step}`} className="text-xl text-[#1e6b4e] font-medium leading-relaxed animate-fade-in">
+                    <p key={`txt-${step}`} className="text-xl text-[#1e6b4e] font-medium leading-relaxed animate-fade-in whitespace-pre-line">
                         {currentStepConfig.text}
                     </p>
                 </div>

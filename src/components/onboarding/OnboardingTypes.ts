@@ -40,7 +40,7 @@ export const INITIAL_DATA: OnboardingData = {
 }
 
 export const STEPS = [
-    { id: 0, img: '/opeari-welcome-green.png', text: "It takes a village. Let's build yours." },
+    { id: 0, img: '/opeari-welcome-green.png', text: "It takes a village.\nLet's build yours." },
     { id: 1, img: '/opeari-welcome-green.png', text: "You're early — and that matters. Early families help shape how Opeari grows in their neighborhood." },
     { id: 2, img: '/opeari-explore.png', text: "No pressure. Just possibilities. We'll figure out what works together." },
     { id: 3, img: '/opeari-happy.png', text: "Flexibility is the whole point. Most families don't have a fixed schedule — and that's okay." },
