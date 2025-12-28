@@ -33,7 +33,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
                 {/* RIGHT PANEL */}
                 <div className="w-full md:w-[60%] flex flex-col h-full bg-white relative">
                     {/* Progress Bar */}
-                    <div className="h-1 bg-gray-100 w-full">
+                    <div className="h-1 w-full">
                         <div
                             className="h-full bg-opeari-green transition-all duration-500"
                             style={{ width: `${(step / 6) * 100}%` }}
