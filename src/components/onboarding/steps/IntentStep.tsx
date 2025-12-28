@@ -37,7 +37,7 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                     </div>
                     <div>
                         <h3 className="font-bold text-opeari-heading">I provide childcare</h3>
-                        <p className="text-xs text-gray-500 mt-1">Connect with families who need help</p>
+                        <p className="text-xs text-gray-500 mt-1">Connect with families seeking care</p>
                     </div>
                 </div>
             </div>

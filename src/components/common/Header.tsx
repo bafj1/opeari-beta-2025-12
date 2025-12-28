@@ -49,7 +49,7 @@ export default function Header() {
     fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out
     ${isScrolled
       ? 'bg-opeari-bg/95 backdrop-blur-sm py-3'
-      : location.pathname === '/onboarding' ? 'bg-transparent shadow-none border-none py-5 sm:py-6' : 'bg-transparent shadow-none py-5 sm:py-6'}
+      : location.pathname === '/onboarding' ? 'bg-transparent shadow-none border-none border-0 py-5 sm:py-6' : 'bg-transparent shadow-none py-5 sm:py-6'}
   `
 
   if (location.pathname === '/login' || location.pathname === '/admin-waitlist') return null
