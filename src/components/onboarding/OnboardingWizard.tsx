@@ -70,7 +70,7 @@ export default function OnboardingWizard() {
             />
 
             {/* Navigation Footer */}
-            <div className="pt-8 mt-4 border-t border-gray-100 flex gap-4">
+            <div className="pt-8 mt-4 flex gap-4">
                 {step > 0 && (
                     <button onClick={prevStep} className="px-6 py-4 font-bold text-opeari-heading bg-[#f0faf4] rounded-xl hover:bg-[#e1f5e9] transition-colors">
                         Back

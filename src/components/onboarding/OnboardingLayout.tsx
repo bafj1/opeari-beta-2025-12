@@ -15,7 +15,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
             <div className="w-full max-w-6xl md:h-[min(800px,90vh)] bg-white md:rounded-3xl md:shadow-[0_25px_50px_-12px_rgba(30,107,78,0.25)] overflow-hidden flex flex-col md:flex-row min-h-screen md:min-h-0">
 
                 {/* LEFT PANEL */}
-                <div className="hidden md:flex md:w-[40%] bg-opeari-bg border-r border-opeari-peach flex-col items-center justify-center p-12 text-center relative transition-all duration-500">
+                <div className="hidden md:flex md:w-[40%] bg-opeari-bg flex-col items-center justify-center p-12 text-center relative transition-all duration-500">
 
                     <div className="w-64 h-64 mb-8 transition-opacity duration-500">
                         <img

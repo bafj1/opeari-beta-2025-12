@@ -20,7 +20,7 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                     onClick={() => updateData('userIntent', 'seeking')}
                     className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'seeking' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
                 >
-                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'seeking' ? 'bg-[#1e6b4e] text-white' : 'bg-[#fffaf5] text-[#1e6b4e]'}`}>
+                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'seeking' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
                         <User size={24} />
                     </div>
                     <div>
@@ -33,7 +33,7 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                     onClick={() => updateData('userIntent', 'providing')}
                     className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'providing' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
                 >
-                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'providing' ? 'bg-[#1e6b4e] text-white' : 'bg-[#fffaf5] text-[#1e6b4e]'}`}>
+                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'providing' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
                         <HandHeart size={24} />
                     </div>
                     <div>
@@ -63,7 +63,10 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                                 )}
                             </div>
                         </div>
-                        <span className="text-sm font-medium text-opeari-heading">I can host care at my home</span>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-medium text-opeari-heading">I can host care at my home</span>
+                            <span className="text-sm text-[#1e6b4e]/60">This helps match you with nanny share families</span>
+                        </div>
                     </label>
                 </div>
             )}
