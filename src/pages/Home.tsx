@@ -78,11 +78,8 @@ export default function Home() {
                 <span className="text-[#1E6B4E]">perfectly paired.</span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-[#1E6B4E]/70 mb-4">
-                Childcare that fits your life — not the other way around.
-              </p>
-              <p className="text-lg sm:text-xl text-[#1E6B4E]/70 mb-10">
-                Opeari helps parents build flexible, local care with people they trust.
+              <p className="text-lg sm:text-xl text-[#1E6B4E]/70 mb-10 max-w-xl mx-auto lg:mx-0">
+                Childcare that fits your life — not the other way around. Opeari helps parents build flexible, local care with people they trust.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
