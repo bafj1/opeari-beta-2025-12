@@ -69,12 +69,12 @@ export default function Login() {
 
         <div className="relative z-10">
           {/* Logo with spacing */}
-          <Link to="/" className="flex items-center gap-2 mb-12 hover:opacity-90 transition-opacity inline-flex">
-            <img src="/icon.svg" alt="Opeari" className="w-8 h-8" />
+          <Link to="/" className="flex items-center gap-2 mb-12 hover:opacity-90 transition-opacity">
+            <img src="/icon.svg" alt="Opeari" className="w-8 h-8 block" />
             <span className="text-xl font-bold text-white">Opeari</span>
           </Link>
 
-          <h2 className="text-3xl font-bold mb-4 text-white">Welcome back to your village</h2>
+          <h2 className="text-3xl font-bold mb-4 text-white !opacity-100">Welcome back to your village</h2>
           <p className="text-white/80 text-lg mb-10">
             Connect with trusted families nearby and build your childcare community.
           </p>
