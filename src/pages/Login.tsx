@@ -74,7 +74,7 @@ export default function Login() {
             <span className="text-xl font-bold text-white">Opeari</span>
           </Link>
 
-          <h2 className="text-3xl font-bold mb-4">Welcome back to your village</h2>
+          <h2 className="text-3xl font-bold mb-4 text-white">Welcome back to your village</h2>
           <p className="text-white/80 text-lg mb-10">
             Connect with trusted families nearby and build your childcare community.
           </p>
@@ -106,7 +106,7 @@ export default function Login() {
       {/* Right Panel - Form (and Nav) */}
       <div className="flex-1 flex flex-col items-center justify-center relative bg-[#fffaf5]">
         {/* Simplified Nav inside Right Panel */}
-        <nav className="absolute top-0 right-0 w-full flex justify-end items-center gap-6 p-6 overflow-visible z-10">
+        <nav className="absolute top-0 right-0 w-full flex justify-end items-center gap-8 p-6 pr-8 overflow-visible z-10">
           <Link to="/about" className="text-sm text-[#1e6b4e] hover:underline">About</Link>
           <Link to="/faq" className="text-sm text-[#1e6b4e] hover:underline">FAQ</Link>
           <Link
