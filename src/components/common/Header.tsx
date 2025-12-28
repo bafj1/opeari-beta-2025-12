@@ -52,6 +52,8 @@ export default function Header() {
       : 'bg-transparent shadow-none py-5 sm:py-6'}
   `
 
+  if (location.pathname === '/login') return null
+
   return (
     <header className={headerClasses}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
