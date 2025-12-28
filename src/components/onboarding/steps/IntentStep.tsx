@@ -33,7 +33,7 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                     className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'providing' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
                 >
                     <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'providing' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
-                        <HandHeart size={24} />
+                        <HandHeart size={24} /> {/* Verified: HandHeart icon */}
                     </div>
                     <div>
                         <h3 className="font-bold text-opeari-heading">I provide childcare</h3>
