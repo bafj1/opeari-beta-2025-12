@@ -81,7 +81,7 @@ export default function Login() {
 
           <h2
             className="text-3xl font-bold mb-4"
-            style={{ color: '#FFFFFF', opacity: 1 }}
+            style={{ color: '#F9E3D2', opacity: 1 }}
           >
             Welcome back to your village
           </h2>
