@@ -64,7 +64,7 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                         </div>
                         <div className="flex flex-col">
                             <span className="text-sm font-bold text-opeari-heading">I can host care at my home</span>
-                            <span className="text-xs text-[#1e6b4e]/60 font-medium">This helps match you with nanny share families</span>
+                            <span className="text-xs text-[#1e6b4e]/60 font-medium">Optional — helps us understand what setups might work</span>
                         </div>
                     </label>
                 </div>
