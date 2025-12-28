@@ -16,52 +16,13 @@ const COLORS = {
 export default function About() {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: COLORS.cream }}>
-      {/* Navigation */}
-      <header style={{ backgroundColor: COLORS.cream, borderBottom: `1px solid ${COLORS.mintDark}40` }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <img src="/logo.svg" alt="Opeari" className="h-12 sm:h-14" style={{ minHeight: '48px' }} />
-          </Link>
-          
-          <nav className="hidden md:flex items-center gap-8">
-            {['About', 'How It Works', 'FAQ'].map((item) => (
-              <Link 
-                key={item}
-                to={item === 'How It Works' ? '/how-it-works' : `/${item.toLowerCase()}`}
-                style={{ color: item === 'About' ? COLORS.coral : COLORS.primary }}
-                className="font-medium hover:opacity-70 transition-opacity"
-              >
-                {item}
-              </Link>
-            ))}
-          </nav>
-          
-          <div className="flex items-center gap-3">
-            <Link 
-              to="/login"
-              style={{ color: COLORS.primary }}
-              className="font-semibold hover:opacity-70 transition-opacity hidden sm:block"
-            >
-              Login
-            </Link>
-            <Link
-              to="/waitlist"
-              className="px-5 py-2 text-sm text-white font-semibold rounded-full transition-all hover:opacity-90"
-              style={{ backgroundColor: COLORS.primary }}
-            >
-              Join Waitlist
-            </Link>
-          </div>
-        </div>
-      </header>
-
       {/* Hero - Warm white with illustration */}
-      <section className="py-16 sm:py-20 lg:py-24" style={{ backgroundColor: COLORS.cream }}>
+      <section className="pt-32 pb-16 sm:pt-40 sm:pb-20 lg:pt-44 lg:pb-24" style={{ backgroundColor: COLORS.cream }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left - Text */}
             <div className="text-center lg:text-left">
-              <h1 
+              <h1
                 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
                 style={{ color: COLORS.primary }}
               >
@@ -69,19 +30,19 @@ export default function About() {
                 <br />
                 <span style={{ color: COLORS.primary }}>Let's help you build yours.</span>
               </h1>
-              <p 
+              <p
                 className="text-lg sm:text-xl"
                 style={{ color: COLORS.textMuted }}
               >
                 Childcare reimagined for modern parents—flexible, shared, community-powered.
               </p>
             </div>
-            
+
             {/* Right - Illustration */}
             <div className="flex justify-center lg:justify-end">
-              <img 
-                src="/opeari-proud.png" 
-                alt="Opeari pear mascot" 
+              <img
+                src="/opeari-proud.png"
+                alt="Opeari pear mascot"
                 className="w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 object-contain"
                 style={{ filter: 'drop-shadow(0 8px 24px rgba(248,195,179,0.3))' }}
               />
@@ -96,10 +57,10 @@ export default function About() {
           <h2 style={{ color: COLORS.primary }} className="text-2xl sm:text-3xl font-bold mb-10">
             The story
           </h2>
-          
+
           {/* The Problem */}
           <div className="mb-10">
-            <p 
+            <p
               className="text-sm font-semibold uppercase tracking-wide mb-3"
               style={{ color: COLORS.coral }}
             >
@@ -109,10 +70,10 @@ export default function About() {
               Childcare shouldn't feel like solving a puzzle with missing pieces.
             </p>
           </div>
-          
+
           {/* The Reality */}
           <div className="mb-10">
-            <p 
+            <p
               className="text-sm font-semibold uppercase tracking-wide mb-3"
               style={{ color: COLORS.coral }}
             >
@@ -125,9 +86,9 @@ export default function About() {
               So you ask a friend. Or a neighbor. Or a Facebook group that hasn't been active since 2019.
             </p>
           </div>
-          
+
           {/* The Insight */}
-          <div 
+          <div
             className="p-8 rounded-2xl mb-10"
             style={{ backgroundColor: `${COLORS.coral}15`, borderLeft: `4px solid ${COLORS.coral}` }}
           >
@@ -135,10 +96,10 @@ export default function About() {
               Meanwhile? <span style={{ color: COLORS.primary }} className="font-semibold">Dozens of parents around you are looking for the exact same thing.</span> We just weren't connected.
             </p>
           </div>
-          
+
           {/* The Why */}
           <div>
-            <p 
+            <p
               className="text-sm font-semibold uppercase tracking-wide mb-3"
               style={{ color: COLORS.coral }}
             >
@@ -154,30 +115,30 @@ export default function About() {
       {/* What We Believe - Mint as subtle accent */}
       <section className="py-16 sm:py-20" style={{ backgroundColor: COLORS.cream }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 
+          <h2
             className="text-2xl sm:text-3xl font-bold text-center mb-14"
             style={{ color: COLORS.primary }}
           >
             What we believe
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <BeliefCard 
+            <BeliefCard
               title="Flexibility is freedom"
               description="Life shifts. Care should too. We help families co-create care that adapts—not the other way around."
               accent={COLORS.mint}
             />
-            <BeliefCard 
+            <BeliefCard
               title="Trust is everything"
               description="Care works best when it starts with people you know, or people your people know."
               accent={`${COLORS.coral}30`}
             />
-            <BeliefCard 
+            <BeliefCard
               title="Sharing makes sense"
               description="Nanny shares, backup swaps, carpools. Lower cost, higher connection, more support."
               accent={`${COLORS.coral}30`}
             />
-            <BeliefCard 
+            <BeliefCard
               title="Parents know best"
               description="We're not here to tell you how to parent—just to help you find the people who make parenting easier."
               accent={COLORS.mint}
@@ -191,26 +152,26 @@ export default function About() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center">
             <div className="mb-6">
-              <img 
-                src="/opeari-idea.png" 
-                alt="Opeari pear" 
+              <img
+                src="/opeari-idea.png"
+                alt="Opeari pear"
                 className="w-32 h-32 mx-auto object-contain"
               />
             </div>
-            
-            <h2 
+
+            <h2
               className="text-2xl sm:text-3xl font-bold mb-6"
               style={{ color: COLORS.primary }}
             >
               Why "Opeari"?
             </h2>
-            
-            <p 
+
+            <p
               className="text-lg leading-relaxed"
               style={{ color: COLORS.textMuted }}
             >
-              A small nod to <span style={{ color: COLORS.primary }} className="font-semibold">au pair</span>. 
-              A little wink to <span style={{ color: COLORS.primary }} className="font-semibold">pairing</span> families. 
+              A small nod to <span style={{ color: COLORS.primary }} className="font-semibold">au pair</span>.
+              A little wink to <span style={{ color: COLORS.primary }} className="font-semibold">pairing</span> families.
               And a pear designed to flex with your ever-changing needs.
             </p>
           </div>
@@ -243,7 +204,7 @@ export default function About() {
             <p className="text-sm" style={{ color: COLORS.textMuted }}>
               © 2025 Opeari
             </p>
-            
+
             <div className="flex items-center gap-8 text-sm">
               <Link to="/about" style={{ color: COLORS.textMuted }} className="hover:opacity-70 transition-opacity">About</Link>
               <Link to="/how-it-works" style={{ color: COLORS.textMuted }} className="hover:opacity-70 transition-opacity">How It Works</Link>
@@ -261,11 +222,11 @@ export default function About() {
 // Belief Card Component with accent color
 function BeliefCard({ title, description, accent }: { title: string; description: string; accent: string }) {
   const [isHovered, setIsHovered] = useState(false)
-  
+
   return (
-    <div 
+    <div
       className="p-7 rounded-2xl transition-all"
-      style={{ 
+      style={{
         backgroundColor: isHovered ? accent : 'white',
         border: `1px solid ${COLORS.mintDark}40`,
         transform: isHovered ? 'translateY(-4px)' : 'none',
