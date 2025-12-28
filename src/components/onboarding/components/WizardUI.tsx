@@ -34,8 +34,8 @@ export const InfoBanner = ({ children }: { children: ReactNode }) => (
 export const SelectionCard = ({ icon: Icon, label, desc, selected, onClick, isCheckboxStyle }: any) => (
     <div onClick={onClick} className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden h-full ${selected ? 'border-opeari-green bg-[#f0faf4] shadow-sm' : 'border-gray-200 bg-white hover:border-opeari-mint hover:shadow-sm'}`}>
         {isCheckboxStyle ? (
-            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selected ? 'bg-opeari-green border-opeari-green' : 'border-gray-300'}`}>
-                {selected && <Check size={14} className="text-white" />}
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${selected ? 'bg-[#1e6b4e] border-[#1e6b4e]' : 'border-gray-300'}`}>
+                <Check size={14} className={`text-white transition-opacity ${selected ? 'opacity-100' : 'opacity-0'}`} />
             </div>
         ) : (
             <div className={`p-2.5 rounded-lg flex-shrink-0 transition-colors ${selected ? 'bg-opeari-green text-white' : 'bg-[#F5F1EB] text-opeari-heading'}`}>
