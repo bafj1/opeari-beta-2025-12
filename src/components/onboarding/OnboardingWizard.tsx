@@ -96,13 +96,20 @@ export default function OnboardingWizard() {
 // Local wrapper to handle showPassword state cleanly
 import { useState } from 'react';
 
+import CaregiverWorkTypeStep from './steps/CaregiverWorkTypeStep';
+
 function StepContentWithState(props: any) {
     const [showPassword, setShowPassword] = useState(false);
 
     switch (props.step) {
         case 0: return <IntentStep {...props} />;
         case 1: return <LocationStep {...props} />;
-        case 2: return <CareNeedsStep {...props} />;
+        case 2:
+            // FORK: If providing, show Work Type step. If seeking (or null/default), show Care Needs.
+            if (props.data.userIntent === 'providing') {
+                return <CaregiverWorkTypeStep {...props} />;
+            }
+            return <CareNeedsStep {...props} />;
         case 3: return <ScheduleStep {...props} />;
         case 4: return <FamilyStep {...props} />;
         case 5: return <AccountStep {...props} showPassword={showPassword} setShowPassword={setShowPassword} />;

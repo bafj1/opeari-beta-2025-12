@@ -114,7 +114,11 @@ export function useOnboarding() {
         switch (step) {
             case 0: return !!data.userIntent;
             case 1: return !!(data.firstName?.trim() && data.zipCode?.trim() && data.zipCode.length === 5);
-            case 2: return data.careOptions.length > 0 || showSomethingElseInput;
+            case 2:
+                if (data.userIntent === 'providing') {
+                    return data.caregiverWorkTypes.length > 0;
+                }
+                return data.careOptions.length > 0 || showSomethingElseInput;
             case 3: return true;
             case 4: return true;
             case 5: return !!(data.password && data.password.length >= 8 && data.password === passwordConfirm);
