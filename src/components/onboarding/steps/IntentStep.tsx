@@ -12,7 +12,7 @@ interface IntentStepProps {
 export default function IntentStep({ data, updateData, hostingInterest, setHostingInterest }: IntentStepProps) {
     return (
         <div className="space-y-6 animate-fade-in">
-            <div className="text-sm text-[#1e6b4e] font-medium mb-[-16px]">You're in. Let's build your village.</div>
+            <div className="text-sm text-[#1e6b4e] font-medium mb-2">You're in. Let's build your village.</div>
             <StepHeader title="What brings you to Opeari?" subtitle="Select what fits you best" />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
