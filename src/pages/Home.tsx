@@ -14,7 +14,7 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode, titl
         </div>
       </div>
       <h3 className="text-[#1E6B4E] font-semibold mb-3 text-lg">{title}</h3>
-      <p className="text-[#5a6e5a] text-sm sm:text-base leading-relaxed">{description}</p>
+      <p className="text-[#1E6B4E]/70 text-sm sm:text-base leading-relaxed">{description}</p>
     </div>
   )
 }
@@ -34,7 +34,7 @@ function StepCard({ number, image, title, description }: { number: string, image
       <div className="flex flex-col items-center">
         <span className="text-[#8bd7c7] text-sm font-bold tracking-widest uppercase mb-2">{number}</span>
         <h3 className="text-[#1E6B4E] text-xl font-semibold mb-3">{title}</h3>
-        <p className="text-[#5a6e5a] text-sm sm:text-base leading-relaxed max-w-xs mx-auto">{description}</p>
+        <p className="text-[#1E6B4E]/70 text-sm sm:text-base leading-relaxed max-w-xs mx-auto">{description}</p>
       </div>
     </div>
   )
@@ -78,8 +78,11 @@ export default function Home() {
                 <span className="text-[#1E6B4E]">perfectly paired.</span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-[#5a6e5a] mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                Childcare that fits your life—not the other way around. Connect with local families to share costs and build your village.
+              <p className="text-lg sm:text-xl text-[#1E6B4E]/70 mb-4">
+                Childcare that fits your life — not the other way around.
+              </p>
+              <p className="text-lg sm:text-xl text-[#1E6B4E]/70 mb-10">
+                Opeari helps parents build flexible, local care with people they trust.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -124,7 +127,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-[#1E6B4E] mb-4">Sound familiar?</h2>
-            <p className="text-[#5a6e5a] text-lg">Parenting wasn't meant to be done alone.</p>
+            <p className="text-[#1E6B4E]/70 text-lg">Parenting wasn't meant to be done alone.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -134,7 +137,7 @@ export default function Home() {
             <PainPointCard title="Just need more options that actually fit." variant="neutral" />
           </div>
 
-          <p className="text-center text-[#5a6e5a] mt-12 max-w-2xl mx-auto text-sm sm:text-base">
+          <p className="text-center text-[#1E6B4E]/70 mt-12 max-w-2xl mx-auto text-sm sm:text-base">
             Opeari connects you with nearby families who need the same support you do.
           </p>
         </div>
@@ -148,7 +151,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-[#1E6B4E] mb-4">How it works</h2>
-            <p className="text-[#5a6e5a] text-lg">Three simple steps to finding your village.</p>
+            <p className="text-[#1E6B4E]/70 text-lg">Three simple steps to finding your village.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
@@ -230,7 +233,7 @@ export default function Home() {
 
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <h2 className="text-4xl sm:text-5xl font-bold text-[#1E6B4E] mb-6">Ready to find your village?</h2>
-          <p className="text-lg sm:text-xl text-[#5a6e5a] mb-10">
+          <p className="text-lg sm:text-xl text-[#1E6B4E]/70 mb-10">
             Join families building flexible childcare together.
           </p>
           <Link

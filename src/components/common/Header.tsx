@@ -228,37 +228,23 @@ export default function Header() {
           </>
         ) : (
 
-          <>
-            {/* Center Nav */}
-            <nav className="hidden sm:flex items-center gap-8">
-              <Link to="/about" className="text-opeari-heading text-sm font-medium hover:opacity-70 transition-opacity">
-                About
-              </Link>
-              <Link to="/faq" className="text-opeari-heading text-sm font-medium hover:opacity-70 transition-opacity">
-                FAQ
-              </Link>
-            </nav>
-
-            {/* Right Side */}
-            <div className="flex items-center gap-4">
-              <Link
-                to="/login"
-                className="text-opeari-heading text-sm font-medium hover:opacity-70 transition-opacity"
-              >
-                Login
-              </Link>
-              <Link
-                to="/waitlist"
-                className="inline-flex items-center justify-center h-10 px-6 text-sm font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg focus:outline-none"
-                style={{
-                  backgroundColor: 'var(--opeari-coral)',
-                  color: 'var(--opeari-text-heading)'
-                }}
-              >
-                Join Waitlist
-              </Link>
-            </div>
-          </>
+          <nav className="flex items-center gap-6">
+            <Link to="/about" className="hidden sm:block text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
+              About
+            </Link>
+            <Link to="/faq" className="hidden sm:block text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
+              FAQ
+            </Link>
+            <Link to="/login" className="text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
+              Login
+            </Link>
+            <Link
+              to="/waitlist"
+              className="inline-flex items-center justify-center h-10 px-5 bg-[#F8C3B3] text-[#1E6B4E] text-sm font-semibold rounded-full hover:bg-[#f0b5a5] transition-colors"
+            >
+              Join Waitlist
+            </Link>
+          </nav>
         )}
       </div>
     </header >
