@@ -93,7 +93,9 @@ export function useOnboarding() {
                     expecting: data.expecting,
                     expecting_timing: data.expectingTiming,
                 },
-                user_intent: data.userIntent
+                user_intent: data.userIntent,
+                caregiver_work_types: data.userIntent === 'providing' ? data.caregiverWorkTypes : null,
+                ready_to_start: data.userIntent === 'providing' ? data.readyToStart : null
             };
 
             const { error } = await supabase

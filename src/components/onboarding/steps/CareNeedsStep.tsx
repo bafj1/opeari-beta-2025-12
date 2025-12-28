@@ -1,4 +1,4 @@
-import { MessageSquare, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import type { OnboardingData } from '../OnboardingTypes';
 import { StepHeader, SelectionCard } from '../components/WizardUI';
 
@@ -42,38 +42,50 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                 <h3 className="font-bold text-opeari-heading text-lg">Find Support</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="findSupportInterests">
                     {[
-                        { id: 'nannyshare', label: 'Nanny Share', desc: 'Split costs with another family' },
-                        { id: 'backup-care', label: 'Backup Care', desc: 'Sick days & emergencies' },
-                        { id: 'babysitter', label: 'Babysitter', desc: 'Date nights & occasional help' },
-                        { id: 'school-pickups', label: 'School Pickups', desc: 'Drop-off & pickup help' },
-                        { id: 'playdates', label: 'Playdates', desc: 'Connect kids with friends' },
-                        { id: 'travel-care', label: 'Travel / Au Pair', desc: 'Vacation & live-in care' }
+                        { id: 'shared-nanny', label: 'Shared Nanny', desc: 'Seasonal or ongoing care with 1–2 families' },
+                        { id: 'part-time-nanny', label: 'Part-Time / Split-Schedule Nanny', desc: 'Mornings, afternoons, or a few days a week', isPopular: true },
+                        { id: 'trusted-babysitter', label: 'Trusted Babysitter', desc: 'Date nights & occasional help' },
+                        { id: 'backup-care', label: 'Backup Care', desc: 'Last-minute gaps & schedule changes' },
+                        { id: 'school-pickups', label: 'School Pickups & Drop-Offs', desc: 'Drop-off & pickup help' },
+                        { id: 'extra-hands', label: 'Extra Hands at Home', desc: 'Help while you work from home' },
+                        { id: 'live-in', label: 'Live-In or Travel Support', desc: 'Vacation & extended stays' },
+                        { id: 'something-else', label: 'Something else', desc: 'Tell us what you need' }
                     ].map(opt => (
-                        <SelectionCard
-                            key={opt.id}
-                            icon={Check}
-                            label={opt.label}
-                            desc={opt.desc}
-                            selected={data.careOptions.includes(opt.id)}
-                            onClick={() => toggleCareOption(opt.id)}
-                            isCheckboxStyle={true}
-                        />
+                        <div key={opt.id} className="relative">
+                            <SelectionCard
+                                icon={Check}
+                                label={opt.label}
+                                desc={opt.desc}
+                                selected={opt.id === 'something-else' ? showSomethingElseInput : data.careOptions.includes(opt.id)}
+                                onClick={() => opt.id === 'something-else' ? toggleSomethingElse() : toggleCareOption(opt.id)}
+                                isCheckboxStyle={true}
+                            />
+                            {/* Visual Elevation for Part-Time */}
+                            {opt.isPopular && (
+                                <div className="absolute -top-2 -right-2 bg-opeari-teal text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm z-10 pointer-events-none">
+                                    Popular
+                                </div>
+                            )}
+                            {/* Highlight border for popular */}
+                            {opt.isPopular && (
+                                <div className="absolute inset-0 border-2 border-opeari-teal/30 rounded-xl pointer-events-none" />
+                            )}
+                        </div>
                     ))}
                 </div>
             </div>
 
             {/* Offer Support */}
             <div className="space-y-3 mt-6">
-                <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-opeari-heading text-lg">Offer Support</h3>
-                    <span className="text-xs text-gray-400 uppercase tracking-wide">Optional</span>
+                <div>
+                    <h3 className="font-bold text-opeari-heading text-lg">Offer Support (Optional)</h3>
+                    <p className="text-sm text-gray-500 mt-1">Share only if you're open to helping occasionally — this helps us understand availability in your area.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="offerSupportInterests">
                     {[
-                        { id: 'offer-backup', label: 'Backup Care', desc: 'Help in emergencies' },
-                        { id: 'offer-pickups', label: 'School Pickups', desc: 'Share driving duties' },
-                        { id: 'host-share', label: 'Host Nanny Share', desc: 'Host at your home' },
-                        { id: 'care-exchange', label: 'Care Exchange', desc: 'Trade hours with neighbors' }
+                        { id: 'offer-pickups', label: 'School Pickups', desc: 'Open to sharing routine drop-off or pickup responsibilities' },
+                        { id: 'host-share', label: 'Host Nanny Share', desc: 'Open to hosting care at your home' },
+                        { id: 'care-exchange', label: 'Care Exchange', desc: 'Open to occasional care swaps with families you know' }
                     ].map(opt => (
                         <SelectionCard
                             key={opt.id}
@@ -86,17 +98,6 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                         />
                     ))}
                 </div>
-            </div>
-
-            <div className="pt-4">
-                <SelectionCard
-                    icon={MessageSquare}
-                    label="Something else"
-                    desc="Tell us what you need"
-                    selected={showSomethingElseInput}
-                    onClick={toggleSomethingElse}
-                    isCheckboxStyle={true}
-                />
             </div>
 
             {showSomethingElseInput && (
