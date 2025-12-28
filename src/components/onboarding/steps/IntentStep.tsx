@@ -23,8 +23,8 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                         <User size={24} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-opeari-heading">I'm looking for childcare</h3>
-                        <p className="text-xs text-gray-500 mt-1">Find nanny shares, backup care, and trusted support</p>
+                        <h3 className="font-bold text-opeari-heading">I'm exploring care options</h3>
+                        <p className="text-xs text-gray-500 mt-1">Find shared nannies, flexible support, and trusted care</p>
                     </div>
                 </div>
 
