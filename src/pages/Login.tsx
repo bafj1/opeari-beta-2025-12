@@ -74,8 +74,8 @@ export default function Login() {
             <span className="text-xl font-bold text-white">Opeari</span>
           </Link>
 
-          <h2 className="text-3xl font-bold mb-4 text-white !opacity-100">Welcome back to your village</h2>
-          <p className="text-white/80 text-lg mb-10">
+          <h2 className="relative z-20 text-3xl font-bold mb-4 text-white text-opacity-100 !opacity-100">Welcome back to your village</h2>
+          <p className="relative z-20 text-white text-opacity-90 text-lg mb-10">
             Connect with trusted families nearby and build your childcare community.
           </p>
 
