@@ -17,16 +17,14 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
                 {/* LEFT PANEL */}
                 <div className="hidden md:flex md:w-[40%] bg-opeari-bg flex-col items-center justify-center p-12 text-center relative transition-all duration-500 border-none">
 
-                    {currentStepConfig.img && (
-                        <div className="w-48 h-48 mb-6 transition-opacity duration-500">
-                            <img
-                                key={`img-${step}`}
-                                src={currentStepConfig.img}
-                                alt={`Step ${step}`}
-                                className="w-full h-full object-contain animate-fade-in"
-                            />
-                        </div>
-                    )}
+                    <div className="w-48 h-48 mb-6 transition-opacity duration-500">
+                        <img
+                            key={`img-${step}`}
+                            src={currentStepConfig.img}
+                            alt={`Step ${step}`}
+                            className="w-full h-full object-contain animate-fade-in"
+                        />
+                    </div>
                     <p key={`txt-${step}`} className="text-xl text-[#1e6b4e] font-medium leading-relaxed animate-fade-in whitespace-pre-line">
                         {currentStepConfig.text}
                     </p>

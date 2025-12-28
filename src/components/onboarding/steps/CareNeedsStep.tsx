@@ -42,12 +42,12 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                 <h3 className="font-bold text-opeari-heading text-lg">Find Support</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="findSupportInterests">
                     {[
-                        { id: 'nannyshare', label: 'Nanny Share', desc: 'Split costs with another family' },
-                        { id: 'part-time-nanny', label: 'Part-Time Nanny', desc: 'Mornings, afternoons, or shared schedules', isPopular: true },
+                        { id: 'shared-nanny', label: 'Shared Nanny', desc: 'Seasonal or ongoing care with 1–2 families' },
+                        { id: 'part-time-nanny', label: 'Part-Time / Split Nanny', desc: 'Mornings, afternoons, or a few days a week', isPopular: true },
                         { id: 'trusted-babysitter', label: 'Trusted Babysitter', desc: 'Date nights & occasional help' },
                         { id: 'backup-care', label: 'Backup Care', desc: 'Last-minute gaps & schedule changes' },
-                        { id: 'school-pickups', label: 'Carpool & School Runs', desc: 'Drop-off & pickup help' },
-                        { id: 'helper-at-home', label: 'Helper at Home', desc: 'Help while you work from home' },
+                        { id: 'school-pickups', label: 'School Pickups', desc: 'Drop-off & pickup help' },
+                        { id: 'extra-hands', label: 'Extra Hands at Home', desc: 'Help while you work from home' },
                         { id: 'live-in', label: 'Live-In / Travel Care', desc: 'Vacation & extended stays' },
                         { id: 'something-else', label: 'Something else', desc: 'Tell us what you need' }
                     ].map(opt => (
@@ -71,8 +71,7 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                                 <div className="absolute inset-0 border-2 border-[#8bd7c7]/30 rounded-xl pointer-events-none" />
                             )}
                         </div>
-                    ))
-                    }
+                    ))}
                 </div>
             </div>
 
