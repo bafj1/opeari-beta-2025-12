@@ -282,8 +282,8 @@ export default function Waitlist() {
 
 
   // Shared input styles
-  const inputClass = "w-full px-3.5 py-3 border border-[#c8e6d9] rounded-[10px] font-[Comfortaa] text-base text-[#1e6b4e] bg-white transition-all focus:outline-none focus:border-[#1e6b4e] focus:ring-4 focus:ring-[#1e6b4e]/10 placeholder:text-[#8faaaa]"
-  const labelClass = "block text-xs font-bold mb-2 text-[#527a6a] uppercase tracking-wide"
+  const inputClass = "w-full px-3.5 py-2.5 border border-[#c8e6d9] rounded-[10px] font-[Comfortaa] text-sm text-[#1e6b4e] bg-white transition-all focus:outline-none focus:border-[#1e6b4e] focus:ring-4 focus:ring-[#1e6b4e]/10 placeholder:text-[#8faaaa]"
+  const labelClass = "block text-[0.7rem] font-bold mb-1.5 text-[#527a6a] uppercase tracking-wide"
 
   return (
     <div className="min-h-screen bg-[#fffaf5] font-[Comfortaa] text-[#1e6b4e] flex flex-col">
@@ -365,7 +365,7 @@ export default function Waitlist() {
         </div>
 
         {/* Form Card */}
-        <div className="bg-white p-8 rounded-3xl shadow-[0_4px_24px_rgba(30,107,78,0.08)] border border-white/80 max-md:p-6 max-md:rounded-[20px]">
+        <div className="bg-white p-6 rounded-3xl shadow-[0_4px_24px_rgba(30,107,78,0.08)] border border-white/80 max-md:p-5 max-md:rounded-[20px]">
           {error && (
             <div className="bg-red-100 text-red-800 p-3 rounded-lg text-sm mb-4 text-center border border-red-200">
               {error}
