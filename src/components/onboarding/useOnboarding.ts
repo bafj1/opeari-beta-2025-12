@@ -29,6 +29,9 @@ export function useOnboarding() {
                     firstName: session.user.user_metadata?.first_name || '',
                     lastName: session.user.user_metadata?.last_name || ''
                 }));
+            } else {
+                // Should be caught by ProtectedRoute, but double check
+                navigate('/signin');
             }
         };
         checkUser();
@@ -82,10 +85,10 @@ export function useOnboarding() {
                 address: data.neighborhood,
                 role: 'parent', // TODO: Make dynamic based on intent if needed
                 care_types: data.careOptions,
-                schedule_preferences: JSON.stringify({
+                schedule_preferences: {
                     flexible: data.scheduleFlexible,
                     grid: data.schedule
-                }),
+                },
                 is_flexible: data.scheduleFlexible,
                 num_kids: data.kids.length,
                 kids_ages: data.kids.map(k => parseInt(k.age) || 0),
@@ -105,17 +108,30 @@ export function useOnboarding() {
                 // VETTING FLAGS
                 vetting_required,
                 vetting_types,
-                vetting_status
+                vetting_status,
+                vetting_fee_acknowledged: false // Default to false for now
             };
+
+            console.log('Attempting to save user payload:', userPayload);
 
             const { error } = await supabase
                 .from('members')
                 .upsert({ id: authUser.id, ...userPayload });
 
+            if (error) {
+                console.error('Supabase Error:', error);
+                throw error;
+            }
+
             if (error) throw error;
             setShowSuccess(true);
-        } catch (err) {
-            console.error('Save error:', err);
+        } catch (err: any) {
+            console.error('Full Save Error Object:', err);
+            // If it's a Supabase error it might have details
+            if (err.message) console.error('Error Message:', err.message);
+            if (err.details) console.error('Error Details:', err.details);
+            if (err.hint) console.error('Error Hint:', err.hint);
+
             setShowSuccess(true); // Fallback to success even on error for beta UX? Or handle error?
         } finally {
             setLoading(false);

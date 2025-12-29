@@ -55,7 +55,7 @@ function App() {
             {/* Onboarding - Protected */}
             <Route
               path="/onboarding"
-              element={<Onboarding />}
+              element={<ProtectedRoute><Onboarding /></ProtectedRoute>}
             />
             <Route path="/caregiver-interest" element={<CaregiverInterest />} />
             <Route path="/verify" element={<ProtectedRoute><VerificationGate /></ProtectedRoute>} />
