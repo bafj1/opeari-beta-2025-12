@@ -55,6 +55,16 @@ export default function OnboardingWizard() {
     }
 
 
+
+    const handleNext = () => {
+        // Redirect caregivers to interest list
+        if (step === 0 && data.userIntent === 'providing') {
+            navigate('/caregiver-interest');
+            return;
+        }
+        nextStep();
+    };
+
     return (
         <OnboardingLayout step={step}>
             <StepContentWithState
@@ -78,7 +88,7 @@ export default function OnboardingWizard() {
                 )}
 
                 <button
-                    onClick={step === 5 ? handleFinish : nextStep}
+                    onClick={step === 5 ? handleFinish : handleNext}
                     disabled={!isStepValid() || loading}
                     className={`flex-1 py-4 px-6 rounded-xl font-bold text-lg shadow-button transition-all flex items-center justify-center gap-2
                         ${!isStepValid() || loading ? 'bg-[#e0e0e0] text-[#9e9e9e] cursor-not-allowed shadow-none' : 'bg-[#F8C3B3] text-[#1e6b4e] hover:bg-[#f5b2a1] hover:-translate-y-0.5 border border-[#1e6b4e]/30'}
