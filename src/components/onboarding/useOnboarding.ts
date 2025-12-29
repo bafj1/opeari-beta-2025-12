@@ -85,7 +85,7 @@ export function useOnboarding() {
                 address: data.neighborhood,
                 role: 'parent', // TODO: Make dynamic based on intent if needed
                 care_types: data.careOptions,
-                schedule_preferences: {
+                schedule: {
                     flexible: data.scheduleFlexible,
                     grid: data.schedule
                 },
@@ -112,7 +112,7 @@ export function useOnboarding() {
                 vetting_fee_acknowledged: false // Default to false for now
             };
 
-            console.log('Attempting to save user payload:', userPayload);
+            console.log('Attempting to save user payload:', JSON.stringify(userPayload, null, 2));
 
             const { error } = await supabase
                 .from('members')
