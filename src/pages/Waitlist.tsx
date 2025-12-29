@@ -110,11 +110,9 @@ export default function Waitlist() {
       }
 
       /* Fetch real waitlist count for "Queue Position" */
-      const { count } = await supabase
-        .from('waitlist')
-        .select('*', { count: 'exact', head: true })
-
-      const realPosition = (count || 0)
+      // Use RPC function because RLS prevents anon from selecting rows to count them
+      const { data: countData } = await supabase.rpc('get_waitlist_count')
+      const realPosition = (countData || 0)
 
       // Success
       setGeneratedReferralCode(refCode)
