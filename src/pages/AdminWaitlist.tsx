@@ -12,14 +12,16 @@ interface WaitlistEntry {
     last_name: string
     zip_code: string
     role: string            // 'family' | 'caregiver' | 'both'
-    status?: 'approved' | 'rejected' | 'pending'
+    status?: 'approved' | 'rejected' | 'pending' | 'converted'
     position?: number
     hear_about_us?: string  // 'friend', 'social_media', etc
     referred_by?: string    // Contains the Name (e.g. "Breada")
     linkedin_url?: string
+    instagram_handle?: string
     looking_for?: string    // Maps to "Timeline / Urgency" (Text)
     why_join?: string       // Maps to "Why Join" (Text)
     urgency?: string        // Legacy
+    converted_at?: string
 }
 
 // Helper for LinkedIn URL
@@ -29,10 +31,17 @@ const getLinkedinUrl = (url?: string) => {
     return `https://${url}`
 }
 
+// Helper for Instagram URL
+const getInstagramUrl = (handle?: string) => {
+    if (!handle) return '#'
+    const clean = handle.replace('@', '').trim()
+    return `https://instagram.com/${clean}`
+}
+
 export default function AdminWaitlist() {
     const [entries, setEntries] = useState<WaitlistEntry[]>([])
     const [loading, setLoading] = useState(false)
-    const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
+    const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'converted'>('pending')
     const [secret, setSecret] = useState('')
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [authError, setAuthError] = useState('')
@@ -292,7 +301,7 @@ export default function AdminWaitlist() {
                         <h1 className="text-2xl font-bold text-opeari-heading">Waitlist Admin</h1>
                     </div>
                     <div className="flex gap-2">
-                        {['pending', 'approved', 'rejected', 'all'].map((f) => (
+                        {['pending', 'approved', 'rejected', 'converted', 'all'].map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f as any)}
@@ -348,6 +357,7 @@ export default function AdminWaitlist() {
                                             <td className="p-4 font-medium text-opeari-heading">
                                                 {entry.first_name} {entry.last_name}
                                                 {entry.status === 'approved' && <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] rounded-full uppercase tracking-wider font-bold">Approved</span>}
+                                                {entry.status === 'converted' && <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded-full uppercase tracking-wider font-bold">Converted</span>}
                                             </td>
                                             <td className="p-4 text-opeari-text-secondary text-sm">{entry.email}</td>
                                             <td className="p-4 text-opeari-text-secondary text-sm font-mono">{entry.zip_code}</td>
@@ -374,7 +384,8 @@ export default function AdminWaitlist() {
                                                         </button>
                                                     </div>
                                                 )}
-                                                {entry.status === 'approved' && (
+
+                                                {(entry.status === 'approved' || entry.status === 'converted') && (
                                                     <div className="flex justify-end gap-2 items-center">
                                                         <button
                                                             onClick={() => handleReset(entry)}
@@ -443,6 +454,13 @@ export default function AdminWaitlist() {
                                                                         No LinkedIn provided
                                                                     </div>
                                                                 )}
+
+                                                                {entry.instagram_handle && (
+                                                                    <a href={getInstagramUrl(entry.instagram_handle)} target="_blank" rel="noreferrer" className="text-pink-600 hover:underline flex items-center gap-1 font-medium mt-1">
+                                                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
+                                                                        {entry.instagram_handle}
+                                                                    </a>
+                                                                )}
                                                             </div>
                                                             <div className="mt-4"><span className="text-opeari-text-secondary">Referral ID:</span> <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded select-all">{entry.id.split('-')[0]}...</span></div>
                                                         </div>
@@ -455,6 +473,11 @@ export default function AdminWaitlist() {
                                                                 <div className="text-xs text-gray-400 mt-2">
                                                                     Joined: {new Date(entry.created_at).toLocaleString()}
                                                                 </div>
+                                                                {entry.converted_at && (
+                                                                    <div className="text-xs text-blue-600 mt-1 font-bold">
+                                                                        Converted: {new Date(entry.converted_at).toLocaleDateString()}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>

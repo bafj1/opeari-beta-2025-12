@@ -42,7 +42,7 @@ exports.handler = async (event) => {
 
         // 4. Update Database
         const { data, error } = await supabase
-            .from('waitlist_entries')
+            .from('waitlist')
             .update({
                 status: 'pending',
                 invited_at: null // Clear invited timestamp

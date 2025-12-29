@@ -13,7 +13,7 @@ const About = lazy(() => import('./pages/About'));
 const Waitlist = lazy(() => import('./pages/Waitlist'));
 const Login = lazy(() => import('./pages/Login'));
 const Invite = lazy(() => import('./pages/Invite'));
-import AdminWaitlist from './pages/AdminWaitlist';
+const AdminWaitlist = lazy(() => import('./pages/AdminWaitlist'));
 
 const RequestNewLink = lazy(() => import('./pages/RequestNewLink'));
 const SignIn = lazy(() => import('./pages/SignIn'));

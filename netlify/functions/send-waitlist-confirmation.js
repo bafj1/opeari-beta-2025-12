@@ -1,5 +1,5 @@
 
-import { Resend } from 'resend';
+const { Resend } = require('resend'); // Converted to CJS
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -11,7 +11,7 @@ const headers = {
 // Helper: Clean strings
 const clean = (str) => (str ? str.trim() : '');
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
   // 1. Handle OPTIONS
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };

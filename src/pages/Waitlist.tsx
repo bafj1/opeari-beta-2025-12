@@ -21,6 +21,7 @@ export default function Waitlist() {
   const [referralSource, setReferralSource] = useState('')
   const [referralName, setReferralName] = useState('')
   const [linkedin, setLinkedin] = useState('')
+  const [instagram, setInstagram] = useState('')
   const [whyJoin, setWhyJoin] = useState('')
   const [honeypot, setHoneypot] = useState('')
   const [touched, setTouched] = useState({ email: false, zip: false })
@@ -82,7 +83,7 @@ export default function Waitlist() {
     try {
       // Direct Supabase Insert
       const { error: dbError } = await supabase
-        .from('waitlist_entries')
+        .from('waitlist')
         .insert({
           first_name: cleanFirstName,
           last_name: cleanLastName,
@@ -96,6 +97,7 @@ export default function Waitlist() {
           hear_about_us: referralSource,
           referred_by: sanitize(referralName) || null,
           linkedin_url: linkedin ? sanitize(linkedin) : null,
+          instagram_handle: instagram ? sanitize(instagram) : null, // New field
           referral_code: refCode,
         })
 
@@ -109,7 +111,7 @@ export default function Waitlist() {
 
       /* Fetch real waitlist count for "Queue Position" */
       const { count } = await supabase
-        .from('waitlist_entries')
+        .from('waitlist')
         .select('*', { count: 'exact', head: true })
 
       const realPosition = (count || 0)
@@ -459,7 +461,8 @@ export default function Waitlist() {
                 <div className="grid grid-cols-3 gap-3 mb-4 max-sm:gap-2">
                   {[
                     { value: 'family', label: 'Find Care', sub: 'Need childcare help', icon: <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></> },
-                    { value: 'caregiver', label: 'Give Care', sub: 'Looking to provide care', icon: <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /> }
+                    { value: 'caregiver', label: 'Give Care', sub: 'Looking to provide care', icon: <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /> },
+                    { value: 'both', label: 'Both', sub: 'Need care & want to give', icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></> }
                   ].map((role) => (
                     <label key={role.value} className="cursor-pointer relative">
                       <input
@@ -589,6 +592,17 @@ export default function Waitlist() {
                   value={linkedin}
                   onChange={(e) => setLinkedin(e.target.value)}
                   placeholder="linkedin.com/in/you"
+                  className={inputClass}
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className={labelClass}>Instagram Handle <span className="text-[#8faaaa] font-normal normal-case tracking-normal">(optional)</span></label>
+                <input
+                  type="text"
+                  value={instagram}
+                  onChange={(e) => setInstagram(e.target.value)}
+                  placeholder="@yourusername"
                   className={inputClass}
                 />
               </div>

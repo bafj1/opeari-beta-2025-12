@@ -89,9 +89,10 @@ exports.handler = async (event) => {
         // We do this REGARDLESS of link generation success/failure
         // to ensure the user is approved and receives the email.
         const { data, error } = await supabase
-            .from('waitlist_entries')
+            .from('waitlist')
             .update({
                 status: 'approved',
+                approved_at: new Date().toISOString(),
                 invited_at: new Date().toISOString()
             })
             .eq('id', id)

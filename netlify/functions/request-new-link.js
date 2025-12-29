@@ -3,62 +3,62 @@ const { createClient } = require('@supabase/supabase-js');
 const { Resend } = require('resend');
 
 exports.handler = async (event) => {
-    const headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Content-Type': 'application/json'
-    };
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
 
-    if (event.httpMethod === 'OPTIONS') {
-        return { statusCode: 200, headers, body: '' };
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+  }
+
+  try {
+    const { email } = JSON.parse(event.body);
+
+    if (!email) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Email required' }) };
     }
 
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+
+    const { data: user, error: fetchError } = await supabase
+      .from('waitlist')
+      .select('*')
+      .eq('email', email.toLowerCase().trim())
+      .eq('status', 'approved')
+      .single();
+
+    if (fetchError || !user) {
+      return { statusCode: 200, headers, body: JSON.stringify({ success: false, reason: 'not_found' }) };
     }
 
-    try {
-        const { email } = JSON.parse(event.body);
+    const siteUrl = process.env.URL || 'https://opeari.com';
 
-        if (!email) {
-            return { statusCode: 400, headers, body: JSON.stringify({ error: 'Email required' }) };
-        }
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'invite',
+      email: email,
+      options: { redirectTo: `${siteUrl}/onboarding` }
+    });
 
-        const supabase = createClient(
-            process.env.SUPABASE_URL,
-            process.env.SUPABASE_SERVICE_ROLE_KEY
-        );
+    if (linkError) throw linkError;
 
-        const { data: user, error: fetchError } = await supabase
-            .from('waitlist_entries')
-            .select('*')
-            .eq('email', email.toLowerCase().trim())
-            .eq('status', 'approved')
-            .single();
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const inviteLink = linkData?.properties?.action_link;
+    const firstName = user.first_name || 'there';
 
-        if (fetchError || !user) {
-            return { statusCode: 200, headers, body: JSON.stringify({ success: false, reason: 'not_found' }) };
-        }
-
-        const siteUrl = process.env.URL || 'https://opeari.com';
-
-        const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-            type: 'invite',
-            email: email,
-            options: { redirectTo: `${siteUrl}/onboarding` }
-        });
-
-        if (linkError) throw linkError;
-
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        const inviteLink = linkData?.properties?.action_link;
-        const firstName = user.first_name || 'there';
-
-        await resend.emails.send({
-            from: 'Opeari <breada@opeari.com>',
-            to: email,
-            subject: "Your new Opeari invite link 🔗",
-            html: `
+    await resend.emails.send({
+      from: 'Opeari <breada@opeari.com>',
+      to: email,
+      subject: "Your new Opeari invite link 🔗",
+      html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 40px 20px;">
           <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="background: linear-gradient(135deg, #2D5A3D 0%, #4A7C59 100%); padding: 40px; text-align: center;">
@@ -80,14 +80,14 @@ exports.handler = async (event) => {
           </div>
         </div>
       `
-        });
+    });
 
-        console.log('New invite link sent to:', email);
+    console.log('New invite link sent to:', email);
 
-        return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+    return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
 
-    } catch (error) {
-        console.error('Request new link error:', error);
-        return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to send link' }) };
-    }
+  } catch (error) {
+    console.error('Request new link error:', error);
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to send link' }) };
+  }
 };
