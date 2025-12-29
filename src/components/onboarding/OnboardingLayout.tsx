@@ -17,7 +17,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
                 {/* LEFT PANEL */}
                 <div className="hidden md:flex md:w-[40%] bg-opeari-bg flex-col items-center justify-center p-12 text-center relative transition-all duration-500 border-none">
 
-                    <div className="w-48 h-48 mb-6 transition-opacity duration-500">
+                    <div className={`mb-6 transition-all duration-500 ${step === 2 ? 'w-64 h-64' : 'w-48 h-48'}`}>
                         <img
                             key={`img-${step}`}
                             src={currentStepConfig.img}

@@ -67,15 +67,31 @@ export const ScheduleGrid = ({ value, onChange }: ScheduleGridProps) => {
         <div className="space-y-4">
             {/* Quick Select Buttons */}
             <div className="flex flex-wrap gap-2">
-                {QUICK_SELECTS.map(q => (
-                    <button
-                        key={q.label}
-                        onClick={() => handleQuickSelect(q)}
-                        className="px-4 py-2 bg-[#e8f5f0] text-opeari-green border border-opeari-mint rounded-full text-sm font-bold hover:bg-[#d8f5e5] hover:border-opeari-green transition-all"
-                    >
-                        {q.label}
-                    </button>
-                ))}
+                {QUICK_SELECTS.map(q => {
+                    let isSelected = true;
+                    for (const d of q.days) {
+                        const dayLower = d.toLowerCase();
+                        const currentTimes = value[dayLower] || [];
+                        if (q.times.some((t: string) => !currentTimes.includes(t))) {
+                            isSelected = false;
+                            break;
+                        }
+                    }
+
+                    return (
+                        <button
+                            key={q.label}
+                            onClick={() => handleQuickSelect(q)}
+                            className={`px-4 py-2 border rounded-full text-sm font-bold transition-all 
+                                ${isSelected
+                                    ? 'bg-[#8bd7c7] border-[#1e6b4e] text-[#1e6b4e]'
+                                    : 'bg-white border-gray-200 text-opeari-heading hover:bg-[#8bd7c7]/30 hover:border-[#1e6b4e]'
+                                }`}
+                        >
+                            {q.label}
+                        </button>
+                    );
+                })}
                 <button
                     onClick={clearAll}
                     className="px-4 py-2 bg-[#fffaf5] text-opeari-text-secondary border border-opeari-border rounded-full text-sm font-bold hover:bg-opeari-mint/20 hover:text-opeari-heading transition-all"

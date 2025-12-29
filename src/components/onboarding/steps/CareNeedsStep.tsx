@@ -43,7 +43,7 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
         <div className="space-y-6 animate-fade-in">
             <StepHeader
                 title="What support would help?"
-                subtitle={<span className="font-semibold text-[#f5b2a1]">Your village can take many forms.</span>}
+                subtitle=""
             />
 
             {/* Find Support */}
@@ -53,7 +53,6 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                         <span className="font-bold text-opeari-heading">Find Support</span>
                         <span className="text-gray-500 font-normal"> — choose any that apply, most families pick 2–3.</span>
                     </h3>
-                    <p className="font-medium text-[#F8C3B3] mt-1 leading-snug">We connect families with similar needs — many care solutions are built together.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" id="findSupportInterests">
                     {[
