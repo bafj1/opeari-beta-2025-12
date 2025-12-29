@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useOnboarding } from './useOnboarding';
 import OnboardingLayout from './OnboardingLayout';
@@ -6,6 +7,8 @@ import IntentStep from './steps/IntentStep';
 import LocationStep from './steps/LocationStep';
 import CareNeedsStep from './steps/CareNeedsStep';
 import ScheduleStep from './steps/ScheduleStep';
+import FamilyStep from './steps/FamilyStep';
+import AccountStep from './steps/AccountStep';
 import CaregiverAboutStep from './steps/CaregiverAboutStep';
 import CaregiverExperienceStep from './steps/CaregiverExperienceStep';
 import CaregiverAvailabilityStep from './steps/CaregiverAvailabilityStep';
@@ -31,6 +34,9 @@ export default function OnboardingWizard() {
         isStepValid,
         saveError
     } = useOnboarding();
+
+    // Local UI state
+    const [showPassword, setShowPassword] = useState(false);
 
     if (showSuccess) {
         return (
@@ -72,7 +78,7 @@ export default function OnboardingWizard() {
 
     const renderStep = () => {
         // Shared Step 0: Intent
-        if (step === 0) return <IntentStep userIntent={data.userIntent} setUserIntent={(val) => updateData('userIntent', val)} />;
+        if (step === 0) return <IntentStep data={data} updateData={updateData} hostingInterest={hostingInterest} setHostingInterest={setHostingInterest} />;
 
         // --- CAREGIVER FLOW ---
         if (data.userIntent === 'providing') {
@@ -98,7 +104,7 @@ export default function OnboardingWizard() {
         // --- FAMILY FLOW ---
         switch (step) {
             case 1: return <LocationStep data={data} updateData={updateData} />;
-            case 2: return <CareNeedsStep data={data} updateData={updateData} hostingInterest={hostingInterest} setHostingInterest={setHostingInterest} showSomethingElseInput={showSomethingElseInput} setShowSomethingElseInput={setShowSomethingElseInput} />;
+            case 2: return <CareNeedsStep data={data} updateData={updateData} showSomethingElseInput={showSomethingElseInput} setShowSomethingElseInput={setShowSomethingElseInput} />;
             case 3: return <ScheduleStep data={data} updateData={updateData} />;
             case 4: return <FamilyStep data={data} updateData={updateData} />;
             case 5: return (
@@ -148,28 +154,4 @@ export default function OnboardingWizard() {
             </div>
         </OnboardingLayout>
     );
-}
-
-// Local wrapper to handle showPassword state cleanly
-import { useState } from 'react';
-
-import CaregiverWorkTypeStep from './steps/CaregiverWorkTypeStep';
-
-function StepContentWithState(props: any) {
-    const [showPassword, setShowPassword] = useState(false);
-
-    switch (props.step) {
-        case 0: return <IntentStep {...props} />;
-        case 1: return <LocationStep {...props} />;
-        case 2:
-            // FORK: If providing, show Work Type step. If seeking (or null/default), show Care Needs.
-            if (props.data.userIntent === 'providing') {
-                return <CaregiverWorkTypeStep {...props} />;
-            }
-            return <CareNeedsStep {...props} />;
-        case 3: return <ScheduleStep {...props} />;
-        case 4: return <FamilyStep {...props} />;
-        case 5: return <AccountStep {...props} showPassword={showPassword} setShowPassword={setShowPassword} />;
-        default: return null;
-    }
 }
