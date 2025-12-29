@@ -26,7 +26,8 @@ export default function OnboardingWizard() {
         prevStep,
         handleFinish,
         navigate,
-        isStepValid
+        isStepValid,
+        saveError
     } = useOnboarding();
 
     if (showSuccess) {
@@ -87,8 +88,15 @@ export default function OnboardingWizard() {
                 setPasswordConfirm={setPasswordConfirm}
             />
 
+            {/* Save Error Banner */}
+            {saveError && (
+                <div className="mx-4 mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium animate-fade-in text-center">
+                    {saveError}
+                </div>
+            )}
+
             {/* Navigation Footer */}
-            <div className="pt-8 mt-4 flex gap-4">
+            <div className={`pt-8 mt-4 flex gap-4 ${saveError ? 'mt-2' : ''}`}>
                 {step > 0 && (
                     <button onClick={prevStep} className="px-6 py-4 font-bold text-opeari-heading bg-[#f0faf4] rounded-xl hover:bg-[#e1f5e9] transition-colors border border-[#1e6b4e]">
                         Back

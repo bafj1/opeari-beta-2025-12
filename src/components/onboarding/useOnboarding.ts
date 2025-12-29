@@ -63,16 +63,25 @@ export function useOnboarding() {
         window.scrollTo(0, 0);
     };
 
+    const [saveError, setSaveError] = useState<string | null>(null);
+
     const handleFinish = async () => {
         setLoading(true);
+        setSaveError(null);
+        console.log('=== ONBOARDING SAVE START ===');
+
         try {
             const { data: { user: authUser } } = await supabase.auth.getUser();
+            console.log('Auth user:', authUser?.id, authUser?.email);
 
             if (authUser && data.password) {
                 await supabase.auth.updateUser({ password: data.password });
             }
 
-            if (!authUser) throw new Error('No user session found');
+            if (!authUser) {
+                console.error('NO AUTH USER FOUND');
+                throw new Error('No user session found');
+            }
 
             // Calculate Vetting Requirements
             const { vetting_required, vetting_types } = determineVettingRequirements(data, hostingInterest);
@@ -112,27 +121,31 @@ export function useOnboarding() {
                 vetting_fee_acknowledged: false // Default to false for now
             };
 
-            console.log('Attempting to save user payload:', JSON.stringify(userPayload, null, 2));
+            console.log('Payload to save:', JSON.stringify(userPayload, null, 2));
 
-            const { error } = await supabase
+            const { data: upsertData, error } = await supabase
                 .from('members')
-                .upsert({ id: authUser.id, ...userPayload });
+                .upsert({ id: authUser.id, ...userPayload })
+                .select();
+
+            console.log('Upsert response:', { data: upsertData, error });
 
             if (error) {
-                console.error('Supabase Error:', error);
+                console.error('UPSERT ERROR:', error);
                 throw error;
             }
 
-            if (error) throw error;
+            console.log('=== ONBOARDING SAVE SUCCESS ===');
             setShowSuccess(true);
         } catch (err: any) {
-            console.error('Full Save Error Object:', err);
+            console.error('=== ONBOARDING SAVE FAILED ===', err);
             // If it's a Supabase error it might have details
             if (err.message) console.error('Error Message:', err.message);
             if (err.details) console.error('Error Details:', err.details);
             if (err.hint) console.error('Error Hint:', err.hint);
 
-            setShowSuccess(true); // Fallback to success even on error for beta UX? Or handle error?
+            setSaveError(err.message || 'Failed to check save.');
+            // DO NOT set showSuccess here!
         } finally {
             setLoading(false);
         }
@@ -172,6 +185,7 @@ export function useOnboarding() {
         prevStep,
         handleFinish,
         navigate,
-        isStepValid
+        isStepValid,
+        saveError
     };
 }
