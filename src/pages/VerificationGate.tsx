@@ -137,10 +137,10 @@ export default function VerificationGate() {
                             {/* Fee Card */}
                             <div className="p-5 bg-[#fffaf5] rounded-xl border border-[#F8C3B3] flex flex-col gap-2">
                                 <div className="flex justify-between items-center">
-                                    <span className="font-bold text-opeari-heading">One-time verification: $35</span>
-                                    <span className="text-xs font-bold text-[#F8C3B3] uppercase tracking-wide">Pays for itself in 1 session</span>
+                                    <span className="font-bold text-opeari-heading">One-time verification fee</span>
+                                    <span className="text-xs font-bold text-[#F8C3B3] uppercase tracking-wide">Background checks help keep our community safe</span>
                                 </div>
-                                <p className="text-xs text-gray-500">Background check integration coming soon — built to the same standard used by leading platforms.</p>
+                                <p className="text-xs text-gray-500">We're finalizing our verification process and will notify you when it's ready.</p>
                             </div>
 
                             <div className="flex flex-col gap-3 pt-2">
@@ -149,7 +149,7 @@ export default function VerificationGate() {
                                     disabled={loading}
                                     className="w-full bg-[#F8C3B3] text-[#1e6b4e] py-4 rounded-xl font-bold hover:bg-[#f5b2a1] transition-all hover:-translate-y-0.5 shadow-button hover:shadow-button-hover disabled:opacity-70"
                                 >
-                                    {loading ? 'Processing...' : 'Continue to Verification →'}
+                                    {loading ? 'Processing...' : 'Join the Verification Waitlist →'}
                                 </button>
                                 <button
                                     onClick={handleMaybeLater}
