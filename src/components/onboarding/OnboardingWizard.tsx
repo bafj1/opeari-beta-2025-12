@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { useOnboarding } from './useOnboarding';
 import OnboardingLayout from './OnboardingLayout';
+import { determineVettingRequirements } from '../../lib/vetting';
 import IntentStep from './steps/IntentStep';
 import LocationStep from './steps/LocationStep';
 import CareNeedsStep from './steps/CareNeedsStep';
@@ -44,7 +45,14 @@ export default function OnboardingWizard() {
                         <p className="font-medium text-opeari-heading">Just families and caregivers pairing up intentionally.</p>
                     </div>
                     <button
-                        onClick={() => navigate('/dashboard')}
+                        onClick={() => {
+                            const { vetting_required } = determineVettingRequirements(data, hostingInterest);
+                            if (vetting_required) {
+                                navigate('/verify');
+                            } else {
+                                navigate('/dashboard');
+                            }
+                        }}
                         className="w-full bg-opeari-green text-white py-4 rounded-xl font-bold hover:bg-opeari-green-dark transition-transform hover:-translate-y-0.5 shadow-button hover:shadow-button-hover"
                     >
                         Go to My Dashboard

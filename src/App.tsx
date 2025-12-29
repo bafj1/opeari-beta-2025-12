@@ -21,6 +21,7 @@ const SignIn = lazy(() => import('./pages/SignIn'));
 // Onboarding
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const CaregiverInterest = lazy(() => import('./pages/CaregiverInterest'));
+const VerificationGate = lazy(() => import('./pages/VerificationGate'));
 
 // Dashboard & Features
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -57,6 +58,7 @@ function App() {
               element={<Onboarding />}
             />
             <Route path="/caregiver-interest" element={<CaregiverInterest />} />
+            <Route path="/verify" element={<ProtectedRoute><VerificationGate /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/build-your-village" element={<ProtectedRoute><BuildYourVillage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

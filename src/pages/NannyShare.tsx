@@ -1,11 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../data/mockStore';
 import { Helmet } from 'react-helmet-async';
-// import type { NannyShare as NannyShareType } from '../data/types';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
 export default function NannyShare() {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const [loading, setLoading] = useState(true);
+
+    // Vetting Gate Check
+    useEffect(() => {
+        async function checkVetting() {
+            if (!user) return;
+            const { data } = await supabase
+                .from('members')
+                .select('vetting_required, vetting_status')
+                .eq('id', user.id)
+                .single();
+
+            if (data?.vetting_required && data?.vetting_status !== 'verified') {
+                navigate('/verify');
+            }
+            setLoading(false);
+        }
+        checkVetting();
+    }, [user, navigate]);
+
     // Local form state stores strings for inputs, converted to arrays on submit
     const [formData, setFormData] = useState({
         families: '',
@@ -14,6 +36,8 @@ export default function NannyShare() {
         costSplit: '50/50',
         rules: ''
     });
+
+    if (loading) return <div className="p-8 text-center text-[#1e6b4e]">Checking access...</div>;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

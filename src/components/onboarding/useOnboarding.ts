@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import confetti from 'canvas-confetti';
 import { INITIAL_DATA } from './OnboardingTypes';
 import type { OnboardingData } from './OnboardingTypes';
+import { determineVettingRequirements } from '../../lib/vetting';
 
 export function useOnboarding() {
     const navigate = useNavigate();
@@ -70,6 +71,10 @@ export function useOnboarding() {
 
             if (!authUser) throw new Error('No user session found');
 
+            // Calculate Vetting Requirements
+            const { vetting_required, vetting_types } = determineVettingRequirements(data, hostingInterest);
+            const vetting_status = vetting_required ? 'required' : 'not_required';
+
             const userPayload = {
                 first_name: data.firstName,
                 last_name: data.lastName || '',
@@ -95,11 +100,16 @@ export function useOnboarding() {
                 },
                 user_intent: data.userIntent,
                 caregiver_work_types: data.userIntent === 'providing' ? data.caregiverWorkTypes : null,
-                ready_to_start: data.userIntent === 'providing' ? data.readyToStart : null
+                ready_to_start: data.userIntent === 'providing' ? data.readyToStart : null,
+
+                // VETTING FLAGS
+                vetting_required,
+                vetting_types,
+                vetting_status
             };
 
             const { error } = await supabase
-                .from('users')
+                .from('members')
                 .upsert({ id: authUser.id, ...userPayload });
 
             if (error) throw error;

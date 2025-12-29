@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import Header from '../components/common/Header'
 import SetupJourney from '../components/Dashboard/SetupJourney'
+import { Lock } from 'lucide-react';
 
 interface Connection {
   id: string
@@ -46,7 +47,7 @@ export default function Dashboard() {
         let userProfile = null
 
         const { data: userData } = await supabase
-          .from('users')
+          .from('members')
           .select('*')
           .eq('id', user.id)
           .single()
@@ -92,7 +93,7 @@ export default function Dashboard() {
 
         // Get match count (Compatible Members)
         const { count } = await supabase
-          .from('users')
+          .from('members')
           .select('*', { count: 'exact', head: true })
           .neq('id', user.id)
           .eq('profile_complete', true)
@@ -101,7 +102,7 @@ export default function Dashboard() {
 
         // Get available now count (Need help ASAP)
         const { count: availableCount } = await supabase
-          .from('users') // 'users' table
+          .from('members') // 'members' table
           .select('*', { count: 'exact', head: true })
           .neq('id', user.id)
           .eq('timeline', 'asap')
@@ -113,7 +114,7 @@ export default function Dashboard() {
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
         const { count: newCount } = await supabase
-          .from('users')
+          .from('members')
           .select('*', { count: 'exact', head: true })
           .neq('id', user.id)
           .gte('created_at', thirtyDaysAgo.toISOString())
@@ -144,7 +145,7 @@ export default function Dashboard() {
           )
 
           const { data: otherPeople } = await supabase
-            .from('users')
+            .from('members')
             .select('id, first_name, address') // address = location?
             .in('id', otherIDs)
 
@@ -184,6 +185,9 @@ export default function Dashboard() {
     loadDashboard()
   }, [user])
 
+  // Vetting Check
+  const isHostingLocked = profile?.vetting_required && profile?.vetting_status !== 'verified';
+
   if (loading) {
     return (
       <>
@@ -199,6 +203,18 @@ export default function Dashboard() {
     <>
       <Header />
       <div className="min-h-screen bg-opeari-bg">
+        {/* Vetting Banner */}
+        {isHostingLocked && (
+          <div className="bg-[#fffaf5] border-b border-[#F8C3B3] px-5 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-opeari-heading font-medium">
+              <Lock size={16} />
+              <span>Hosting is locked until you complete verification.</span>
+            </div>
+            <Link to="/verify" className="text-sm font-bold text-[#1e6b4e] hover:underline">
+              Verify to Host →
+            </Link>
+          </div>
+        )}
         <div className="max-w-5xl mx-auto px-5 py-6">
 
           {/* Greeting */}
