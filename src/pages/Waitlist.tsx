@@ -37,7 +37,7 @@ export default function Waitlist() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const showReferralName = ['friend', 'neighbor', 'parent_group'].includes(referralSource)
+  const showReferralName = ['friend', 'neighbor', 'parent_group', 'other'].includes(referralSource)
 
   const generateReferralCode = (name: string) => {
     const cleanName = name.toUpperCase().slice(0, 4).padEnd(4, 'X')
@@ -597,14 +597,27 @@ export default function Waitlist() {
               </div>
 
               <div className="mb-4">
-                <label className={labelClass}>Instagram Handle <span className="text-[#8faaaa] font-normal normal-case tracking-normal">(optional)</span></label>
-                <input
-                  type="text"
-                  value={instagram}
-                  onChange={(e) => setInstagram(e.target.value)}
-                  placeholder="@yourusername"
-                  className={inputClass}
-                />
+                <button
+                  type="button"
+                  onClick={() => setInstagram(prev => prev === '' ? '@' : '')}
+                  className="text-sm font-semibold text-[#1e6b4e] flex items-center gap-2 hover:opacity-80 mb-2"
+                >
+                  <span className={`transition-transform duration-200 ${instagram ? 'rotate-90' : ''}`}>▶</span>
+                  Have an Instagram handle? <span className="text-[#8faaaa] font-normal normal-case tracking-normal">(optional)</span>
+                </button>
+
+                {instagram !== '' && (
+                  <div className="mt-2 animate-in slide-in-from-top-2 duration-200">
+                    <label className={labelClass}>Instagram Handle</label>
+                    <input
+                      type="text"
+                      value={instagram === '@' ? '' : instagram}
+                      onChange={(e) => setInstagram(e.target.value)}
+                      placeholder="@yourusername"
+                      className={inputClass}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="mb-4">
