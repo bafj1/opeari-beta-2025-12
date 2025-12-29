@@ -57,9 +57,10 @@ function App() {
               path="/onboarding"
               element={<ProtectedRoute><Onboarding /></ProtectedRoute>}
             />
-            <Route path="/caregiver-interest" element={<CaregiverInterest />} />
+            <Route path="/caregiver-interest" element={<ProtectedRoute><CaregiverInterest /></ProtectedRoute>} />
             <Route path="/verify" element={<ProtectedRoute><VerificationGate /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/nanny-share" element={<ProtectedRoute><NannyShare /></ProtectedRoute>} />
             <Route path="/build-your-village" element={<ProtectedRoute><BuildYourVillage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
@@ -74,7 +75,7 @@ function App() {
             <Route path="/village" element={<Navigate to="/connections" replace />} />
 
             {/* Feature Pages */}
-            <Route path="/nanny-share" element={<NannyShare />} />
+
 
             {/* 404 */}
             <Route path="*" element={<Navigate to="/" replace />} />

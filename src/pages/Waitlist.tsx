@@ -570,7 +570,9 @@ export default function Waitlist() {
 
                 {(showReferralName && referralSource !== 'referral_code') && (
                   <div className="mb-4">
-                    <label className={labelClass}>Who referred you? <span className="text-red-600">*</span></label>
+                    <label className={labelClass}>
+                      {referralSource === 'other' ? 'How did you find us?' : 'Who referred you?'} <span className="text-red-600">*</span>
+                    </label>
                     <input
                       type="text"
                       value={referralName}

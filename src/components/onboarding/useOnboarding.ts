@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import confetti from 'canvas-confetti';
 import { INITIAL_DATA } from './OnboardingTypes';
@@ -8,7 +8,16 @@ import { determineVettingRequirements } from '../../lib/vetting';
 
 export function useOnboarding() {
     const navigate = useNavigate();
-    const [step, setStep] = useState(0);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // Derive step from URL (Source of Truth) to support Browser Back Button
+    const step = parseInt(searchParams.get('step') || '0');
+
+    const setStep = (newStep: number | ((prev: number) => number)) => {
+        const nextValue = typeof newStep === 'function' ? newStep(step) : newStep;
+        setSearchParams({ step: nextValue.toString() });
+        window.scrollTo(0, 0);
+    };
     const [data, setData] = useState<OnboardingData>(INITIAL_DATA);
     const [loading, setLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -55,12 +64,10 @@ export function useOnboarding() {
 
     const nextStep = () => {
         setStep(prev => prev + 1);
-        window.scrollTo(0, 0);
     };
 
     const prevStep = () => {
         setStep(prev => prev - 1);
-        window.scrollTo(0, 0);
     };
 
     const [saveError, setSaveError] = useState<string | null>(null);
@@ -83,56 +90,80 @@ export function useOnboarding() {
                 throw new Error('No user session found');
             }
 
-            // Calculate Vetting Requirements
-            const { vetting_required, vetting_types } = determineVettingRequirements(data, hostingInterest);
-            const vetting_status = vetting_required ? 'required' : 'not_required';
+            // --- CAREGIVER SAVE LOGIC ---
+            if (data.userIntent === 'providing') {
+                const caregiverPayload = {
+                    user_id: authUser.id,
+                    first_name: data.firstName,
+                    last_name: data.lastName,
+                    email: data.email,
+                    phone: data.phone,
+                    zip_code: data.zipCode,
+                    // role_type: data.caregiverRole, // Map if needed
+                    role_type: data.caregiverRole,
+                    years_experience: data.yearsExperience,
+                    age_groups: data.ageGroups,
+                    certifications: data.certifications,
+                    bio: data.bio,
+                    availability_type: data.availabilityType,
+                    schedule_notes: data.scheduleNotes,
+                    status: 'pending',
+                    background_check_status: 'not_started'
+                };
 
-            const userPayload = {
-                first_name: data.firstName,
-                last_name: data.lastName || '',
-                zip_code: data.zipCode,
-                address: data.neighborhood,
-                role: 'parent', // TODO: Make dynamic based on intent if needed
-                care_types: data.careOptions,
-                schedule: {
-                    flexible: data.scheduleFlexible,
-                    grid: data.schedule
-                },
-                is_flexible: data.scheduleFlexible,
-                num_kids: data.kids.length,
-                kids_ages: data.kids.map(k => parseInt(k.age) || 0),
-                bio: `Looking for: ${data.careOptions.join(', ')}`,
-                timeline: 'asap',
-                profile_complete: true,
-                other_needs: showSomethingElseInput ? data.specificNeeds : null,
-                just_exploring: data.careOptions.includes('exploring'),
-                metadata: {
-                    expecting: data.expecting,
-                    expecting_timing: data.expectingTiming,
-                },
-                user_intent: data.userIntent,
-                caregiver_work_types: data.userIntent === 'providing' ? data.caregiverWorkTypes : null,
-                ready_to_start: data.userIntent === 'providing' ? data.readyToStart : null,
+                console.log('Caregiver Payload:', caregiverPayload);
 
-                // VETTING FLAGS
-                vetting_required,
-                vetting_types,
-                vetting_status,
-                vetting_fee_acknowledged: false // Default to false for now
-            };
+                const { error } = await supabase
+                    .from('caregiver_profiles')
+                    .upsert(caregiverPayload);
 
-            console.log('Payload to save:', JSON.stringify(userPayload, null, 2));
+                if (error) throw error;
 
-            const { data: upsertData, error } = await supabase
-                .from('members')
-                .upsert({ id: authUser.id, ...userPayload })
-                .select();
+            } else {
+                // --- FAMILY SAVE LOGIC (Existing) ---
+                // Calculate Vetting Requirements
+                const { vetting_required, vetting_types } = determineVettingRequirements(data, hostingInterest);
+                const vetting_status = vetting_required ? 'required' : 'not_required';
 
-            console.log('Upsert response:', { data: upsertData, error });
+                const userPayload = {
+                    first_name: data.firstName,
+                    last_name: data.lastName || '',
+                    zip_code: data.zipCode,
+                    address: data.neighborhood,
+                    role: 'parent',
+                    care_types: data.careOptions,
+                    schedule: {
+                        flexible: data.scheduleFlexible,
+                        grid: data.schedule
+                    },
+                    is_flexible: data.scheduleFlexible,
+                    num_kids: data.kids.length,
+                    kids_ages: data.kids.map(k => parseInt(k.age) || 0),
+                    bio: `Looking for: ${data.careOptions.join(', ')}`,
+                    timeline: 'asap',
+                    profile_complete: true,
+                    other_needs: showSomethingElseInput ? data.specificNeeds : null,
+                    just_exploring: data.careOptions.includes('exploring'),
+                    metadata: {
+                        expecting: data.expecting,
+                        expecting_timing: data.expectingTiming,
+                    },
+                    user_intent: data.userIntent,
+                    caregiver_work_types: null,
+                    ready_to_start: null,
 
-            if (error) {
-                console.error('UPSERT ERROR:', error);
-                throw error;
+                    // VETTING FLAGS
+                    vetting_required,
+                    vetting_types,
+                    vetting_status,
+                    vetting_fee_acknowledged: false
+                };
+
+                const { error } = await supabase
+                    .from('members')
+                    .upsert({ id: authUser.id, ...userPayload });
+
+                if (error) throw error;
             }
 
             console.log('=== ONBOARDING SAVE SUCCESS ===');
@@ -152,14 +183,25 @@ export function useOnboarding() {
     };
 
     const isStepValid = () => {
+        // Shared Step 0
+        if (step === 0) return !!data.userIntent;
+
+        // Caregiver Flow
+        if (data.userIntent === 'providing') {
+            switch (step) {
+                case 1: return !!(data.firstName && data.lastName && data.phone && data.zipCode?.length === 5); // About
+                case 2: return !!(data.caregiverRole && data.yearsExperience && data.ageGroups?.length && data.bio); // Experience
+                case 3: return !!data.availabilityType; // Availability
+                case 4: return true; // Verification (Informational)
+                case 5: return !!(data.password && data.password.length >= 8 && data.password === passwordConfirm); // Account
+                default: return true;
+            }
+        }
+
+        // Family Flow (Existing)
         switch (step) {
-            case 0: return !!data.userIntent;
             case 1: return !!(data.firstName?.trim() && data.zipCode?.trim() && data.zipCode.length === 5);
-            case 2:
-                if (data.userIntent === 'providing') {
-                    return data.caregiverWorkTypes.length > 0;
-                }
-                return data.careOptions.length > 0 || showSomethingElseInput;
+            case 2: return data.careOptions.length > 0 || showSomethingElseInput;
             case 3: return true;
             case 4: return true;
             case 5: return !!(data.password && data.password.length >= 8 && data.password === passwordConfirm);

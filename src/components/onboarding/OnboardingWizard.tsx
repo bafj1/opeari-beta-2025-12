@@ -6,8 +6,10 @@ import IntentStep from './steps/IntentStep';
 import LocationStep from './steps/LocationStep';
 import CareNeedsStep from './steps/CareNeedsStep';
 import ScheduleStep from './steps/ScheduleStep';
-import FamilyStep from './steps/FamilyStep';
-import AccountStep from './steps/AccountStep';
+import CaregiverAboutStep from './steps/CaregiverAboutStep';
+import CaregiverExperienceStep from './steps/CaregiverExperienceStep';
+import CaregiverAvailabilityStep from './steps/CaregiverAvailabilityStep';
+import CaregiverVerificationStep from './steps/CaregiverVerificationStep';
 
 export default function OnboardingWizard() {
     const {
@@ -63,30 +65,59 @@ export default function OnboardingWizard() {
         );
     }
 
-
-
     const handleNext = () => {
-        // Redirect caregivers to interest list
-        if (step === 0 && data.userIntent === 'providing') {
-            navigate('/caregiver-interest');
-            return;
-        }
+        // Validation handled by disable state of button
         nextStep();
+    };
+
+    const renderStep = () => {
+        // Shared Step 0: Intent
+        if (step === 0) return <IntentStep userIntent={data.userIntent} setUserIntent={(val) => updateData('userIntent', val)} />;
+
+        // --- CAREGIVER FLOW ---
+        if (data.userIntent === 'providing') {
+            switch (step) {
+                case 1: return <CaregiverAboutStep data={data} updateData={updateData} />;
+                case 2: return <CaregiverExperienceStep data={data} updateData={updateData} />;
+                case 3: return <CaregiverAvailabilityStep data={data} updateData={updateData} />;
+                case 4: return <CaregiverVerificationStep />;
+                case 5: return (
+                    <AccountStep
+                        data={data}
+                        updateData={updateData}
+                        passwordConfirm={passwordConfirm}
+                        setPasswordConfirm={setPasswordConfirm}
+                        showPassword={showPassword}
+                        setShowPassword={setShowPassword}
+                    />
+                );
+                default: return <div>Unknown Step</div>;
+            }
+        }
+
+        // --- FAMILY FLOW ---
+        switch (step) {
+            case 1: return <LocationStep data={data} updateData={updateData} />;
+            case 2: return <CareNeedsStep data={data} updateData={updateData} hostingInterest={hostingInterest} setHostingInterest={setHostingInterest} showSomethingElseInput={showSomethingElseInput} setShowSomethingElseInput={setShowSomethingElseInput} />;
+            case 3: return <ScheduleStep data={data} updateData={updateData} />;
+            case 4: return <FamilyStep data={data} updateData={updateData} />;
+            case 5: return (
+                <AccountStep
+                    data={data}
+                    updateData={updateData}
+                    passwordConfirm={passwordConfirm}
+                    setPasswordConfirm={setPasswordConfirm}
+                    showPassword={showPassword}
+                    setShowPassword={setShowPassword}
+                />
+            );
+            default: return <div>Unknown Step</div>;
+        }
     };
 
     return (
         <OnboardingLayout step={step}>
-            <StepContentWithState
-                step={step}
-                data={data}
-                updateData={updateData}
-                hostingInterest={hostingInterest}
-                setHostingInterest={setHostingInterest}
-                showSomethingElseInput={showSomethingElseInput}
-                setShowSomethingElseInput={setShowSomethingElseInput}
-                passwordConfirm={passwordConfirm}
-                setPasswordConfirm={setPasswordConfirm}
-            />
+            {renderStep()}
 
             {/* Save Error Banner */}
             {saveError && (

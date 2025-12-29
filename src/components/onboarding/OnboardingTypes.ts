@@ -23,6 +23,15 @@ export interface OnboardingData {
     userIntent?: 'seeking' | 'providing' | null
     caregiverWorkTypes: string[]
     readyToStart: boolean
+    // Caregiver Specific
+    phone?: string
+    caregiverRole?: string
+    yearsExperience?: string
+    ageGroups?: string[]
+    certifications?: string[]
+    bio?: string
+    availabilityType?: string
+    scheduleNotes?: string
 }
 
 export const INITIAL_DATA: OnboardingData = {
@@ -40,7 +49,15 @@ export const INITIAL_DATA: OnboardingData = {
     password: '',
     userIntent: null,
     caregiverWorkTypes: [],
-    readyToStart: false
+    readyToStart: false,
+    phone: '',
+    caregiverRole: '',
+    yearsExperience: '',
+    ageGroups: [],
+    certifications: [],
+    bio: '',
+    availabilityType: '',
+    scheduleNotes: ''
 }
 
 export const STEPS = [

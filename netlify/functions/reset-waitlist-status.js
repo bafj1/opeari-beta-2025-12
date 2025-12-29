@@ -40,12 +40,53 @@ exports.handler = async (event) => {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing ID' }) }
         }
 
-        // 4. Update Database
+
+        // 4. Get Email from Waitlist Entry first
+        const { data: entry, error: fetchError } = await supabase
+            .from('waitlist')
+            .select('email')
+            .eq('id', id)
+            .single()
+
+        if (fetchError || !entry) {
+            return { statusCode: 404, headers, body: JSON.stringify({ error: 'Entry not found' }) }
+        }
+
+        console.log('Resetting user:', entry.email)
+
+        // 5. Attempt to Find & Delete Auth User (Hard Reset)
+        // Note: listUsers is not efficient for huge userbases, but fine for beta/admin.
+        // We need to find the user ID to delete them.
+        try {
+            const { data: { users }, error: listError } = await supabase.auth.admin.listUsers()
+
+            if (!listError && users) {
+                const userToDelete = users.find(u => u.email?.toLowerCase() === entry.email.toLowerCase())
+
+                if (userToDelete) {
+                    console.log('Found Auth User via Email:', userToDelete.id)
+                    const { error: deleteError } = await supabase.auth.admin.deleteUser(userToDelete.id)
+                    if (deleteError) {
+                        console.error('Failed to delete auth user:', deleteError)
+                    } else {
+                        console.log('Auth User Deleted successfully.')
+                    }
+                } else {
+                    console.log('No matching Auth User found to delete.')
+                }
+            }
+        } catch (authErr) {
+            console.error('Auth cleanup failed (continuing reset):', authErr)
+        }
+
+        // 6. Update Database Status (Reset to Pending)
         const { data, error } = await supabase
             .from('waitlist')
             .update({
                 status: 'pending',
-                invited_at: null // Clear invited timestamp
+                invited_at: null,
+                approved_at: null,    // Also clear approval time
+                converted_at: null    // And conversion time if it exists
             })
             .eq('id', id)
             .select()
