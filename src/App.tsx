@@ -17,6 +17,7 @@ const AdminWaitlist = lazy(() => import('./pages/AdminWaitlist'));
 
 const RequestNewLink = lazy(() => import('./pages/RequestNewLink'));
 const SignIn = lazy(() => import('./pages/SignIn'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 
 // Onboarding
 const Onboarding = lazy(() => import('./pages/Onboarding'));
@@ -51,6 +52,9 @@ function App() {
             <Route path="/invite" element={<Invite />} />
             <Route path="/admin-waitlist" element={<AdminWaitlist />} />
             <Route path="/request-link" element={<RequestNewLink />} />
+
+            {/* Auth Callback for PKCE / Magic Links */}
+            <Route path="/auth/confirm" element={<AuthCallback />} />
 
             {/* Onboarding - Protected */}
             <Route
