@@ -1,5 +1,5 @@
 import type { OnboardingData } from '../OnboardingTypes';
-import { StepHeader, Input, InfoBanner } from '../components/WizardUI';
+import { StepHeader, Input } from '../components/WizardUI';
 
 interface LocationStepProps {
     data: OnboardingData;
@@ -8,7 +8,7 @@ interface LocationStepProps {
 
 export default function LocationStep({ data, updateData }: LocationStepProps) {
     return (
-        <div className="space-y-5 animate-fade-in">
+        <div className="space-y-4 animate-fade-in">
             <StepHeader title="Let's start building your village." subtitle="First, where are you located?" />
 
             <Input
@@ -36,9 +36,9 @@ export default function LocationStep({ data, updateData }: LocationStepProps) {
                 subtext="Helpful for local matches & carpools"
             />
 
-            <InfoBanner>
-                Opeari connects families for shared care, backup help, and community — not strangers from the internet.
-            </InfoBanner>
+            <div className="bg-[#f0faf4] border-l-4 border-opeari-heading p-3 rounded-r-lg">
+                <p className="text-opeari-heading text-xs leading-relaxed">Opeari connects families for shared care, backup help, and community — not strangers from the internet.</p>
+            </div>
         </div>
     );
 }

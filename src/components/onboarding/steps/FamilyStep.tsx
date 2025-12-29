@@ -19,11 +19,11 @@ const EXPECTING_TIMING_OPTIONS = [
 
 export default function FamilyStep({ data, updateData }: FamilyStepProps) {
     return (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-4 animate-fade-in">
             <StepHeader title="Tell us about your family" subtitle="This helps us match you with families whose kids would actually play well together." />
 
             {data.kids.map((kid, idx) => (
-                <div key={kid.id} className="p-5 bg-white border border-gray-200 rounded-xl relative shadow-sm">
+                <div key={kid.id} className="p-4 bg-white border border-gray-200 rounded-xl relative shadow-sm">
                     <button
                         onClick={() => {
                             const updatedKids = [...data.kids];
@@ -82,7 +82,8 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
                     </div>
                     <div>
                         <p className="font-semibold text-opeari-heading">We're expecting</p>
-                        <p className="text-sm text-gray-500">We'll include you in future matching</p>
+                        <p className="text-sm text-gray-500">This helps us match you with families at similar stages</p>
+                        <p className="text-xs text-[#1e6b4e] mt-0.5">We'll include you in future matching once baby arrives</p>
                     </div>
                 </label>
                 {data.expecting && (

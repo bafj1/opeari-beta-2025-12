@@ -153,8 +153,8 @@ export default function ScheduleGrid({
               }}
             >
               {/* Time Label */}
-              <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <span style={{ fontSize: '14px', fontWeight: 500, color: COLORS.primary }}>{slot.label}</span>
+              <div style={{ padding: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <span style={{ fontSize: '13px', fontWeight: 500, color: COLORS.primary }}>{slot.label}</span>
                 <span style={{ fontSize: '11px', color: COLORS.textMuted }}>{slot.time}</span>
               </div>
 
@@ -162,22 +162,23 @@ export default function ScheduleGrid({
               {days.map(day => {
                 const selected = isSelected(day.id, slot.id)
                 return (
-                  <div key={`${day.id}-${slot.id}`} style={{ padding: '6px' }}>
+                  <div key={`${day.id}-${slot.id}`} style={{ padding: '4px' }}>
                     <button
                       type="button"
                       onClick={() => toggleSlot(day.id, slot.id)}
                       style={{
                         width: '100%',
-                        height: '40px',
+                        height: '36px',
                         borderRadius: '8px',
-                        border: selected ? 'none' : `1px solid ${COLORS.border}`,
+                        border: selected ? `1px solid ${COLORS.primary}` : `1px solid ${COLORS.border}`,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         transition: 'all 0.15s ease',
-                        backgroundColor: selected ? COLORS.coral : 'white',
-                        color: selected ? 'white' : COLORS.textMuted,
+                        backgroundColor: selected ? COLORS.mintDark : 'white',
+                        color: selected ? COLORS.primary : COLORS.primary,
+                        fontWeight: selected ? 'bold' : 'normal',
                       }}
                       aria-label={`${day.label} ${slot.label}`}
                     >
