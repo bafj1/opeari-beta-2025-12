@@ -285,7 +285,7 @@ export default function BuildYourVillage() {
       // Get current user's profile
       const { data: myProfile } = await supabase
         .from('members')
-        .select('*, kids(*)')
+        .select('*')
         .eq('user_id', user!.id)
         .single()
 
@@ -305,7 +305,7 @@ export default function BuildYourVillage() {
       // Get all other members
       const { data: allMembers } = await supabase
         .from('members')
-        .select('*, kids(*)')
+        .select('*')
         .neq('id', myProfile.id)
 
       if (!allMembers) return

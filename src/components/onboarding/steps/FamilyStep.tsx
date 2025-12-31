@@ -89,11 +89,12 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
                 {data.expecting && (
                     <div className="mt-3 animate-fade-in">
                         <label className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">When is baby arriving?</label>
+                        <p className="text-xs text-gray-500 mb-2">This helps us plan for future nanny shares or playgroups matching your timeline.</p>
                         <div className="relative">
                             <select
                                 value={data.expectingTiming || ''}
                                 onChange={e => updateData('expectingTiming', e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-200/50 rounded-xl bg-white appearance-none text-sm focus:ring-2 focus:ring-opeari-green focus:outline-none"
+                                className="w-full px-4 py-3 border border-[#1e6b4e] rounded-xl bg-white appearance-none text-sm focus:ring-2 focus:ring-opeari-green focus:outline-none text-opeari-heading font-medium"
                             >
                                 <option value="" disabled>Select one...</option>
                                 {EXPECTING_TIMING_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}

@@ -15,6 +15,7 @@ export default function Waitlist() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [zipCode, setZipCode] = useState('')
   const [userType, setUserType] = useState('')
   const [urgency, setUrgency] = useState('')
@@ -67,6 +68,7 @@ export default function Waitlist() {
     const cleanLastName = sanitize(lastName)
     const cleanEmail = email.trim().toLowerCase()
     const cleanZip = zipCode.trim()
+    const cleanPhone = phone.trim()
 
     if (!cleanFirstName) { setError('Please enter your first name.'); return }
     if (!cleanLastName) { setError('Please enter your last name.'); return }
@@ -88,6 +90,7 @@ export default function Waitlist() {
           first_name: cleanFirstName,
           last_name: cleanLastName,
           email: cleanEmail,
+          phone: cleanPhone || null, // Optional
           zip_code: cleanZip,
           role: userType,
           // Mapping urgency to 'looking_for' column (Text) per schema Plan A
@@ -331,7 +334,7 @@ export default function Waitlist() {
       {/* Main */}
       <main className="flex-1 w-full max-w-[1200px] mx-auto px-8 py-6 grid grid-cols-[1fr_1.1fr] gap-16 items-start max-md:grid-cols-1 max-md:gap-6 max-md:px-4">
         {/* Hero Column */}
-        <div className="text-center sticky top-[5.5rem] max-md:static">
+        <div className="text-center sticky top-[6.5rem] max-md:static">
           <h1 className="text-[2.5rem] leading-tight mb-3 text-[#1e6b4e] max-md:text-[2rem] font-extrabold">
             Build your village.
           </h1>
@@ -418,24 +421,49 @@ export default function Waitlist() {
                 </div>
               </div>
 
-              {/* Email / ZIP Row */}
-              <div className="grid grid-cols-[2fr_1fr] gap-4 max-md:grid-cols-1">
-                <div className="mb-4">
-                  <label className={labelClass}>Email Address <span className="text-red-600">*</span></label>
+              {/* Email Row */}
+              <div className="mb-4">
+                <label className={labelClass}>Email Address <span className="text-red-600">*</span></label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@email.com"
+                  autoComplete="email"
+                  className={`${inputClass} ${touched.email && !isValidEmail(email) ? 'border-red-400 focus:border-red-500' : ''}`}
+                  onBlur={() => setTouched(prev => ({ ...prev, email: true }))}
+                />
+                {touched.email && email && !isValidEmail(email) && (
+                  <p className="mt-1 text-xs text-red-500 ml-1">Please enter a valid email address.</p>
+                )}
+              </div>
+
+              {/* Phone / ZIP Row */}
+              <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1 mb-4">
+                <div>
+                  <label className={labelClass}>Phone Number</label>
                   <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@email.com"
-                    autoComplete="email"
-                    className={`${inputClass} ${touched.email && !isValidEmail(email) ? 'border-red-400 focus:border-red-500' : ''}`}
-                    onBlur={() => setTouched(prev => ({ ...prev, email: true }))}
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, '').slice(0, 10)
+                      let formatted = raw
+                      if (raw.length > 0) {
+                        if (raw.length <= 3) formatted = `(${raw}`
+                        else if (raw.length <= 6) formatted = `(${raw.slice(0, 3)}) ${raw.slice(3)}`
+                        else formatted = `(${raw.slice(0, 3)}) ${raw.slice(3, 6)}-${raw.slice(6)}`
+                      }
+                      setPhone(formatted)
+                    }}
+                    placeholder="(555) 555-5555"
+                    autoComplete="tel"
+                    className={inputClass}
                   />
-                  {touched.email && email && !isValidEmail(email) && (
-                    <p className="mt-1 text-xs text-red-500 ml-1">Please enter a valid email address.</p>
-                  )}
+                  <p className="text-[0.7rem] text-[#527a6a] mt-1.5 ml-1 opacity-80 leading-tight">
+                    Optional — helps us verify you.
+                  </p>
                 </div>
-                <div className="mb-4">
+                <div>
                   <label className={labelClass}>Zip Code <span className="text-red-600">*</span></label>
                   <input
                     type="text"
@@ -586,7 +614,9 @@ export default function Waitlist() {
               </div>
 
               <div className="mb-4">
-                <label className={labelClass}>LinkedIn <span className="text-[#8faaaa] font-normal normal-case tracking-normal">(optional — helps verify you)</span></label>
+                <label className={labelClass}>
+                  LinkedIn <span className="text-[#8faaaa] font-normal normal-case tracking-normal">(Optional — helps verify you)</span>
+                </label>
                 <input
                   type="url"
                   value={linkedin}
@@ -603,7 +633,7 @@ export default function Waitlist() {
                   className="text-sm font-semibold text-[#1e6b4e] flex items-center gap-2 hover:opacity-80 mb-2"
                 >
                   <span className={`transition-transform duration-200 ${instagram ? 'rotate-90' : ''}`}>▶</span>
-                  Have an Instagram handle? <span className="text-[#8faaaa] font-normal normal-case tracking-normal">(optional)</span>
+                  Have an Instagram handle?
                 </button>
 
                 {instagram !== '' && (
@@ -621,13 +651,16 @@ export default function Waitlist() {
               </div>
 
               <div className="mb-4">
-                <label className={labelClass}>Why join? <span className="text-[#8faaaa] font-normal normal-case tracking-normal">(optional)</span></label>
+                <label className={labelClass}>Why join?</label>
                 <textarea
                   value={whyJoin}
                   onChange={(e) => setWhyJoin(e.target.value)}
                   placeholder="Looking for a nanny share nearby..."
                   className={`${inputClass} min-h-[60px] resize-y`}
                 />
+                <p className="text-[0.7rem] text-[#527a6a] mt-1.5 ml-1 opacity-80 leading-tight">
+                  Optional — helps us learn about your situation.
+                </p>
               </div>
 
               <button
@@ -649,13 +682,13 @@ export default function Waitlist() {
             </div>
           ) : (
             /* Success State */
-            <div className="text-center py-4 relative z-10">
+            <div className="text-center py-2 relative z-10">
 
 
               <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-[999]" />
-              <img src={heroImg} alt="Opeari Village" className="w-[240px] mx-auto mb-6 max-w-full h-auto" />
+              <img src={heroImg} alt="Opeari Village" className="w-[180px] mx-auto mb-2 max-w-full h-auto" />
               <h2 className="text-[#1e6b4e] text-[2rem] mb-2 font-bold relative z-10">You're on the list!</h2>
-              <p className="text-[#527a6a] mb-8 relative z-10">Thanks, <span className="font-bold">{firstName}</span>. We'll be in touch soon.
+              <p className="text-[#527a6a] mb-5 relative z-10">Thanks, <span className="font-bold">{firstName}</span>. We'll be in touch soon.
                 {emailStatus?.sent === false && (
                   <span className="block text-sm text-[#F8C3B3] mt-2 bg-[#1e6b4e] px-3 py-1 rounded-full font-bold">
                     Note: Confirmation email failed to send, but you are signed up.
@@ -663,7 +696,7 @@ export default function Waitlist() {
                 )}
               </p>
 
-              <div className="bg-[#d8f5e5] rounded-2xl py-6 px-8 mx-auto inline-block min-w-[200px] mb-8 shadow-inner relative z-10">
+              <div className="bg-[#d8f5e5] rounded-2xl py-4 px-8 mx-auto inline-block min-w-[200px] mb-6 shadow-inner relative z-10">
                 <div className="text-[3.5rem] font-bold text-[#1e6b4e] leading-none mb-1">#{queuePosition}</div>
                 <div className="text-[0.9rem] text-[#527a6a] uppercase tracking-widest font-bold">in line</div>
               </div>

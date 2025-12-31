@@ -30,8 +30,8 @@ export default function CaregiverAvailabilityStep({ data, updateData }: Caregive
                             key={type.id}
                             onClick={() => updateData('availabilityType', type.id)}
                             className={`p-4 rounded-xl border text-left transition-all ${data.availabilityType === type.id
-                                    ? 'border-opeari-green bg-opeari-green/5 ring-1 ring-opeari-green'
-                                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                                ? 'border-[#1e6b4e] bg-[#f0faf4] ring-1 ring-[#1e6b4e]'
+                                : 'border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50'
                                 }`}
                         >
                             <div className="font-semibold text-gray-900">{type.label}</div>

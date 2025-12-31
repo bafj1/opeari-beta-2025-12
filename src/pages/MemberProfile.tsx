@@ -99,7 +99,7 @@ export default function MemberProfile() {
     try {
       const { data, error } = await supabase
         .from('members')
-        .select('*, kids(*)')
+        .select('*')
         .eq('id', id)
         .single()
 

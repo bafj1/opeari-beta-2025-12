@@ -1,414 +1,312 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import Header from '../components/common/Header'
-import SetupJourney from '../components/Dashboard/SetupJourney'
-import { Lock } from 'lucide-react';
+import DashboardHeader from '../components/Dashboard/DashboardHeader'
+import VillageRadar from '../components/Dashboard/VillageRadar'
+import SmartStack from '../components/Dashboard/SmartStack'
+import { ChevronRight, Sprout, ShieldCheck } from 'lucide-react'
+import {
+  calculateOverlap,
+  calculateCompatibility,
+  getMatchReasons,
+  type UserProfile,
+  type FamilyMatch
+} from '../lib/matching'
 
-interface Connection {
-  id: string
-  other_member?: {
-    id: string
-    first_name: string
-    location: string
-  }
-}
+import CaregiverDashboard from '../components/Dashboard/CaregiverDashboard'
 
 export default function Dashboard() {
   const { user } = useAuth()
-  const [firstName, setFirstName] = useState('')
+
+  // 0. Check & Normalize User Type
+  const rawIntent = user?.user_metadata?.intent
+  let normalizedIntent: 'caregiver' | 'family' | 'unknown' = 'unknown'
+
+  if (rawIntent === 'providing' || rawIntent === 'caregiver') {
+    normalizedIntent = 'caregiver'
+  } else if (rawIntent === 'seeking' || rawIntent === 'family') {
+    normalizedIntent = 'family'
+  }
+
+  // TEMP DEBUG LOGS
+  console.log('|--- DASHBOARD LOAD ---|')
+  console.log('User ID:', user?.id)
+  console.log('Raw Intent:', rawIntent)
+  console.log('Normalized Intent:', normalizedIntent)
+  console.log('|----------------------|')
+
+  // 1. Strict Routing
+  if (normalizedIntent === 'caregiver') {
+    return <CaregiverDashboard />
+  }
+
+  if (normalizedIntent === 'unknown') {
+    console.warn('Unknown intent, redirecting to onboarding.')
+    return <Navigate to="/onboarding?step=0" replace />
+  }
+
+  // --- FAMILY DASHBOARD LOGIC (Strictly Family Only) ---
   const [loading, setLoading] = useState(true)
-  const [profile, setProfile] = useState<any>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [firstName, setFirstName] = useState('')
 
-  const [matchCount, setMatchCount] = useState(0)
-  const [availableNow, setAvailableNow] = useState(0)
-  const [connections, setConnections] = useState<Connection[]>([])
-  const [pendingRequests, setPendingRequests] = useState(0)
-
-  // Setup Journey State
-  const [hasProfile, setHasProfile] = useState(false)
-  const [hasSentRequests, setHasSentRequests] = useState(false)
-  const [daysActive, setDaysActive] = useState(0)
-  const [newMemberCount, setNewMemberCount] = useState(0)
-  const [hasInvited, setHasInvited] = useState(false)
-  const [isSetupMode, setIsSetupMode] = useState(false)
+  // Stacks
+  const [scheduleMatches, setScheduleMatches] = useState<FamilyMatch[]>([])
+  const [nearbyMatches, setNearbyMatches] = useState<FamilyMatch[]>([])
+  const [recentMatches, setRecentMatches] = useState<FamilyMatch[]>([])
+  const [totalFamilies, setTotalFamilies] = useState(0)
 
   useEffect(() => {
-    async function loadDashboard() {
-      if (!user) {
-        setLoading(false)
-        return
-      }
+    // Double check to prevent race conditions or heavy queries if intent is wrong
+    if (!user || normalizedIntent !== 'family') return
 
+    async function loadDashboardData() {
+      setLoading(true)
       try {
-        // Fetch User Profile from 'users' or 'members'
-        // Prioritize 'users' table which is the source of truth for Onboarding
-        let userProfile = null
-
-        const { data: userData } = await supabase
+        // 1. Get My Profile
+        const { data: myProfile } = await supabase
           .from('members')
           .select('*')
-          .eq('id', user.id)
+          .eq('id', user!.id)
           .single()
 
-        if (userData) {
-          userProfile = userData
-        } else {
-          // Fallback to 'members' if users not found (legacy)
-          const { data: memberData } = await supabase
-            .from('members')
-            .select('*')
-            .eq('user_id', user.id)
-            .single()
-
-          if (memberData) userProfile = memberData
+        if (!myProfile) {
+          console.warn('Family intent but no member profile found.')
+          return
         }
 
-        // Set First Name (Fixing the "Hey, !" bug)
-        if (userProfile?.first_name) {
-          setFirstName(userProfile.first_name)
-        } else if (user.user_metadata?.first_name) {
-          setFirstName(user.user_metadata.first_name)
-        } else {
-          setFirstName(user.email?.split('@')[0] || 'Neighbor')
+        setFirstName(myProfile.first_name)
+
+        const mapKids = (ages: number[] | null): any[] => {
+          if (!ages) return []
+          return ages.map((year, idx) => ({
+            id: `k-${idx}`,
+            birth_year: year,
+            birth_month: null
+          }))
         }
 
-        if (userProfile) {
-          setProfile(userProfile)
-
-          // Calculate Days Active
-          const createdAt = userProfile.created_at ? new Date(userProfile.created_at) : new Date()
-          const diffTime = Math.abs(new Date().getTime() - createdAt.getTime())
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-          setDaysActive(diffDays)
-
-          // Check Profile Completion (Bio + Neighborhood/Address)
-          setHasProfile(!!(userProfile.bio && (userProfile.neighborhood || userProfile.address)))
-
-          // Check Referrals
-          setHasInvited((userProfile.referral_count || 0) > 0)
+        const userProfile: UserProfile = {
+          id: myProfile.id,
+          schedule: myProfile.schedule || {},
+          location: myProfile.location || '',
+          neighborhood: myProfile.neighborhood || '',
+          nanny_situation: myProfile.nanny_situation || '',
+          kids: mapKids(myProfile.kids_ages),
+          invited_by: myProfile.invited_by,
+          care_timeline: myProfile.care_timeline
         }
+        setProfile(userProfile)
 
-
-        // Get match count (Compatible Members)
-        const { count } = await supabase
+        // 2. Get Potential Matches
+        const { data: allMembers } = await supabase
           .from('members')
-          .select('*', { count: 'exact', head: true })
-          .neq('id', user.id)
-          .eq('profile_complete', true)
+          .select('*', { count: 'exact' })
+          .neq('id', myProfile.id)
 
-        setMatchCount(count || 0)
+        if (allMembers) {
+          setTotalFamilies(allMembers.length) // or count
 
-        // Get available now count (Need help ASAP)
-        const { count: availableCount } = await supabase
-          .from('members') // 'members' table
-          .select('*', { count: 'exact', head: true })
-          .neq('id', user.id)
-          .eq('timeline', 'asap')
-
-        setAvailableNow(availableCount || 0)
-
-        // Get recent joins (Network Pulse)
-        const thirtyDaysAgo = new Date()
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
-        const { count: newCount } = await supabase
-          .from('members')
-          .select('*', { count: 'exact', head: true })
-          .neq('id', user.id)
-          .gte('created_at', thirtyDaysAgo.toISOString())
-
-        setNewMemberCount(newCount || 0)
-
-        // Get connections - this might still be on 'connections' table linking 'members' or 'users'?
-        // Assuming 'connections' table links uuids.
-        const { data: myConnections } = await supabase
-          .from('connections')
-          .select('*')
-          .or(`member_id.eq.${user.id},connected_member_id.eq.${user.id}`) // Use user.id directly if tables are unified
-          .eq('status', 'accepted')
-          .limit(6)
-
-        // Get SENT requests
-        const { count: sentCount } = await supabase
-          .from('connections')
-          .select('*', { count: 'exact', head: true })
-          .eq('member_id', user.id)
-          .eq('status', 'pending')
-
-        setHasSentRequests((sentCount || 0) > 0)
-
-        if (myConnections && myConnections.length > 0) {
-          const otherIDs = myConnections.map(c =>
-            c.member_id === user.id ? c.connected_member_id : c.member_id
-          )
-
-          const { data: otherPeople } = await supabase
-            .from('members')
-            .select('id, first_name, address') // address = location?
-            .in('id', otherIDs)
-
-          const connectionsWithDetails = myConnections.map(c => {
-            const otherId = c.member_id === user.id ? c.connected_member_id : c.member_id
-            const person = otherPeople?.find(p => p.id === otherId)
-            return {
-              ...c,
-              other_member: person
-                ? { ...person, location: person.address }
-                : { id: otherId || 'unknown', first_name: 'Member', location: '' }
+          // Process Matches
+          const processed = allMembers.map(member => {
+            const overlap = calculateOverlap(userProfile.schedule, member.schedule || {})
+            const match: FamilyMatch = {
+              id: member.id,
+              first_name: member.first_name || 'Family',
+              location: member.location || '',
+              neighborhood: member.neighborhood || '',
+              photo_url: member.photo_url,
+              nanny_situation: member.nanny_situation || '',
+              care_timeline: member.care_timeline || '',
+              schedule: member.schedule || {},
+              kids: mapKids(member.kids_ages),
+              invited_by: member.invited_by,
+              overlapDays: overlap.days,
+              matchReasons: [],
+              compatibility: 0
             }
+            match.matchReasons = getMatchReasons(userProfile, match)
+            match.compatibility = calculateCompatibility(match.matchReasons, overlap.percentage)
+            return match
           })
 
-          setConnections(connectionsWithDetails as any)
-          setIsSetupMode(false)
-        } else {
-          setIsSetupMode(true)
+          // Sort and Segment into Stacks
+
+          // Stack 1: Perfect Schedule (>50% overlap OR 'schedule' reason highlighted)
+          const scheduleStack = processed
+            .filter(m => m.matchReasons.some(r => r.icon === 'schedule'))
+            .sort((a, b) => b.compatibility - a.compatibility)
+            .slice(0, 5)
+
+          // Stack 2: Neighbors (Location match, excluding ones already in schedule stack to avoid dupes? or keep logic simple for now)
+          // Let's allow dupes across stacks if relevant, or filter. Simple for now.
+          const neighborStack = processed
+            .filter(m => m.neighborhood === userProfile.neighborhood)
+            .sort((a, b) => b.compatibility - a.compatibility)
+            .slice(0, 5)
+
+          // Stack 3: High Logic / Catch All (Top Comp)
+          const topStack = processed
+            .sort((a, b) => b.compatibility - a.compatibility)
+            .slice(0, 5)
+
+          setScheduleMatches(scheduleStack)
+          setNearbyMatches(neighborStack)
+          setRecentMatches(topStack) // Using top stack as "Recent" or "Recommended" for MVP
         }
 
-        // Get pending requests (Incoming)
-        const { count: pendingCount } = await supabase
-          .from('connections')
-          .select('*', { count: 'exact', head: true })
-          .eq('connected_member_id', user.id)
-          .eq('status', 'pending')
-
-        setPendingRequests(pendingCount || 0)
-
-      } catch (err) {
-        console.error('Error loading dashboard:', err)
+      } catch (error) {
+        console.error('Dashboard load error:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    loadDashboard()
-  }, [user])
-
-  // Vetting Check
-  const isHostingLocked = profile?.vetting_required && profile?.vetting_status !== 'verified';
-
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <div className="min-h-screen bg-opeari-bg flex items-center justify-center">
-          <div className="text-opeari-heading font-semibold animate-pulse">Loading...</div>
-        </div>
-      </>
-    )
-  }
+    loadDashboardData()
+  }, [user, normalizedIntent])
 
   return (
-    <>
+    <div className="min-h-screen bg-opeari-bg pb-20">
       <Header />
-      <div className="min-h-screen bg-opeari-bg">
-        {/* Vetting Banner */}
-        {isHostingLocked && (
-          <div className="bg-[#fffaf5] border-b border-[#F8C3B3] px-5 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-opeari-heading font-medium">
-              <Lock size={16} />
-              <span>Hosting is locked until you complete verification.</span>
-            </div>
-            <Link to="/verify" className="text-sm font-bold text-[#1e6b4e] hover:underline">
-              Verify to Host →
-            </Link>
+
+      <main className="max-w-6xl mx-auto px-4 pt-8">
+        {/* 1. Header Section */}
+        <div className="flex flex-col md:flex-row gap-8 items-start mb-10">
+          <div className="flex-1">
+            <DashboardHeader
+              firstName={firstName}
+              loading={loading}
+              familyCount={totalFamilies}
+              newMatchesCount={scheduleMatches.length}
+            />
           </div>
-        )}
-        <div className="max-w-5xl mx-auto px-5 py-6">
+        </div>
 
-          {/* Greeting */}
-          {!isSetupMode && (
-            <div className="mb-6">
-              <h1 className="text-xl font-bold text-opeari-heading mb-2">
-                Hey, {firstName}!
-              </h1>
-              {/* Network Pulse Signal */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-opeari-mint/20 border border-opeari-mint rounded-full">
-                <span className="text-lg">{newMemberCount > 5 ? '🔥' : '🌱'}</span>
-                <span className="text-sm font-medium text-opeari-heading/80">
-                  {newMemberCount > 5
-                    ? `${newMemberCount} new families joined recently`
-                    : `You are a Pioneer in ${profile?.neighborhood || profile?.address || 'your area'}`
-                  }
-                </span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* LEFT / MAIN COLUMN */}
+          <div className="lg:col-span-2 space-y-10">
+
+            {/* 2. Village Radar (Hero) */}
+            <VillageRadar />
+
+            {/* 3. Smart Stacks */}
+            {loading ? (
+              <div className="space-y-4">
+                <div className="h-8 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+                <div className="flex gap-4 overflow-hidden">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-72 h-48 bg-gray-100 rounded-2xl animate-pulse shrink-0"></div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <>
+                {scheduleMatches.length > 0 && (
+                  <SmartStack
+                    title="Perfect Schedule Matches"
+                    subtitle="Families with compatible care needs."
+                    matches={scheduleMatches}
+                    viewAllLink="/build-your-village?filter=schedule"
+                  />
+                )}
 
-          {/* Pending Requests Alert */}
-          {pendingRequests > 0 && (
-            <Link
-              to="/connections"
-              className="block mb-6 p-4 bg-orange-50 border border-orange-100 rounded-xl hover:bg-orange-100 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-orange-200/50 rounded-full flex items-center justify-center">
-                  <span className="text-opeari-heading font-bold">{pendingRequests}</span>
+                {nearbyMatches.length > 0 && (
+                  <SmartStack
+                    title="In Your Neighborhood"
+                    subtitle={`Neighbors in ${profile?.neighborhood}.`}
+                    matches={nearbyMatches}
+                    viewAllLink="/build-your-village?filter=location"
+                  />
+                )}
+
+                <SmartStack
+                  title="Recommended Neighbors"
+                  subtitle="Families compatible with your needs."
+                  matches={recentMatches}
+                  viewAllLink="/build-your-village"
+                />
+
+                {scheduleMatches.length === 0 && nearbyMatches.length === 0 && recentMatches.length === 0 && (
+                  <div className="bg-white rounded-2xl p-8 text-center border-dashed border-2 border-gray-200">
+                    <div className="w-16 h-16 bg-[#d8f5e5] rounded-full flex items-center justify-center mx-auto mb-4 text-[#1e6b4e]">
+                      <Sprout size={32} />
+                    </div>
+                    <h3 className="font-bold text-xl text-opeari-heading mb-2">You're one of the first in this neighborhood!</h3>
+                    <p className="text-gray-500 mb-6">Your village is just getting started. Invite a neighbor to grow it faster.</p>
+                    <button className="bg-opeari-green text-white px-6 py-2 rounded-full font-bold shadow-md hover:bg-[#155d42] transition-colors">
+                      Invite a Neighbor
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* RIGHT SIDEBAR */}
+          <div className="space-y-6">
+            {/* Profile Card Mini */}
+            <div className="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-opeari-mint rounded-full flex items-center justify-center text-xl border-2 border-white shadow-sm overflow-hidden">
+                  {profile?.id && <span>{firstName.charAt(0)}</span>}
+                  {/* Future: Real Avatar */}
                 </div>
                 <div>
-                  <p className="font-semibold text-opeari-heading">
-                    {pendingRequests} connection {pendingRequests === 1 ? 'request' : 'requests'}
-                  </p>
-                  <p className="text-sm text-gray-500">Tap to review</p>
+                  <h3 className="font-bold text-opeari-heading">Your Profile</h3>
+                  <Link to="/settings" className="text-xs text-gray-400 hover:text-opeari-green">Edit Preferences</Link>
                 </div>
               </div>
-            </Link>
-          )}
-
-          {/* SETUP JOURNEY (Zero Data State) */}
-          {isSetupMode ? (
-            <SetupJourney
-              firstName={firstName}
-              hasProfile={hasProfile}
-              hasBrowsed={hasSentRequests}
-              hasInvited={hasInvited}
-              daysActive={daysActive}
-            />
-          ) : (
-            <>
-              {/* Main CTAs */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <Link
-                  to="/build-your-village"
-                  className="bg-white border-2 border-opeari-green rounded-xl p-5 hover:bg-opeari-mint/20 hover:-translate-y-0.5 hover:shadow-[0_4px_6px_-1px_rgba(30,107,78,0.1),0_2px_4px_-1px_rgba(30,107,78,0.06)] transition-all group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-opeari-mint/20 rounded-xl flex items-center justify-center group-hover:bg-opeari-green transition-colors">
-                      <svg className="w-6 h-6 text-opeari-heading group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="m21 21-4.35-4.35" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-opeari-heading">Find Matches</h3>
-                      <p className="text-sm text-opeari-text-secondary">{matchCount} families nearby</p>
-                    </div>
-                  </div>
-                </Link>
-
-                <Link
-                  to="/build-your-village?filter=asap"
-                  className="bg-white border-2 border-red-100 rounded-xl p-5 hover:border-red-400 hover:-translate-y-0.5 hover:shadow-[0_4px_6px_-1px_rgba(30,107,78,0.1),0_2px_4px_-1px_rgba(30,107,78,0.06)] transition-all"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
-                      <svg className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-red-500">Need Help Now</h3>
-                      <p className="text-sm text-gray-500">{availableNow} available</p>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-
-              {/* My Village */}
-              <div className="bg-white rounded-xl border border-opeari-border overflow-hidden shadow-sm">
-                <div className="px-5 py-4 border-b border-opeari-border flex justify-between items-center">
-                  <h2 className="font-bold text-opeari-heading">My Village</h2>
-                  <span className="text-sm text-opeari-text-secondary">{connections.length} connections</span>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Profile Strength</span>
+                  <span className="font-bold text-opeari-green">98%</span>
                 </div>
-
-                <div className="p-5">
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                    {connections.map(conn => (
-                      <Link
-                        key={conn.id}
-                        to={`/member/${conn.other_member?.id}`}
-                        className="text-center group"
-                      >
-                        <div className="w-14 h-14 bg-opeari-mint/20 rounded-full mx-auto mb-2 flex items-center justify-center group-hover:bg-opeari-green transition-colors">
-                          <span className="text-lg font-bold text-opeari-heading group-hover:text-white transition-colors">
-                            {conn.other_member?.first_name?.charAt(0) || '?'}
-                          </span>
-                        </div>
-                        <p className="text-sm font-medium text-opeari-text-secondary truncate">
-                          {conn.other_member?.first_name || 'Family'}
-                        </p>
-                      </Link>
-                    ))}
-
-                    <Link
-                      to="/build-your-village"
-                      className="text-center group"
-                    >
-                      <div className="w-14 h-14 border-2 border-dashed border-opeari-border rounded-full mx-auto mb-2 flex items-center justify-center group-hover:border-opeari-green transition-colors">
-                        <span className="text-xl text-gray-400 group-hover:text-opeari-green transition-colors">+</span>
-                      </div>
-                      <p className="text-sm font-medium text-gray-400 group-hover:text-opeari-heading transition-colors">
-                        Add
-                      </p>
-                    </Link>
-                  </div>
+                <div className="w-full bg-gray-100 rounded-full h-2">
+                  <div className="bg-opeari-green h-2 rounded-full w-[98%]" />
                 </div>
               </div>
-            </>
-          )}
+            </div>
 
-          {/* Quick Actions Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-            <Link
-              to="/invite"
-              className="bg-white rounded-xl p-4 border border-opeari-border hover:border-opeari-green hover:shadow-sm transition-all text-center"
-            >
-              <div className="w-10 h-10 bg-opeari-mint/20 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                <svg className="w-5 h-5 text-opeari-heading" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="8.5" cy="7" r="4" />
-                  <line x1="20" y1="8" x2="20" y2="14" />
-                  <line x1="23" y1="11" x2="17" y2="11" />
-                </svg>
-              </div>
-              <p className="text-sm font-semibold text-opeari-heading">Invite</p>
-            </Link>
+            {/* Quick Actions */}
+            <div className="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
+              <h3 className="font-bold text-opeari-heading mb-4">Quick Actions</h3>
+              <ul className="space-y-3">
+                <li>
+                  <Link to="/build-your-village" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                    <span className="w-8 h-8 rounded-full bg-opeari-mint/50 flex items-center justify-center text-opeari-green">
+                      <ChevronRight size={16} />
+                    </span>
+                    <span className="text-sm font-medium text-gray-700">Find Families</span>
+                  </Link>
+                </li>
+                <li>
+                  <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors text-left">
+                    <span className="w-8 h-8 rounded-full bg-opeari-peach/50 flex items-center justify-center text-[#e08e70]">
+                      <ChevronRight size={16} />
+                    </span>
+                    <span className="text-sm font-medium text-gray-700">Invite Friends</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
 
-            <Link
-              to="/profile"
-              className="bg-white rounded-xl p-4 border border-opeari-border hover:border-opeari-green hover:shadow-sm transition-all text-center"
-            >
-              <div className="w-10 h-10 bg-opeari-mint/20 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                <svg className="w-5 h-5 text-opeari-heading" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </div>
-              <p className="text-sm font-semibold text-opeari-heading">Profile</p>
-            </Link>
-
-            {!isSetupMode && (
-              <Link
-                to="/messages"
-                className="bg-white rounded-xl p-4 border border-opeari-border hover:border-opeari-green hover:shadow-sm transition-all text-center"
-              >
-                <div className="w-10 h-10 bg-opeari-mint/20 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-opeari-heading" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
+            {/* Trust Badge (Mock) */}
+            <div className="bg-[#f0faf4] rounded-2xl p-4 border border-opeari-green/20">
+              <div className="flex items-start gap-3">
+                <span className="text-xl text-opeari-green"><ShieldCheck size={24} /></span>
+                <div>
+                  <h4 className="font-bold text-opeari-green text-sm">Opeari Verified</h4>
+                  <p className="text-xs text-opeari-green/80 mt-1">Complete your background check to unlock the Verified badge.</p>
                 </div>
-                <p className="text-sm font-semibold text-opeari-heading">Messages</p>
-              </Link>
-            )}
-
-            <Link
-              to="/settings"
-              className="bg-white rounded-xl p-4 border border-opeari-border hover:border-opeari-green hover:shadow-sm transition-all text-center"
-            >
-              <div className="w-10 h-10 bg-opeari-mint/20 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                <svg className="w-5 h-5 text-opeari-heading" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                </svg>
               </div>
-              <p className="text-sm font-semibold text-opeari-heading">Settings</p>
-            </Link>
+            </div>
+
           </div>
-
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   )
 }

@@ -167,7 +167,7 @@ export default function Invite() {
         const { error: memberError } = await supabase
           .from('members')
           .insert({
-            user_id: authData.user.id,
+            id: authData.user.id, // ✅ members PK
             first_name: formData.firstName,
             last_name: formData.lastName,
             email: formData.email,
@@ -184,6 +184,31 @@ export default function Invite() {
           try {
             await supabase.rpc('increment_referral_count', { ref_code: referralCode })
           } catch { }
+        }
+
+        // --- PHASE 3: WAITLIST LINKAGE ---
+        // Link the existing waitlist entry (if any) to this new user
+        try {
+          const normalizedEmail = formData.email.trim();
+
+          const { data: linkedRows, error: linkError } = await supabase
+            .from('waitlist')
+            .update({
+              user_id: authData.user.id,
+              accepted_at: new Date().toISOString()
+            })
+            .ilike('email', normalizedEmail)
+            .select('id');
+
+          if (linkError) {
+            console.warn('Phase 3 Linkage Warning: Failed to link waitlist entry', linkError)
+          } else if (!linkedRows || linkedRows.length === 0) {
+            console.warn('Phase 3 Linkage Warning: No waitlist row matched email', normalizedEmail)
+          } else {
+            console.log('Phase 3 Linkage: Waitlist entry linked successfully', linkedRows[0].id)
+          }
+        } catch (err) {
+          console.warn('Phase 3 Linkage Error:', err)
         }
 
         setStep('success')
@@ -291,7 +316,7 @@ export default function Invite() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-[#1e6b4e] mb-2">Seed Planted! 🌿</h1>
+          <h1 className="text-2xl font-bold text-[#1e6b4e] mb-2">Seed Planted!</h1>
           <p className="text-[#4A6163] text-sm mb-8 leading-relaxed">
             Welcome to Opeari. You've just strengthened the network for your neighbors. Complete your profile to see who else is nearby.
           </p>

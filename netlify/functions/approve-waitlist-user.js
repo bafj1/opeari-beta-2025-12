@@ -109,7 +109,7 @@ exports.handler = async (event) => {
             const { data: emailData, error: emailError } = await resend.emails.send({
                 from: 'Opeari <breada@opeari.com>',
                 to: [email],
-                subject: '🎉 You\'ve been approved - set up your Opeari profile! 🍐',
+                subject: '[Approved] Action Required: Complete your Opeari Profile',
                 html: `
                 <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; color: #1a4731;">
                     <!-- Header -->
@@ -194,7 +194,7 @@ exports.handler = async (event) => {
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify({ ok: true, data, emailSent: true })
+            body: JSON.stringify({ ok: true, data, emailSent: true, inviteLink })
         }
 
     } catch (err) {

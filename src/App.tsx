@@ -10,6 +10,8 @@ import Footer from './components/common/Footer';
 const Home = lazy(() => import('./pages/Home'));
 const HowItWorks = lazy(() => import('./pages/HowItWorks'));
 const About = lazy(() => import('./pages/About'));
+const WhyOpeari = lazy(() => import('./pages/WhyOpeari'));
+const FAQ = lazy(() => import('./pages/FAQ'));
 const Waitlist = lazy(() => import('./pages/Waitlist'));
 const Login = lazy(() => import('./pages/Login'));
 const Invite = lazy(() => import('./pages/Invite'));
@@ -23,6 +25,7 @@ const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const CaregiverInterest = lazy(() => import('./pages/CaregiverInterest'));
 const VerificationGate = lazy(() => import('./pages/VerificationGate'));
+const OnboardingSuccess = lazy(() => import('./pages/OnboardingSuccess'));
 
 // Dashboard & Features
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -46,6 +49,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/about" element={<About />} />
+            <Route path="/why-opeari" element={<WhyOpeari />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/waitlist" element={<Waitlist />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signin" element={<SignIn />} />
@@ -59,8 +64,13 @@ function App() {
             {/* Onboarding - Protected */}
             <Route
               path="/onboarding"
-              element={<ProtectedRoute><Onboarding /></ProtectedRoute>}
+              element={
+                <ProtectedRoute>
+                  <Onboarding />
+                </ProtectedRoute>
+              }
             />
+            <Route path="/onboarding-success" element={<ProtectedRoute><OnboardingSuccess /></ProtectedRoute>} />
             <Route path="/caregiver-interest" element={<ProtectedRoute><CaregiverInterest /></ProtectedRoute>} />
             <Route path="/verify" element={<ProtectedRoute><VerificationGate /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

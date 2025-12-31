@@ -1,4 +1,4 @@
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Check } from 'lucide-react';
 import type { OnboardingData } from '../OnboardingTypes';
 import { StepHeader, Input } from '../components/WizardUI';
 
@@ -31,14 +31,25 @@ export default function AccountStep({ data, updateData, passwordConfirm, setPass
                 </button>
             </div>
 
-            <Input
-                label="Confirm Password"
-                type="password"
-                value={passwordConfirm}
-                onChange={(v: any) => setPasswordConfirm(v)}
-                required
-                placeholder="••••••••"
-            />
+            <div className="relative">
+                <Input
+                    label="Confirm Password"
+                    type="password"
+                    value={passwordConfirm}
+                    onChange={(v: any) => setPasswordConfirm(v)}
+                    required
+                    placeholder="••••••••"
+                />
+                {passwordConfirm && (
+                    <div className={`absolute right-0 top-0 flex items-center text-sm font-bold animate-fade-in ${passwordConfirm === data.password ? 'text-opeari-green' : 'text-red-500'}`}>
+                        {passwordConfirm === data.password ? (
+                            <><Check size={16} className="mr-1" /> Match</>
+                        ) : (
+                            "Passwords do not match"
+                        )}
+                    </div>
+                )}
+            </div>
 
             <div className="bg-[#e8f5f0] text-[#1e6b4e] border-l-4 border-opeari-mint p-4 rounded-lg text-sm">
                 <p>You'll use your email and this password to sign in and access your village.</p>

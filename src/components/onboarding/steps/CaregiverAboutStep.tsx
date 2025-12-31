@@ -31,14 +31,37 @@ export default function CaregiverAboutStep({ data, updateData }: CaregiverAboutS
                 />
             </div>
 
-            <Input
-                label="Phone Number"
-                value={data.phone || ''}
-                onChange={(v: any) => updateData('phone', v)}
-                required
-                placeholder="(555) 555-5555"
-                type="tel"
-            />
+            <div>
+                <label className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">
+                    Phone Number <span className="text-red-400">*</span>
+                </label>
+                <div className="relative">
+                    <input
+                        type="tel"
+                        value={data.phone || ''}
+                        onChange={(e) => {
+                            // Basic formatting (XXX) XXX-XXXX
+                            let clean = e.target.value.replace(/\D/g, '');
+                            if (clean.length > 10) clean = clean.substring(0, 10);
+                            let formatted = clean;
+                            if (clean.length > 6) {
+                                formatted = `(${clean.slice(0, 3)}) ${clean.slice(3, 6)}-${clean.slice(6)}`;
+                            } else if (clean.length > 3) {
+                                formatted = `(${clean.slice(0, 3)}) ${clean.slice(3)}`;
+                            } else if (clean.length > 0) {
+                                formatted = `(${clean}`;
+                            }
+                            updateData('phone', formatted);
+                        }}
+                        className="w-full px-4 py-3 border border-opeari-border/50 rounded-xl focus:ring-2 focus:ring-opeari-green focus:outline-none focus:border-transparent transition-all placeholder:text-gray-300"
+                        placeholder="(555) 555-5555"
+                        required
+                    />
+                </div>
+            </div>
+
+
+
 
             <Input
                 label="Zip Code"
@@ -54,6 +77,6 @@ export default function CaregiverAboutStep({ data, updateData }: CaregiverAboutS
                     We verify all caregivers to keep our community safe. Your phone number is only used for verification.
                 </p>
             </div>
-        </div>
+        </div >
     );
 }

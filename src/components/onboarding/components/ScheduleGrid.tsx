@@ -84,8 +84,8 @@ export const ScheduleGrid = ({ value, onChange }: ScheduleGridProps) => {
                             onClick={() => handleQuickSelect(q)}
                             className={`px-4 py-2 border rounded-full text-sm font-bold transition-all 
                                 ${isSelected
-                                    ? 'bg-[#8bd7c7] border-[#1e6b4e] text-[#1e6b4e]'
-                                    : 'bg-white border-gray-200 text-opeari-heading hover:bg-[#8bd7c7]/30 hover:border-[#1e6b4e]'
+                                    ? 'bg-[#1e6b4e] border-[#1e6b4e] text-white'
+                                    : 'bg-white border-gray-100 text-opeari-heading hover:bg-[#8bd7c7]/30 hover:border-[#1e6b4e]'
                                 }`}
                         >
                             {q.label}

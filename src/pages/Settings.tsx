@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import Header from '../components/common/Header'
 import ScheduleGrid from '../components/common/ScheduleGrid'
+import VerificationTab from '../components/Settings/VerificationTab'
 import {
   NANNY_SITUATION_OPTIONS,
   LOOKING_FOR_OPTIONS,
@@ -52,7 +53,8 @@ interface ProfileData {
 const TABS = [
   { id: 'profile', label: 'Profile' },
   { id: 'schedule', label: 'Schedule' },
-  { id: 'kids', label: 'Kids' },
+  { id: 'kids', label: 'Kids', mood: 'seeking' }, // Only for families
+  { id: 'verification', label: 'Verification' },
   { id: 'account', label: 'Account' },
 ]
 
@@ -343,7 +345,7 @@ export default function Settings() {
 
           {/* Mobile Tab Pills */}
           <div className="flex gap-2 overflow-x-auto pb-3 mb-4 sm:hidden">
-            {TABS.map(tab => (
+            {TABS.filter(tab => !tab.mood || tab.mood === (user?.user_metadata?.intent || 'seeking')).map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setSearchParams({ tab: tab.id })}
@@ -362,7 +364,7 @@ export default function Settings() {
             {/* Desktop Sidebar */}
             <div className="hidden sm:block">
               <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-2 sticky top-20">
-                {TABS.map(tab => (
+                {TABS.filter(tab => !tab.mood || tab.mood === (user?.user_metadata?.intent || 'seeking')).map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setSearchParams({ tab: tab.id })}
@@ -430,190 +432,199 @@ export default function Settings() {
                       </div>
                     </div>
 
-                    {/* Care Description - Highlighted */}
-                    <div className="mb-4 p-4 bg-opeari-bg-secondary rounded-xl">
-                      <label className="block text-sm font-semibold text-opeari-heading mb-2">
-                        What are you looking for?
-                      </label>
-                      <input
-                        type="text"
-                        value={profile.tagline}
-                        onChange={(e) => updateProfile({ tagline: e.target.value })}
-                        placeholder="e.g., Looking for Tue/Thu afternoon care partner"
-                        maxLength={120}
-                        className="w-full px-4 py-3 border-2 border-opeari-coral rounded-xl text-sm bg-white focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-opeari-heading mb-1">About Your Family</label>
-                      <p className="text-xs text-opeari-text-secondary mb-2">Share what matters: your work schedule, childcare needs, parenting style, or what you're hoping to find.</p>
-                      <textarea
-                        value={profile.bio}
-                        onChange={(e) => updateProfile({ bio: e.target.value })}
-                        placeholder="Example: Working parents with a toddler seeking consistent, flexible childcare. Looking to share costs with a like-minded family and build lasting community connections."
-                        rows={4}
-                        className="w-full px-3 py-2.5 border border-opeari-border rounded-xl text-sm bg-white focus:outline-none focus:border-opeari-coral resize-none"
-                      />
-                    </div>
                   </div>
 
-                  {/* Care Needs */}
-                  <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-5">
-                    <h2 className="text-lg font-bold text-opeari-heading mb-4">Care Needs</h2>
-
-                    {/* Situation */}
-                    <div className="mb-5">
-                      <label className="block text-sm font-medium text-opeari-heading mb-2">Your Situation</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {NANNY_SITUATION_OPTIONS.map(option => (
-                          <button
-                            key={option.id}
-                            type="button"
-                            onClick={() => updateProfile({ nanny_situation: option.id })}
-                            className={`p-3 rounded-xl text-left border-2 transition-all ${profile.nanny_situation === option.id
-                              ? 'bg-opeari-coral/15 border-opeari-coral'
-                              : 'bg-white border-opeari-border'
-                              }`}
-                          >
-                            <span className={`block text-sm font-medium ${profile.nanny_situation === option.id ? 'text-opeari-coral' : 'text-opeari-heading'
-                              }`}>
-                              {option.label}
-                            </span>
-                          </button>
-                        ))}
+                  {/* ONLY SHOW FAMILY FIELDS IF NOT PROVIDING */}
+                  {user?.user_metadata?.intent !== 'providing' && (
+                    <>
+                      {/* Care Description - Highlighted */}
+                      <div className="mb-4 p-4 bg-opeari-bg-secondary rounded-xl">
+                        <label className="block text-sm font-semibold text-opeari-heading mb-2">
+                          What are you looking for?
+                        </label>
+                        <input
+                          type="text"
+                          value={profile.tagline}
+                          onChange={(e) => updateProfile({ tagline: e.target.value })}
+                          placeholder="e.g., Looking for Tue/Thu afternoon care partner"
+                          maxLength={120}
+                          className="w-full px-4 py-3 border-2 border-opeari-coral rounded-xl text-sm bg-white focus:outline-none"
+                        />
                       </div>
-                    </div>
 
-                    {/* Looking For - CORAL PILLS */}
-                    <div className="mb-5">
-                      <label className="block text-sm font-medium text-opeari-heading mb-2">Looking For</label>
-                      <div className="flex flex-wrap gap-2">
-                        {LOOKING_FOR_OPTIONS.map(option => {
-                          const isSelected = profile.looking_for.includes(option.id)
-                          return (
+                      <div>
+                        <label className="block text-xs font-medium text-opeari-heading mb-1">About Your Family</label>
+                        <p className="text-xs text-opeari-text-secondary mb-2">Share what matters: your work schedule, childcare needs, parenting style, or what you're hoping to find.</p>
+                        <textarea
+                          value={profile.bio}
+                          onChange={(e) => updateProfile({ bio: e.target.value })}
+                          placeholder="Example: Working parents with a toddler seeking consistent, flexible childcare. Looking to share costs with a like-minded family and build lasting community connections."
+                          rows={4}
+                          className="w-full px-3 py-2.5 border border-opeari-border rounded-xl text-sm bg-white focus:outline-none focus:border-opeari-coral resize-none"
+                        />
+                      </div>
+                    </>
+                  )}
+                  {/* END FAMILY FIELDS */}
+
+                  {/* Care Needs - ONLY FOR SEEKING */}
+                  {user?.user_metadata?.intent !== 'providing' && (
+                    <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-5">
+                      <h2 className="text-lg font-bold text-opeari-heading mb-4">Care Needs</h2>
+
+                      {/* Situation */}
+                      <div className="mb-5">
+                        <label className="block text-sm font-medium text-opeari-heading mb-2">Your Situation</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {NANNY_SITUATION_OPTIONS.map(option => (
                             <button
                               key={option.id}
                               type="button"
-                              onClick={() => updateProfile({
-                                looking_for: toggleArrayItem(profile.looking_for, option.id)
-                              })}
-                              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${isSelected
-                                ? 'bg-opeari-coral text-white border-transparent'
-                                : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
+                              onClick={() => updateProfile({ nanny_situation: option.id })}
+                              className={`p-3 rounded-xl text-left border-2 transition-all ${profile.nanny_situation === option.id
+                                ? 'bg-opeari-coral/15 border-opeari-coral'
+                                : 'bg-white border-opeari-border'
                                 }`}
                             >
-                              {isSelected && '✓ '}{option.label}
+                              <span className={`block text-sm font-medium ${profile.nanny_situation === option.id ? 'text-opeari-coral' : 'text-opeari-heading'
+                                }`}>
+                                {option.label}
+                              </span>
                             </button>
-                          )
-                        })}
+                          ))}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Open To */}
-                    <div className="mb-5">
-                      <label className="block text-sm font-medium text-opeari-heading mb-2">Also Open To</label>
-                      <div className="flex flex-wrap gap-2">
-                        {OPEN_TO_OPTIONS.map(option => {
-                          const isSelected = profile.open_to.includes(option.id)
-                          return (
+                      {/* Looking For - CORAL PILLS */}
+                      <div className="mb-5">
+                        <label className="block text-sm font-medium text-opeari-heading mb-2">Looking For</label>
+                        <div className="flex flex-wrap gap-2">
+                          {LOOKING_FOR_OPTIONS.map(option => {
+                            const isSelected = profile.looking_for.includes(option.id)
+                            return (
+                              <button
+                                key={option.id}
+                                type="button"
+                                onClick={() => updateProfile({
+                                  looking_for: toggleArrayItem(profile.looking_for, option.id)
+                                })}
+                                className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${isSelected
+                                  ? 'bg-opeari-coral text-white border-transparent'
+                                  : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
+                                  }`}
+                              >
+                                {isSelected && '✓ '}{option.label}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Open To */}
+                      <div className="mb-5">
+                        <label className="block text-sm font-medium text-opeari-heading mb-2">Also Open To</label>
+                        <div className="flex flex-wrap gap-2">
+                          {OPEN_TO_OPTIONS.map(option => {
+                            const isSelected = profile.open_to.includes(option.id)
+                            return (
+                              <button
+                                key={option.id}
+                                type="button"
+                                onClick={() => updateProfile({
+                                  open_to: toggleArrayItem(profile.open_to, option.id)
+                                })}
+                                className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${isSelected
+                                  ? 'bg-opeari-coral text-white border-transparent'
+                                  : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
+                                  }`}
+                              >
+                                {isSelected && '✓ '}{option.label}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Parenting Vibe */}
+                      <div className="mb-5">
+                        <label className="block text-sm font-medium text-opeari-heading mb-2">Parenting Vibe</label>
+                        <div className="flex flex-wrap gap-2">
+                          {PARENTING_VALUES.map(option => {
+                            const isSelected = profile.parenting_style.includes(option.id)
+                            return (
+                              <button
+                                key={option.id}
+                                type="button"
+                                onClick={() => updateProfile({
+                                  parenting_style: toggleArrayItem(profile.parenting_style, option.id)
+                                })}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105 border ${isSelected
+                                  ? 'bg-opeari-green text-white border-transparent'
+                                  : 'bg-opeari-bg text-opeari-heading border-opeari-green'
+                                  }`}
+                              >
+                                {isSelected && '✓ '}{option.label}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Timeline */}
+                      <div className="mb-5">
+                        <label className="block text-sm font-medium text-opeari-heading mb-2">Timeline</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          {TIMELINE_OPTIONS.map(option => (
                             <button
                               key={option.id}
                               type="button"
-                              onClick={() => updateProfile({
-                                open_to: toggleArrayItem(profile.open_to, option.id)
-                              })}
-                              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${isSelected
-                                ? 'bg-opeari-coral text-white border-transparent'
-                                : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
+                              onClick={() => updateProfile({ care_timeline: option.id })}
+                              className={`p-3 rounded-xl text-center border-2 transition-all ${profile.care_timeline === option.id
+                                ? 'bg-opeari-coral/15 border-opeari-coral'
+                                : 'bg-white border-opeari-border'
                                 }`}
                             >
-                              {isSelected && '✓ '}{option.label}
+                              <span className={`text-sm font-medium ${profile.care_timeline === option.id ? 'text-opeari-coral' : 'text-opeari-heading'
+                                }`}>
+                                {option.label}
+                              </span>
                             </button>
-                          )
-                        })}
+                          ))}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Parenting Vibe */}
-                    <div className="mb-5">
-                      <label className="block text-sm font-medium text-opeari-heading mb-2">Parenting Vibe</label>
-                      <div className="flex flex-wrap gap-2">
-                        {PARENTING_VALUES.map(option => {
-                          const isSelected = profile.parenting_style.includes(option.id)
-                          return (
-                            <button
-                              key={option.id}
-                              type="button"
-                              onClick={() => updateProfile({
-                                parenting_style: toggleArrayItem(profile.parenting_style, option.id)
-                              })}
-                              className={`px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105 border ${isSelected
-                                ? 'bg-opeari-green text-white border-transparent'
-                                : 'bg-opeari-bg text-opeari-heading border-opeari-green'
-                                }`}
-                            >
-                              {isSelected && '✓ '}{option.label}
-                            </button>
-                          )
-                        })}
+                      {/* Pets */}
+                      <div>
+                        <label className="block text-sm font-medium text-opeari-heading mb-2">Pets</label>
+                        <div className="flex flex-wrap gap-2">
+                          {PET_OPTIONS.map(option => {
+                            const isSelected = profile.pets.includes(option.id)
+                            return (
+                              <button
+                                key={option.id}
+                                type="button"
+                                onClick={() => {
+                                  if (option.id === 'none') {
+                                    updateProfile({ pets: ['none'] })
+                                  } else {
+                                    updateProfile({
+                                      pets: toggleArrayItem(profile.pets.filter(p => p !== 'none'), option.id)
+                                    })
+                                  }
+                                }}
+                                className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${isSelected
+                                  ? 'bg-opeari-coral text-white border-transparent'
+                                  : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
+                                  }`}
+                              >
+                                {isSelected && '✓ '}{option.label}
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
                     </div>
-
-                    {/* Timeline */}
-                    <div className="mb-5">
-                      <label className="block text-sm font-medium text-opeari-heading mb-2">Timeline</label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {TIMELINE_OPTIONS.map(option => (
-                          <button
-                            key={option.id}
-                            type="button"
-                            onClick={() => updateProfile({ care_timeline: option.id })}
-                            className={`p-3 rounded-xl text-center border-2 transition-all ${profile.care_timeline === option.id
-                              ? 'bg-opeari-coral/15 border-opeari-coral'
-                              : 'bg-white border-opeari-border'
-                              }`}
-                          >
-                            <span className={`text-sm font-medium ${profile.care_timeline === option.id ? 'text-opeari-coral' : 'text-opeari-heading'
-                              }`}>
-                              {option.label}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Pets */}
-                    <div>
-                      <label className="block text-sm font-medium text-opeari-heading mb-2">Pets</label>
-                      <div className="flex flex-wrap gap-2">
-                        {PET_OPTIONS.map(option => {
-                          const isSelected = profile.pets.includes(option.id)
-                          return (
-                            <button
-                              key={option.id}
-                              type="button"
-                              onClick={() => {
-                                if (option.id === 'none') {
-                                  updateProfile({ pets: ['none'] })
-                                } else {
-                                  updateProfile({
-                                    pets: toggleArrayItem(profile.pets.filter(p => p !== 'none'), option.id)
-                                  })
-                                }
-                              }}
-                              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${isSelected
-                                ? 'bg-opeari-coral text-white border-transparent'
-                                : 'bg-opeari-bg text-opeari-heading border-opeari-border hover:bg-opeari-mint/30'
-                                }`}
-                            >
-                              {isSelected && '✓ '}{option.label}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
 
@@ -621,7 +632,9 @@ export default function Settings() {
               {activeTab === 'schedule' && (
                 <div className="bg-opeari-bg rounded-2xl border border-opeari-border p-5">
                   <h2 className="text-lg font-bold text-opeari-heading mb-1">Your Schedule</h2>
-                  <p className="text-sm text-opeari-green mb-6">When do you need childcare?</p>
+                  <p className="text-sm text-opeari-green mb-6">
+                    {user?.user_metadata?.intent === 'providing' ? 'When are you available?' : 'When do you need childcare?'}
+                  </p>
 
                   <ScheduleGrid
                     schedule={profile.schedule}
@@ -801,6 +814,9 @@ export default function Settings() {
                   )}
                 </div>
               )}
+
+              {/* VERIFICATION TAB */}
+              {activeTab === 'verification' && <VerificationTab />}
 
               {/* ACCOUNT TAB */}
               {activeTab === 'account' && (

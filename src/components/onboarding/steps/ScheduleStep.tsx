@@ -15,7 +15,7 @@ export default function ScheduleStep({ data, updateData }: ScheduleStepProps) {
 
             <div
                 onClick={() => updateData('scheduleFlexible', !data.scheduleFlexible)}
-                className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 ${data.scheduleFlexible ? 'border-[#1e6b4e] bg-[#f0faf4]' : 'border-gray-200'}`}
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 ${data.scheduleFlexible ? 'border-[#1e6b4e] bg-[#f0faf4]' : 'border-gray-100 hover:border-gray-200 bg-white'}`}
             >
                 <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${data.scheduleFlexible ? 'bg-[#1e6b4e] border-[#1e6b4e]' : 'bg-white border-gray-300'}`}>
                     {data.scheduleFlexible && <Check size={14} className="text-white" />}
@@ -34,7 +34,7 @@ export default function ScheduleStep({ data, updateData }: ScheduleStepProps) {
                 />
             </div>
 
-            {data.userIntent === 'providing' && (
+            {data.userIntent === 'caregiver' && (
                 <div className="pt-2 animate-fade-in">
                     <label className="flex items-center gap-3 cursor-pointer select-none group">
                         <div className="relative">

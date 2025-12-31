@@ -1,13 +1,27 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { STEPS } from './OnboardingTypes';
 
 interface OnboardingLayoutProps {
     children: ReactNode;
     step: number;
+    intent?: 'family' | 'caregiver' | null;
 }
 
-export default function OnboardingLayout({ children, step }: OnboardingLayoutProps) {
+export default function OnboardingLayout({ children, step, intent }: OnboardingLayoutProps) {
     const currentStepConfig = STEPS.find(s => s.id === step) || STEPS[0];
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Auto-scroll to top when step changes
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTo({ top: 0, behavior: 'instant' });
+        }
+    }, [step]);
+
+    // Determine text based on intent
+    const displayText = (intent === 'caregiver' && (currentStepConfig as any).textCaregiver)
+        ? (currentStepConfig as any).textCaregiver
+        : currentStepConfig.text;
 
     return (
         <div className="min-h-screen bg-opeari-bg flex items-center justify-center p-0 md:p-6" style={{ fontFamily: "'Comfortaa', sans-serif" }}>
@@ -17,7 +31,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
                 {/* LEFT PANEL */}
                 <div className="hidden md:flex md:w-[40%] bg-opeari-bg flex-col items-center justify-center p-8 text-center relative transition-all duration-500 border-none">
 
-                    <div className={`mb-6 transition-all duration-500 ${step === 0 ? 'w-72 h-72' : step === 4 ? 'w-64 h-64' : 'w-48 h-48'}`}>
+                    <div className={`mb-6 transition-all duration-500 ${step === 0 || step === 2 ? 'w-80 h-80' : 'w-72 h-72'}`}>
                         <img
                             key={`img-${step}`}
                             src={currentStepConfig.img}
@@ -26,7 +40,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
                         />
                     </div>
                     <p key={`txt-${step}`} className="text-xl text-[#1e6b4e] font-medium leading-relaxed animate-fade-in whitespace-pre-line">
-                        {currentStepConfig.text}
+                        {displayText}
                     </p>
                 </div>
 
@@ -40,7 +54,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
                         />
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 pt-8 md:p-12">
+                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 pt-8 md:p-12">
                         <div className="max-w-xl mx-auto space-y-8 min-h-[50vh]">
                             {/* Mobile Step 1 Illustration - Only show on relevant steps if needed, or keeping generic for now */}
                             {step === 1 && (
@@ -55,6 +69,7 @@ export default function OnboardingLayout({ children, step }: OnboardingLayoutPro
                 </div>
 
             </div>
+
 
             <style>{`
                 .animate-fade-in { animation: fadeIn 0.4s ease-out; }

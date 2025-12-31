@@ -16,10 +16,10 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div
-                    onClick={() => updateData('userIntent', 'seeking')}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'seeking' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
+                    onClick={() => updateData('userIntent', 'family')}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'family' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
                 >
-                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'seeking' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
+                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'family' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
                         <User size={24} />
                     </div>
                     <div>
@@ -29,10 +29,10 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                 </div>
 
                 <div
-                    onClick={() => updateData('userIntent', 'providing')}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'providing' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
+                    onClick={() => updateData('userIntent', 'caregiver')}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'caregiver' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
                 >
-                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'providing' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
+                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'caregiver' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
                         <HandHeart size={24} /> {/* Verified: HandHeart icon */}
                     </div>
                     <div>
@@ -42,7 +42,7 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                 </div>
             </div>
 
-            {data.userIntent === 'seeking' && (
+            {data.userIntent === 'family' && (
                 <div className="animate-fade-in pt-2">
                     <label className="flex items-center gap-3 p-3 rounded-lg bg-[#e8f5f0] cursor-pointer hover:bg-[#d8f5e5] transition-colors select-none">
                         <div className="relative">

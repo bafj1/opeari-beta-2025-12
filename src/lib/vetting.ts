@@ -30,7 +30,7 @@ export function determineVettingRequirements(data: OnboardingData, hostingIntere
     // 3. Check "I provide childcare" intent (IntentStep)
     // Providing care automatically requires vetting, but that flow usually goes to /caregiver-interest.
     // However, if they land here somehow, we flag it.
-    if (data.userIntent === 'providing') {
+    if (data.userIntent === 'caregiver') {
         vetting_types.push('provider');
     }
 

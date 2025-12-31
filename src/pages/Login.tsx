@@ -34,17 +34,34 @@ export default function Login() {
 
       if (error) throw error
 
-      // Check if onboarding is complete
-      const { data: member } = await supabase
-        .from('members')
-        .select('onboarding_complete')
-        .eq('user_id', data.user.id)
-        .single()
+      // Check intent and routing
+      const intent = data.user?.user_metadata?.intent
+      const isCaregiver = intent === 'caregiver' || intent === 'providing'
 
-      if (member?.onboarding_complete) {
-        navigate('/dashboard')
+      if (isCaregiver) {
+        const { data: profile } = await supabase
+          .from('caregiver_profiles')
+          .select('id')
+          .eq('user_id', data.user.id)
+          .single()
+
+        if (profile) {
+          navigate('/dashboard')
+        } else {
+          navigate('/onboarding')
+        }
       } else {
-        navigate('/onboarding')
+        const { data: member } = await supabase
+          .from('members')
+          .select('profile_complete')
+          .eq('user_id', data.user.id)
+          .single()
+
+        if (member?.profile_complete) {
+          navigate('/dashboard')
+        } else {
+          navigate('/onboarding')
+        }
       }
     } catch (err: any) {
       console.error('Login error:', err)

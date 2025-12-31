@@ -237,6 +237,9 @@ export default function Header() {
             <Link to="/about" className="hidden sm:block text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
               About
             </Link>
+            <Link to="/why-opeari" className="hidden sm:block text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
+              Why Opeari
+            </Link>
             <Link to="/faq" className="hidden sm:block text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
               FAQ
             </Link>
