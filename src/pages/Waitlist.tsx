@@ -347,9 +347,9 @@ export default function Waitlist() {
           {/* Trust Badges */}
           <div className="flex flex-wrap justify-center gap-2 gap-x-4 border-t border-[#c8e6d9] pt-4 max-w-[420px] mx-auto">
             {[
-              { icon: <polyline points="20 6 9 17 4 12" />, text: 'Verified Caregivers' },
-              { icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>, text: 'Neighbors helping neighbors' },
-              { icon: <><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></>, text: 'Flexible Schedules' }
+              { icon: <polyline points="20 6 9 17 4 12" />, text: 'Childcare coordination, made easy' },
+              { icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>, text: 'Private, trusted connections' },
+              { icon: <><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></>, text: 'Flexible schedules that fit your life' }
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 font-semibold text-[0.85rem] p-1.5 px-2.5 rounded-lg transition-all hover:text-[#154a36] hover:font-bold group">
                 <div className="w-7 h-7 bg-[#d8f5e5] rounded-full flex items-center justify-center flex-shrink-0 transition-all group-hover:scale-110 group-hover:shadow-[0_0_16px_rgba(30,107,78,0.2)]">
