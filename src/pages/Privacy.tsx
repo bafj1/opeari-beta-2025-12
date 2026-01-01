@@ -1,8 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
 const Privacy = () => {
-    const today = new Date();
-    const formattedDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
     return (
         <>
@@ -18,8 +16,11 @@ const Privacy = () => {
             <section className="bg-[#fffaf5] px-6 py-16 md:py-20 text-center">
                 <div className="max-w-4xl mx-auto">
                     <h1 className="text-3xl md:text-5xl font-bold text-[#1e6b4e] mb-6">Privacy Policy</h1>
-                    <p className="text-lg text-[#4A6163] max-w-2xl mx-auto">
-                        Effective Date: {formattedDate}
+                    <p className="text-lg text-[#4A6163] max-w-2xl mx-auto mb-6">
+                        Effective Date: January 1, 2026
+                    </p>
+                    <p className="text-lg text-[#4A6163] max-w-2xl mx-auto leading-relaxed">
+                        At Opeari, privacy matters. We believe trust starts with transparency, and we’re committed to being clear about how information is used, shared, and protected.
                     </p>
                 </div>
             </section>
@@ -31,7 +32,7 @@ const Privacy = () => {
                     {/* Information We Collect */}
                     <section>
                         <h2 className="text-2xl font-bold text-[#1e6b4e] mb-4">Information We Collect</h2>
-                        <p className="mb-2">We collect information you choose to provide, including:</p>
+                        <p className="mb-2">We collect information you choose to share with us, including:</p>
                         <ul className="list-disc pl-5 space-y-2">
                             <li>Name</li>
                             <li>Email address</li>
@@ -45,8 +46,8 @@ const Privacy = () => {
                         <p className="mb-2">We use your information to:</p>
                         <ul className="list-disc pl-5 space-y-2">
                             <li>Create and manage your account</li>
-                            <li>Enable connections and communication</li>
-                            <li>Improve the Opeari experience</li>
+                            <li>Enable connections and communication on the platform</li>
+                            <li>Improve and maintain the Opeari experience</li>
                         </ul>
                     </section>
 
@@ -54,7 +55,7 @@ const Privacy = () => {
                     <section>
                         <h2 className="text-2xl font-bold text-[#1e6b4e] mb-4">Cookies & Analytics</h2>
                         <p>
-                            Opeari may use basic analytics tools to understand how the platform is used and to improve functionality. These tools may collect anonymized usage data.
+                            Opeari may use basic analytics tools to understand how the platform is used and improve functionality. These tools collect anonymized usage data and are not used to identify you personally.
                         </p>
                     </section>
 
@@ -62,7 +63,7 @@ const Privacy = () => {
                     <section>
                         <h2 className="text-2xl font-bold text-[#1e6b4e] mb-4">Third-Party Services</h2>
                         <p>
-                            We use trusted third-party services (such as authentication, database, and email providers) to operate the platform. These providers only process data necessary to deliver their services.
+                            We use trusted third-party services (such as authentication, database, and email providers) to operate Opeari. These providers only process the data necessary to deliver their services and are required to protect your information.
                         </p>
                     </section>
 
@@ -91,7 +92,7 @@ const Privacy = () => {
                     <section>
                         <h2 className="text-2xl font-bold text-[#1e6b4e] mb-4">Data Security</h2>
                         <p>
-                            We take reasonable steps to protect your information, but no system can guarantee complete security.
+                            We take reasonable steps to protect your information. While no system can guarantee complete security, we are committed to safeguarding your data and continuously improving our protections.
                         </p>
                     </section>
 
@@ -99,7 +100,8 @@ const Privacy = () => {
                     <section className="pt-8 border-t border-[#1e6b4e]/10">
                         <h2 className="text-2xl font-bold text-[#1e6b4e] mb-4">Contact</h2>
                         <p>
-                            Privacy questions? Email <a href="mailto:breada@opeari.com" className="text-[#1e6b4e] font-bold underline hover:opacity-80">breada@opeari.com</a>
+                            Questions about privacy?<br />
+                            Please reach out through our <a href="mailto:hello@opeari.com" className="text-[#1e6b4e] font-bold underline hover:opacity-80">Contact page</a>.
                         </p>
                     </section>
 

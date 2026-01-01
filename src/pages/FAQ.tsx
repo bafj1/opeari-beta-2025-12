@@ -154,6 +154,21 @@ const FAQ = () => {
             {/* Questions Grid */}
             <section className="px-6 py-16 bg-white min-h-screen">
                 <div className="max-w-3xl mx-auto space-y-12">
+                    {/* Beta Note */}
+                    <div className="bg-[#fffaf5] border border-[#1e6b4e]/10 rounded-2xl p-8">
+                        <h2 className="text-xl font-bold text-[#1e6b4e] mb-4">A quick note about beta</h2>
+                        <div className="text-[#4A6163] leading-relaxed space-y-4">
+                            <p>
+                                Opeari is launching intentionally, one community at a time.
+                            </p>
+                            <p>
+                                During beta, we’re prioritizing family-to-family matching — helping parents align schedules and coordinate shared care like nanny shares, backup swaps, and ongoing support.
+                            </p>
+                            <p>
+                                Caregiver tools and expanded verification (including background checks) are coming next. We’ll always be clear about what’s live and what’s on the roadmap.
+                            </p>
+                        </div>
+                    </div>
                     {faqCategories.map((category, catIdx) => (
                         <div key={catIdx}>
                             <h2 className="text-xl font-bold text-[#1e6b4e]/80 mb-6 uppercase tracking-wide text-sm pl-2 border-l-4 border-[#8bd7c7]">

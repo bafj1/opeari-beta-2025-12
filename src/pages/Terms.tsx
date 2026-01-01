@@ -114,7 +114,7 @@ const Terms = () => {
                     <section className="pt-8 border-t border-[#1e6b4e]/10">
                         <h2 className="text-2xl font-bold text-[#1e6b4e] mb-4">Contact</h2>
                         <p>
-                            Questions? Reach us at <a href="mailto:breada@opeari.com" className="text-[#1e6b4e] font-bold underline hover:opacity-80">breada@opeari.com</a>
+                            Questions? Reach us at <a href="mailto:hello@opeari.com" className="text-[#1e6b4e] font-bold underline hover:opacity-80">hello@opeari.com</a>
                         </p>
                     </section>
 

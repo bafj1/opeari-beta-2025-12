@@ -34,7 +34,7 @@ const WhyOpeari = () => {
                         But ours have been dismantled.
                     </h1>
                     <p className="text-lg md:text-xl text-[#4A6163] max-w-2xl mx-auto leading-relaxed">
-                        Opeari helps you build a care network you trust — with people you actually know.
+                        Opeari takes the guesswork out of finding, sharing, and coordinating care — together.
                     </p>
                 </div>
             </section>
@@ -45,18 +45,35 @@ const WhyOpeari = () => {
                     <h2 className="text-2xl md:text-3xl font-bold text-[#1e6b4e] mb-8">The Reality</h2>
                     <div className="space-y-6 text-[#4A6163] text-lg leading-relaxed">
                         <p>
-                            Childcare today feels heavier than it should.
+                            Childcare today takes more time and effort than it should.
                         </p>
                         <p>
                             Parents don’t start with a search engine — they start with a text. But those connections are fragile when life changes fast.
                         </p>
                         <p>
-                            We’re raising children in isolation. We rely on strangers because our natural networks have frayed. The mental load of coordination is exhausting, and the "market" of available care rarely aligns with the reality of our lives.
+                            Parenting today often means piecing things together on your own.
+                            Texts, spreadsheets, group chats, last-minute asks — all just to make the week work.
+                        </p>
+                        <p>
+                            There are families nearby looking for the same kinds of support — similar schedules, shared care, backup help — but finding each other takes time most parents don’t have.
                         </p>
                         <p className="font-medium text-[#1e6b4e]">
-                            We believe there is a better way. One that doesn't just fill a slot, but actually rebuilds your support system.
+                            Opeari exists to make those connections easier.
                         </p>
                     </div>
+                </div>
+            </section>
+
+            {/* Bridge Section */}
+            <section className="px-6 py-16 bg-[#fffaf5]">
+                <div className="max-w-3xl mx-auto text-center">
+                    <h2 className="text-2xl md:text-3xl font-bold text-[#1e6b4e] mb-6">What we’re really solving</h2>
+                    <p className="text-[#4A6163] text-lg leading-relaxed mb-6">
+                        Opeari helps parents spend less time searching and more time living.
+                    </p>
+                    <p className="text-[#4A6163] text-lg leading-relaxed">
+                        We make it easier to find local families with similar needs, coordinate shared care, and turn informal help into something sustainable — whether that’s a nanny share, backup swaps, carpools, or simply knowing who to call.
+                    </p>
                 </div>
             </section>
 
@@ -74,8 +91,8 @@ const WhyOpeari = () => {
                             <ul className="space-y-4">
                                 {[
                                     { title: 'Private', desc: 'A closed network where you connect only with people you invite or are referred to.' },
-                                    { title: 'Community-Built', desc: 'Powered by your existing circles—friends, neighbors, and local connections.' },
-                                    { title: 'Reciprocal', desc: 'A space for families to trade care, share nannies, and support each other.' },
+                                    { title: 'Community-Built', desc: 'Powered by your existing circles — and the communities around you.' },
+                                    { title: 'Reciprocal', desc: 'A space for families to share care, coordinate schedules, and support each other over time.' },
                                     { title: 'Transparent', desc: 'See exactly who knows whom, removing the guesswork from trust.' }
                                 ].map((item) => (
                                     <li key={item.title} className="flex flex-col gap-1">
@@ -139,9 +156,12 @@ const WhyOpeari = () => {
                 <div className="max-w-3xl mx-auto text-center">
                     <h2 className="text-2xl md:text-3xl font-bold mb-6">Trust & Safety</h2>
                     <p className="text-lg opacity-90 mb-8 leading-relaxed">
-                        Trust isn't an algorithm; it's a relationship.
+                        Trust starts with context — not just profiles.
                     </p>
                     <div className="space-y-6 text-white/90 text-lg leading-relaxed mb-8">
+                        <p>
+                            We’re starting with family-led connections and building toward expanded verification tools, including background checks, as Opeari grows.
+                        </p>
                         <p>
                             We are actively building verification tools like background checks and certifications to give you confidence in your network. We are transparent about what is built today versus what is coming soon.
                         </p>
@@ -178,10 +198,10 @@ const WhyOpeari = () => {
             <section className="px-6 py-20 bg-white">
                 <div className="max-w-3xl mx-auto text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-[#1e6b4e] mb-4">
-                        Rebuild your village, one connection at a time.
+                        Build your village — one connection at a time.
                     </h2>
                     <p className="text-lg text-[#4A6163] mb-8">
-                        We’re opening Opeari to a small group of families and caregivers.
+                        We’re opening Opeari intentionally, one community at a time.
                     </p>
                     <Link
                         to="/waitlist"

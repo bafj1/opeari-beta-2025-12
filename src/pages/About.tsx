@@ -149,7 +149,7 @@ export default function About() {
             >
               A small nod to <span style={{ color: COLORS.primary }} className="font-semibold">au pair</span>.
               A little wink to <span style={{ color: COLORS.primary }} className="font-semibold">pairing</span> families.
-              And a pear designed to flex with your ever-changing needs.
+              And a pear designed to flex — just like modern family life.
             </p>
           </div>
         </div>
