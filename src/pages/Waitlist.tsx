@@ -335,11 +335,11 @@ export default function Waitlist() {
       <main className="flex-1 w-full max-w-[1200px] mx-auto px-8 py-6 grid grid-cols-[1fr_1.1fr] gap-16 items-start max-md:grid-cols-1 max-md:gap-6 max-md:px-4">
         {/* Hero Column */}
         <div className="text-center sticky top-[6.5rem] max-md:static">
-          <h1 className="text-[2.5rem] leading-tight mb-3 text-[#1e6b4e] max-md:text-[2rem] font-extrabold">
-            Build your village.
+          <h1 className="text-[2.5rem] leading-tight mb-4 text-[#1e6b4e] max-md:text-[2rem] font-extrabold">
+            Welcome to the neighborhood.
           </h1>
-          <p className="text-base leading-relaxed text-[#527a6a] mb-5 max-w-[420px] mx-auto max-md:text-[0.95rem]">
-            We're launching neighborhood by neighborhood. Claim early access to verified, flexible childcare in your community.
+          <p className="text-base leading-relaxed text-[#527a6a] mb-6 max-w-[420px] mx-auto max-md:text-[0.95rem]">
+            We're building a trusted network for families to share care and support. Secure your spot for early access.
             {!success && <img src={heroImg} alt="Opeari Village" className="w-[180px] mx-auto mb-4 max-md:w-[140px] max-md:my-3" onError={(e) => (e.currentTarget.style.display = 'none')} />}
           </p>
 

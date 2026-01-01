@@ -91,27 +91,24 @@ export default function Home() {
             {/* Left Content */}
             <div className="flex-1 text-center lg:text-left">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#1E6B4E] leading-[1.1] mb-6 font-display">
-                Flexible care, <br />
-                <span className="text-[#1E6B4E]">perfectly paired.</span>
+                It takes a village. <br />
+                <span className="text-[#1E6B4E]">Let's build yours.</span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-[#1E6B4E]/70 mb-10 max-w-xl mx-auto lg:mx-0">
-                Childcare that fits your life — not the other way around. Opeari helps parents build flexible, local care with people they trust.
+              <p className="text-lg sm:text-xl text-[#1E6B4E]/80 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+                Connect with local families for nanny shares, backup care, and trusted support right in your neighborhood.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Link
                   to="/waitlist"
-                  className="inline-flex items-center justify-center h-12 sm:h-14 px-8 rounded-full bg-[#F8C3B3] text-[#1E6B4E] font-semibold hover:bg-[#f0b5a5] hover:-translate-y-0.5 transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="inline-flex items-center justify-center h-12 sm:h-14 px-8 rounded-full bg-[#F8C3B3] text-[#1E6B4E] font-bold text-lg hover:bg-[#f0b5a5] hover:-translate-y-0.5 transition-all duration-300 shadow-sm hover:shadow-md"
                 >
                   Join the Waitlist
                 </Link>
-                <Link
-                  to="/how-it-works"
-                  className="inline-flex items-center justify-center h-12 sm:h-14 px-8 rounded-full border-2 border-[#1E6B4E] text-[#1E6B4E] font-semibold hover:bg-[#1E6B4E]/5 transition-all duration-300"
-                >
-                  See How It Works
-                </Link>
+                <div className="hidden sm:block text-[#1E6B4E]/60 text-sm font-medium">
+                  Currently accepting early access
+                </div>
               </div>
             </div>
 

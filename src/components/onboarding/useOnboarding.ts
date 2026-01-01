@@ -269,40 +269,74 @@ export function useOnboarding() {
             }
 
             // 2. Branch Logic based on Canonical Intent
+
             // --- CAREGIVER SAVE LOGIC ---
             if (canonicalIntent === 'caregiver') {
+                console.log('Starting Caregiver Save Sequence...');
+
+                // A. Update Base Member Profile (Shared Data)
+                const memberUpdatePayload = {
+                    first_name: data.firstName,
+                    last_name: data.lastName,
+                    phone: data.phone,
+                    zip_code: data.zipCode,
+                    neighborhood: data.neighborhood, // Added neighborhood
+                    bio: data.bio, // Sync bio to member profile for consistency
+                };
+
+                const { error: memberError } = await supabase
+                    .from('members')
+                    .update(memberUpdatePayload)
+                    .eq('id', authUser.id);
+
+                if (memberError) {
+                    console.error('Error updating member base data:', memberError);
+                    throw memberError;
+                }
+
+                // B. Upsert Caregiver Profile (Professional Data)
+                // Maps strictly to MIGRATION_CAREGIVER_DATA.sql
                 const caregiverPayload = {
                     user_id: authUser.id,
+                    // Identity
                     first_name: data.firstName,
                     last_name: data.lastName,
                     email: data.email,
                     phone: data.phone,
                     zip_code: data.zipCode,
+
+                    // Professional Details
                     role_type: data.caregiverRole,
-                    secondary_roles: data.secondaryRoles,
+                    secondary_roles: data.secondaryRoles || [],
                     years_experience: data.yearsExperience,
-                    age_groups: data.ageGroups,
-                    // Transform for V4 Schema (JSONB)
-                    certifications: data.certifications?.map(c => ({ name: c, verified: false })),
-                    bio: data.bio,
-                    availability_type: data.availabilityType,
-                    schedule_notes: data.scheduleNotes,
+                    hourly_rate: data.hourlyRate ? parseInt(data.hourlyRate, 10) : null,
+                    logistics: data.logistics || [],
+
+                    // JSONB Structures
+                    certifications: data.certifications?.map(c => ({ name: c, verified: false })) || [],
+                    referrals: data.referrals || [],
+
+                    // Existing Fields from V4/Settings
+                    bio: data.bio, // Professional bio
+                    age_groups: data.ageGroups || [],
+                    languages: [], // Onboarding doesn't collect languages yet, explicit empty
+
+                    // Status Flags
                     status: 'pending',
-                    background_check_status: 'not_started',
-                    // V3 New Fields
-                    hourly_rate: data.hourlyRate,
-                    logistics: data.logistics,
-                    referrals: data.referrals
+                    background_check_status: 'not_started'
                 };
 
-                console.log('Caregiver Payload:', caregiverPayload);
+                console.log('Upserting Caregiver Profile:', caregiverPayload);
 
-                const { error } = await supabase
+                const { error: cgError } = await supabase
                     .from('caregiver_profiles')
-                    .upsert(caregiverPayload);
+                    .upsert(caregiverPayload, { onConflict: 'user_id' })
+                    .select();
 
-                if (error) throw error;
-
+                if (cgError) {
+                    console.error('Error upserting caregiver profile:', cgError);
+                    throw cgError;
+                }
             } else {
                 // --- FAMILY SAVE LOGIC ---
                 // Calculate Vetting Requirements

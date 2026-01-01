@@ -183,13 +183,16 @@ export default function CaregiverExperienceStep({ data, updateData }: CaregiverE
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {[
                         { id: 'driver_license', label: 'Clean driving record', icon: Car },
-                        { id: 'car_seats', label: 'Comfortable with Car Seats', icon: Baby }, // Reusing Baby or use Shield
+                        { id: 'car_seats', label: 'Comfortable with Car Seats', icon: Baby },
                         { id: 'own_car', label: 'Has reliable access to a car', icon: Car },
+                        { id: 'errands', label: 'Errands & school pickups', icon: Car },
                         { id: 'cooking', label: 'Can Cook Basic Meals', icon: Utensils },
-                        { id: 'lifting', label: 'Can lift 25-30 lbs', icon: Dumbbell },
+                        { id: 'lifting', label: 'Lift 25–30 lb child', icon: Dumbbell },
+                        { id: 'multi_kid', label: 'Multi-kid care', icon: Users },
                         { id: 'pets', label: 'Comfortable with Pets', icon: PawPrint },
                         { id: 'swimming', label: 'Comfortable Swimming', icon: Waves },
-                        { id: 'stroller_walks', label: 'Comfortable with stroller walks', icon: Footprints }, // Footprints usually exists
+                        { id: 'stroller_walks', label: 'Hills & stroller walks', icon: Footprints },
+                        { id: 'stairs', label: 'Stairs (carrying ok)', icon: Footprints },
                         { id: 'non_smoker', label: 'Non-Smoker', icon: CigaretteOff },
                         { id: 'homework', label: 'Homework Help', icon: GraduationCap },
                         { id: 'housekeeping', label: 'Light Housekeeping', icon: Home },

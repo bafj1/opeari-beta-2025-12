@@ -1,10 +1,13 @@
 import { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Loading from './components/common/Loading';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
+import MarketingLayout from './layouts/MarketingLayout';
+import AppLayout from './layouts/AppLayout';
+import AuthGate from './components/auth/AuthGate';
 
 // Lazy load pages for performance
 const Home = lazy(() => import('./pages/Home'));
@@ -45,63 +48,73 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Header />
         <Suspense fallback={<Loading />}>
           <Routes>
-            {/* Public Pages */}
-            <Route path="/" element={<Home />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/why-opeari" element={<WhyOpeari />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/waitlist" element={<Waitlist />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/invite" element={<Invite />} />
-            <Route path="/admin-waitlist" element={<AdminWaitlist />} />
-            <Route path="/request-link" element={<RequestNewLink />} />
+            {/* PUBLIC ROUTES (Marketing Layout - Forces Guest Header) */}
+            <Route element={<MarketingLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/why-opeari" element={<WhyOpeari />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/waitlist" element={<Waitlist />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/invite" element={<Invite />} />
+              <Route path="/admin-waitlist" element={<AdminWaitlist />} />
+              <Route path="/request-link" element={<RequestNewLink />} />
+              <Route path="/auth/confirm" element={<AuthCallback />} />
+            </Route>
 
-            {/* Auth Callback for PKCE / Magic Links */}
-            <Route path="/auth/confirm" element={<AuthCallback />} />
+            {/* ONBOARDING ROUTES (Protected but NOT AuthGated for completion) */}
+            <Route element={
+              <ProtectedRoute>
+                <div className="min-h-screen flex flex-col">
+                  <Header onboarding={true} />
+                  <main className="flex-grow">
+                    <Outlet />
+                  </main>
+                  {/* Footer optional/hidden for onboarding typically, or just Header */}
+                  <Footer />
+                </div>
+              </ProtectedRoute>
+            }>
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/onboarding-success" element={<OnboardingSuccess />} />
+              <Route path="/caregiver-interest" element={<CaregiverInterest />} />
+              <Route path="/verify" element={<VerificationGate />} />
+            </Route>
 
-            {/* Onboarding - Protected */}
-            <Route
-              path="/onboarding"
-              element={
-                <ProtectedRoute>
-                  <Onboarding />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/onboarding-success" element={<ProtectedRoute><OnboardingSuccess /></ProtectedRoute>} />
-            <Route path="/caregiver-interest" element={<ProtectedRoute><CaregiverInterest /></ProtectedRoute>} />
-            <Route path="/verify" element={<ProtectedRoute><VerificationGate /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/nanny-share" element={<ProtectedRoute><NannyShare /></ProtectedRoute>} />
-            <Route path="/build-your-village" element={<ProtectedRoute><BuildYourVillage /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/member/:id" element={<ProtectedRoute><MemberProfile /></ProtectedRoute>} />
-            <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
-            <Route path="/messages/:id" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
-            <Route path="/connections" element={<ProtectedRoute><Connections /></ProtectedRoute>} />
-            <Route path="/invite-friends" element={<ProtectedRoute><InviteFriends /></ProtectedRoute>} />
+            {/* ERROR / 404 (Use Marketing Layout) */}
+            <Route element={<MarketingLayout />}>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
 
-            {/* Redirects */}
-            <Route path="/matches" element={<Navigate to="/build-your-village" replace />} />
-            <Route path="/village" element={<Navigate to="/connections" replace />} />
+            {/* APP ROUTES (AuthGate + App Layout) */}
+            <Route element={<AuthGate />}>
+              <Route element={<AppLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/nanny-share" element={<NannyShare />} />
+                <Route path="/build-your-village" element={<BuildYourVillage />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/member/:id" element={<MemberProfile />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/messages/:id" element={<Messages />} />
+                <Route path="/connections" element={<Connections />} />
+                <Route path="/invite-friends" element={<InviteFriends />} />
 
-            {/* Feature Pages */}
+                {/* Redirects */}
+                <Route path="/matches" element={<Navigate to="/build-your-village" replace />} />
+                <Route path="/village" element={<Navigate to="/connections" replace />} />
+              </Route>
+            </Route>
 
-
-            {/* 404 */}
-            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
-        <Footer />
       </Router>
     </AuthProvider>
   );

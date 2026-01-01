@@ -3,7 +3,12 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
 
-export default function Header() {
+interface HeaderProps {
+  forceGuest?: boolean
+  onboarding?: boolean
+}
+
+export default function Header({ forceGuest = false, onboarding = false }: HeaderProps) {
   const { user } = useAuth()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -27,21 +32,14 @@ export default function Header() {
   const handleLogout = async () => {
     setLoggingOut(true)
     // Small delay for visual feedback
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise(resolve => setTimeout(resolve, 300))
     setMenuOpen(false)
 
     // Sign out from Supabase
     await supabase.auth.signOut()
 
-    // Clear ALL Supabase data from localStorage
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('sb-') || key.includes('supabase')) {
-        localStorage.removeItem(key)
-      }
-    })
-
-    // Force full page reload to reset all state
-    window.location.href = '/'
+    // Force full page reload to reset all state (hard reset)
+    window.location.assign('/')
   }
 
   // Dynamic Header Classes - completely borderless
@@ -52,22 +50,37 @@ export default function Header() {
       : location.pathname === '/onboarding' ? 'bg-transparent shadow-none border-none border-0 py-5 sm:py-6' : 'bg-transparent shadow-none py-5 sm:py-6'}
   `
 
-  if (location.pathname === '/login' || location.pathname === '/admin-waitlist') return null
+  // Resilient hide logic
+  const hideHeader =
+    location.pathname.startsWith('/admin-waitlist') ||
+    location.pathname.startsWith('/login') ||
+    location.pathname.startsWith('/signin')
+
+  if (hideHeader) return null
 
   return (
     <header className={headerClasses}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
         <Link
-          to={user ? '/dashboard' : '/'}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none decoration-transparent"
+          to={user && !forceGuest && !onboarding ? '/dashboard' : '/'}
+          className={`flex items-center gap-2 transition-opacity focus:outline-none decoration-transparent ${onboarding ? 'pointer-events-none' : 'hover:opacity-80'}`}
         >
           <img src="/icon.svg" alt="" className="h-7 w-7 sm:h-8 sm:w-8" />
           <span className="text-[#1E6B4E] font-bold text-lg sm:text-2xl">Opeari</span>
         </Link>
 
         {/* Right side */}
-        {user ? (
+        {onboarding ? (
+          /* Onboarding Header (Minimal) */
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="text-sm font-medium text-opeari-coral hover:bg-opeari-coral/10 py-2 px-4 rounded-full transition-colors disabled:opacity-50"
+          >
+            {loggingOut ? 'Signing out...' : 'Sign out'}
+          </button>
+        ) : user && !forceGuest ? (
           /* User Logged In */
           location.pathname !== '/onboarding' ? (
             <>

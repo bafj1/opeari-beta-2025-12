@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postbuild": "cp public/_redirects dist/_redirects || true"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.87.1",

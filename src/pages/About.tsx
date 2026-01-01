@@ -68,62 +68,22 @@ export default function About() {
         </div>
       </section>
 
-      {/* The Story - Better hierarchy with subheaders */}
-      <section className="py-16 sm:py-20" style={{ backgroundColor: 'white' }}>
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <h2 style={{ color: COLORS.primary }} className="text-2xl sm:text-3xl font-bold mb-10">
-            The story
+      {/* The Story - Concise & Warm */}
+      <section className="py-16 sm:py-24" style={{ backgroundColor: 'white' }}>
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 style={{ color: COLORS.primary }} className="text-3xl sm:text-4xl font-bold mb-8 text-center">
+            Why we're here
           </h2>
 
-          {/* The Problem */}
-          <div className="mb-10">
-            <p
-              className="text-sm font-semibold uppercase tracking-wide mb-3"
-              style={{ color: COLORS.coral }}
-            >
-              The problem
+          <div className="prose prose-lg mx-auto text-center" style={{ color: COLORS.textMuted }}>
+            <p className="mb-6 leading-relaxed">
+              Parenting wasn't meant to be done alone. Yet somewhere along the way, we traded our villages for isolation.
             </p>
-            <p className="text-lg leading-relaxed" style={{ color: COLORS.textMuted }}>
-              Childcare shouldn't feel like solving a puzzle with missing pieces.
+            <p className="mb-8 leading-relaxed">
+              <span className="font-semibold" style={{ color: COLORS.primary }}>Opeari exists to bring the village back.</span> We connect families who live near each other to share care, cover gaps, and build the kind of trust that makes raising kids a little lighter.
             </p>
-          </div>
-
-          {/* The Reality */}
-          <div className="mb-10">
-            <p
-              className="text-sm font-semibold uppercase tracking-wide mb-3"
-              style={{ color: COLORS.coral }}
-            >
-              The reality
-            </p>
-            <p className="leading-relaxed mb-4" style={{ color: COLORS.textMuted }}>
-              Your nanny calls out sick. School closes… again. A work trip pops up. You want a nanny share but have no idea where to start.
-            </p>
-            <p className="leading-relaxed" style={{ color: COLORS.textMuted }}>
-              So you ask a friend. Or a neighbor. Or a Facebook group that hasn't been active since 2019.
-            </p>
-          </div>
-
-          {/* The Insight */}
-          <div
-            className="p-8 rounded-2xl mb-10"
-            style={{ backgroundColor: `${COLORS.coral}15`, borderLeft: `4px solid ${COLORS.coral}` }}
-          >
-            <p className="text-lg leading-relaxed" style={{ color: COLORS.textMuted }}>
-              Meanwhile? <span style={{ color: COLORS.primary }} className="font-semibold">Dozens of parents around you are looking for the exact same thing.</span> We just weren't connected.
-            </p>
-          </div>
-
-          {/* The Why */}
-          <div>
-            <p
-              className="text-sm font-semibold uppercase tracking-wide mb-3"
-              style={{ color: COLORS.coral }}
-            >
-              Why we built Opeari
-            </p>
-            <p className="text-xl font-semibold leading-relaxed" style={{ color: COLORS.primary }}>
-              To make the village real again.
+            <p className="leading-relaxed">
+              No agencies. No algorithms. Just neighbors helping neighbors.
             </p>
           </div>
         </div>
