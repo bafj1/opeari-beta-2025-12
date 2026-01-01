@@ -194,7 +194,7 @@ export default function Settings() {
             <div className="pt-6 border-t border-[#1E6B4E]/10">
               <h3 className="text-lg font-bold text-red-600 mb-4">Danger Zone</h3>
               <button
-                onClick={() => alert('Please contact support@opeari.com to verify identity and delete account.')}
+                onClick={() => alert('Please contact support to verify identity and delete account.')}
                 className="px-5 py-2.5 border border-red-200 text-red-600 font-bold rounded-full hover:bg-red-50 transition-colors"
               >
                 Delete Account

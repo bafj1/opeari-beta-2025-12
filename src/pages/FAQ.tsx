@@ -152,25 +152,36 @@ const FAQ = () => {
             </section>
 
             {/* Questions Grid */}
-            <section className="px-6 py-16 bg-white min-h-screen">
+            <section className="px-6 py-16 bg-white min-h-screen relative">
                 <div className="max-w-3xl mx-auto space-y-12">
+
+                    {/* Header Image A */}
+                    <div className="flex justify-center md:absolute md:top-0 md:right-0 md:-mt-12 md:mr-4 z-10 pointer-events-none">
+                        <img src="/opeari-faq1.png" alt="Opeari character with questions" loading="lazy" width="220" height="220" className="w-[160px] md:w-[220px] object-contain" />
+                    </div>
+
                     {/* Beta Note */}
-                    <div className="bg-[#fffaf5] border border-[#1e6b4e]/10 rounded-2xl p-8">
+                    <div className="bg-[#fffaf5] border border-[#1e6b4e]/10 rounded-2xl p-8 relative z-0">
                         <h2 className="text-xl font-bold text-[#1e6b4e] mb-4">A quick note about beta</h2>
                         <div className="text-[#4A6163] leading-relaxed space-y-4">
-                            <p>
-                                Opeari is launching intentionally, one community at a time.
-                            </p>
                             <p>
                                 During beta, we’re prioritizing family-to-family matching — helping parents align schedules and coordinate shared care like nanny shares, backup swaps, and ongoing support.
                             </p>
                             <p>
-                                Caregiver tools and expanded verification (including background checks) are coming next. We’ll always be clear about what’s live and what’s on the roadmap.
+                                Caregiver tools and expanded verification are coming next. We’ll always be clear about what’s live vs. what’s on the roadmap.
                             </p>
                         </div>
                     </div>
+
                     {faqCategories.map((category, catIdx) => (
                         <div key={catIdx}>
+                            {/* Divider Image B (Between 1st and 2nd category approx) */}
+                            {catIdx === 1 && (
+                                <div className="flex justify-center my-8">
+                                    <img src="/opeari-faq5.png" alt="Opeari character thinking" loading="lazy" width="180" height="180" className="w-[140px] md:w-[180px] object-contain" />
+                                </div>
+                            )}
+
                             <h2 className="text-xl font-bold text-[#1e6b4e]/80 mb-6 uppercase tracking-wide text-sm pl-2 border-l-4 border-[#8bd7c7]">
                                 {category.title}
                             </h2>
@@ -190,13 +201,13 @@ const FAQ = () => {
             </section>
 
             {/* Contact / CTA */}
-            <section className="px-6 py-20 bg-[#f8fcfb] text-center border-t border-[#1e6b4e]/5">
-                <div className="max-w-2xl mx-auto">
+            <section className="px-6 py-20 bg-[#f8fcfb] text-center border-t border-[#1e6b4e]/5 relative overflow-hidden">
+                <div className="max-w-2xl mx-auto relative z-10">
                     <h2 className="text-2xl md:text-3xl font-bold text-[#1e6b4e] mb-4">Still have questions?</h2>
                     <p className="text-[#4A6163] mb-8">
                         We’re here to help. Reach out to our team or request an invite to see exactly how it works.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <Link
                             to="/waitlist"
                             className="bg-[#1e6b4e] text-white px-8 py-3 rounded-full font-bold hover:bg-[#165a40] transition-colors shadow-lg shadow-[#1e6b4e]/20"
@@ -205,11 +216,16 @@ const FAQ = () => {
                         </Link>
                         <a
                             href="mailto:breada@opeari.com"
+                            aria-label="Email Opeari"
                             className="bg-white text-[#1e6b4e] border border-[#1e6b4e]/20 px-8 py-3 rounded-full font-bold hover:bg-[#f0f9f6] transition-colors"
                         >
-                            Email Us
+                            Get in touch
                         </a>
                     </div>
+                </div>
+                {/* Footer Image C */}
+                <div className="absolute bottom-0 right-0 pointer-events-none opacity-50 md:opacity-100 mb-4 mr-4">
+                    <img src="/opeari-faq4.png" alt="Opeari character waving" loading="lazy" width="200" height="200" className="w-[150px] md:w-[200px] object-contain" />
                 </div>
             </section>
         </>

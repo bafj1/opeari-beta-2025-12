@@ -100,8 +100,7 @@ const Privacy = () => {
                     <section className="pt-8 border-t border-[#1e6b4e]/10">
                         <h2 className="text-2xl font-bold text-[#1e6b4e] mb-4">Contact</h2>
                         <p>
-                            Questions about privacy?<br />
-                            Please reach out through our <a href="mailto:hello@opeari.com" className="text-[#1e6b4e] font-bold underline hover:opacity-80">Contact page</a>.
+                            Questions? <a href="mailto:breada@opeari.com" aria-label="Email Opeari" className="text-[#1e6b4e] font-bold underline hover:opacity-80">Get in touch</a>
                         </p>
                     </section>
 
