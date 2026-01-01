@@ -155,11 +155,6 @@ const FAQ = () => {
             <section className="px-6 py-16 bg-white min-h-screen relative">
                 <div className="max-w-3xl mx-auto space-y-12">
 
-                    {/* Header Image A */}
-                    <div className="flex justify-center md:absolute md:top-0 md:right-0 md:-mt-12 md:mr-4 z-10 pointer-events-none">
-                        <img src="/opeari-faq1.png" alt="Opeari character with questions" loading="lazy" width="220" height="220" className="w-[160px] md:w-[220px] object-contain" />
-                    </div>
-
                     {/* Beta Note */}
                     <div className="bg-[#fffaf5] border border-[#1e6b4e]/10 rounded-2xl p-8 relative z-0">
                         <h2 className="text-xl font-bold text-[#1e6b4e] mb-4">A quick note about beta</h2>
@@ -175,13 +170,6 @@ const FAQ = () => {
 
                     {faqCategories.map((category, catIdx) => (
                         <div key={catIdx}>
-                            {/* Divider Image B (Between 1st and 2nd category approx) */}
-                            {catIdx === 1 && (
-                                <div className="flex justify-center my-8">
-                                    <img src="/opeari-faq5.png" alt="Opeari character thinking" loading="lazy" width="180" height="180" className="w-[140px] md:w-[180px] object-contain" />
-                                </div>
-                            )}
-
                             <h2 className="text-xl font-bold text-[#1e6b4e]/80 mb-6 uppercase tracking-wide text-sm pl-2 border-l-4 border-[#8bd7c7]">
                                 {category.title}
                             </h2>
@@ -222,10 +210,6 @@ const FAQ = () => {
                             Get in touch
                         </a>
                     </div>
-                </div>
-                {/* Footer Image C */}
-                <div className="absolute bottom-0 right-0 pointer-events-none opacity-50 md:opacity-100 mb-4 mr-4">
-                    <img src="/opeari-faq4.png" alt="Opeari character waving" loading="lazy" width="200" height="200" className="w-[150px] md:w-[200px] object-contain" />
                 </div>
             </section>
         </>
