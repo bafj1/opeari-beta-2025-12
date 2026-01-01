@@ -95,8 +95,12 @@ export default function Home() {
                 <span className="text-[#1E6B4E]">Let's build yours.</span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-[#1E6B4E]/80 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-                Build flexible child care with a trusted network — from nanny shares to backup help — without relying on strangers or agencies.
+              <p className="text-lg sm:text-xl text-[#1E6B4E]/80 mb-6 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+                A private way for parents to share and coordinate childcare locally — from nanny shares to backup help.
+              </p>
+
+              <p className="text-lg text-[#659E8B] font-medium mb-10 italic">
+                Flexible care, perfectly paired.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
