@@ -242,7 +242,8 @@ export function useOnboarding() {
                     data: {
                         intent: canonicalIntent,
                         first_name: data.firstName || '',
-                        last_name: data.lastName || ''
+                        last_name: data.lastName || '',
+                        onboarding_complete: true
                     }
                 };
 

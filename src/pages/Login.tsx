@@ -35,33 +35,27 @@ export default function Login() {
       if (error) throw error
 
       // Check intent and routing
-      const intent = data.user?.user_metadata?.intent
-      const isCaregiver = intent === 'caregiver' || intent === 'providing'
+      // Check intent and routing
+      const metadata = data.user?.user_metadata || {}
+      const intent = metadata.intent
+      const onboardingComplete = metadata.onboarding_complete
 
-      if (isCaregiver) {
-        const { data: profile } = await supabase
-          .from('caregiver_profiles')
-          .select('id')
-          .eq('user_id', data.user.id)
-          .single()
+      console.log('Login Redirect Logic:', {
+        rawIntent: intent,
+        normalized: intent, // intent is already normalized in metadata if set correctly
+        onboardingComplete,
+        userId: data.user.id
+      })
 
-        if (profile) {
-          navigate('/dashboard')
-        } else {
-          navigate('/onboarding')
-        }
+      if (!intent) {
+        console.log('Redirecting: Missing intent -> /onboarding?step=0')
+        navigate('/onboarding?step=0')
+      } else if (onboardingComplete !== true) {
+        console.log('Redirecting: Incomplete -> /onboarding?step=0')
+        navigate('/onboarding?step=0')
       } else {
-        const { data: member } = await supabase
-          .from('members')
-          .select('profile_complete')
-          .eq('user_id', data.user.id)
-          .single()
-
-        if (member?.profile_complete) {
-          navigate('/dashboard')
-        } else {
-          navigate('/onboarding')
-        }
+        console.log('Redirecting: Complete -> /dashboard')
+        navigate('/dashboard')
       }
     } catch (err: any) {
       console.error('Login error:', err)
@@ -244,7 +238,7 @@ export default function Login() {
                 </label>
 
                 <Link
-                  to="/request-link"
+                  to="/forgot-password"
                   className="text-[#1E6B4E] font-medium hover:underline"
                 >
                   Forgot password?

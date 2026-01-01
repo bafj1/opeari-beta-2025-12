@@ -12,12 +12,15 @@ const HowItWorks = lazy(() => import('./pages/HowItWorks'));
 const About = lazy(() => import('./pages/About'));
 const WhyOpeari = lazy(() => import('./pages/WhyOpeari'));
 const FAQ = lazy(() => import('./pages/FAQ'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Privacy = lazy(() => import('./pages/Privacy'));
 const Waitlist = lazy(() => import('./pages/Waitlist'));
 const Login = lazy(() => import('./pages/Login'));
 const Invite = lazy(() => import('./pages/Invite'));
 const AdminWaitlist = lazy(() => import('./pages/AdminWaitlist'));
 
 const RequestNewLink = lazy(() => import('./pages/RequestNewLink'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const SignIn = lazy(() => import('./pages/SignIn'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 
@@ -51,8 +54,11 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/why-opeari" element={<WhyOpeari />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="/waitlist" element={<Waitlist />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/invite" element={<Invite />} />
             <Route path="/admin-waitlist" element={<AdminWaitlist />} />

@@ -106,7 +106,7 @@ const FAQItem = ({ question, answer, id }: { question: string; answer: string; i
                 id={`faq-answer-${id}`}
                 role="region"
                 aria-labelledby={`faq-btn-${id}`}
-                className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[9999px] opacity-100' : 'max-h-0 opacity-0'}`}
+                className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}
             >
                 <div className="p-6 pt-0 text-[#4A6163] leading-relaxed">
                     {answer}
