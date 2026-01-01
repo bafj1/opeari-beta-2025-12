@@ -91,11 +91,12 @@ export default function Home() {
             {/* Left Content */}
             <div className="flex-1 text-center lg:text-left">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#1E6B4E] leading-[1.1] mb-6 font-display">
-                Build flexible child care with a trusted network — from nanny shares to backup help — without relying on strangers or agencies.
+                It takes a village. <br />
+                <span className="text-[#1E6B4E]">Let's build yours.</span>
               </h1>
 
               <p className="text-lg sm:text-xl text-[#1E6B4E]/80 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-                Connect with local families for nanny shares, backup care, and trusted support right in your neighborhood.
+                Build flexible child care with a trusted network — from nanny shares to backup help — without relying on strangers or agencies.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
