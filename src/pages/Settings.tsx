@@ -12,6 +12,52 @@ import {
   CARE_TYPES
 } from '../lib/constants/careConstants';
 
+// --- NEW CONSTANTS FOR CAREGIVER SETTINGS ---
+const YEARS_OPTIONS = [
+  { value: '0-1', label: '< 1 Year' },
+  { value: '1-3', label: '1-3 Years' },
+  { value: '3-5', label: '3-5 Years' },
+  { value: '5-10', label: '5-10 Years' },
+  { value: '10+', label: '10+ Years' }
+];
+
+const ROLE_OPTIONS = [
+  { value: 'nanny', label: 'Nanny' },
+  { value: 'babysitter', label: 'Babysitter' },
+  { value: 'parents_helper', label: "Parent's Helper" },
+  { value: 'household_manager', label: 'Household Manager' },
+  { value: 'ncs', label: 'Newborn Care Specialist' },
+  { value: 'tutor', label: 'Tutor / Educator' },
+  { value: 'au_pair_live_in', label: 'Live-in Au Pair' },
+  { value: 'travel_nanny', label: 'Travel Nanny' }
+];
+
+const LOGISTICS_OPTIONS = [
+  { value: 'driver_license', label: 'Clean Driving Record' },
+  { value: 'car_seats', label: 'Comfortable with Car Seats' },
+  { value: 'own_car', label: 'Own Car' },
+  { value: 'errands', label: 'Errands & Pickups' },
+  { value: 'cooking', label: 'Can Cook Basic Meals' },
+  { value: 'lifting', label: 'Lift 25–30 lbs' },
+  { value: 'multi_kid', label: 'Multi-kid Care' },
+  { value: 'pets', label: 'Comfortable with Pets' },
+  { value: 'swimming', label: 'Comfortable Swimming' },
+  { value: 'stroller_walks', label: 'Stroller Walks' },
+  { value: 'stairs', label: 'Stairs (carrying ok)' },
+  { value: 'non_smoker', label: 'Non-Smoker' },
+  { value: 'homework', label: 'Homework Help' },
+  { value: 'housekeeping', label: 'Light Housekeeping' },
+  { value: 'nanny_share', label: 'Nanny Share' }
+];
+
+const CERT_OPTIONS = [
+  { value: 'cpr', label: 'CPR Certified' },
+  { value: 'first_aid', label: 'First Aid' },
+  { value: 'ece', label: 'Early Childhood Ed' },
+  { value: 'driver', label: 'Safe Driver' }
+];
+
+
 export default function Settings() {
   const { viewer, loading, refresh } = useViewer();
   // const { signOut } = useAuth();
@@ -49,9 +95,16 @@ export default function Settings() {
 
         // Caregiver Specific (Caregiver Profiles)
         ...(viewer.caregiverProfile ? {
+          cg_role_type: viewer.caregiverProfile.role_type || '',
+          cg_secondary_roles: viewer.caregiverProfile.secondary_roles || [],
+          cg_years_experience: viewer.caregiverProfile.years_experience || '',
+          cg_hourly_rate: viewer.caregiverProfile.hourly_rate || '',
+          cg_logistics: viewer.caregiverProfile.logistics || [],
+          // Certs handled as array
+          cg_certifications: viewer.caregiverProfile.certifications ? viewer.caregiverProfile.certifications.map((c: any) => c.name) : [],
+
           cg_availability_days: viewer.caregiverProfile.availability_days || [],
           cg_availability_blocks: viewer.caregiverProfile.availability_blocks || [],
-          cg_rate_tiers: viewer.caregiverProfile.rate_tiers || [], // Mapped to budget_tiers UI concept
           cg_transportation: viewer.caregiverProfile.transportation || 'none',
           // Languages handled as string for input, array for DB
           cg_languages: (viewer.caregiverProfile.languages || []).join(', '),
@@ -109,13 +162,22 @@ export default function Settings() {
       // Caregivers own their specific profile fields
       if (viewer.member.role === 'caregiver' && viewer.caregiverProfile) {
         const cgUpdates = {
+          role_type: formData.cg_role_type,
+          secondary_roles: formData.cg_secondary_roles,
+          years_experience: formData.cg_years_experience,
+          hourly_rate: formData.cg_hourly_rate ? parseInt(String(formData.cg_hourly_rate).replace(/[^0-9]/g, '')) : null,
+          logistics: formData.cg_logistics,
+          // Certs: rebuild object structure
+          certifications: formData.cg_certifications.map((name: string) => ({ name, verified: false })),
+
           availability_days: formData.cg_availability_days,
           availability_blocks: formData.cg_availability_blocks,
-          rate_tiers: formData.cg_rate_tiers,
+
           transportation: formData.cg_transportation,
           languages: parseLanguages(formData.cg_languages),
           age_groups: formData.cg_age_groups
         };
+
         const { error: cgError } = await supabase
           .from('caregiver_profiles')
           .update(cgUpdates)
@@ -157,7 +219,7 @@ export default function Settings() {
               : 'text-[#1E6B4E]/60 hover:text-[#1E6B4E]'
               }`}
           >
-            {tab === 'care' ? (isCaregiver ? 'Care Details' : 'Family Needs') : tab}
+            {tab === 'care' ? (isCaregiver ? 'Experience & Logistics' : 'Family Needs') : tab}
           </button>
         ))}
       </div>
@@ -301,6 +363,57 @@ export default function Settings() {
             {isCaregiver ? (
               // CAREGIVER FORM
               <div className="space-y-6">
+
+                {/* ROLE & EXPERIENCE */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Primary Role</label>
+                    <select
+                      value={formData.cg_role_type}
+                      onChange={(e) => setFormData({ ...formData, cg_role_type: e.target.value })}
+                      className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] bg-white focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
+                    >
+                      <option value="">Select Role</option>
+                      {ROLE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Years Experience</label>
+                    <select
+                      value={formData.cg_years_experience}
+                      onChange={(e) => setFormData({ ...formData, cg_years_experience: e.target.value })}
+                      className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] bg-white focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
+                    >
+                      <option value="">Select Experience</option>
+                      {YEARS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <ChipMultiSelect
+                  label="Secondary Roles"
+                  options={ROLE_OPTIONS}
+                  selected={formData.cg_secondary_roles}
+                  onChange={(vals) => setFormData({ ...formData, cg_secondary_roles: vals })}
+                />
+
+                {/* HOURLY RATE - Replaced Tiers with Input */}
+                <div>
+                  <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Hourly Rate ($/hr)</label>
+                  <div className="flex items-center">
+                    <span className="p-3 bg-gray-50 border border-r-0 border-[#1E6B4E]/20 rounded-l-lg text-[#1E6B4E]/70 font-bold">$</span>
+                    <input
+                      type="text"
+                      value={formData.cg_hourly_rate}
+                      onChange={(e) => setFormData({ ...formData, cg_hourly_rate: e.target.value.replace(/[^0-9]/g, '') })}
+                      placeholder="25"
+                      className="w-full p-3 rounded-r-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
+                    />
+                  </div>
+                </div>
+
+                <hr className="border-[#1E6B4E]/10" />
+
                 <ChipMultiSelect
                   label="Availability Days"
                   options={DAYS_OPTIONS}
@@ -313,17 +426,28 @@ export default function Settings() {
                   selected={formData.cg_availability_blocks}
                   onChange={(vals) => setFormData({ ...formData, cg_availability_blocks: vals })}
                 />
-                <ChipMultiSelect
-                  label="Rate Tiers"
-                  options={BUDGET_TIERS}
-                  selected={formData.cg_rate_tiers}
-                  onChange={(vals) => setFormData({ ...formData, cg_rate_tiers: vals })}
-                />
+
+                <hr className="border-[#1E6B4E]/10" />
+
                 <ChipMultiSelect
                   label="Age Groups Experience"
                   options={AGE_GROUPS}
                   selected={formData.cg_age_groups}
                   onChange={(vals) => setFormData({ ...formData, cg_age_groups: vals })}
+                />
+
+                <ChipMultiSelect
+                  label="Logistics & Skills"
+                  options={LOGISTICS_OPTIONS}
+                  selected={formData.cg_logistics}
+                  onChange={(vals) => setFormData({ ...formData, cg_logistics: vals })}
+                />
+
+                <ChipMultiSelect
+                  label="Certifications"
+                  options={CERT_OPTIONS}
+                  selected={formData.cg_certifications}
+                  onChange={(vals) => setFormData({ ...formData, cg_certifications: vals })}
                 />
 
                 <div>

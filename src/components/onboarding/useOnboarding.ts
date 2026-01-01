@@ -294,6 +294,11 @@ export function useOnboarding() {
                     throw memberError;
                 }
 
+                // Map Logistics to Transportation "Own Car" if applicable
+                let transportation = 'none';
+                if (data.logistics?.includes('own_car')) transportation = 'own_car';
+                else if (data.logistics?.includes('driver_license')) transportation = 'own_car'; // Infer? Or maybe just keep none. Let's stick to explicit 'own_car' check.
+
                 // B. Upsert Caregiver Profile (Professional Data)
                 // Maps strictly to MIGRATION_CAREGIVER_DATA.sql
                 const caregiverPayload = {
@@ -309,7 +314,7 @@ export function useOnboarding() {
                     role_type: data.caregiverRole,
                     secondary_roles: data.secondaryRoles || [],
                     years_experience: data.yearsExperience,
-                    hourly_rate: data.hourlyRate ? parseInt(data.hourlyRate, 10) : null,
+                    hourly_rate: data.hourlyRate ? parseInt(data.hourlyRate.replace(/[^0-9]/g, ''), 10) : null,
                     logistics: data.logistics || [],
 
                     // JSONB Structures
@@ -320,6 +325,11 @@ export function useOnboarding() {
                     bio: data.bio, // Professional bio
                     age_groups: data.ageGroups || [],
                     languages: [], // Onboarding doesn't collect languages yet, explicit empty
+
+                    // Derived/Mapped Fields
+                    transportation: transportation,
+                    availability_days: [], // Onboarding collects 'availabilityType' which is too high level. Leave empty for manual setting in Settings.
+                    availability_blocks: [],
 
                     // Status Flags
                     status: 'pending',
@@ -343,28 +353,69 @@ export function useOnboarding() {
                 const { vetting_required, vetting_types } = determineVettingRequirements(data, hostingInterest);
                 const vetting_status = vetting_required ? 'required' : 'not_required';
 
+                // Helpers for derived fields
+                const deriveAgeGroups = (kids: any[]) => {
+                    const groups: string[] = [];
+                    kids.forEach(k => {
+                        const age = parseInt(k.age);
+                        if (isNaN(age)) return; // Skip if invalid
+                        if (age <= 1) groups.push('infant');
+                        else if (age <= 3) groups.push('toddler');
+                        else if (age <= 5) groups.push('preschool');
+                        else if (age <= 12) groups.push('school_age');
+                        else groups.push('teen');
+                    });
+                    return [...new Set(groups)]; // Unique
+                };
+
+                const deriveAvailability = (schedule: Record<string, string[]>) => {
+                    const days = new Set<string>();
+                    const blocks = new Set<string>();
+
+                    Object.entries(schedule).forEach(([day, times]) => {
+                        if (times && times.length > 0) {
+                            days.add(day);
+                            times.forEach(t => blocks.add(t)); // Assuming schedule uses same block keys: morning, afternoon, etc.
+                        }
+                    });
+
+                    return {
+                        days: Array.from(days),
+                        blocks: Array.from(blocks)
+                    };
+                };
+
+                const { days, blocks } = deriveAvailability(data.schedule);
+
                 const userPayload = {
                     first_name: data.firstName,
                     last_name: data.lastName || '',
                     email: authUser.email || data.email, // REQUIRED by DB
                     zip_code: data.zipCode,
-                    address: data.neighborhood,
+                    address: data.neighborhood, // Map neighborhood to address/neighborhood
+                    neighborhood: data.neighborhood, // Explicit neighborhood column if it exists in members? Usually address/neighborhood are conflated. Let's save to both if we can, or just address.
+                    // Actually members has 'neighborhood' column in Settings mapping, so let's use that.
+
                     role: 'parent',
                     care_types: data.careOptions,
+
+                    // Mapped Arrays
+                    children_age_groups: deriveAgeGroups(data.kids),
+                    availability_days: days,
+                    availability_blocks: blocks,
+
                     schedule: {
                         flexible: data.scheduleFlexible,
                         grid: data.schedule
                     },
-                    // is_flexible column removed as it doesn't exist in DB schema
+
                     num_kids: data.kids.length,
                     kids_ages: data.kids.map(k => parseInt(k.age) || 0),
                     bio: data.bio || `Looking for: ${data.careOptions.join(', ')}`,
                     timeline: 'asap',
                     profile_complete: true,
-                    // other_needs: showSomethingElseInput ? data.specificNeeds : null,
-                    // metadata: { ... }, 
-                    // photo_url: ...
-                    user_intent: canonicalIntent, // Use canonical here too
+
+                    user_intent: canonicalIntent,
                     caregiver_work_types: null,
                     ready_to_start: null,
 
