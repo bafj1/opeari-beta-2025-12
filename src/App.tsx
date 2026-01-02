@@ -79,7 +79,7 @@ function App() {
               <ProtectedRoute>
                 <div className="min-h-screen flex flex-col">
                   <Header onboarding={true} />
-                  <main className="flex-grow">
+                  <main id="main-content" className="flex-grow focus:outline-none" tabIndex={-1}>
                     <Outlet />
                   </main>
                   {/* Footer optional/hidden for onboarding typically, or just Header */}
