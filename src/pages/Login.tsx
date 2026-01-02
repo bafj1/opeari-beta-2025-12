@@ -72,7 +72,7 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fffaf5] flex">
+    <div className="min-h-screen bg-[#fffaf5] flex">
       <Helmet>
         <title>Opeari - Login</title>
         <meta name="description" content="Welcome back to your village. Log in to manage your care schedule and connect with families." />
@@ -270,6 +270,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

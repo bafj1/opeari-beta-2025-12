@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Helmet } from 'react-helmet-async'
 
-const logoImg = '/logo.svg'
 const heroImg = '/opeari-waitlist.png'
 
 export default function Waitlist() {
@@ -328,23 +327,10 @@ export default function Waitlist() {
           .animate-float-pear { animation: none; }
         }
       `}</style>
-      {/* Header */}
-      <header className="px-[5%] bg-white/90 backdrop-blur-md sticky top-0 z-50 h-[85px] flex items-center max-md:px-4 max-md:h-[60px]">
-        <div className="w-full max-w-[1200px] mx-auto flex justify-between items-center">
-          <Link to="/" className="flex items-center">
-            <img src={logoImg} alt="Opeari" className="h-20 w-auto max-md:h-[45px]" />
-          </Link>
-          <Link
-            to="/login"
-            className="font-bold text-[#1e6b4e] text-base px-6 py-2.5 rounded-[30px] transition-colors hover:bg-[#d8f5e5]"
-          >
-            Sign In
-          </Link>
-        </div>
-      </header>
 
-      {/* Main */}
-      <main className="flex-1 w-full max-w-[1200px] mx-auto px-8 py-6 grid grid-cols-[1fr_1.1fr] gap-16 items-start max-md:grid-cols-1 max-md:gap-6 max-md:px-4">
+
+      {/* Main Content Area */}
+      <div className="flex-1 w-full max-w-[1200px] mx-auto px-8 py-6 grid grid-cols-[1fr_1.1fr] gap-16 items-start max-md:grid-cols-1 max-md:gap-6 max-md:px-4">
         {/* Hero Column */}
         <div className="text-center sticky top-[6.5rem] max-md:static">
           <h1 className="text-[2.5rem] leading-tight mb-4 text-[#1e6b4e] max-md:text-[2rem] font-extrabold">
@@ -524,9 +510,10 @@ export default function Waitlist() {
                         value={role.value}
                         checked={userType === role.value}
                         onChange={() => setUserType(role.value)}
-                        className="absolute opacity-0"
+                        className="absolute opacity-0 peer"
                       />
                       <div className={`border rounded-xl p-3 px-1 text-center transition-all h-full flex flex-col items-center justify-center min-h-[110px]
+                        peer-focus:ring-4 peer-focus:ring-[#1e6b4e]/30 peer-focus:border-[#1e6b4e]
                         ${userType === role.value
                           ? 'border-[#1e6b4e] border-2 bg-[#d8f5e5] shadow-[0_2px_8px_rgba(30,107,78,0.15)]'
                           : 'border-[#c8e6d9] bg-white'}`}
@@ -793,7 +780,7 @@ export default function Waitlist() {
             </div>
           )}
         </div>
-      </main>
+      </div>
     </div>
   )
 }

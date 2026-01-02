@@ -171,7 +171,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-opeari-bg pb-20">
       <Header />
 
-      <main className="max-w-6xl mx-auto px-4 pt-8">
+      <div className="max-w-6xl mx-auto px-4 pt-8">
         {/* 1. Header Section */}
         <div className="flex flex-col md:flex-row gap-8 items-start mb-10">
           <div className="flex-1">
@@ -306,7 +306,7 @@ export default function Dashboard() {
 
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }
