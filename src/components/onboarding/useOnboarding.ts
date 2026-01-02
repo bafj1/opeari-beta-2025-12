@@ -255,16 +255,21 @@ export function useOnboarding() {
                 }
 
                 console.log('Sanitized updates payload:', updates);
-                const { error: updateError } = await supabase.auth.updateUser(updates);
+                let { error: updateError } = await supabase.auth.updateUser(updates);
+
+                // RETRY LOGIC: If password is same as old one (422), retry without password
+                if (updateError && (updateError.status === 422 || updateError.message.toLowerCase().includes("password"))) {
+                    console.warn('Password update failed (likely same as old). Retrying metadata update only...');
+                    delete updates.password;
+                    const retry = await supabase.auth.updateUser(updates);
+                    updateError = retry.error;
+                }
 
                 if (updateError) {
                     console.error('Failed to update user metadata:', updateError);
-                    // If it's a 422, it's likely "New password should be different" or similar validation
-                    if (updateError.status === 422 || updateError.message.includes("password")) {
-                        setSaveError(updateError.message);
-                        setLoading(false); // Stop execution, let them fix it
-                        return;
-                    }
+                    setSaveError(updateError.message);
+                    setLoading(false);
+                    return;
                 } else {
                     console.log('User metadata updated successfully');
                 }
