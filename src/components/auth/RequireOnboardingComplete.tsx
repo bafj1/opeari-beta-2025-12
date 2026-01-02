@@ -17,7 +17,10 @@ export default function RequireOnboardingComplete() {
         return <Navigate to="/onboarding?step=0" replace />;
     }
 
-    if (!viewer.member.onboarding_complete) {
+    // Check Auth Metadata first (Source of Truth from useOnboarding), then Member table fallback
+    const isComplete = viewer.user?.user_metadata?.onboarding_complete || viewer.member?.onboarding_complete;
+
+    if (!isComplete) {
         return <Navigate to="/onboarding?step=0" replace />;
     }
 
