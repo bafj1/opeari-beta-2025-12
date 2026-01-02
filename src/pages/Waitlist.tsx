@@ -35,6 +35,7 @@ export default function Waitlist() {
   const [copied, setCopied] = useState(false)
   const [emailStatus, setEmailStatus] = useState<{ sent: boolean; message?: string } | null>(null)
 
+  const errorRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const showReferralName = ['friend', 'neighbor', 'parent_group', 'other'].includes(referralSource)
@@ -84,6 +85,7 @@ export default function Waitlist() {
 
     if (validationError) {
       setError(validationError)
+      // Focus handled by useEffect on error change
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
@@ -292,6 +294,13 @@ export default function Waitlist() {
     }
   }, [success])
 
+  // Focus error summary when error appears
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.focus()
+    }
+  }, [error])
+
 
   // Shared input styles
   const inputClass = "w-full px-3.5 py-2.5 border border-[#c8e6d9] rounded-[10px] font-[Comfortaa] text-sm text-[#1e6b4e] bg-white transition-all focus:outline-none focus:border-[#1e6b4e] focus:ring-4 focus:ring-[#1e6b4e]/10 placeholder:text-[#658585]"
@@ -366,7 +375,12 @@ export default function Waitlist() {
         {/* Form Card */}
         <div className="bg-white p-6 rounded-3xl shadow-[0_4px_24px_rgba(30,107,78,0.08)] border border-white/80 max-md:p-5 max-md:rounded-[20px]">
           {error && (
-            <div className="bg-red-100 text-red-800 p-3 rounded-lg text-sm mb-4 text-center border border-red-200">
+            <div
+              ref={errorRef}
+              role="alert"
+              tabIndex={-1}
+              className="bg-red-100 text-red-800 p-3 rounded-lg text-sm mb-4 text-center border border-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            >
               {error}
             </div>
           )}
@@ -408,7 +422,11 @@ export default function Waitlist() {
                     aria-required="true"
                     onBlur={() => setTouched(prev => ({ ...prev, first: true }))}
                     aria-invalid={!firstName && touched.first ? 'true' : 'false'}
+                    aria-describedby={!firstName && touched.first ? 'firstName-error' : undefined}
                   />
+                  {touched.first && !firstName && (
+                    <p id="firstName-error" role="alert" className="mt-1 text-xs text-red-500 ml-1">Please enter your first name.</p>
+                  )}
                 </div>
                 <div className="mb-4">
                   <label htmlFor="lastName" className={labelClass}>Last Name <span className="text-red-600" aria-hidden="true">*</span></label>
@@ -423,7 +441,11 @@ export default function Waitlist() {
                     aria-required="true"
                     onBlur={() => setTouched(prev => ({ ...prev, last: true }))}
                     aria-invalid={!lastName && touched.last ? 'true' : 'false'}
+                    aria-describedby={!lastName && touched.last ? 'lastName-error' : undefined}
                   />
+                  {touched.last && !lastName && (
+                    <p id="lastName-error" role="alert" className="mt-1 text-xs text-red-500 ml-1">Please enter your last name.</p>
+                  )}
                 </div>
               </div>
 
