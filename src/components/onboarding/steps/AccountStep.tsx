@@ -14,7 +14,7 @@ interface AccountStepProps {
 export default function AccountStep({ data, updateData, passwordConfirm, setPasswordConfirm, showPassword, setShowPassword }: AccountStepProps) {
     return (
         <div className="space-y-6 animate-fade-in">
-            <StepHeader title="Save your spot in the village" subtitle="Create a password so you can come back anytime." />
+            <StepHeader title="Save your spot in the village" subtitle="Create a password so you can return later." />
 
             <div className="relative">
                 <Input
@@ -24,7 +24,7 @@ export default function AccountStep({ data, updateData, passwordConfirm, setPass
                     onChange={(v: any) => updateData('password', v)}
                     required
                     placeholder="At least 8 characters"
-                    subtext="Must be at least 8 characters"
+                    subtext="Password must be at least 8 characters."
                 />
                 <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-[34px] text-gray-400">
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}

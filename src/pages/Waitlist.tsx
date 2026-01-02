@@ -68,16 +68,26 @@ export default function Waitlist() {
     const cleanLastName = sanitize(lastName)
     const cleanEmail = email.trim().toLowerCase()
     const cleanZip = zipCode.trim()
-    const cleanPhone = phone.trim()
+    const cleanPhone = phone.replace(/\D/g, '') // Normalize to digits only
 
-    if (!cleanFirstName) { setError('Please enter your first name.'); return }
-    if (!cleanLastName) { setError('Please enter your last name.'); return }
-    if (!cleanEmail || !isValidEmail(cleanEmail)) { setError('Please enter a valid email address.'); return }
-    if (!cleanZip || cleanZip.length !== 5) { setError('Please enter a valid 5-digit ZIP code.'); return }
-    if (!urgency) { setError('Please select your timeline.'); return }
-    if (!userType) { setError('Please select what brings you here.'); return }
-    if (!referralSource) { setError('Please tell us how you heard about Opeari.'); return }
-    if (showReferralName && !referralName) { setError('Please tell us who referred you.'); return }
+    // Validation
+    let validationError = ''
+    if (!cleanFirstName) validationError = 'Please enter your first name.'
+    else if (!cleanLastName) validationError = 'Please enter your last name.'
+    else if (!cleanEmail || !isValidEmail(cleanEmail)) validationError = 'Please enter a valid email address.'
+    else if (!cleanZip || cleanZip.length !== 5) validationError = 'Please enter a valid 5-digit ZIP code.'
+    else if (!urgency) validationError = 'Please select your timeline.'
+    else if (!userType) validationError = 'Please select what brings you here.'
+    else if (!referralSource) validationError = 'Please tell us how you heard about Opeari.'
+    else if ((showReferralName || referralSource === 'referral_code') && !referralName) {
+      validationError = referralSource === 'referral_code' ? 'Please enter your referral code.' : 'Please tell us who referred you.'
+    }
+
+    if (validationError) {
+      setError(validationError)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
 
     const refCode = generateReferralCode(cleanFirstName)
     setLoading(true)
@@ -90,7 +100,7 @@ export default function Waitlist() {
           first_name: cleanFirstName,
           last_name: cleanLastName,
           email: cleanEmail,
-          phone: cleanPhone || null, // Optional
+          phone: cleanPhone || null, // Optional, digits only
           zip_code: cleanZip,
           role: userType,
           // Mapping urgency to 'looking_for' column (Text) per schema Plan A
@@ -107,6 +117,7 @@ export default function Waitlist() {
       if (dbError) {
         if (dbError.code === '23505') { // Unique violation
           setError("You're already on the waitlist! We'll be in touch soon.")
+          window.scrollTo({ top: 0, behavior: 'smooth' })
           return
         }
         throw dbError
@@ -173,11 +184,12 @@ export default function Waitlist() {
 
     } catch (err: any) {
       console.error('Waitlist submission error:', err)
-      if (err.message && err.message.includes('row-level security')) {
-        setError('Submission blocked by security policy. Please contact support.')
-      } else {
-        setError(err.message || 'Something went wrong. Please try again.')
-      }
+      const msg = (err.message && err.message.includes('row-level security'))
+        ? 'Submission blocked by security policy. Please contact support.'
+        : 'Something went wrong. Please try again or contact us.'
+
+      setError(msg)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       setLoading(false)
     }
@@ -283,7 +295,7 @@ export default function Waitlist() {
 
 
   // Shared input styles
-  const inputClass = "w-full px-3.5 py-2.5 border border-[#c8e6d9] rounded-[10px] font-[Comfortaa] text-sm text-[#1e6b4e] bg-white transition-all focus:outline-none focus:border-[#1e6b4e] focus:ring-4 focus:ring-[#1e6b4e]/10 placeholder:text-[#8faaaa]"
+  const inputClass = "w-full px-3.5 py-2.5 border border-[#c8e6d9] rounded-[10px] font-[Comfortaa] text-sm text-[#1e6b4e] bg-white transition-all focus:outline-none focus:border-[#1e6b4e] focus:ring-4 focus:ring-[#1e6b4e]/10 placeholder:text-[#658585]"
   const labelClass = "block text-[0.7rem] font-bold mb-1.5 text-[#527a6a] uppercase tracking-wide"
 
   return (
@@ -353,7 +365,7 @@ export default function Waitlist() {
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-2 font-semibold text-[0.85rem] p-1.5 px-2.5 rounded-lg transition-all hover:text-[#154a36] hover:font-bold group">
                 <div className="w-7 h-7 bg-[#d8f5e5] rounded-full flex items-center justify-center flex-shrink-0 transition-all group-hover:scale-110 group-hover:shadow-[0_0_16px_rgba(30,107,78,0.2)]">
-                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-[#1e6b4e] fill-none stroke-[2.5]" strokeLinecap="round" strokeLinejoin="round">
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-[#1e6b4e] fill-none stroke-[2.5]" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     {item.icon}
                   </svg>
                 </div>
@@ -397,8 +409,9 @@ export default function Waitlist() {
               {/* Name Row */}
               <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
                 <div className="mb-4">
-                  <label className={labelClass}>First Name <span className="text-red-600">*</span></label>
+                  <label htmlFor="firstName" className={labelClass}>First Name <span className="text-red-600" aria-hidden="true">*</span></label>
                   <input
+                    id="firstName"
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
@@ -406,25 +419,31 @@ export default function Waitlist() {
                     autoComplete="given-name"
                     className={inputClass}
                     autoFocus
+                    aria-required="true"
+                    aria-invalid={!firstName && touched.email ? 'true' : 'false'}
                   />
                 </div>
                 <div className="mb-4">
-                  <label className={labelClass}>Last Name <span className="text-red-600">*</span></label>
+                  <label htmlFor="lastName" className={labelClass}>Last Name <span className="text-red-600" aria-hidden="true">*</span></label>
                   <input
+                    id="lastName"
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     maxLength={50}
                     autoComplete="family-name"
                     className={inputClass}
+                    aria-required="true"
+                    aria-invalid={!lastName && touched.email ? 'true' : 'false'}
                   />
                 </div>
               </div>
 
               {/* Email Row */}
               <div className="mb-4">
-                <label className={labelClass}>Email Address <span className="text-red-600">*</span></label>
+                <label htmlFor="email" className={labelClass}>Email Address <span className="text-red-600" aria-hidden="true">*</span></label>
                 <input
+                  id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -432,17 +451,21 @@ export default function Waitlist() {
                   autoComplete="email"
                   className={`${inputClass} ${touched.email && !isValidEmail(email) ? 'border-red-400 focus:border-red-500' : ''}`}
                   onBlur={() => setTouched(prev => ({ ...prev, email: true }))}
+                  aria-required="true"
+                  aria-invalid={touched.email && !isValidEmail(email) ? 'true' : 'false'}
+                  aria-describedby={touched.email && !isValidEmail(email) ? "email-error" : undefined}
                 />
                 {touched.email && email && !isValidEmail(email) && (
-                  <p className="mt-1 text-xs text-red-500 ml-1">Please enter a valid email address.</p>
+                  <p id="email-error" className="mt-1 text-xs text-red-500 ml-1" role="alert">Please enter a valid email address.</p>
                 )}
               </div>
 
               {/* Phone / ZIP Row */}
               <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1 mb-4">
                 <div>
-                  <label className={labelClass}>Phone Number</label>
+                  <label htmlFor="phone" className={labelClass}>Phone Number</label>
                   <input
+                    id="phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => {
@@ -464,8 +487,9 @@ export default function Waitlist() {
                   </p>
                 </div>
                 <div>
-                  <label className={labelClass}>Zip Code <span className="text-red-600">*</span></label>
+                  <label htmlFor="zipCode" className={labelClass}>Zip Code <span className="text-red-600" aria-hidden="true">*</span></label>
                   <input
+                    id="zipCode"
                     type="text"
                     value={zipCode}
                     onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
@@ -474,17 +498,20 @@ export default function Waitlist() {
                     autoComplete="postal-code"
                     className={`${inputClass} ${touched.zip && zipCode.length > 0 && zipCode.length < 5 ? 'border-red-400 focus:border-red-500' : ''}`}
                     onBlur={() => setTouched(prev => ({ ...prev, zip: true }))}
+                    aria-required="true"
+                    aria-invalid={touched.zip && zipCode.length > 0 && zipCode.length < 5 ? 'true' : 'false'}
+                    aria-describedby={touched.zip && zipCode.length > 0 && zipCode.length < 5 ? "zip-error" : undefined}
                   />
                   {touched.zip && zipCode && zipCode.length < 5 && (
-                    <p className="mt-1 text-xs text-red-500 ml-1">Zip code must be 5 digits.</p>
+                    <p id="zip-error" className="mt-1 text-xs text-red-500 ml-1" role="alert">Zip code must be 5 digits.</p>
                   )}
                 </div>
               </div>
 
               {/* Role Selection */}
               <div className="mb-4">
-                <label className={labelClass}>What brings you here? <span className="text-red-600">*</span></label>
-                <div className="grid grid-cols-3 gap-3 mb-4 max-sm:gap-2">
+                <label id="role-label" className={labelClass}>What brings you here? <span className="text-red-600" aria-hidden="true">*</span></label>
+                <div role="radiogroup" aria-labelledby="role-label" className="grid grid-cols-3 gap-3 mb-4 max-sm:gap-2">
                   {[
                     { value: 'family', label: 'Find Care', sub: 'Need childcare help', icon: <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></> },
                     { value: 'caregiver', label: 'Give Care', sub: 'Looking to provide care', icon: <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /> },
@@ -504,7 +531,7 @@ export default function Waitlist() {
                           ? 'border-[#1e6b4e] border-2 bg-[#d8f5e5] shadow-[0_2px_8px_rgba(30,107,78,0.15)]'
                           : 'border-[#c8e6d9] bg-white'}`}
                       >
-                        <svg viewBox="0 0 24 24" className={`w-[24px] h-[24px] mb-1.5 stroke-[1.5] fill-none ${userType === role.value ? 'stroke-[#1e6b4e]' : 'stroke-[#527a6a]'}`} strokeLinecap="round" strokeLinejoin="round">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" className={`w-[24px] h-[24px] mb-1.5 stroke-[1.5] fill-none ${userType === role.value ? 'stroke-[#1e6b4e]' : 'stroke-[#527a6a]'}`} strokeLinecap="round" strokeLinejoin="round">
                           {role.icon}
                         </svg>
                         <span className={`text-[0.8rem] font-bold leading-tight ${userType === role.value ? 'text-[#1e6b4e]' : 'text-[#527a6a]'}`}>
@@ -520,7 +547,7 @@ export default function Waitlist() {
               </div>
 
               {/* Divider */}
-              <div className="flex items-center my-7 mb-5 text-[#527a6a] text-[0.8rem]">
+              <div className="flex items-center my-7 mb-5 text-[#527a6a] text-[0.8rem]" aria-hidden="true">
                 <div className="flex-1 h-px bg-[#c8e6d9]" />
                 <span className="px-4 bg-white">A few more details</span>
                 <div className="flex-1 h-px bg-[#c8e6d9]" />
@@ -529,11 +556,13 @@ export default function Waitlist() {
               {/* Timeline & Referral Source - STACKED */}
               <div className="flex flex-col gap-4">
                 <div className="mb-2">
-                  <label className={labelClass}>Timeline <span className="text-red-600">*</span></label>
+                  <label htmlFor="urgency" className={labelClass}>Timeline <span className="text-red-600" aria-hidden="true">*</span></label>
                   <select
+                    id="urgency"
                     value={urgency}
                     onChange={(e) => setUrgency(e.target.value)}
                     className={`${inputClass} cursor-pointer bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231e6b4e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")] bg-no-repeat bg-[right_16px_center] appearance-none`}
+                    aria-required="true"
                   >
                     <option value="">When do you need care?</option>
                     <option value="asap">ASAP (Ready now)</option>
@@ -548,14 +577,16 @@ export default function Waitlist() {
 
                 {/* Source */}
                 <div className="mb-2">
-                  <label className={labelClass}>How did you hear? <span className="text-red-600">*</span></label>
+                  <label htmlFor="referralSource" className={labelClass}>How did you hear? <span className="text-red-600" aria-hidden="true">*</span></label>
                   <select
+                    id="referralSource"
                     value={referralSource}
                     onChange={(e) => {
                       setReferralSource(e.target.value)
                       if (e.target.value !== 'referral_code') setReferralName('')
                     }}
                     className={`${inputClass} cursor-pointer bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231e6b4e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")] bg-no-repeat bg-[right_16px_center] appearance-none`}
+                    aria-required="true"
                   >
                     <option value="">Select...</option>
                     <option value="friend">Friend or family</option>
@@ -575,15 +606,17 @@ export default function Waitlist() {
                       type="button"
                       onClick={() => setReferralSource(prev => prev === 'referral_code' ? '' : 'referral_code')}
                       className="text-sm font-semibold text-[#1e6b4e] flex items-center gap-2 hover:opacity-80 mb-2"
+                      aria-expanded={referralSource === 'referral_code'}
                     >
-                      <span className={`transition-transform duration-200 ${referralSource === 'referral_code' ? 'rotate-90' : ''}`}>▶</span>
+                      <span className={`transition-transform duration-200 ${referralSource === 'referral_code' ? 'rotate-90' : ''}`} aria-hidden="true">▶</span>
                       Have a referral code?
                     </button>
 
                     {referralSource === 'referral_code' && (
                       <div className="mt-2 animate-in slide-in-from-top-2 duration-200">
-                        <label className={labelClass}>Referral Code</label>
+                        <label htmlFor="referralName" className={labelClass}>Referral Code</label>
                         <input
+                          id="referralName"
                           type="text"
                           value={referralName}
                           onChange={(e) => setReferralName(e.target.value)}
@@ -598,26 +631,29 @@ export default function Waitlist() {
 
                 {(showReferralName && referralSource !== 'referral_code') && (
                   <div className="mb-4">
-                    <label className={labelClass}>
-                      {referralSource === 'other' ? 'How did you find us?' : 'Who referred you?'} <span className="text-red-600">*</span>
+                    <label htmlFor="referralName" className={labelClass}>
+                      {referralSource === 'other' ? 'How did you find us?' : 'Who referred you?'} <span className="text-red-600" aria-hidden="true">*</span>
                     </label>
                     <input
+                      id="referralName"
                       type="text"
                       value={referralName}
                       onChange={(e) => setReferralName(e.target.value)}
                       placeholder="Their name"
                       maxLength={100}
                       className={inputClass}
+                      aria-required="true"
                     />
                   </div>
                 )}
               </div>
 
               <div className="mb-4">
-                <label className={labelClass}>
+                <label htmlFor="linkedin" className={labelClass}>
                   LinkedIn <span className="text-[#8faaaa] font-normal normal-case tracking-normal">(Optional — helps verify you)</span>
                 </label>
                 <input
+                  id="linkedin"
                   type="url"
                   value={linkedin}
                   onChange={(e) => setLinkedin(e.target.value)}
@@ -631,15 +667,17 @@ export default function Waitlist() {
                   type="button"
                   onClick={() => setInstagram(prev => prev === '' ? '@' : '')}
                   className="text-sm font-semibold text-[#1e6b4e] flex items-center gap-2 hover:opacity-80 mb-2"
+                  aria-expanded={instagram !== ''}
                 >
-                  <span className={`transition-transform duration-200 ${instagram ? 'rotate-90' : ''}`}>▶</span>
+                  <span className={`transition-transform duration-200 ${instagram ? 'rotate-90' : ''}`} aria-hidden="true">▶</span>
                   Have an Instagram handle?
                 </button>
 
                 {instagram !== '' && (
                   <div className="mt-2 animate-in slide-in-from-top-2 duration-200">
-                    <label className={labelClass}>Instagram Handle</label>
+                    <label htmlFor="instagram" className={labelClass}>Instagram Handle</label>
                     <input
+                      id="instagram"
                       type="text"
                       value={instagram === '@' ? '' : instagram}
                       onChange={(e) => setInstagram(e.target.value)}
@@ -651,8 +689,9 @@ export default function Waitlist() {
               </div>
 
               <div className="mb-4">
-                <label className={labelClass}>Why join?</label>
+                <label htmlFor="whyJoin" className={labelClass}>Why join?</label>
                 <textarea
+                  id="whyJoin"
                   value={whyJoin}
                   onChange={(e) => setWhyJoin(e.target.value)}
                   placeholder="Looking for a nanny share nearby..."
@@ -666,8 +705,8 @@ export default function Waitlist() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={loading || !firstName || !lastName || !isValidEmail(email) || zipCode.length !== 5 || !userType || !urgency || !referralSource}
-                className="w-full py-4 bg-[#1e6b4e] text-white rounded-full font-bold text-lg mt-5 transition-all shadow-[0_4px_12px_rgba(30,107,78,0.2)] hover:bg-[#154a36] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(30,107,78,0.3)] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative"
+                disabled={loading}
+                className="w-full py-4 bg-[#1e6b4e] text-white rounded-full font-bold text-lg mt-5 transition-all shadow-[0_4px_12px_rgba(30,107,78,0.2)] hover:bg-[#154a36] hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(30,107,78,0.3)] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none relative"
               >
                 {loading ? (
                   <span className="inline-block w-5 h-5 border-[3px] border-white/30 border-t-white rounded-full animate-spin" />

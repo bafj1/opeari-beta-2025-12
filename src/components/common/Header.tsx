@@ -102,6 +102,9 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                 <div className="relative">
                   <button
                     onClick={() => setMenuOpen(!menuOpen)}
+                    aria-expanded={menuOpen}
+                    aria-haspopup="true"
+                    aria-label="User menu"
                     className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-opeari-green/30 ${menuOpen
                       ? 'bg-opeari-green shadow-[0_4px_12px_rgba(30,107,78,0.2)] scale-105'
                       : 'bg-opeari-mint hover:bg-opeari-green hover:shadow-[0_4px_12px_rgba(30,107,78,0.2)] hover:scale-105 active:scale-95'
@@ -121,12 +124,13 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
 
                   {menuOpen && (
                     <>
-                      <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-[0_10px_25px_rgba(30,107,78,0.15)] border border-opeari-border py-2 z-20">
+                      <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} aria-hidden="true" />
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-[0_10px_25px_rgba(30,107,78,0.15)] border border-opeari-border py-2 z-20" role="menu">
                         <Link
                           to="/profile"
                           onClick={() => setMenuOpen(false)}
                           className="block px-4 py-2 text-sm text-opeari-text hover:bg-opeari-mint transition-colors"
+                          role="menuitem"
                         >
                           Profile
                         </Link>
@@ -134,14 +138,16 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                           to="/settings"
                           onClick={() => setMenuOpen(false)}
                           className="block px-4 py-2 text-sm text-opeari-text hover:bg-opeari-mint transition-colors"
+                          role="menuitem"
                         >
                           Settings
                         </Link>
-                        <div className="border-t border-opeari-border my-2" />
+                        <div className="border-t border-opeari-border my-2" role="separator" />
                         <button
                           onClick={handleLogout}
                           disabled={loggingOut}
                           className="block w-full text-left px-4 py-2 text-sm text-opeari-coral hover:bg-opeari-coral/10 transition-colors font-medium disabled:opacity-50"
+                          role="menuitem"
                         >
                           {loggingOut ? 'Signing out...' : 'Sign out'}
                         </button>
@@ -155,15 +161,17 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
               <div className="sm:hidden flex items-center">
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
+                  aria-expanded={menuOpen}
+                  aria-controls="mobile-menu"
+                  aria-label="Toggle main menu"
                   className="p-2 text-opeari-heading hover:bg-opeari-mint rounded-full transition-colors"
-                  aria-label="Toggle menu"
                 >
                   {menuOpen ? (
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   ) : (
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                   )}

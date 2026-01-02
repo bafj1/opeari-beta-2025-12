@@ -1,5 +1,5 @@
 import type { OnboardingData } from '../OnboardingTypes';
-import { StepHeader, Input } from '../components/WizardUI';
+import { StepHeader, Input, PhoneInput } from '../components/WizardUI';
 import { Plus, X } from 'lucide-react';
 
 interface CaregiverVerificationStepProps {
@@ -14,6 +14,12 @@ export default function CaregiverVerificationStep({ data, updateData }: Caregive
     const referrals = data.referrals || [];
 
     const addReferral = () => {
+        // Validation: Block if previous invalid (basic check)
+        const last = referrals[referrals.length - 1];
+        if (last && (!last.name || !last.phone || !last.email || !last.relation)) {
+            alert("Please complete the previous reference first.");
+            return;
+        }
         updateData('referrals', [...referrals, { name: '', email: '', phone: '', relation: '', description: '' }]);
     };
 
@@ -72,6 +78,7 @@ export default function CaregiverVerificationStep({ data, updateData }: Caregive
                                 value={ref.name}
                                 onChange={(v: string) => updateReferral(idx, 'name', v)}
                                 placeholder="Jane Smith"
+                                maxLength={60}
                             />
                             <div className="space-y-1.5">
                                 <label className="block text-xs font-bold text-opeari-heading uppercase tracking-wide">
@@ -99,11 +106,12 @@ export default function CaregiverVerificationStep({ data, updateData }: Caregive
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <Input
                                 label="Email"
+                                type="email"
                                 value={ref.email}
-                                onChange={(v: string) => updateReferral(idx, 'email', v)}
+                                onChange={(v: string) => updateReferral(idx, 'email', v.trim())}
                                 placeholder="jane@example.com"
                             />
-                            <Input
+                            <PhoneInput
                                 label="Phone"
                                 value={ref.phone}
                                 onChange={(v: string) => updateReferral(idx, 'phone', v)}
@@ -119,6 +127,7 @@ export default function CaregiverVerificationStep({ data, updateData }: Caregive
                                 onChange={(e) => updateReferral(idx, 'description', e.target.value)}
                                 className="w-full p-3 border border-opeari-border/50 rounded-xl focus:ring-2 focus:ring-opeari-green focus:outline-none text-sm min-h-[80px]"
                                 placeholder="Briefly describe what you did for them..."
+                                maxLength={300}
                             />
                         </div>
                     </div>

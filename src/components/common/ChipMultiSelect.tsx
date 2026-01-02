@@ -52,6 +52,7 @@ export default function ChipMultiSelect({
                             type="button" // Prevent form submittion
                             onClick={() => toggleOption(option.value)}
                             disabled={disabled}
+                            aria-pressed={isSelected}
                             className={`
                                 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border
                                 ${isSelected

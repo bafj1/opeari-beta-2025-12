@@ -151,14 +151,16 @@ export function useOnboarding() {
                         let detectedIntent = null
                         const mRole = member?.role
                         const wRole = waitlistEntry?.role
-                        const metaIntent = user.user_metadata?.intent
 
-                        if (mRole === 'parent' || mRole === 'family') detectedIntent = 'family'
-                        else if (mRole === 'caregiver' || mRole === 'nanny') detectedIntent = 'caregiver'
+                        // Strict Canonical Signals Only
+                        if (mRole === 'family') detectedIntent = 'family'
+                        else if (mRole === 'caregiver') detectedIntent = 'caregiver'
                         else if (wRole === 'family') detectedIntent = 'family'
                         else if (wRole === 'caregiver') detectedIntent = 'caregiver'
-                        else if (metaIntent === 'family' || metaIntent === 'seeking') detectedIntent = 'family'
-                        else if (metaIntent === 'caregiver' || metaIntent === 'providing') detectedIntent = 'caregiver'
+
+                        // Legacy support for existing rows (if not yet migrated)
+                        else if (mRole === 'parent') detectedIntent = 'family'
+                        else if (mRole === 'nanny') detectedIntent = 'caregiver'
 
                         if (detectedIntent) {
                             next.userIntent = detectedIntent as any
@@ -256,8 +258,13 @@ export function useOnboarding() {
                 const { error: updateError } = await supabase.auth.updateUser(updates);
 
                 if (updateError) {
-                    console.error('Failed to update user metadata (422?):', updateError);
-                    // Don't throw here to allow flow to finish, but at least we know.
+                    console.error('Failed to update user metadata:', updateError);
+                    // If it's a 422, it's likely "New password should be different" or similar validation
+                    if (updateError.status === 422 || updateError.message.includes("password")) {
+                        setSaveError(updateError.message);
+                        setLoading(false); // Stop execution, let them fix it
+                        return;
+                    }
                 } else {
                     console.log('User metadata updated successfully');
                 }
@@ -274,41 +281,39 @@ export function useOnboarding() {
             if (canonicalIntent === 'caregiver') {
                 console.log('Starting Caregiver Save Sequence...');
 
-                // A. Update Base Member Profile (Shared Data)
+                // A. Upsert Base Member Profile (Shared Data) - ensures row exists
                 const memberUpdatePayload = {
                     first_name: data.firstName,
                     last_name: data.lastName,
                     phone: data.phone,
                     zip_code: data.zipCode,
-                    neighborhood: data.neighborhood, // Added neighborhood
-                    bio: data.bio, // Sync bio to member profile for consistency
+                    neighborhood: data.neighborhood,
+                    bio: data.bio, // Shared bio
+
+                    // VILLAGE INTENT (Canonical Persistence)
+                    support_needed: [],
+                    support_offered: [],
+                    support_notes: null
                 };
 
                 const { error: memberError } = await supabase
                     .from('members')
-                    .update(memberUpdatePayload)
-                    .eq('id', authUser.id);
+                    .upsert({ id: authUser.id, ...memberUpdatePayload });
 
                 if (memberError) {
-                    console.error('Error updating member base data:', memberError);
+                    console.error('Error upserting member base data:', memberError);
                     throw memberError;
                 }
 
                 // Map Logistics to Transportation "Own Car" if applicable
                 let transportation = 'none';
                 if (data.logistics?.includes('own_car')) transportation = 'own_car';
-                else if (data.logistics?.includes('driver_license')) transportation = 'own_car'; // Infer? Or maybe just keep none. Let's stick to explicit 'own_car' check.
+                else if (data.logistics?.includes('driver_license')) transportation = 'own_car';
 
                 // B. Upsert Caregiver Profile (Professional Data)
-                // Maps strictly to MIGRATION_CAREGIVER_DATA.sql
+                // Strict adherence to data_contract.md - only profile fields
                 const caregiverPayload = {
                     user_id: authUser.id,
-                    // Identity
-                    first_name: data.firstName,
-                    last_name: data.lastName,
-                    email: data.email,
-                    phone: data.phone,
-                    zip_code: data.zipCode,
 
                     // Professional Details
                     role_type: data.caregiverRole,
@@ -319,21 +324,17 @@ export function useOnboarding() {
 
                     // JSONB Structures
                     certifications: data.certifications?.map(c => ({ name: c, verified: false })) || [],
-                    referrals: data.referrals || [],
 
                     // Existing Fields from V4/Settings
-                    bio: data.bio, // Professional bio
                     age_groups: data.ageGroups || [],
-                    languages: [], // Onboarding doesn't collect languages yet, explicit empty
+                    languages: [],
 
                     // Derived/Mapped Fields
                     transportation: transportation,
-                    availability_days: [], // Onboarding collects 'availabilityType' which is too high level. Leave empty for manual setting in Settings.
+                    availability_days: [],
                     availability_blocks: [],
 
-                    // Status Flags
-                    status: 'pending',
-                    background_check_status: 'not_started'
+                    // Status Flags - REMOVED
                 };
 
                 console.log('Upserting Caregiver Profile:', caregiverPayload);
@@ -350,8 +351,8 @@ export function useOnboarding() {
             } else {
                 // --- FAMILY SAVE LOGIC ---
                 // Calculate Vetting Requirements
-                const { vetting_required, vetting_types } = determineVettingRequirements(data, hostingInterest);
-                const vetting_status = vetting_required ? 'required' : 'not_required';
+                // Note: Logic runs but fields only persisted if in contract
+                determineVettingRequirements(data, hostingInterest);
 
                 // Helpers for derived fields
                 const deriveAgeGroups = (kids: any[]) => {
@@ -388,15 +389,14 @@ export function useOnboarding() {
                 const { days, blocks } = deriveAvailability(data.schedule);
 
                 const userPayload = {
+                    // Shared Identity
                     first_name: data.firstName,
                     last_name: data.lastName || '',
-                    email: authUser.email || data.email, // REQUIRED by DB
+                    // email: REMOVED
                     zip_code: data.zipCode,
-                    address: data.neighborhood, // Map neighborhood to address/neighborhood
-                    neighborhood: data.neighborhood, // Explicit neighborhood column if it exists in members? Usually address/neighborhood are conflated. Let's save to both if we can, or just address.
-                    // Actually members has 'neighborhood' column in Settings mapping, so let's use that.
+                    neighborhood: data.neighborhood,
 
-                    role: 'parent',
+                    role: 'family',
                     care_types: data.careOptions,
 
                     // Mapped Arrays
@@ -409,21 +409,21 @@ export function useOnboarding() {
                         grid: data.schedule
                     },
 
-                    num_kids: data.kids.length,
-                    kids_ages: data.kids.map(k => parseInt(k.age) || 0),
+                    // Derived Bio
                     bio: data.bio || `Looking for: ${data.careOptions.join(', ')}`,
-                    timeline: 'asap',
-                    profile_complete: true,
+                    languages: [], // Default
 
-                    user_intent: canonicalIntent,
-                    caregiver_work_types: null,
-                    ready_to_start: null,
+                    // VETTING FLAGS (Derived but not persisted unless schema matches - kept for now as derived logic usage is ambiguous, but contract says NO vetting fields in members table. Commenting out to be safe based on "Remove fields like vetting_*")
+                    // vetting_required,
+                    // vetting_types,
+                    // vetting_status,
+                    // vetting_fee_acknowledged: false,
 
-                    // VETTING FLAGS
-                    vetting_required,
-                    vetting_types,
-                    vetting_status,
-                    vetting_fee_acknowledged: false
+                    // VILLAGE INTENT (Canonical Persistence)
+                    // Currently populated via Settings, but seeded empty here to ensure column presence
+                    support_needed: [],
+                    support_offered: [],
+                    support_notes: null
                 };
 
                 const { error } = await supabase

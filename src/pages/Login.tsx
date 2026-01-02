@@ -173,35 +173,40 @@ export default function Login() {
             {/* Form */}
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-[#1E6B4E] mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-[#1E6B4E] mb-2">
                   Email address
                 </label>
                 <input
+                  id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
+                  autoComplete="email"
                   className="w-full px-4 py-3 rounded-xl border border-[#8bd7c7] text-[#1E6B4E] placeholder-[#9ca3af] focus:outline-none focus:border-[#1E6B4E] focus:ring-2 focus:ring-[#1E6B4E]/20 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#1E6B4E] mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-[#1E6B4E] mb-2">
                   Password
                 </label>
                 <div className="relative">
                   <input
+                    id="password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     required
+                    autoComplete="current-password"
                     className="w-full px-4 py-3 pr-12 rounded-xl border border-[#e8e4de] text-[#1E6B4E] placeholder-[#9ca3af] focus:outline-none focus:border-[#1E6B4E] focus:ring-2 focus:ring-[#1E6B4E]/20 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5a6e5a] hover:text-[#1E6B4E] transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -218,6 +223,7 @@ export default function Login() {
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
                       className="sr-only peer"
+                      aria-label="Remember me"
                     />
                     <div
                       className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all

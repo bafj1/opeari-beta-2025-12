@@ -6,7 +6,7 @@ export default function AppLayout() {
     return (
         <div className="min-h-screen flex flex-col">
             <Header />
-            <main className="flex-grow pt-24">
+            <main id="main-content" className="flex-grow pt-24 focus:outline-none" tabIndex={-1}>
                 {/* pt-24 to account for fixed header in app mode generally, check global styles if necessary */}
                 <Outlet />
             </main>

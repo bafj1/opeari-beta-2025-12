@@ -7,7 +7,8 @@ import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import MarketingLayout from './layouts/MarketingLayout';
 import AppLayout from './layouts/AppLayout';
-import AuthGate from './components/auth/AuthGate';
+import RequireAuth from './components/auth/RequireAuth';
+import RequireOnboardingComplete from './components/auth/RequireOnboardingComplete';
 
 // Lazy load pages for performance
 const Home = lazy(() => import('./pages/Home'));
@@ -17,6 +18,8 @@ const WhyOpeari = lazy(() => import('./pages/WhyOpeari'));
 const FAQ = lazy(() => import('./pages/FAQ'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Privacy = lazy(() => import('./pages/Privacy'));
+const Accessibility = lazy(() => import('./pages/Accessibility'));
+const Contact = lazy(() => import('./pages/Contact'));
 const Waitlist = lazy(() => import('./pages/Waitlist'));
 const Login = lazy(() => import('./pages/Login'));
 const Invite = lazy(() => import('./pages/Invite'));
@@ -59,6 +62,8 @@ function App() {
               <Route path="/faq" element={<FAQ />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/accessibility" element={<Accessibility />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/waitlist" element={<Waitlist />} />
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -93,23 +98,30 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
 
-            {/* APP ROUTES (AuthGate + App Layout) */}
-            <Route element={<AuthGate />}>
+            {/* APP ROUTES (Authenticated) */}
+            <Route element={<RequireAuth />}>
               <Route element={<AppLayout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/nanny-share" element={<NannyShare />} />
-                <Route path="/build-your-village" element={<BuildYourVillage />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/member/:id" element={<MemberProfile />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/messages/:id" element={<Messages />} />
-                <Route path="/connections" element={<Connections />} />
-                <Route path="/invite-friends" element={<InviteFriends />} />
 
-                {/* Redirects */}
-                <Route path="/matches" element={<Navigate to="/build-your-village" replace />} />
-                <Route path="/village" element={<Navigate to="/connections" replace />} />
+                {/* 1. Accessible Restricted Routes (No Onboarding Check) */}
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/profile" element={<Profile />} />
+
+                {/* 2. Accessible Core App (Require Onboarding Complete) */}
+                <Route element={<RequireOnboardingComplete />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/nanny-share" element={<NannyShare />} />
+                  <Route path="/build-your-village" element={<BuildYourVillage />} />
+                  <Route path="/member/:id" element={<MemberProfile />} />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/messages/:id" element={<Messages />} />
+                  <Route path="/connections" element={<Connections />} />
+                  <Route path="/invite-friends" element={<InviteFriends />} />
+
+                  {/* Redirects */}
+                  <Route path="/matches" element={<Navigate to="/build-your-village" replace />} />
+                  <Route path="/village" element={<Navigate to="/connections" replace />} />
+                </Route>
+
               </Route>
             </Route>
 

@@ -1,5 +1,5 @@
 import type { OnboardingData } from '../OnboardingTypes';
-import { StepHeader, Input } from '../components/WizardUI';
+import { StepHeader, Input, PhoneInput } from '../components/WizardUI';
 
 interface CaregiverAboutStepProps {
     data: OnboardingData;
@@ -31,34 +31,12 @@ export default function CaregiverAboutStep({ data, updateData }: CaregiverAboutS
                 />
             </div>
 
-            <div>
-                <label className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">
-                    Phone Number <span className="text-red-400">*</span>
-                </label>
-                <div className="relative">
-                    <input
-                        type="tel"
-                        value={data.phone || ''}
-                        onChange={(e) => {
-                            // Basic formatting (XXX) XXX-XXXX
-                            let clean = e.target.value.replace(/\D/g, '');
-                            if (clean.length > 10) clean = clean.substring(0, 10);
-                            let formatted = clean;
-                            if (clean.length > 6) {
-                                formatted = `(${clean.slice(0, 3)}) ${clean.slice(3, 6)}-${clean.slice(6)}`;
-                            } else if (clean.length > 3) {
-                                formatted = `(${clean.slice(0, 3)}) ${clean.slice(3)}`;
-                            } else if (clean.length > 0) {
-                                formatted = `(${clean}`;
-                            }
-                            updateData('phone', formatted);
-                        }}
-                        className="w-full px-4 py-3 border border-opeari-border/50 rounded-xl focus:ring-2 focus:ring-opeari-green focus:outline-none focus:border-transparent transition-all placeholder:text-gray-300"
-                        placeholder="(555) 555-5555"
-                        required
-                    />
-                </div>
-            </div>
+            <PhoneInput
+                label="Phone Number"
+                value={data.phone}
+                onChange={(val: string) => updateData('phone', val)}
+                required
+            />
 
 
 

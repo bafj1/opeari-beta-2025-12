@@ -31,10 +31,12 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
                             updateData('kids', updatedKids);
                         }}
                         className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
+                        aria-label={`Remove child ${idx + 1}`}
                     >✕</button>
                     <h4 className="font-bold text-opeari-heading mb-3 uppercase tracking-wide text-xs">Child {idx + 1}</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
+                            id={`kid-name-${kid.id}`}
                             label="First Name"
                             value={kid.firstName}
                             onChange={(v: any) => {
@@ -44,9 +46,10 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
                             }}
                         />
                         <div>
-                            <label className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">Year Born</label>
+                            <label htmlFor={`kid-age-${kid.id}`} className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">Year Born</label>
                             <div className="relative">
                                 <select
+                                    id={`kid-age-${kid.id}`}
                                     value={kid.age}
                                     onChange={e => {
                                         const updatedKids = [...data.kids];
@@ -58,7 +61,7 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
                                     <option value="" disabled>Select</option>
                                     {BIRTH_YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                                 </select>
-                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} aria-hidden="true" />
                             </div>
                         </div>
                     </div>
@@ -88,10 +91,11 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
                 </label>
                 {data.expecting && (
                     <div className="mt-3 animate-fade-in">
-                        <label className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">When is baby arriving?</label>
+                        <label htmlFor="expecting-timing" className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">When is baby arriving?</label>
                         <p className="text-xs text-gray-500 mb-2">This helps us plan for future nanny shares or playgroups matching your timeline.</p>
                         <div className="relative">
                             <select
+                                id="expecting-timing"
                                 value={data.expectingTiming || ''}
                                 onChange={e => updateData('expectingTiming', e.target.value)}
                                 className="w-full px-4 py-3 border border-[#1e6b4e] rounded-xl bg-white appearance-none text-sm focus:ring-2 focus:ring-opeari-green focus:outline-none text-opeari-heading font-medium"
@@ -99,7 +103,7 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
                                 <option value="" disabled>Select one...</option>
                                 {EXPECTING_TIMING_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
-                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} aria-hidden="true" />
                         </div>
                     </div>
                 )}

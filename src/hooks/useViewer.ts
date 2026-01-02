@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 export interface Viewer {
     member: any; // Using any for now to avoid rigid type dep, in real app likely Member interface
     caregiverProfile?: any;
+    user?: any; // Supabase Auth User
 }
 
 export function useViewer() {
@@ -16,7 +17,14 @@ export function useViewer() {
 
     // Fetch canonical rows (Member + Optional Caregiver Profile)
     const refresh = useCallback(async () => {
-        if (!user) return;
+        // Always get the latest auth user to ensure we have the email
+        const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+
+        if (authError || !currentUser) {
+            console.error('useViewer: Auth error or no user', authError);
+            setLoading(false);
+            return;
+        }
 
         try {
             setLoading(true);
@@ -26,10 +34,25 @@ export function useViewer() {
             const { data: member, error: memberError } = await supabase
                 .from('members')
                 .select('*')
-                .eq('id', user.id)
+                .eq('id', currentUser.id)
                 .single();
 
-            if (memberError) throw memberError;
+            if (memberError) {
+                // If member doesn't exist, this is critical
+                throw new Error(`Failed to load member profile: ${memberError.message}`);
+            }
+
+            // BACKFILL EMAIL IF MISSING (Non-destructive sync)
+            if (!member.email && currentUser.email) {
+                const { error: updateError } = await supabase
+                    .from('members')
+                    .update({ email: currentUser.email })
+                    .eq('id', currentUser.id);
+
+                if (!updateError) {
+                    member.email = currentUser.email; // Optimistic update
+                }
+            }
 
             let caregiverProfile = null;
 
@@ -38,7 +61,7 @@ export function useViewer() {
                 const { data: profile, error: profileError } = await supabase
                     .from('caregiver_profiles')
                     .select('*')
-                    .eq('user_id', user.id)
+                    .eq('user_id', currentUser.id)
                     .maybeSingle();
 
                 if (profileError) throw profileError;
@@ -51,10 +74,10 @@ export function useViewer() {
                     const { data: newProfile, error: createError } = await supabase
                         .from('caregiver_profiles')
                         .insert({
-                            user_id: user.id,
+                            user_id: currentUser.id,
                             first_name: member.first_name,
                             last_name: member.last_name,
-                            email: member.email, // Denormalized email required
+                            email: currentUser.email, // Use Auth Email for robustness
                             zip_code: member.zip_code
                         })
                         .select()
@@ -65,7 +88,8 @@ export function useViewer() {
                 }
             }
 
-            setViewer({ member, caregiverProfile });
+            // Attach the Auth User object to the viewer for specialized access if needed
+            setViewer({ member, caregiverProfile, user: currentUser });
 
         } catch (err: any) {
             console.error('useViewer: Error fetching viewer:', err);
@@ -74,7 +98,7 @@ export function useViewer() {
         } finally {
             setLoading(false);
         }
-    }, [user]);
+    }, []); // Removed 'user' dependency to avoid loops, rely on explicit getUser calls
 
     // Initial Mount Effect: Ensure Row -> Then Refresh
     useEffect(() => {

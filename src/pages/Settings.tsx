@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useViewer } from '../hooks/useViewer';
 import { supabase } from '../lib/supabase';
 
@@ -9,7 +10,8 @@ import {
   SPECIAL_OPTIONS,
   BUDGET_TIERS,
   AGE_GROUPS,
-  CARE_TYPES
+  CARE_TYPES,
+  VILLAGE_SUPPORT_OPTIONS
 } from '../lib/constants/careConstants';
 
 // --- NEW CONSTANTS FOR CAREGIVER SETTINGS ---
@@ -59,9 +61,10 @@ const CERT_OPTIONS = [
 
 
 export default function Settings() {
-  const { viewer, loading, refresh } = useViewer();
+  const { viewer, loading, error, refresh } = useViewer(); // Added error here
+  const navigate = useNavigate();
   // const { signOut } = useAuth();
-  const [activeSection, setActiveSection] = useState<'account' | 'profile' | 'care'>('profile');
+  const [activeSection, setActiveSection] = useState<'account' | 'profile' | 'care' | 'village'>('profile');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -80,6 +83,11 @@ export default function Settings() {
         bio: viewer.member.bio || '',
         neighborhood: viewer.member.neighborhood || '',
         languages: (viewer.member.languages || []).join(', '), // Display as string
+
+        // Village Intent (Members - Shared)
+        support_needed: viewer.member.support_needed || [],
+        support_offered: viewer.member.support_offered || [],
+        support_notes: viewer.member.support_notes || '',
 
         // Family Needs (Members)
         availability_days: viewer.member.availability_days || [],
@@ -114,7 +122,8 @@ export default function Settings() {
     }
   }, [viewer]);
 
-  const handleSave = async (_section: string) => {
+  const handleSave = async (section: 'profile' | 'care' | 'village' | 'account') => {
+    // Prevent accidental overwrites by scoping updates to the section being viewed.
     if (!viewer) return;
     setSaving(true);
     setMessage(null);
@@ -124,64 +133,90 @@ export default function Settings() {
       const parseLanguages = (str: string) =>
         str ? str.split(',').map(s => s.trim().toLowerCase()).filter(Boolean) : [];
 
-      // 1. Update Members Table
-      const memberUpdates: any = {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        phone: formData.phone,
-        zip_code: formData.zip_code,
-        bio: formData.bio,
-        neighborhood: formData.neighborhood,
-        languages: parseLanguages(formData.languages),
-      };
+      const memberId = viewer.member.id;
+      let memberUpdates: any = {};
+      let cgUpdates: any = {};
 
-      // If Role is Family (not caregiver), they own the 'needs' fields in members table
-      if (viewer.member.role !== 'caregiver') {
-        Object.assign(memberUpdates, {
-          children_age_groups: formData.children_age_groups,
-          care_types: formData.care_types,
-          availability_days: formData.availability_days,
-          availability_blocks: formData.availability_blocks,
-          special_availability: formData.special_availability,
-          budget_tiers: formData.budget_tiers,
-          transportation_required: formData.transportation_required,
-          require_identity_verified: formData.require_identity_verified,
-          require_background_verified: formData.require_background_verified,
-          language_requirement: formData.language_requirement
-        });
+      // === PROFILE SECTION ===
+      if (section === 'profile') {
+        memberUpdates = {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          phone: formData.phone,
+          zip_code: formData.zip_code,
+          bio: formData.bio,
+          neighborhood: formData.neighborhood,
+          languages: parseLanguages(formData.languages),
+        };
       }
 
-      const { error: memberError } = await supabase
-        .from('members')
-        .update(memberUpdates)
-        .eq('id', viewer.member.id);
+      // === VILLAGE INTENT SECTION ===
+      if (section === 'village') {
+        memberUpdates = {
+          support_needed: formData.support_needed,
+          support_offered: formData.support_offered,
+          support_notes: formData.support_notes,
+        }
+      }
 
-      if (memberError) throw memberError;
+      // === CARE SECTION ===
+      if (section === 'care') {
+        // Family: Update Member fields
+        if (viewer.member.role !== 'caregiver') {
+          memberUpdates = {
+            children_age_groups: formData.children_age_groups,
+            care_types: formData.care_types,
+            availability_days: formData.availability_days,
+            availability_blocks: formData.availability_blocks,
+            special_availability: formData.special_availability,
+            budget_tiers: formData.budget_tiers,
+            transportation_required: formData.transportation_required,
+            require_identity_verified: formData.require_identity_verified,
+            require_background_verified: formData.require_background_verified,
+            language_requirement: formData.language_requirement
+          };
+        }
+        // Caregiver: Update Caregiver Profile fields
+        else {
+          cgUpdates = {
+            role_type: formData.cg_role_type,
+            secondary_roles: formData.cg_secondary_roles,
+            years_experience: formData.cg_years_experience,
+            hourly_rate: formData.cg_hourly_rate ? parseInt(String(formData.cg_hourly_rate).replace(/[^0-9]/g, '')) : null,
+            logistics: formData.cg_logistics,
+            // Certifications: Preserve existing 'verified' status
+            certifications: formData.cg_certifications.map((name: string) => {
+              const existing = viewer.caregiverProfile?.certifications?.find((c: any) => c.name === name);
+              return existing ? existing : { name, verified: false };
+            }),
+            availability_days: formData.cg_availability_days,
+            availability_blocks: formData.cg_availability_blocks,
+            transportation: formData.cg_transportation,
+            languages: parseLanguages(formData.cg_languages),
+            age_groups: formData.cg_age_groups
+          };
+        }
+      }
 
-      // 2. Update Caregiver Profile if applicable
-      // Caregivers own their specific profile fields
-      if (viewer.member.role === 'caregiver' && viewer.caregiverProfile) {
-        const cgUpdates = {
-          role_type: formData.cg_role_type,
-          secondary_roles: formData.cg_secondary_roles,
-          years_experience: formData.cg_years_experience,
-          hourly_rate: formData.cg_hourly_rate ? parseInt(String(formData.cg_hourly_rate).replace(/[^0-9]/g, '')) : null,
-          logistics: formData.cg_logistics,
-          // Certs: rebuild object structure
-          certifications: formData.cg_certifications.map((name: string) => ({ name, verified: false })),
+      // EXECUTE UPDATES
+      // 1. Update Members Table (if memberUpdates has keys)
+      if (Object.keys(memberUpdates).length > 0) {
+        // Use UPDATE for safety to avoid wiping unspecified fields
+        const { error: updateError } = await supabase
+          .from('members')
+          .update(memberUpdates)
+          .eq('id', memberId);
 
-          availability_days: formData.cg_availability_days,
-          availability_blocks: formData.cg_availability_blocks,
+        if (updateError) throw updateError;
+      }
 
-          transportation: formData.cg_transportation,
-          languages: parseLanguages(formData.cg_languages),
-          age_groups: formData.cg_age_groups
-        };
-
+      // 2. Update Caregiver Profile (if cgUpdates has keys)
+      if (Object.keys(cgUpdates).length > 0) {
+        // ... (rest of logic same) ...
         const { error: cgError } = await supabase
           .from('caregiver_profiles')
           .update(cgUpdates)
-          .eq('user_id', viewer.member.id);
+          .eq('user_id', memberId);
 
         if (cgError) throw cgError;
       }
@@ -197,20 +232,67 @@ export default function Settings() {
     }
   };
 
-  if (loading || !viewer) {
-    return <div className="p-8 text-center text-[#1E6B4E]">Loading settings...</div>;
+  // REMOVED duplicate useViewer hook call here
+
+  // ... (rest of constants/hooks same)
+
+  // ... (rest of constants/hooks same)
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="p-8 text-center text-[#1E6B4E] animate-pulse">Loading settings...</div>
+      </div>
+    );
   }
 
-  const { member } = viewer;
+  if (error || !viewer) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6">
+        <div className="text-red-600 font-bold mb-4">Unable to load settings.</div>
+        <button
+          onClick={refresh}
+          className="px-6 py-2 bg-[#1E6B4E] text-white rounded-lg hover:bg-[#16503a]"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  const { member, user } = viewer; // Destructure user for auth email
   const isCaregiver = member.role === 'caregiver';
+
+  // Robust Email
+  const displayEmail = user?.email || member.email || "No email found";
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10 bg-[#FAF8F5] min-h-screen">
+
+      {/* ONBOARDING REMINDER BANNER */}
+      {!member.onboarding_complete && (
+        <div className="mb-8 p-6 bg-[#1E6B4E]/5 border-l-4 border-[#1E6B4E] rounded-r-xl flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="w-2 h-2 rounded-full bg-[#1E6B4E] shrink-0" />
+            <div>
+              <h3 className="font-bold text-[#1E6B4E] text-lg">Complete your profile</h3>
+              <p className="text-sm text-[#1E6B4E]/80">Finish onboarding to fully unlock your village.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/onboarding?step=0')}
+            className="px-5 py-2.5 bg-[#1E6B4E] text-white font-bold rounded-lg hover:bg-[#16523d] text-sm transition-all"
+          >
+            Continue Onboarding
+          </button>
+        </div>
+      )}
+
       <h1 className="text-3xl font-bold text-[#1E6B4E] mb-8 font-comfortaa">Settings</h1>
 
       {/* Tabs */}
       <div className="flex gap-6 border-b border-[#1E6B4E]/20 mb-8 overflow-x-auto">
-        {['profile', 'care', 'account'].map((tab) => (
+        {['profile', 'care', 'village', 'account'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveSection(tab as any)}
@@ -219,14 +301,14 @@ export default function Settings() {
               : 'text-[#1E6B4E]/60 hover:text-[#1E6B4E]'
               }`}
           >
-            {tab === 'care' ? (isCaregiver ? 'Experience & Logistics' : 'Family Needs') : tab}
+            {tab === 'care' ? (isCaregiver ? 'Experience & Logistics' : 'Family Needs') : (tab === 'village' ? 'Village Intent' : tab)}
           </button>
         ))}
       </div>
 
       {/* Notification */}
       {message && (
-        <div className={`mb-6 p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+        <div className={`mb-6 p-4 rounded-lg flex items-center gap-2 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-100' : 'bg-red-50 text-red-800 border border-red-100'}`}>
           {message.text}
         </div>
       )}
@@ -239,7 +321,7 @@ export default function Settings() {
           <div className="space-y-8">
             <div>
               <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Email Address</label>
-              <div className="text-lg text-[#1E6B4E] font-medium">{member.email}</div>
+              <div className="text-lg text-[#1E6B4E] font-medium">{displayEmail}</div>
               <p className="text-xs text-[#1E6B4E]/50 mt-1">Contact support to change email.</p>
             </div>
 
@@ -570,6 +652,50 @@ export default function Settings() {
                 className="px-8 py-3 bg-[#1E6B4E] text-white font-bold rounded-full hover:bg-[#16523d] transition-colors disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Save Details'}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* VILLAGE INTENT SECTION */}
+        {activeSection === 'village' && (
+          <form onSubmit={(e) => { e.preventDefault(); handleSave('village'); }} className="space-y-8">
+            <div className="text-sm text-[#1E6B4E]/70 mb-4 italic">
+              Opeari is about give and take. Use this section for neighborly help (meal trains, carpools) rather than professional care.
+            </div>
+
+            <ChipMultiSelect
+              label="Support I can OFFER"
+              options={VILLAGE_SUPPORT_OPTIONS}
+              selected={formData.support_offered}
+              onChange={(vals) => setFormData({ ...formData, support_offered: vals })}
+            />
+
+            <ChipMultiSelect
+              label="Support I NEED"
+              options={VILLAGE_SUPPORT_OPTIONS}
+              selected={formData.support_needed}
+              onChange={(vals) => setFormData({ ...formData, support_needed: vals })}
+            />
+
+            <div>
+              <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Additional Notes / Other Ideas</label>
+              <textarea
+                value={formData.support_notes}
+                onChange={(e) => setFormData({ ...formData, support_notes: e.target.value })}
+                rows={4}
+                className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
+                placeholder="I can also bake bread on weekends..."
+              />
+            </div>
+
+            <div className="pt-4 flex justify-end">
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-8 py-3 bg-[#1E6B4E] text-white font-bold rounded-full hover:bg-[#16523d] transition-colors disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save Intent'}
               </button>
             </div>
           </form>

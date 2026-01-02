@@ -25,6 +25,9 @@ export default function Footer() {
                         <Link to="/terms" className="text-[#1E6B4E] hover:opacity-70 transition-opacity">
                             Terms
                         </Link>
+                        <Link to="/accessibility" className="text-[#1E6B4E] hover:opacity-70 transition-opacity">
+                            Accessibility
+                        </Link>
                     </nav>
 
                     {/* Copyright */}

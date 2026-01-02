@@ -42,3 +42,14 @@ export const CARE_TYPES = [
     { value: "backup", label: "Backup Care" },
     { value: "after_school", label: "After School" },
 ];
+
+export const VILLAGE_SUPPORT_OPTIONS = [
+    { value: "meal_train", label: "Meal Train / Prep" },
+    { value: "carpool", label: "Carpool / Rides" },
+    { value: "pet_care", label: "Pet Care" },
+    { value: "errands", label: "Errands" },
+    { value: "tutoring", label: "Homework / Tutoring" },
+    { value: "virtual", label: "Virtual Support" },
+    { value: "gear_swap", label: "Baby Gear Swap" },
+    { value: "advice", label: "Local Advice" },
+];

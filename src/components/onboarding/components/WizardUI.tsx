@@ -8,7 +8,7 @@ export const StepHeader = ({ title, subtitle }: { title: string, subtitle: React
     </div>
 );
 
-export const Input = ({ label, value, onChange, type = 'text', required, placeholder, subtext, maxLength }: any) => (
+export const Input = ({ label, value, onChange, onBlur, type = 'text', required, placeholder, subtext, maxLength }: any) => (
     <div className="w-full">
         <label className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">
             {label} {required && <span className="text-red-400">*</span>}
@@ -17,6 +17,7 @@ export const Input = ({ label, value, onChange, type = 'text', required, placeho
             type={type}
             value={value}
             onChange={e => onChange(e.target.value)}
+            onBlur={onBlur} // Added onBlur
             className="w-full px-4 py-3 border border-opeari-border/50 rounded-xl focus:ring-2 focus:ring-opeari-green focus:outline-none focus:border-transparent transition-all"
             placeholder={placeholder}
             maxLength={maxLength}
@@ -24,6 +25,52 @@ export const Input = ({ label, value, onChange, type = 'text', required, placeho
         {subtext && <p className="text-[11px] text-gray-500 mt-1">{subtext}</p>}
     </div>
 );
+
+export const PhoneInput = ({ label, value, onChange, required, placeholder }: any) => {
+
+    // Format: (555) 555-5555
+    const formatPhone = (input: string) => {
+        const clean = input.replace(/\D/g, '');
+        // Limit to 10 digits
+        const truncated = clean.substring(0, 10);
+
+        if (truncated.length > 6) {
+            return `(${truncated.slice(0, 3)}) ${truncated.slice(3, 6)}-${truncated.slice(6)}`;
+        } else if (truncated.length > 3) {
+            return `(${truncated.slice(0, 3)}) ${truncated.slice(3)}`;
+        } else if (truncated.length > 0) {
+            return `(${truncated}`;
+        }
+        return truncated;
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // If user is deleting, allow it. If adding, check length.
+        const newClean = e.target.value.replace(/\D/g, '');
+
+        // Prevent adding more if we already have 10 and user is trying to add digits
+        if (newClean.length > 10) return;
+
+        // Apply formatting
+        const formatted = formatPhone(newClean);
+        onChange(formatted);
+    };
+
+    return (
+        <div className="w-full">
+            <label className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">
+                {label} {required && <span className="text-red-400">*</span>}
+            </label>
+            <input
+                type="tel"
+                value={value || ''}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-opeari-border/50 rounded-xl focus:ring-2 focus:ring-opeari-green focus:outline-none focus:border-transparent transition-all placeholder:text-gray-300"
+                placeholder={placeholder || "(555) 555-5555"}
+            />
+        </div>
+    );
+};
 
 export const InfoBanner = ({ children }: { children: ReactNode }) => (
     <div className="bg-[#f0faf4] border-l-4 border-opeari-heading p-4 rounded-r-lg">
