@@ -294,11 +294,6 @@ export function useOnboarding() {
                     zip_code: data.zipCode,
                     neighborhood: data.neighborhood,
                     bio: data.bio, // Shared bio
-
-                    // VILLAGE INTENT (Canonical Persistence)
-                    support_needed: [],
-                    support_offered: [],
-                    support_notes: null
                 };
 
                 const { error: memberError } = await supabase
@@ -426,9 +421,7 @@ export function useOnboarding() {
 
                     // VILLAGE INTENT (Canonical Persistence)
                     // Currently populated via Settings, but seeded empty here to ensure column presence
-                    support_needed: [],
-                    support_offered: [],
-                    support_notes: null
+                    // Removed non-existent columns to prevent upsert failure
                 };
 
                 const { error } = await supabase
