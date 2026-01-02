@@ -24,7 +24,7 @@ export default function Waitlist() {
   const [instagram, setInstagram] = useState('')
   const [whyJoin, setWhyJoin] = useState('')
   const [honeypot, setHoneypot] = useState('')
-  const [touched, setTouched] = useState({ email: false, zip: false })
+  const [touched, setTouched] = useState({ email: false, zip: false, first: false, last: false })
 
   // UI state
   const [loading, setLoading] = useState(false)
@@ -338,8 +338,8 @@ export default function Waitlist() {
           </h1>
           <p className="text-base leading-relaxed text-[#527a6a] mb-6 max-w-[420px] mx-auto max-md:text-[0.95rem]">
             We're building a trusted network for families to share care and support. Secure your spot for early access.
-            {!success && <img src={heroImg} alt="Opeari Village" className="w-[180px] mx-auto mb-4 max-md:w-[140px] max-md:my-3" onError={(e) => (e.currentTarget.style.display = 'none')} />}
           </p>
+          {!success && <img src={heroImg} alt="Opeari Village" className="w-[180px] mx-auto mb-4 max-md:w-[140px] max-md:my-3" onError={(e) => (e.currentTarget.style.display = 'none')} />}
 
 
           {/* Trust Badges */}
@@ -406,7 +406,8 @@ export default function Waitlist() {
                     className={inputClass}
                     autoFocus
                     aria-required="true"
-                    aria-invalid={!firstName && touched.email ? 'true' : 'false'}
+                    onBlur={() => setTouched(prev => ({ ...prev, first: true }))}
+                    aria-invalid={!firstName && touched.first ? 'true' : 'false'}
                   />
                 </div>
                 <div className="mb-4">
@@ -420,7 +421,8 @@ export default function Waitlist() {
                     autoComplete="family-name"
                     className={inputClass}
                     aria-required="true"
-                    aria-invalid={!lastName && touched.email ? 'true' : 'false'}
+                    onBlur={() => setTouched(prev => ({ ...prev, last: true }))}
+                    aria-invalid={!lastName && touched.last ? 'true' : 'false'}
                   />
                 </div>
               </div>
