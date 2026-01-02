@@ -58,9 +58,30 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
 
   if (hideHeader) return null
 
+  const handleSkipClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const main = document.getElementById('main-content')
+    if (main) {
+      main.focus()
+      main.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  // Determine if we are on the waitlist page (public)
+  const isWaitlistPage = location.pathname === '/waitlist'
+
   return (
     <header className={headerClasses}>
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between relative">
+        {/* Skip Link */}
+        <a
+          href="#main-content"
+          onClick={handleSkipClick}
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-[#1e6b4e] focus:font-bold focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#1e6b4e]"
+        >
+          Skip to content
+        </a>
+
         {/* Logo */}
         <Link
           to={user && !forceGuest && !onboarding ? '/dashboard' : '/'}
@@ -80,6 +101,15 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
           >
             {loggingOut ? 'Signing out...' : 'Sign out'}
           </button>
+        ) : isWaitlistPage ? (
+          /* Waitlist Page Header (Minimal) */
+          user ? (
+            <div className="flex items-center gap-4">
+              <Link to="/dashboard" className="text-sm font-medium text-[#1E6B4E] hover:underline">Dashboard</Link>
+            </div>
+          ) : (
+            <Link to="/login" className="text-sm font-bold text-[#1E6B4E] hover:opacity-80">Login</Link>
+          )
         ) : user && !forceGuest ? (
           /* User Logged In */
           location.pathname !== '/onboarding' ? (

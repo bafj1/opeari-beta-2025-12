@@ -107,12 +107,8 @@ export default function OnboardingWizard() {
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 animate-fade-in text-center">
                     <div className="relative mb-8">
-                        <div className="w-32 h-32 rounded-full border-4 border-opeari-mint/30 animate-[spin_3s_linear_infinite]" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-24 h-24 bg-opeari-mint rounded-full flex items-center justify-center animate-pulse">
-                                <span className="text-2xl font-bold text-opeari-heading">Op</span>
-                            </div>
-                        </div>
+                        {/* Branded Loader: Simple Green Spinner */}
+                        <div className="w-16 h-16 border-4 border-[#1e6b4e]/20 border-t-[#1e6b4e] rounded-full animate-spin mx-auto" />
                     </div>
                     <h2 className="text-2xl font-bold text-opeari-heading mb-2">Building your village...</h2>
                     <p className="text-gray-500">Connecting you with neighbors.</p>

@@ -44,9 +44,17 @@ export function useOnboarding() {
 
                 // --- PHASE 2: RESTORE LOCAL STORAGE ---
                 const storageKey = `opeari_onboarding_progress_${user.id}`
+                const isInvite = searchParams.get('source') === 'invite' || searchParams.get('invite')
+
+                // If this is an invite flow, we skip restoring old progress to ensure they start fresh
+                // UNLESS they have completed onboarding before (handled by not showing onboarding at all typically, but good to be safe)
+                if (isInvite) {
+                    console.log('Invite flow detected: Skipping local storage restore to force fresh start.')
+                }
+
                 try {
                     const saved = localStorage.getItem(storageKey)
-                    if (saved) {
+                    if (saved && !isInvite) {
                         const parsed = JSON.parse(saved)
                         // Restore Data (Non-destructive patch)
                         if (parsed.data) {
@@ -397,7 +405,9 @@ export function useOnboarding() {
                     neighborhood: data.neighborhood,
 
                     role: 'family',
-                    care_types: data.careOptions,
+                    // care_types removed to prevent schema mismatch if column missing/renamed. 
+                    // Matches "Remove fields like vetting_*" approach for cleanliness.
+                    // care_types: data.careOptions,
 
                     // Mapped Arrays
                     children_age_groups: deriveAgeGroups(data.kids),

@@ -572,7 +572,7 @@ export default function Waitlist() {
                     id="urgency"
                     value={urgency}
                     onChange={(e) => setUrgency(e.target.value)}
-                    className={`${inputClass} cursor-pointer bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231e6b4e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")] bg-no-repeat bg-[right_16px_center] appearance-none`}
+                    className={`${inputClass} appearance-none cursor-pointer bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231e6b4e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")] bg-no-repeat bg-[right_14px_center] pr-10`}
                     aria-required="true"
                   >
                     <option value="">When do you need care?</option>
@@ -596,7 +596,7 @@ export default function Waitlist() {
                       setReferralSource(e.target.value)
                       if (e.target.value !== 'referral_code') setReferralName('')
                     }}
-                    className={`${inputClass} cursor-pointer bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231e6b4e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")] bg-no-repeat bg-[right_16px_center] appearance-none`}
+                    className={`${inputClass} appearance-none cursor-pointer bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231e6b4e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")] bg-no-repeat bg-[right_14px_center] pr-10`}
                     aria-required="true"
                   >
                     <option value="">Select...</option>
