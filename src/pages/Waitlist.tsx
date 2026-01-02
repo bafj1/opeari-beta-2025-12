@@ -510,10 +510,10 @@ export default function Waitlist() {
                         value={role.value}
                         checked={userType === role.value}
                         onChange={() => setUserType(role.value)}
-                        className="absolute opacity-0 peer"
+                        className="sr-only peer"
                       />
                       <div className={`border rounded-xl p-3 px-1 text-center transition-all h-full flex flex-col items-center justify-center min-h-[110px]
-                        peer-focus:ring-4 peer-focus:ring-[#1e6b4e]/30 peer-focus:border-[#1e6b4e]
+                        peer-focus-visible:ring-4 peer-focus-visible:ring-[#1e6b4e] peer-focus-visible:ring-offset-2
                         ${userType === role.value
                           ? 'border-[#1e6b4e] border-2 bg-[#d8f5e5] shadow-[0_2px_8px_rgba(30,107,78,0.15)]'
                           : 'border-[#c8e6d9] bg-white'}`}

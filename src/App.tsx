@@ -65,14 +65,16 @@ function App() {
               <Route path="/accessibility" element={<Accessibility />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/waitlist" element={<Waitlist />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/signin" element={<SignIn />} />
               <Route path="/invite" element={<Invite />} />
               <Route path="/admin-waitlist" element={<AdminWaitlist />} />
-              <Route path="/request-link" element={<RequestNewLink />} />
-              <Route path="/auth/confirm" element={<AuthCallback />} />
             </Route>
+
+            {/* AUTH ROUTES (Standalone - No Layout Wrapper) */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/request-link" element={<RequestNewLink />} />
+            <Route path="/auth/confirm" element={<AuthCallback />} />
 
             {/* ONBOARDING ROUTES (Protected but NOT AuthGated for completion) */}
             <Route element={

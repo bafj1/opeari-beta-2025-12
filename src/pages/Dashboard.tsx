@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import Header from '../components/common/Header'
 import DashboardHeader from '../components/Dashboard/DashboardHeader'
 import VillageRadar from '../components/Dashboard/VillageRadar'
 import SmartStack from '../components/Dashboard/SmartStack'
@@ -169,7 +168,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-opeari-bg pb-20">
-      <Header />
+
 
       <div className="max-w-6xl mx-auto px-4 pt-8">
         {/* 1. Header Section */}
