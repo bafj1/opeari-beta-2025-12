@@ -3,7 +3,13 @@ import { Check } from 'lucide-react';
 
 export const StepHeader = ({ title, subtitle }: { title: string, subtitle: ReactNode }) => (
     <div className="animate-fade-in">
-        <h2 className="text-2xl md:text-3xl font-bold text-opeari-heading mb-2">{title}</h2>
+        <h2
+            id="onboarding-step-title"
+            tabIndex={-1}
+            className="text-2xl md:text-3xl font-bold text-opeari-heading mb-2 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1e6b4e] rounded-sm"
+        >
+            {title}
+        </h2>
         <div className="text-gray-500">{subtitle}</div>
     </div>
 );

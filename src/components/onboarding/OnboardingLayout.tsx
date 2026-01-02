@@ -12,10 +12,22 @@ export default function OnboardingLayout({ children, step, intent }: OnboardingL
     const scrollRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to top when step changes
+    // Auto-scroll and focus when step changes
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTo({ top: 0, behavior: 'instant' });
         }
+
+        // Focus management: Move focus to the new step's title for SR announcement
+        requestAnimationFrame(() => {
+            const stepTitle = document.getElementById('onboarding-step-title');
+            if (stepTitle) {
+                stepTitle.focus();
+            } else {
+                // Fallback: focus container if title missing (less ideal but safe)
+                scrollRef.current?.focus();
+            }
+        });
     }, [step]);
 
     // Determine text based on intent
@@ -54,7 +66,7 @@ export default function OnboardingLayout({ children, step, intent }: OnboardingL
                         />
                     </div>
 
-                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 pt-8 md:p-12">
+                    <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 pt-8 md:p-12 focus:outline-none" tabIndex={-1}>
                         <div className="max-w-xl mx-auto space-y-8 min-h-[50vh]">
                             {/* Mobile Step 1 Illustration - Only show on relevant steps if needed, or keeping generic for now */}
                             {step === 1 && (
