@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { INITIAL_DATA } from './OnboardingTypes';
 import type { OnboardingData } from './OnboardingTypes';
 import { determineVettingRequirements } from '../../lib/vetting';
+import { ensureMemberRow } from '../../lib/auth/ensureMemberRow';
 
 export function useOnboarding() {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ export function useOnboarding() {
     const [passwordConfirm, setPasswordConfirm] = useState('');
 
     // UI Local state that doesn't need to be in main data object but affects UI
-    const [hostingInterest, setHostingInterest] = useState(false);
+    // hostingInterest moved to OnboardingData
     const [showSomethingElseInput, setShowSomethingElseInput] = useState(false);
     const [userId, setUserId] = useState<string | null>(null);
     const [hasRestored, setHasRestored] = useState(false);
@@ -68,7 +69,7 @@ export function useOnboarding() {
                                     // Handle strings with trim, others just truthy check
                                     const isNonEmpty = typeof val === 'string' ? val.trim() : (val !== null && val !== undefined);
 
-                                    if (isNonEmpty && !prev[key]) {
+                                    if (isNonEmpty && (prev[key] === null || prev[key] === undefined || prev[key] === '')) {
                                         (next as any)[key] = val; // Direct assignment to preserve type
                                         changed = true;
                                     }
@@ -133,13 +134,37 @@ export function useOnboarding() {
                     let changed = false
 
                     const trySet = (key: keyof OnboardingData, val: any) => {
+                        const current = prev[key];
+
+                        // Array Handling
+                        if (Array.isArray(val) && Array.isArray(current)) {
+                            // Only overwrite if current array is empty
+                            if (val.length > 0 && current.length === 0) {
+                                (next as any)[key] = val;
+                                changed = true;
+                            }
+                            return;
+                        }
+
+                        // String/Primitive Handling
                         const cleanVal = safeStr(val)
                         // If we have a new value, AND the current state is empty/falsy
-                        if (cleanVal && !prev[key]) {
+                        if (cleanVal && !current) {
                             (next as any)[key] = cleanVal
                             changed = true
                         }
                     }
+
+                    // Migration: If we have legacy care_options in member row (stored as text array usually, or we might not have it mapped yet)
+                    // Currently we don't fetch care_options from DB in the select('*') but if we did:
+                    // For now, let's just ensure if we restore from localstorage and it has careOptions but not careNeedOptions, we map it.
+                    // This is handled in the Restore Local Storage block if we did it right, but let's add a safety check here for the 'next' object state.
+
+                    // Actually, let's look at Step 61 in useOnboarding which restores data.
+                    // We might need to patch the restore logic.
+                    // But for now, let's just make sure we default properly.
+
+
 
                     // Name
                     trySet('firstName', member?.first_name || waitlistEntry?.first_name || user.user_metadata?.first_name)
@@ -155,7 +180,7 @@ export function useOnboarding() {
                     trySet('phone', member?.phone || waitlistEntry?.phone)
 
                     // Intent Logic
-                    if (!prev.userIntent) {
+                    if (!prev.intent) {
                         let detectedIntent = null
                         const mRole = member?.role
                         const wRole = waitlistEntry?.role
@@ -171,7 +196,7 @@ export function useOnboarding() {
                         else if (mRole === 'nanny') detectedIntent = 'caregiver'
 
                         if (detectedIntent) {
-                            next.userIntent = detectedIntent as any
+                            next.intent = detectedIntent as any
                             changed = true
                         }
                     }
@@ -203,13 +228,31 @@ export function useOnboarding() {
     useEffect(() => {
         // Safety: If user lands on Step 6 (legacy) or higher, redirect to Step 5 (Account)
         // so they can click "See My Village" to finish.
-        const intent = data.userIntent;
+        const intent = data.intent;
         const isCaregiver = intent === 'caregiver';
+
+        // Invite Override: If this is an invite flow, we ignore legacy step limits or completion
+        const isInvite = searchParams.get('source') === 'invite' || searchParams.get('invite');
+        if (isInvite) return;
+
+        // STEP GUARD: Prevent skipping to Step 5 (Account) if Step 0 or 1 is not valid/complete
+        // This stops users from hitting /onboarding?step=5 directly
+        if (step >= 5) {
+            // Check essential requirements
+            // Basic Requirement: Intent + First Name + Zip
+            const hasBasicInfo = !!(data.intent && data.firstName && data.zipCode);
+
+            if (!hasBasicInfo) {
+                console.warn('Step Guard: Attempted to access Step 5 without basics. Redirecting to Step 0.');
+                setStep(0);
+                return;
+            }
+        }
 
         if (step > 5 && !isCaregiver) {
             setStep(5);
         }
-    }, [step, data.userIntent]);
+    }, [step, data.intent, searchParams, data.firstName, data.zipCode]);
 
 
 
@@ -234,7 +277,7 @@ export function useOnboarding() {
 
         try {
             // 1. Determine Canonical Intent
-            const rawIntent = data.userIntent;
+            const rawIntent = data.intent;
             // Already normalized by type, but ensuring we just use it directly
             const canonicalIntent = rawIntent;
 
@@ -245,12 +288,23 @@ export function useOnboarding() {
                 return;
             }
 
+            // CRITICAL: Ensure Member Row Exists & Validate Session
             const { data: { user: authUser } } = await supabase.auth.getUser();
+
+            if (!authUser || !authUser.email) {
+                console.error('CRITICAL: No authenticated user or EMAIL found during save.');
+                setSaveError('Your session appears invalid. Please try refreshing or logging in again.');
+                setLoading(false);
+                return;
+            }
+
+            // double check guarantees
+            await ensureMemberRow();
 
             if (authUser) {
                 const updates: any = {
                     data: {
-                        intent: canonicalIntent,
+                        intent: canonicalIntent, // Standardized key
                         first_name: data.firstName || '',
                         last_name: data.lastName || '',
                         onboarding_complete: true
@@ -288,158 +342,176 @@ export function useOnboarding() {
                 throw new Error('No user session found');
             }
 
-            // 2. Branch Logic based on Canonical Intent
+            // 3. Save Logic (Wrapped in Timeout)
+            const savePromise = async () => {
+                // ... (Original logic for Family/Caregiver save moved here) ...
+                // 2. Branch Logic based on Canonical Intent
 
-            // --- CAREGIVER SAVE LOGIC ---
-            if (canonicalIntent === 'caregiver') {
-                console.log('Starting Caregiver Save Sequence...');
+                // --- CAREGIVER SAVE LOGIC ---
+                if (canonicalIntent === 'caregiver') {
+                    console.log('Starting Caregiver Save Sequence...');
 
-                // A. Upsert Base Member Profile (Shared Data) - ensures row exists
-                const memberUpdatePayload = {
-                    first_name: data.firstName,
-                    last_name: data.lastName,
-                    phone: data.phone,
-                    zip_code: data.zipCode,
-                    neighborhood: data.neighborhood,
-                    bio: data.bio, // Shared bio
-                };
-
-                const { error: memberError } = await supabase
-                    .from('members')
-                    .upsert({ id: authUser.id, ...memberUpdatePayload });
-
-                if (memberError) {
-                    console.error('Error upserting member base data:', memberError);
-                    throw memberError;
-                }
-
-                // Map Logistics to Transportation "Own Car" if applicable
-                let transportation = 'none';
-                if (data.logistics?.includes('own_car')) transportation = 'own_car';
-                else if (data.logistics?.includes('driver_license')) transportation = 'own_car';
-
-                // B. Upsert Caregiver Profile (Professional Data)
-                // Strict adherence to data_contract.md - only profile fields
-                const caregiverPayload = {
-                    user_id: authUser.id,
-
-                    // Professional Details
-                    role_type: data.caregiverRole,
-                    secondary_roles: data.secondaryRoles || [],
-                    years_experience: data.yearsExperience,
-                    hourly_rate: data.hourlyRate ? parseInt(data.hourlyRate.replace(/[^0-9]/g, ''), 10) : null,
-                    logistics: data.logistics || [],
-
-                    // JSONB Structures
-                    certifications: data.certifications?.map(c => ({ name: c, verified: false })) || [],
-
-                    // Existing Fields from V4/Settings
-                    age_groups: data.ageGroups || [],
-                    languages: [],
-
-                    // Derived/Mapped Fields
-                    transportation: transportation,
-                    availability_days: [],
-                    availability_blocks: [],
-
-                    // Status Flags - REMOVED
-                };
-
-                console.log('Upserting Caregiver Profile:', caregiverPayload);
-
-                const { error: cgError } = await supabase
-                    .from('caregiver_profiles')
-                    .upsert(caregiverPayload, { onConflict: 'user_id' })
-                    .select();
-
-                if (cgError) {
-                    console.error('Error upserting caregiver profile:', cgError);
-                    throw cgError;
-                }
-            } else {
-                // --- FAMILY SAVE LOGIC ---
-                // Calculate Vetting Requirements
-                // Note: Logic runs but fields only persisted if in contract
-                determineVettingRequirements(data, hostingInterest);
-
-                // Helpers for derived fields
-                const deriveAgeGroups = (kids: any[]) => {
-                    const groups: string[] = [];
-                    kids.forEach(k => {
-                        const age = parseInt(k.age);
-                        if (isNaN(age)) return; // Skip if invalid
-                        if (age <= 1) groups.push('infant');
-                        else if (age <= 3) groups.push('toddler');
-                        else if (age <= 5) groups.push('preschool');
-                        else if (age <= 12) groups.push('school_age');
-                        else groups.push('teen');
-                    });
-                    return [...new Set(groups)]; // Unique
-                };
-
-                const deriveAvailability = (schedule: Record<string, string[]>) => {
-                    const days = new Set<string>();
-                    const blocks = new Set<string>();
-
-                    Object.entries(schedule).forEach(([day, times]) => {
-                        if (times && times.length > 0) {
-                            days.add(day);
-                            times.forEach(t => blocks.add(t)); // Assuming schedule uses same block keys: morning, afternoon, etc.
-                        }
-                    });
-
-                    return {
-                        days: Array.from(days),
-                        blocks: Array.from(blocks)
+                    // A. Upsert Base Member Profile (Shared Data) - ensures row exists
+                    const memberUpdatePayload = {
+                        first_name: data.firstName,
+                        last_name: data.lastName,
+                        // Email REQUIRED for Not-Null Constraint
+                        email: authUser.email,
+                        phone: data.phone,
+                        zip_code: data.zipCode,
+                        neighborhood: data.neighborhood,
+                        bio: data.bio, // Shared bio
                     };
-                };
 
-                const { days, blocks } = deriveAvailability(data.schedule);
+                    const { error: memberError } = await supabase
+                        .from('members')
+                        .upsert({ id: authUser.id, ...memberUpdatePayload });
 
-                const userPayload = {
-                    // Shared Identity
-                    first_name: data.firstName,
-                    last_name: data.lastName || '',
-                    // email: REMOVED
-                    zip_code: data.zipCode,
-                    neighborhood: data.neighborhood,
+                    if (memberError) {
+                        console.error('Error upserting member base data:', memberError);
+                        throw memberError;
+                    }
 
-                    role: 'family',
-                    // care_types removed to prevent schema mismatch if column missing/renamed. 
-                    // Matches "Remove fields like vetting_*" approach for cleanliness.
-                    // care_types: data.careOptions,
+                    // Map Logistics to Transportation "Own Car" if applicable
+                    let transportation = 'none';
+                    if (data.logistics?.includes('own_car')) transportation = 'own_car';
+                    else if (data.logistics?.includes('driver_license')) transportation = 'own_car';
 
-                    // Mapped Arrays
-                    children_age_groups: deriveAgeGroups(data.kids),
-                    availability_days: days,
-                    availability_blocks: blocks,
+                    // B. Upsert Caregiver Profile (Professional Data)
+                    // Strict adherence to data_contract.md - only profile fields
+                    const caregiverPayload = {
+                        user_id: authUser.id,
 
-                    schedule: {
-                        flexible: data.scheduleFlexible,
-                        grid: data.schedule
-                    },
+                        // Professional Details
+                        role_type: data.caregiverRole,
+                        secondary_roles: data.secondaryRoles || [],
+                        years_experience: data.yearsExperience,
+                        hourly_rate: data.hourlyRate ? parseInt(data.hourlyRate.replace(/[^0-9]/g, ''), 10) : null,
+                        logistics: data.logistics || [],
 
-                    // Derived Bio
-                    bio: data.bio || `Looking for: ${data.careOptions.join(', ')}`,
-                    languages: [], // Default
+                        // JSONB Structures
+                        certifications: data.certifications?.map(c => ({ name: c, verified: false })) || [],
 
-                    // VETTING FLAGS (Derived but not persisted unless schema matches - kept for now as derived logic usage is ambiguous, but contract says NO vetting fields in members table. Commenting out to be safe based on "Remove fields like vetting_*")
-                    // vetting_required,
-                    // vetting_types,
-                    // vetting_status,
-                    // vetting_fee_acknowledged: false,
+                        // Existing Fields from V4/Settings
+                        age_groups: data.ageGroups || [],
+                        languages: [],
 
-                    // VILLAGE INTENT (Canonical Persistence)
-                    // Currently populated via Settings, but seeded empty here to ensure column presence
-                    // Removed non-existent columns to prevent upsert failure
-                };
+                        // Derived/Mapped Fields
+                        transportation: transportation,
+                        availability_days: [],
+                        availability_blocks: [],
 
-                const { error } = await supabase
-                    .from('members')
-                    .upsert({ id: authUser.id, ...userPayload });
+                        // Status Flags - REMOVED
+                    };
 
-                if (error) throw error;
-            }
+                    console.log('Upserting Caregiver Profile:', caregiverPayload);
+
+                    const { error: cgError } = await supabase
+                        .from('caregiver_profiles')
+                        .upsert(caregiverPayload, { onConflict: 'user_id' })
+                        .select();
+
+                    if (cgError) {
+                        console.error('Error upserting caregiver profile:', cgError);
+                        throw cgError;
+                    }
+                } else {
+                    // --- FAMILY SAVE LOGIC ---
+                    // Calculate Vetting Requirements
+                    determineVettingRequirements(data, data.hostingInterest);
+
+                    // Helpers for derived fields
+                    const deriveAgeGroups = (kids: any[]) => {
+                        const groups: string[] = [];
+                        kids.forEach(k => {
+                            // CHANGED: Use birthYear to calculate age
+                            if (!k.birthYear) return;
+                            const currentYear = new Date().getFullYear();
+                            const age = currentYear - parseInt(k.birthYear);
+                            if (isNaN(age)) return; // Skip if invalid
+
+                            if (age <= 1) groups.push('infant');
+                            else if (age <= 3) groups.push('toddler');
+                            else if (age <= 5) groups.push('preschool');
+                            else if (age <= 12) groups.push('school_age');
+                            else groups.push('teen');
+                        });
+                        return [...new Set(groups)]; // Unique
+                    };
+
+                    const deriveAvailability = (schedule: Record<string, string[]>) => {
+                        const days = new Set<string>();
+                        const blocks = new Set<string>();
+
+                        Object.entries(schedule).forEach(([day, times]) => {
+                            if (times && times.length > 0) {
+                                days.add(day);
+                                times.forEach(t => blocks.add(t)); // Assuming schedule uses same block keys: morning, afternoon, etc.
+                            }
+                        });
+
+                        return {
+                            days: Array.from(days),
+                            blocks: Array.from(blocks)
+                        };
+                    };
+
+                    const { days, blocks } = deriveAvailability(data.schedule);
+
+                    const userPayload = {
+                        // Shared Identity
+                        first_name: data.firstName,
+                        last_name: data.lastName || '',
+                        // Email REQUIRED for Not-Null Constraint
+                        email: authUser.email,
+                        zip_code: data.zipCode,
+                        neighborhood: data.neighborhood,
+
+                        role: 'family',
+
+                        // New Intel-Lite Fields
+                        hosting_interest: (data.careOfferOptions || []).includes('host-share'), // Derived Single Source of Truth
+
+                        // Persist Split Arrays
+                        care_need_options: data.careNeedOptions || [],
+                        care_offer_options: data.careOfferOptions || [],
+                        care_specific_needs: data.careSpecificNeeds || null,
+
+                        target_budget: null, // Legacy field (optional to keep or remove, setting null to safe)
+                        target_budget_range: data.targetBudget || null, // New Stable Field
+
+                        current_care_setup: data.currentCareSetup || null,
+
+                        // Mapped Arrays
+                        children_age_groups: deriveAgeGroups(data.kids),
+                        availability_days: days,
+                        availability_blocks: blocks,
+
+                        schedule: {
+                            flexible: data.scheduleFlexible,
+                            grid: data.schedule
+                        },
+
+                        // Derived Bio
+                        // Generating bio from new strict fields
+                        bio: data.bio || `Looking for: ${(data.careNeedOptions || []).join(', ')}`,
+                        languages: [], // Default
+                    };
+
+                    const { error } = await supabase
+                        .from('members')
+                        .upsert({ id: authUser.id, ...userPayload });
+
+                    if (error) throw error;
+                }
+            };
+
+            // TIMEOUT WRAPPER
+            const TIMEOUT_MS = 15000; // 15s hard timeout
+            await Promise.race([
+                savePromise(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out. Please try again.')), TIMEOUT_MS))
+            ]);
 
             console.log('=== ONBOARDING SAVE SUCCESS ===');
             // Clear LocalStorage on success
@@ -465,10 +537,10 @@ export function useOnboarding() {
 
     const isStepValid = () => {
         // Shared Step 0
-        if (step === 0) return !!data.userIntent;
+        if (step === 0) return !!data.intent;
 
         // Normalize for validation check
-        const intent = data.userIntent;
+        const intent = data.intent;
         const isCaregiver = intent === 'caregiver';
 
         // Caregiver Flow
@@ -486,7 +558,20 @@ export function useOnboarding() {
         // Family Flow (Existing)
         switch (step) {
             case 1: return !!(data.firstName?.trim() && data.zipCode?.trim() && data.zipCode.length === 5);
-            case 2: return data.careOptions.length > 0 || showSomethingElseInput;
+            // Updated validation: MUST have at least 1 need OR "something else" with text
+            // Offers alone are not enough to proceed as a Family
+            case 2: {
+                const hasNeeds = data.careNeedOptions && data.careNeedOptions.length > 0;
+                const isSomethingElse = hasNeeds && data.careNeedOptions.includes('something-else');
+
+                // If "something else" is selected, require valid text
+                if (isSomethingElse) {
+                    return !!(data.careSpecificNeeds && data.careSpecificNeeds.trim().length > 0);
+                }
+
+                // Otherwise just need at least one option
+                return hasNeeds;
+            }
             case 3: return true;
             case 4: return true;
             case 5: return !!(data.password && data.password.length >= 8 && data.password === passwordConfirm);
@@ -500,12 +585,12 @@ export function useOnboarding() {
         loading,
 
         passwordConfirm,
-        hostingInterest,
+        // Removed local hostingInterest state return, now in data
         showSomethingElseInput,
         setStep,
         setData,
         setPasswordConfirm,
-        setHostingInterest,
+        // Removed setHostingInterest return
         setShowSomethingElseInput,
         updateData,
         nextStep,

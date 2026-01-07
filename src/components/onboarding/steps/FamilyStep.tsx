@@ -30,9 +30,12 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
                             updatedKids.splice(idx, 1);
                             updateData('kids', updatedKids);
                         }}
-                        className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
+                        className="absolute top-3 right-3 text-gray-400 hover:text-red-500 flex items-center justify-center w-6 h-6 rounded-full hover:bg-red-50 transition-colors"
                         aria-label={`Remove child ${idx + 1}`}
-                    >✕</button>
+                    >
+                        {/* Replaced unicode X with SVG for accessiblity/style */}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                     <h4 className="font-bold text-opeari-heading mb-3 uppercase tracking-wide text-xs">Child {idx + 1}</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
@@ -46,14 +49,14 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
                             }}
                         />
                         <div>
-                            <label htmlFor={`kid-age-${kid.id}`} className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">Year Born</label>
+                            <label htmlFor={`kid-birthYear-${kid.id}`} className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">Year Born</label>
                             <div className="relative">
                                 <select
-                                    id={`kid-age-${kid.id}`}
-                                    value={kid.age}
+                                    id={`kid-birthYear-${kid.id}`}
+                                    value={kid.birthYear}
                                     onChange={e => {
                                         const updatedKids = [...data.kids];
-                                        updatedKids[idx].age = e.target.value;
+                                        updatedKids[idx].birthYear = e.target.value;
                                         updateData('kids', updatedKids);
                                     }}
                                     className="w-full px-4 py-3 border border-gray-200/50 rounded-xl bg-white appearance-none focus:ring-2 focus:ring-opeari-green focus:outline-none"
@@ -70,14 +73,14 @@ export default function FamilyStep({ data, updateData }: FamilyStepProps) {
 
             {/* Add Child Button */}
             <button
-                onClick={() => updateData('kids', [...data.kids, { id: Math.random().toString(), firstName: '', nickname: '', age: '' }])}
+                onClick={() => updateData('kids', [...data.kids, { id: crypto.randomUUID(), firstName: '', nickname: '', birthYear: '' }])}
                 className="w-full py-3 border-2 border-dashed border-opeari-mint text-[#1e6b4e] font-bold rounded-xl hover:bg-[#e8f5f0] hover:border-[#1e6b4e] transition-all"
             >
                 + Add Child
             </button>
 
             {/* Expecting */}
-            <div className="mt-6 pt-6 border-t border-gray-100">
+            <div className="mt-2 pt-6 border-t border-gray-100">
                 <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${data.expecting ? 'border-[#1e6b4e] bg-[#f0faf4]' : 'border-gray-200'}`}>
                     <input type="checkbox" checked={data.expecting} onChange={e => updateData('expecting', e.target.checked)} className="sr-only" />
                     <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${data.expecting ? 'bg-[#1e6b4e] border-[#1e6b4e]' : 'bg-white border-gray-300'}`}>

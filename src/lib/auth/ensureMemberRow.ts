@@ -10,9 +10,9 @@ export async function ensureMemberRow() {
         // 1. Get current user
         const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-        if (authError || !user) {
-            console.error('ensureMemberRow: No authenticated user found.');
-            return { success: false, error: authError || new Error('No user') };
+        if (authError || !user || !user.email) {
+            console.error('ensureMemberRow: No authenticated user or EMAIL found.');
+            return { success: false, error: authError || new Error('No user or email') };
         }
 
         const userId = user.id;
@@ -22,7 +22,7 @@ export async function ensureMemberRow() {
         // 2. Check if member exists
         const { data: existing, error: fetchError } = await supabase
             .from('members')
-            .select('id')
+            .select('id, email')
             .eq('id', userId)
             .maybeSingle();
 
@@ -31,8 +31,12 @@ export async function ensureMemberRow() {
             throw fetchError;
         }
 
-        // 3. If exists, do nothing
+        // 3. If exists, ensure EMAIL is backfilled if missing (Defensive Sync)
         if (existing) {
+            if (!existing.email && email) {
+                console.log('ensureMemberRow: Backfilling missing email for existing member');
+                await supabase.from('members').update({ email }).eq('id', userId);
+            }
             return { success: true, created: false };
         }
 
@@ -58,12 +62,13 @@ export async function ensureMemberRow() {
             }
         }
 
-        // Zip Code Default
+        // Zip Code Default - Use '00000' as safe DB default if metadata missing
+        // This is better than failing insert. User can update in Onboarding/Settings.
         const zipCode = metadata.zip_code || '00000';
 
         const payload = {
             id: userId,
-            email: email,
+            email: email, // STRICTLY ENFORCED
             first_name: firstName,
             last_name: lastName,
             role: role,

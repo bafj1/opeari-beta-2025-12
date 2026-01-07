@@ -34,12 +34,12 @@ export interface MatchReason {
 export interface UserProfile {
     id: string
     schedule: Schedule
-    location: string
     neighborhood: string
     nanny_situation: string
     kids: Kid[]
     invited_by: string | null
     care_timeline?: string
+    zip_code?: string
 }
 
 // --- Logic ---

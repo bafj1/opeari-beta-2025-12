@@ -70,6 +70,7 @@ export default function Settings() {
 
   // Form State - Initialize from viewer when loaded
   const [formData, setFormData] = useState<any>({});
+  const [showScheduleWarning, setShowScheduleWarning] = useState(false);
 
   // Initialize form data when viewer loads or refreshes
   useEffect(() => {
@@ -175,6 +176,15 @@ export default function Settings() {
             require_background_verified: formData.require_background_verified,
             language_requirement: formData.language_requirement
           };
+
+          // SCHEDULE CONTRACT: If days/blocks change, reset the detailed grid
+          const daysChanged = JSON.stringify(formData.availability_days) !== JSON.stringify(viewer.member.availability_days || []);
+          const blocksChanged = JSON.stringify(formData.availability_blocks) !== JSON.stringify(viewer.member.availability_blocks || []);
+
+          if (daysChanged || blocksChanged) {
+            memberUpdates.schedule = {};
+            setShowScheduleWarning(true); // Show warning if schedule is reset
+          }
         }
         // Caregiver: Update Caregiver Profile fields
         else {
@@ -195,6 +205,22 @@ export default function Settings() {
             languages: parseLanguages(formData.cg_languages),
             age_groups: formData.cg_age_groups
           };
+
+          // Caregiver Schedule Contract
+          const cgDaysChanged = JSON.stringify(formData.cg_availability_days) !== JSON.stringify(viewer.caregiverProfile?.availability_days || []);
+          const cgBlocksChanged = JSON.stringify(formData.cg_availability_blocks) !== JSON.stringify(viewer.caregiverProfile?.availability_blocks || []);
+
+          // Note: Caregivers currently store schedule in `members.schedule` or `caregiver_profiles`? 
+          // `useOnboarding` writes `schedule` to `members`. `BuildYourVillage` reads `members.schedule`.
+          // `Settings` maps `cg_availability_days` to `caregiver_profiles`.
+          // This reveals a split brain. `members` has the grid. `caregiver_profiles` has the tags.
+          // For now, if caregiver changes tags, we should probably update `members.schedule` too to be empty?
+          // Since `handleSave` separates `memberUpdates` and `cgUpdates`, we need to add to `memberUpdates` if we want to clear key `schedule`.
+
+          if (cgDaysChanged || cgBlocksChanged) {
+            memberUpdates.schedule = {}; // Clear the detailed grid on members table to ensure sync
+            setShowScheduleWarning(true); // Show warning if schedule is reset
+          }
         }
       }
 
@@ -310,6 +336,15 @@ export default function Settings() {
       {message && (
         <div className={`mb-6 p-4 rounded-lg flex items-center gap-2 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-100' : 'bg-red-50 text-red-800 border border-red-100'}`}>
           {message.text}
+        </div>
+      )}
+
+      {showScheduleWarning && (
+        <div className="mb-6 p-4 rounded-lg bg-yellow-50 text-yellow-800 border border-yellow-100 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M8.257 3.099c.765-1.542 2.705-1.542 3.47 0l5.58 11.25A1.5 1.5 0 0117.37 17H2.63a1.5 1.5 0 01-1.381-2.651l5.58-11.25zM10 13a1 1 0 100-2 1 1 0 000 2zm-1-3a1 1 0 112 0v2a1 1 0 11-2 0V10z" clipRule="evenodd" />
+          </svg>
+          Your detailed schedule grid has been reset due to changes in availability days or time blocks. Please update it if needed.
         </div>
       )}
 
@@ -560,42 +595,47 @@ export default function Settings() {
             ) : (
               // FAMILY FORM
               <div className="space-y-6">
-                <ChipMultiSelect
-                  label="Care Type Needed"
-                  options={CARE_TYPES}
-                  selected={formData.care_types}
-                  onChange={(vals) => setFormData({ ...formData, care_types: vals })}
-                />
-                <ChipMultiSelect
-                  label="Children Age Groups"
-                  options={AGE_GROUPS}
-                  selected={formData.children_age_groups}
-                  onChange={(vals) => setFormData({ ...formData, children_age_groups: vals })}
-                />
-                <ChipMultiSelect
-                  label="Days Needed"
-                  options={DAYS_OPTIONS}
-                  selected={formData.availability_days}
-                  onChange={(vals) => setFormData({ ...formData, availability_days: vals })}
-                />
-                <ChipMultiSelect
-                  label="Time Blocks"
-                  options={BLOCKS_OPTIONS}
-                  selected={formData.availability_blocks}
-                  onChange={(vals) => setFormData({ ...formData, availability_blocks: vals })}
-                />
-                <ChipMultiSelect
-                  label="Budget per Hour"
-                  options={BUDGET_TIERS}
-                  selected={formData.budget_tiers}
-                  onChange={(vals) => setFormData({ ...formData, budget_tiers: vals })}
-                />
-                <ChipMultiSelect
-                  label="Special Requirements"
-                  options={SPECIAL_OPTIONS}
-                  selected={formData.special_availability}
-                  onChange={(vals) => setFormData({ ...formData, special_availability: vals })}
-                />
+                <div className="p-4 bg-white border border-[#1E6B4E]/10 rounded-xl space-y-4">
+                  <ChipMultiSelect
+                    label="Care Type Needed"
+                    options={CARE_TYPES}
+                    selected={formData.care_types}
+                    onChange={(vals) => setFormData({ ...formData, care_types: vals })}
+                  />
+                  <ChipMultiSelect
+                    label="Children Age Groups"
+                    options={AGE_GROUPS}
+                    selected={formData.children_age_groups}
+                    onChange={(vals) => setFormData({ ...formData, children_age_groups: vals })}
+                  />
+                  <ChipMultiSelect
+                    label="Budget per Hour"
+                    options={BUDGET_TIERS}
+                    selected={formData.budget_tiers}
+                    onChange={(vals) => setFormData({ ...formData, budget_tiers: vals })}
+                  />
+                </div>
+
+                <div className="p-4 bg-white border border-[#1E6B4E]/10 rounded-xl space-y-4">
+                  <ChipMultiSelect
+                    label="Days Needed"
+                    options={DAYS_OPTIONS}
+                    selected={formData.availability_days}
+                    onChange={(vals) => setFormData({ ...formData, availability_days: vals })}
+                  />
+                  <ChipMultiSelect
+                    label="Time Blocks"
+                    options={BLOCKS_OPTIONS}
+                    selected={formData.availability_blocks}
+                    onChange={(vals) => setFormData({ ...formData, availability_blocks: vals })}
+                  />
+                  <ChipMultiSelect
+                    label="Special Requirements"
+                    options={SPECIAL_OPTIONS}
+                    selected={formData.special_availability}
+                    onChange={(vals) => setFormData({ ...formData, special_availability: vals })}
+                  />
+                </div>
 
                 <div className="p-4 bg-white border border-[#1E6B4E]/10 rounded-xl space-y-4">
                   <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase">Additional Requirements</label>

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
+import { ensureMemberRow } from '../lib/auth/ensureMemberRow'
 
 interface AuthContextType {
   user: User | null
@@ -25,27 +26,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Clear invalid session
         setSession(null)
         setUser(null)
+        setLoading(false)
       } else {
         setSession(session)
         setUser(session?.user ?? null)
+
+        // GUARANTEE MEMBER ROW ON INIT
+        if (session?.user) {
+          ensureMemberRow().finally(() => setLoading(false))
+        } else {
+          setLoading(false)
+        }
       }
-      setLoading(false)
     })
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed:', event)
 
         if (event === 'SIGNED_OUT') {
           // Explicitly clear state on signout
           setSession(null)
           setUser(null)
+          setLoading(false)
         } else {
           setSession(session)
           setUser(session?.user ?? null)
+
+          // GUARANTEE MEMBER ROW ON CHANGE
+          if (session?.user) {
+            await ensureMemberRow()
+          }
+          setLoading(false)
         }
-        setLoading(false)
       }
     )
 

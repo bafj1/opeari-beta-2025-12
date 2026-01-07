@@ -2,7 +2,7 @@ export interface Child {
     id: string
     firstName: string
     nickname: string
-    age: string
+    birthYear: string // Changed from age to birthYear
     month?: string
 }
 
@@ -12,17 +12,31 @@ export interface OnboardingData {
     email: string
     zipCode: string
     neighborhood: string
-    careOptions: string[]
-    specificNeeds?: string
+    // careOptions: string[] // Deprecated
+    careNeedOptions: string[]
+    careOfferOptions: string[]
+    careSpecificNeeds?: string // Renamed from specificNeeds to match usage if needed, or alias
+    // actually usage in CareNeedsStep uses 'careSpecificNeeds'. 
+    // The previous interface had 'specificNeeds'.
+    // Let's unify to 'careSpecificNeeds' as used in new CareNeedsStep code.
     scheduleFlexible: boolean
     schedule: Record<string, string[]>
     kids: Child[]
     expecting: boolean
     expectingTiming?: string
     password?: string
-    userIntent?: 'family' | 'caregiver' | null
+
+    // Critical Data Consistency Updates
+    intent: 'family' | 'caregiver' | null // Renamed from userIntent
+    hostingInterest: boolean // Moved from local state to persisted data
+
+    // Intel-Lite Fields
+    targetBudget: string; // Range bucket e.g. "$25-30"
+    currentCareSetup: string;
+
     caregiverWorkTypes: string[]
     readyToStart: boolean
+
     // Caregiver Specific
     phone?: string
     contactTime?: string
@@ -48,14 +62,22 @@ export const INITIAL_DATA: OnboardingData = {
     email: '',
     zipCode: '',
     neighborhood: '',
-    careOptions: [],
+    // careOptions: [],
+    careNeedOptions: [],
+    careOfferOptions: [],
+    careSpecificNeeds: '',
     scheduleFlexible: true,
     schedule: {},
     kids: [],
     expecting: false,
     expectingTiming: '',
     password: '',
-    userIntent: null,
+
+    intent: null,
+    hostingInterest: false,
+    targetBudget: '',
+    currentCareSetup: '',
+
     caregiverWorkTypes: [],
     readyToStart: false,
     phone: '',

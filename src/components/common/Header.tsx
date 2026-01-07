@@ -84,7 +84,7 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
 
         {/* Logo */}
         <Link
-          to={user && !forceGuest && !onboarding ? '/dashboard' : '/'}
+          to={user && !forceGuest && !onboarding ? '/feed' : '/'}
           className={`flex items-center gap-2 transition-opacity focus:outline-none decoration-transparent ${onboarding ? 'pointer-events-none' : 'hover:opacity-80'}`}
         >
           <img src="/icon.svg" alt="" className="h-7 w-7 sm:h-8 sm:w-8" />
@@ -105,7 +105,7 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
           /* Waitlist Page Header (Minimal) */
           user ? (
             <div className="flex items-center gap-4">
-              <Link to="/dashboard" className="text-sm font-medium text-[#1E6B4E] hover:underline">Dashboard</Link>
+              <Link to="/feed" className="text-sm font-medium text-[#1E6B4E] hover:underline">Home</Link>
             </div>
           ) : (
             <Link to="/login" className="text-sm font-bold text-[#1E6B4E] hover:opacity-80">Login</Link>
@@ -118,14 +118,24 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
               <div className="hidden sm:flex items-center gap-6">
                 <nav className="flex items-center gap-6">
                   <Link
-                    to="/dashboard"
-                    className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/dashboard')
+                    to="/feed"
+                    className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/feed')
                       ? 'text-opeari-heading font-bold'
                       : 'text-opeari-text-secondary hover:text-opeari-heading'
                       }`}
                   >
-                    Dashboard
+                    Home
                   </Link>
+                  {/* <Link
+                    to="/village"
+                    className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/village')
+                      ? 'text-opeari-heading font-bold'
+                      : 'text-opeari-text-secondary hover:text-opeari-heading'
+                      }`}
+                  >
+                    Village
+                  </Link> */}
+
                 </nav>
 
                 {/* Profile Dropdown (Desktop Only) */}
@@ -212,14 +222,24 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
               {menuOpen && (
                 <div className="absolute top-full left-0 w-full bg-white border-b border-opeari-border shadow-[0_4px_24px_rgba(30,107,78,0.15)] p-4 flex flex-col gap-1 sm:hidden animate-in slide-in-from-top-2 duration-200">
                   <Link
-                    to="/dashboard"
+                    to="/feed"
                     onClick={() => setMenuOpen(false)}
-                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/dashboard')
+                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/feed')
                       ? 'bg-opeari-mint text-opeari-heading font-bold'
                       : 'text-opeari-text hover:bg-opeari-mint/50'
                       }`}
                   >
-                    Dashboard
+                    Home
+                  </Link>
+                  {/* <Link
+                    to="/village"
+                    onClick={() => setMenuOpen(false)}
+                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/village')
+                      ? 'bg-opeari-mint text-opeari-heading font-bold'
+                      : 'text-opeari-text hover:bg-opeari-mint/50'
+                      }`}
+                  >
+                    Village
                   </Link>
                   <Link
                     to="/build-your-village"
@@ -240,7 +260,7 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                       }`}
                   >
                     My Village
-                  </Link>
+                  </Link> */}
                   <Link
                     to="/messages"
                     onClick={() => setMenuOpen(false)}
@@ -285,9 +305,6 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
         ) : (
 
           <nav className="flex items-center gap-3 sm:gap-6">
-            <Link to="/about" className="hidden sm:block text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
-              About
-            </Link>
             <Link to="/why-opeari" className="hidden sm:block text-[#1E6B4E] text-sm font-medium hover:opacity-70 transition-opacity">
               Why Opeari
             </Link>

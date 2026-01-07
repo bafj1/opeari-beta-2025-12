@@ -9,11 +9,12 @@ import MarketingLayout from './layouts/MarketingLayout';
 import AppLayout from './layouts/AppLayout';
 import RequireAuth from './components/auth/RequireAuth';
 import RequireOnboardingComplete from './components/auth/RequireOnboardingComplete';
+import DevDebugPanel from './components/dev/DevDebugPanel';
 
 // Lazy load pages for performance
 const Home = lazy(() => import('./pages/Home'));
 const HowItWorks = lazy(() => import('./pages/HowItWorks'));
-const About = lazy(() => import('./pages/About'));
+
 const WhyOpeari = lazy(() => import('./pages/WhyOpeari'));
 const FAQ = lazy(() => import('./pages/FAQ'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -36,9 +37,13 @@ const CaregiverInterest = lazy(() => import('./pages/CaregiverInterest'));
 const VerificationGate = lazy(() => import('./pages/VerificationGate'));
 const OnboardingSuccess = lazy(() => import('./pages/OnboardingSuccess'));
 
-// Dashboard & Features
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const BuildYourVillage = lazy(() => import('./pages/BuildYourVillage'));
+// V1 Feed Pivot
+const Feed = lazy(() => import('./pages/Feed/Feed'));
+
+// Legacy / Future Features (Hidden for V1 Feed Pivot)
+// const Dashboard = lazy(() => import('./pages/Dashboard'));
+// const Matches = lazy(() => import('./pages/Matches')); 
+const Village = lazy(() => import('./pages/Village')); // Leaving reachable for dev but hidden from nav
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const MemberProfile = lazy(() => import('./pages/MemberProfile'));
@@ -57,7 +62,7 @@ function App() {
             <Route element={<MarketingLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/about" element={<About />} />
+
               <Route path="/why-opeari" element={<WhyOpeari />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/terms" element={<Terms />} />
@@ -66,7 +71,6 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/waitlist" element={<Waitlist />} />
               <Route path="/invite" element={<Invite />} />
-              <Route path="/admin-waitlist" element={<AdminWaitlist />} />
             </Route>
 
             {/* AUTH ROUTES (Standalone - No Layout Wrapper) */}
@@ -102,6 +106,7 @@ function App() {
 
             {/* APP ROUTES (Authenticated) */}
             <Route element={<RequireAuth />}>
+              <Route path="/admin-waitlist" element={<AdminWaitlist />} />
               <Route element={<AppLayout />}>
 
                 {/* 1. Accessible Restricted Routes (No Onboarding Check) */}
@@ -110,9 +115,15 @@ function App() {
 
                 {/* 2. Accessible Core App (Require Onboarding Complete) */}
                 <Route element={<RequireOnboardingComplete />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
+
+                  {/* V1 FEED PIVOT: Feed is the main authenticated experience */}
+                  <Route path="/feed" element={<Feed />} />
+                  <Route path="/dashboard" element={<Navigate to="/feed" replace />} /> {/* Redirect old dashboard */}
+
+                  {/* Other routes accessible but hidden from nav */}
                   <Route path="/nanny-share" element={<NannyShare />} />
-                  <Route path="/build-your-village" element={<BuildYourVillage />} />
+                  <Route path="/matches" element={<Navigate to="/feed" replace />} />
+                  <Route path="/build-your-village" element={<Navigate to="/feed" replace />} />
                   <Route path="/member/:id" element={<MemberProfile />} />
                   <Route path="/messages" element={<Messages />} />
                   <Route path="/messages/:id" element={<Messages />} />
@@ -120,8 +131,7 @@ function App() {
                   <Route path="/invite-friends" element={<InviteFriends />} />
 
                   {/* Redirects */}
-                  <Route path="/matches" element={<Navigate to="/build-your-village" replace />} />
-                  <Route path="/village" element={<Navigate to="/connections" replace />} />
+                  <Route path="/village" element={<Village />} />
                 </Route>
 
               </Route>
@@ -129,6 +139,9 @@ function App() {
 
           </Routes>
         </Suspense>
+
+        {/* DEV-ONLY DEBUG PANEL */}
+        <DevDebugPanel />
       </Router>
     </AuthProvider>
   );

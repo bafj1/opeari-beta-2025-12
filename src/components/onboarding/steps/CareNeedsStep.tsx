@@ -11,34 +11,6 @@ interface CareNeedsStepProps {
 
 export default function CareNeedsStep({ data, updateData, showSomethingElseInput, setShowSomethingElseInput }: CareNeedsStepProps) {
 
-    const toggleCareOption = (id: string) => {
-        let newOptions = [...data.careOptions];
-        // Remove specific logic for 'exploring' as it's not in the new list, 
-        // but keep the basic toggle logic clean.
-        if (newOptions.includes(id)) {
-            newOptions = newOptions.filter(i => i !== id);
-        } else {
-            newOptions.push(id);
-        }
-        updateData('careOptions', newOptions);
-    };
-
-    const toggleSomethingElse = () => {
-        const newState = !showSomethingElseInput;
-        setShowSomethingElseInput(newState);
-
-        let newOptions = [...data.careOptions];
-        if (newState) {
-            if (!newOptions.includes('something-else')) {
-                newOptions.push('something-else');
-            }
-        } else {
-            newOptions = newOptions.filter(i => i !== 'something-else');
-            updateData('specificNeeds', ''); // Clear input when deselected
-        }
-        updateData('careOptions', newOptions);
-    };
-
     return (
         <div className="space-y-6 animate-fade-in">
             <StepHeader
@@ -70,8 +42,31 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                                 icon={Check}
                                 label={opt.label}
                                 desc={opt.desc}
-                                selected={opt.id === 'something-else' ? showSomethingElseInput : data.careOptions.includes(opt.id)}
-                                onClick={() => opt.id === 'something-else' ? toggleSomethingElse() : toggleCareOption(opt.id)}
+                                selected={opt.id === 'something-else' ? (data.careNeedOptions || []).includes('something-else') : (data.careNeedOptions || []).includes(opt.id)}
+                                onClick={() => {
+                                    if (opt.id === 'something-else') {
+                                        // Toggle logic for something else
+                                        let newOpts = [...(data.careNeedOptions || [])];
+                                        if (newOpts.includes('something-else')) {
+                                            newOpts = newOpts.filter(o => o !== 'something-else');
+                                            setShowSomethingElseInput(false);
+                                            updateData('careSpecificNeeds', ''); // Clear text
+                                        } else {
+                                            newOpts.push('something-else');
+                                            setShowSomethingElseInput(true);
+                                        }
+                                        updateData('careNeedOptions', newOpts);
+                                    } else {
+                                        // Toggle standard need
+                                        let newOpts = [...(data.careNeedOptions || [])];
+                                        if (newOpts.includes(opt.id)) {
+                                            newOpts = newOpts.filter(o => o !== opt.id);
+                                        } else {
+                                            newOpts.push(opt.id);
+                                        }
+                                        updateData('careNeedOptions', newOpts);
+                                    }
+                                }}
                                 isCheckboxStyle={true}
                             />
                         </div>
@@ -84,8 +79,8 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                             className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-opeari-green focus:outline-none placeholder:text-gray-400 text-sm"
                             rows={3}
                             placeholder="What specific situation are you navigating?"
-                            value={data.specificNeeds || ''}
-                            onChange={(e) => updateData('specificNeeds', e.target.value)}
+                            value={data.careSpecificNeeds || ''}
+                            onChange={(e) => updateData('careSpecificNeeds', e.target.value)}
                         />
                     </div>
                 )}
@@ -111,12 +106,73 @@ export default function CareNeedsStep({ data, updateData, showSomethingElseInput
                                 icon={Check}
                                 label={opt.label}
                                 desc={opt.desc}
-                                selected={data.careOptions.includes(opt.id)}
-                                onClick={() => toggleCareOption(opt.id)}
+                                selected={(data.careOfferOptions || []).includes(opt.id)}
+                                onClick={() => {
+                                    let newOpts = [...(data.careOfferOptions || [])];
+                                    if (newOpts.includes(opt.id)) {
+                                        newOpts = newOpts.filter(o => o !== opt.id);
+                                        if (opt.id === 'host-share') {
+                                            updateData('hostingInterest', false); // Sync legacy field
+                                        }
+                                    } else {
+                                        newOpts.push(opt.id);
+                                        if (opt.id === 'host-share') {
+                                            updateData('hostingInterest', true); // Sync legacy field
+                                        }
+                                    }
+                                    updateData('careOfferOptions', newOpts);
+                                }}
                                 isCheckboxStyle={true}
                             />
                         </div>
                     ))}
+                </div>
+            </div>
+
+            {/* INTEL-LITE: Target Budget & Current Setup (Moved from FamilyStep) */}
+            <div className="pt-6 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Budget Range Selector */}
+                <div>
+                    <label className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">Target Hourly Budget (Optional)</label>
+                    <div className="relative">
+                        <select
+                            value={data.targetBudget || ''}
+                            onChange={(e) => updateData('targetBudget', e.target.value)}
+                            className="w-full px-4 py-[13px] border border-gray-200/50 rounded-xl bg-white appearance-none focus:ring-2 focus:ring-opeari-green focus:outline-none text-opeari-heading"
+                        >
+                            <option value="" disabled>Select...</option>
+                            <option value="under-20">Under $20/hr</option>
+                            <option value="20-25">$20 - $25/hr</option>
+                            <option value="25-30">$25 - $30/hr</option>
+                            <option value="30-35">$30 - $35/hr</option>
+                            <option value="35-40">$35 - $40/hr</option>
+                            <option value="40+">$40+/hr</option>
+                            <option value="not-sure">Not sure yet</option>
+                        </select>
+                        <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+
+                {/* Current Care Setup */}
+                <div>
+                    <label className="block text-xs font-bold text-opeari-heading uppercase tracking-wide mb-1.5">Current Care Situation (Optional)</label>
+                    <div className="relative">
+                        <select
+                            value={data.currentCareSetup || ''}
+                            onChange={(e) => updateData('currentCareSetup', e.target.value)}
+                            className="w-full px-4 py-[13px] border border-gray-200/50 rounded-xl bg-white appearance-none focus:ring-2 focus:ring-opeari-green focus:outline-none text-opeari-heading"
+                        >
+                            <option value="" disabled>Select...</option>
+                            <option value="Family / Self">Family / Self</option>
+                            <option value="Daycare / Preschool">Daycare / Preschool</option>
+                            <option value="Nanny">Nanny</option>
+                            <option value="Nanny Share">Nanny Share</option>
+                            <option value="Babysitter / Occasional">Babysitter / Occasional</option>
+                            <option value="Combination">Combination of the above</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
                 </div>
             </div>
         </div>

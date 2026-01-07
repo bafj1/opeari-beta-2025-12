@@ -5,21 +5,22 @@ import { StepHeader } from '../components/WizardUI';
 interface IntentStepProps {
     data: OnboardingData;
     updateData: (field: keyof OnboardingData, value: any) => void;
-    hostingInterest: boolean;
-    setHostingInterest: (val: boolean) => void;
+    // Removed local state props, now accessing data directly
+    hostingInterest?: boolean; // Kept for backwards compatibility if needed, but primary is data
+    setHostingInterest?: (val: boolean) => void;
 }
 
-export default function IntentStep({ data, updateData, hostingInterest, setHostingInterest }: IntentStepProps) {
+export default function IntentStep({ data, updateData }: IntentStepProps) {
     return (
         <div className="space-y-6 animate-fade-in">
             <StepHeader title="What brings you to Opeari?" subtitle="Select what fits you best" />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div
-                    onClick={() => updateData('userIntent', 'family')}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'family' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
+                    onClick={() => updateData('intent', 'family')}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.intent === 'family' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
                 >
-                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'family' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
+                    <div className={`p-3 rounded-full flex items-center justify-center ${data.intent === 'family' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
                         <User size={24} />
                     </div>
                     <div>
@@ -29,10 +30,10 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                 </div>
 
                 <div
-                    onClick={() => updateData('userIntent', 'caregiver')}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.userIntent === 'caregiver' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
+                    onClick={() => updateData('intent', 'caregiver')}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-start gap-3 ${data.intent === 'caregiver' ? 'border-[#1e6b4e] bg-[#8bd7c7]' : 'border-gray-200 bg-white hover:border-opeari-mint'}`}
                 >
-                    <div className={`p-3 rounded-full flex items-center justify-center ${data.userIntent === 'caregiver' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
+                    <div className={`p-3 rounded-full flex items-center justify-center ${data.intent === 'caregiver' ? 'bg-[#1e6b4e] text-white' : 'bg-[#F8C3B3]/40 text-[#1e6b4e]'}`}>
                         <HandHeart size={24} /> {/* Verified: HandHeart icon */}
                     </div>
                     <div>
@@ -42,20 +43,20 @@ export default function IntentStep({ data, updateData, hostingInterest, setHosti
                 </div>
             </div>
 
-            {data.userIntent === 'family' && (
+            {data.intent === 'family' && (
                 <div className="animate-fade-in pt-2">
                     <label className="flex items-center gap-3 p-3 rounded-lg bg-[#e8f5f0] cursor-pointer hover:bg-[#d8f5e5] transition-colors select-none">
                         <div className="relative">
                             <input
                                 type="checkbox"
-                                checked={hostingInterest}
-                                onChange={(e) => setHostingInterest(e.target.checked)}
+                                checked={data.hostingInterest}
+                                onChange={(e) => updateData('hostingInterest', e.target.checked)}
                                 className="sr-only peer"
                             />
                             <div
                                 className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all bg-white border-[#1e6b4e] peer-checked:bg-[#1e6b4e] peer-checked:border-[#1e6b4e] peer-focus:ring-2 peer-focus:ring-[#8bd7c7] peer-focus:ring-offset-1`}
                             >
-                                {hostingInterest && (
+                                {data.hostingInterest && (
                                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                     </svg>

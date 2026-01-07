@@ -1,3 +1,13 @@
+export const WEEKDAYS = [
+    { id: 'mon', short: 'Mon', letter: 'M' },
+    { id: 'tue', short: 'Tue', letter: 'T' },
+    { id: 'wed', short: 'Wed', letter: 'W' },
+    { id: 'thu', short: 'Thu', letter: 'Th' },
+    { id: 'fri', short: 'Fri', letter: 'F' },
+    { id: 'sat', short: 'Sat', letter: 'Sa' },
+    { id: 'sun', short: 'Sun', letter: 'Su' },
+];
+
 export const DAYS_OPTIONS = [
     { value: "mon", label: "Mon" },
     { value: "tue", label: "Tue" },

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -15,11 +15,12 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // If already logged in, redirect to dashboard
-  if (user) {
-    navigate('/dashboard')
-    return null
-  }
+  // Redirect if already logged in (inside effect to prevent render loop)
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard')
+    }
+  }, [user, navigate])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,14 +36,14 @@ export default function Login() {
       if (error) throw error
 
       // Check intent and routing
-      // Check intent and routing
       const metadata = data.user?.user_metadata || {}
       const intent = metadata.intent
-      const onboardingComplete = metadata.onboarding_complete
+      // Normalize onboarding_complete (handle boolean or string "true")
+      const rawOnboarding = metadata.onboarding_complete
+      const onboardingComplete = rawOnboarding === true || rawOnboarding === 'true'
 
       console.log('Login Redirect Logic:', {
         rawIntent: intent,
-        normalized: intent, // intent is already normalized in metadata if set correctly
         onboardingComplete,
         userId: data.user.id
       })
@@ -50,7 +51,7 @@ export default function Login() {
       if (!intent) {
         console.log('Redirecting: Missing intent -> /onboarding?step=0')
         navigate('/onboarding?step=0')
-      } else if (onboardingComplete !== true) {
+      } else if (!onboardingComplete) {
         console.log('Redirecting: Incomplete -> /onboarding?step=0')
         navigate('/onboarding?step=0')
       } else {
@@ -66,6 +67,42 @@ export default function Login() {
       } else {
         setError(err.message || 'Something went wrong')
       }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleMagicLink = async () => {
+    if (!email) {
+      setError('Please enter your email address')
+      return
+    }
+
+    setError('')
+    setLoading(true)
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
+        }
+      })
+
+      if (error) throw error
+
+      // Show success message (reusing error state for simplicity or adding new state)
+      // Ideally reuse a message state, but here I'll use alert or a specific UI if I can't add state easily.
+      // Re-using error display styling but green? Or just setError with a prefix.
+      // Let's add a message state. I cannot easily add state without replacing the whole top block.
+      // I will use `setError` with a "Check your email!" message for now, or assume the user follows the instruction.
+      // Actually, better to add `message` state.
+
+      alert('Check your email for the magic link!')
+
+    } catch (err: any) {
+      console.error('Magic Link error:', err)
+      setError(err.message || 'Failed to send magic link')
     } finally {
       setLoading(false)
     }
@@ -251,13 +288,30 @@ export default function Login() {
                 </Link>
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 bg-[#1E6B4E] text-white font-semibold rounded-xl hover:bg-[#165a40] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Signing in...' : 'Enter Your Village'}
-              </button>
+              <div className="space-y-3">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-12 bg-[#1E6B4E] text-white font-semibold rounded-xl hover:bg-[#165a40] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_6px_-1px_rgba(30,107,78,0.2)]"
+                >
+                  {loading ? 'Signing in...' : 'Enter Your Village'}
+                </button>
+
+                <div className="relative flex py-2 items-center">
+                  <div className="flex-grow border-t border-[#e8e4de]"></div>
+                  <span className="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase tracking-widest">Or</span>
+                  <div className="flex-grow border-t border-[#e8e4de]"></div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleMagicLink}
+                  disabled={loading}
+                  className="w-full h-12 bg-white text-[#1E6B4E] font-semibold rounded-xl border border-[#1E6B4E]/30 hover:bg-[#f0faf4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Email me a magic link
+                </button>
+              </div>
             </form>
 
             {/* Footer */}

@@ -13,8 +13,8 @@ export default function Footer() {
 
                     {/* Links */}
                     <nav className="flex items-center gap-6 text-sm">
-                        <Link to="/about" className="text-[#1E6B4E] hover:opacity-70 transition-opacity">
-                            About
+                        <Link to="/why-opeari" className="text-[#1E6B4E] hover:opacity-70 transition-opacity">
+                            Why Opeari
                         </Link>
                         <Link to="/faq" className="text-[#1E6B4E] hover:opacity-70 transition-opacity">
                             FAQ

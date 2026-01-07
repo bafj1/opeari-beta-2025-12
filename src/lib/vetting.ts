@@ -19,18 +19,21 @@ export function determineVettingRequirements(data: OnboardingData, hostingIntere
         'offer-backup'
     ];
 
-    const hasTriggerOption = data.careOptions.some(opt => TRIGGER_OPTIONS.includes(opt));
+    // UPDATED: Now checking new careOfferOptions array
+    const offers = data.careOfferOptions || [];
+    const hasTriggerOption = offers.some(opt => TRIGGER_OPTIONS.includes(opt));
+
     if (hasTriggerOption) {
-        if (data.careOptions.includes('host-share')) vetting_types.push('host-share');
-        if (data.careOptions.includes('care-exchange')) vetting_types.push('care-exchange');
-        if (data.careOptions.includes('offer-pickups')) vetting_types.push('offer-pickups');
-        if (data.careOptions.includes('offer-backup')) vetting_types.push('offer-backup');
+        if (offers.includes('host-share')) vetting_types.push('host-share');
+        if (offers.includes('care-exchange')) vetting_types.push('care-exchange');
+        if (offers.includes('offer-pickups')) vetting_types.push('offer-pickups');
+        if (offers.includes('offer-backup')) vetting_types.push('offer-backup');
     }
 
     // 3. Check "I provide childcare" intent (IntentStep)
     // Providing care automatically requires vetting, but that flow usually goes to /caregiver-interest.
     // However, if they land here somehow, we flag it.
-    if (data.userIntent === 'caregiver') {
+    if (data.intent === 'caregiver') {
         vetting_types.push('provider');
     }
 

@@ -7,8 +7,6 @@ import Toast from '../components/ui/Toast'
 import { logAlphaEvent } from '../lib/analytics'
 import {
   NANNY_SITUATION_OPTIONS,
-  LOOKING_FOR_OPTIONS,
-  OPEN_TO_OPTIONS,
   calculateKidAge,
   WEEKDAYS,
   TIME_SLOTS,
@@ -16,6 +14,8 @@ import {
 
 type Schedule = Record<string, string[]>
 
+// Prod Schema: No JSONB for kids. 
+// We use placeholder kids or construct from kids_ages when connected.
 interface Kid {
   id: string
   first_name?: string
@@ -28,19 +28,27 @@ interface Kid {
 interface MemberData {
   id: string
   first_name: string
-  location: string
   neighborhood: string
-  photo_url: string | null
+  zip_code: string
   bio: string
-  tagline: string
-  nanny_situation: string
-  looking_for: string[]
-  open_to: string[]
-  care_timeline: string
-  schedule: Schedule
+
+  // Aliases from Prod Schema
+  situation: string
+  timeline: string
+
+  // Safe Fields
+  num_kids: number
+  children_age_groups: string[]
+  care_types: string[]
+  availability_days: string[] // needed for preview schedule
+  availability_blocks: string[]
   schedule_flexible: boolean
+  languages: string[]
+
+  // Detailed / Connected Only
+  schedule: Schedule
   schedule_notes: string
-  kids: Kid[]
+  kids: Kid[] // Only present if connected, otherwise empty array
 }
 
 // Colors
@@ -52,22 +60,6 @@ const COLORS = {
   cream: '#fffaf5',
   text: '#1e6b4e',
   textMuted: '#4A6163',
-}
-
-// Helper to get proper label for looking_for
-function getLookingForLabel(item: string): string {
-  const option = LOOKING_FOR_OPTIONS.find(o => o.id === item)
-  if (option) return option.label
-
-  // Handle legacy formats
-  const normalized = item.toLowerCase().replace(/[_-]/g, ' ')
-  if (normalized.includes('nanny') || normalized.includes('share')) return 'Nanny Share'
-  if (normalized.includes('babysit')) return 'Babysitter Swap'
-  if (normalized.includes('backup')) return 'Backup Care'
-  if (normalized.includes('playdate')) return 'Playdates'
-  if (normalized.includes('carpool')) return 'Carpools'
-
-  return item.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
 // Gender color helper
@@ -82,7 +74,6 @@ function getGenderColor(gender: string | null): { bg: string; text: string } {
 export default function MemberProfile() {
   const { id } = useParams<{ id: string }>()
   const { user } = useAuth()
-  // const navigate = useNavigate()
 
   const [loading, setLoading] = useState(true)
   const [member, setMember] = useState<MemberData | null>(null)
@@ -97,55 +88,104 @@ export default function MemberProfile() {
 
   async function loadMember() {
     try {
-      const { data, error } = await supabase
-        .from('members')
-        .select('*')
+      // 1. Fetch Preview Data (Safe View)
+      // Only columns that exist in members_preview
+      const { data: previewData, error: previewError } = await supabase
+        .from('members_preview')
+        .select(`
+          id, first_name, role, neighborhood, zip_code, bio,
+          num_kids, children_age_groups, care_types,
+          availability_days, availability_blocks,
+          schedule_flexible, languages, situation, timeline
+        `)
         .eq('id', id)
         .single()
 
-      if (error) throw error
+      if (previewError) throw previewError
 
-      setMember({
-        id: data.id,
-        first_name: data.first_name || 'Family',
-        location: data.location || '',
-        neighborhood: data.neighborhood || '',
-        photo_url: data.photo_url,
-        bio: data.bio || '',
-        tagline: data.tagline || '',
-        nanny_situation: data.nanny_situation || '',
-        looking_for: data.looking_for || [],
-        open_to: data.open_to || [],
-        care_timeline: data.care_timeline || '',
-        schedule: data.schedule || {},
-        schedule_flexible: data.schedule_flexible || false,
-        schedule_notes: data.schedule_notes || '',
-        kids: data.kids || [],
-      })
+      // Initialize with Preview Data
+      let fullMember: MemberData = {
+        id: previewData.id,
+        first_name: previewData.first_name || 'Family',
+        neighborhood: previewData.neighborhood || '',
+        zip_code: previewData.zip_code || '',
+        bio: previewData.bio || '',
 
-      // Check if already connected
+        situation: previewData.situation || '',
+        timeline: previewData.timeline || '',
+
+        num_kids: previewData.num_kids || 0,
+        children_age_groups: previewData.children_age_groups || [],
+        care_types: previewData.care_types || [],
+        availability_days: previewData.availability_days || [],
+        availability_blocks: previewData.availability_blocks || [],
+        schedule_flexible: previewData.schedule_flexible || false,
+        languages: previewData.languages || [],
+
+        // Safe / Preview Schedule Defaults (From Availability Days)
+        // detailed schedule is hidden in preview
+        schedule: previewData.availability_days
+          ? previewData.availability_days.reduce((acc: any, day: string) => ({ ...acc, [day]: ['partial'] }), {})
+          : {},
+        schedule_notes: '',
+
+        kids: [], // No kids details in preview
+      }
+
+      setMember(fullMember)
+
+      // 2. Check Connection & Fetch Restricted Data
       if (user) {
-        const { data: myMember } = await supabase
-          .from('members')
-          .select('id')
-          .eq('user_id', user.id)
-          .single()
+        // Since members.id == auth.uid(), myMemberId IS user.id
+        const myMemberId = user.id;
 
-        if (myMember) {
-          // Check for existing connection - wrapped in try/catch to handle 406
-          try {
-            const { data: connection } = await supabase
-              .from('connections')
-              .select('status')
-              .or(`and(sender_id.eq.${myMember.id},receiver_id.eq.${id}),and(sender_id.eq.${id},receiver_id.eq.${myMember.id})`)
-              .maybeSingle()
+        // Check Connection
+        let status = null
+        try {
+          const { data: connection } = await supabase
+            .from('connections')
+            .select('status')
+            // Correct requester/requestee logic
+            .or(`and(requester_id.eq.${myMemberId},requestee_id.eq.${id}),and(requester_id.eq.${id},requestee_id.eq.${myMemberId})`)
+            .maybeSingle()
 
-            if (connection) {
-              setConnectionStatus(connection.status)
+          if (connection) {
+            status = connection.status
+            setConnectionStatus(status)
+          }
+        } catch (e) { console.log('Connection check skipped', e) }
+
+        // Gating Logic: Accepted Connection OR Self
+        // Self Check: myMemberId === profileId (id from params)
+        const isSelf = myMemberId === id;
+        const isConnected = status === 'accepted';
+
+        if (isConnected || isSelf) {
+          // Fetch Sensitive Data from members_connected
+          const { data: connectedData } = await supabase
+            .from('members_connected')
+            .select('schedule, schedule_notes, kids_ages') // specific sensitive fields
+            .eq('id', id)
+            .single()
+
+          if (connectedData) {
+            // Construct Kids from Ages
+            let constructedKids: Kid[] = [];
+            if (connectedData.kids_ages && Array.isArray(connectedData.kids_ages)) {
+              constructedKids = connectedData.kids_ages.map((year: number, idx: number) => ({
+                id: `k-${idx}`,
+                birth_year: year,
+                birth_month: null,
+                gender: null
+              }));
             }
-          } catch (e) {
-            // Ignore connection check errors (406 RLS issues)
-            console.log('Connection check skipped')
+
+            setMember(prev => ({
+              ...prev!,
+              schedule: connectedData.schedule || {},
+              schedule_notes: connectedData.schedule_notes || '',
+              kids: constructedKids
+            }))
           }
         }
       }
@@ -159,33 +199,27 @@ export default function MemberProfile() {
   async function handleConnect() {
     if (!user || !member) return
 
-    // LOG SIGNAL
     logAlphaEvent('request_to_chat_click', {
       targetId: member.id,
-      urgency: member.care_timeline
+      urgency: member.timeline
     })
 
     setConnecting(true)
     try {
-      const { data: myMember } = await supabase
-        .from('members')
-        .select('id')
-        .eq('user_id', user.id)
-        .single()
-
-      if (!myMember) throw new Error('Your profile not found')
-
+      // Insert Connection
+      // my ID is user.id
       const { error } = await supabase
         .from('connections')
         .insert({
-          sender_id: myMember.id,
-          receiver_id: member.id,
+          requester_id: user.id,
+          requestee_id: member.id,
           status: 'pending',
         })
 
       if (error) throw error
 
       setConnectionStatus('pending')
+      setToast({ message: 'Request sent!', type: 'success' })
     } catch (err) {
       console.error('Connection error:', err)
       setToast({ message: 'Could not send connection request. Please try again.', type: 'error' })
@@ -221,11 +255,7 @@ export default function MemberProfile() {
     )
   }
 
-  const situationLabel = NANNY_SITUATION_OPTIONS.find(o => o.id === member.nanny_situation)?.label
-  // const timelineLabel = TIMELINE_OPTIONS.find(o => o.id === member.care_timeline)?.label
-  const hasSchedule = Object.values(member.schedule).some(slots => slots && slots.length > 0)
-  const lookingForLabels = [...new Set(member.looking_for.map(getLookingForLabel))]
-  const openToLabels = member.open_to.map(id => OPEN_TO_OPTIONS.find(o => o.id === id)?.label).filter(Boolean)
+  const situationLabel = NANNY_SITUATION_OPTIONS.find(o => o.id === member.situation)?.label
 
   return (
     <>
@@ -235,6 +265,7 @@ export default function MemberProfile() {
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}
+          duration={3000}
         />
       )}
       <div className="min-h-screen" style={{ backgroundColor: COLORS.mint }}>
@@ -258,15 +289,11 @@ export default function MemberProfile() {
             {/* Header Section */}
             <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
               <div className="flex items-start gap-4">
-                {/* Avatar */}
+                {/* Avatar (Placeholder) */}
                 <div className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0" style={{ backgroundColor: COLORS.mint }}>
-                  {member.photo_url ? (
-                    <img src={member.photo_url} alt={member.first_name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span style={{ color: COLORS.primary }} className="text-3xl font-bold">
-                      {member.first_name?.charAt(0)}
-                    </span>
-                  )}
+                  <span style={{ color: COLORS.primary }} className="text-3xl font-bold">
+                    {member.first_name?.charAt(0)}
+                  </span>
                 </div>
 
                 {/* Info */}
@@ -275,15 +302,15 @@ export default function MemberProfile() {
                     {member.first_name}'s Family
                   </h1>
                   <p style={{ color: COLORS.textMuted }} className="mt-1">
-                    {member.neighborhood || member.location || 'Location not shared'}
+                    {member.neighborhood || member.zip_code || 'Location not shared'}
                   </p>
 
                   {/* Situation Badge */}
                   <div className="flex flex-wrap gap-2 mt-3">
                     {/* Urgency Badge */}
-                    {member.care_timeline === 'asap' && (
+                    {member.timeline === 'asap' && (
                       <span className="px-3 py-1.5 rounded-full text-sm font-bold bg-[#fff0ed] text-[#e05d44] border border-[#e05d44]/20 flex items-center gap-1">
-                        🔥 Looking ASAP
+                        Looking ASAP
                       </span>
                     )}
 
@@ -291,8 +318,8 @@ export default function MemberProfile() {
                       <span
                         className="px-3 py-1.5 rounded-full text-sm font-semibold"
                         style={{
-                          backgroundColor: member.nanny_situation === 'have_nanny' ? COLORS.mint : 'rgba(248, 195, 179, 0.2)',
-                          color: member.nanny_situation === 'have_nanny' ? COLORS.primary : COLORS.coral,
+                          backgroundColor: member.situation === 'have_nanny' ? COLORS.mint : 'rgba(248, 195, 179, 0.2)',
+                          color: member.situation === 'have_nanny' ? COLORS.primary : COLORS.coral,
                         }}
                       >
                         {situationLabel}
@@ -301,13 +328,6 @@ export default function MemberProfile() {
                   </div>
                 </div>
               </div>
-
-              {/* Tagline */}
-              {member.tagline && (
-                <div className="mt-4 p-3 rounded-xl" style={{ backgroundColor: COLORS.mint }}>
-                  <p style={{ color: COLORS.primary }} className="text-sm italic">"{member.tagline}"</p>
-                </div>
-              )}
             </div>
 
             {/* Schedule Section */}
@@ -316,41 +336,66 @@ export default function MemberProfile() {
                 Care Schedule Needs
               </h3>
 
-              {hasSchedule ? (
+              {member.availability_days.length > 0 ? (
                 <>
-                  {/* Day headers */}
-                  <div className="flex gap-1 mb-2">
-                    <div className="w-16"></div>
-                    {WEEKDAYS.map(day => (
-                      <div key={day.id} className="flex-1 text-center text-xs font-semibold" style={{ color: COLORS.textMuted }}>
-                        {day.short}
+                  {/* Public View: Day Summary Only */}
+                  {connectionStatus !== 'accepted' && user?.id !== member.id ? (
+                    <div className="flex gap-2 mb-2">
+                      {/* This effectively shows a "Preview" schedule based on tags */}
+                      {WEEKDAYS.map(day => {
+                        const hasSolts = member.availability_days.includes(day.id);
+                        return (
+                          <div
+                            key={day.id}
+                            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${hasSolts ? '' : 'opacity-40'}`}
+                            style={{
+                              backgroundColor: hasSolts ? COLORS.mint : '#f5f5f5',
+                              color: hasSolts ? COLORS.primary : COLORS.textMuted
+                            }}
+                          >
+                            {day.letter}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    /* Connected View: Detailed Grid */
+                    <>
+                      {/* Day headers */}
+                      <div className="flex gap-1 mb-2">
+                        <div className="w-16"></div>
+                        {WEEKDAYS.map(day => (
+                          <div key={day.id} className="flex-1 text-center text-xs font-semibold" style={{ color: COLORS.textMuted }}>
+                            {day.short}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
 
-                  {/* Time slot rows */}
-                  {TIME_SLOTS.map(slot => {
-                    const hasAnyForSlot = WEEKDAYS.some(d => (member.schedule[d.id] || []).includes(slot.id))
-                    if (!hasAnyForSlot) return null
+                      {/* Time slot rows */}
+                      {TIME_SLOTS.map(slot => {
+                        const hasAnyForSlot = WEEKDAYS.some(d => (member.schedule[d.id] || []).includes(slot.id))
+                        if (!hasAnyForSlot) return null
 
-                    return (
-                      <div key={slot.id} className="flex gap-1 mb-1">
-                        <div className="w-16 text-xs flex items-center" style={{ color: COLORS.textMuted }}>{slot.time}</div>
-                        {WEEKDAYS.map(day => {
-                          const hasSlot = (member.schedule[day.id] || []).includes(slot.id)
-                          return (
-                            <div
-                              key={`${day.id}-${slot.id}`}
-                              className="flex-1 h-8 rounded"
-                              style={{
-                                backgroundColor: hasSlot ? COLORS.mintDark : '#f5f5f5',
-                              }}
-                            />
-                          )
-                        })}
-                      </div>
-                    )
-                  })}
+                        return (
+                          <div key={slot.id} className="flex gap-1 mb-1">
+                            <div className="w-16 text-xs flex items-center" style={{ color: COLORS.textMuted }}>{slot.time}</div>
+                            {WEEKDAYS.map(day => {
+                              const hasSlot = (member.schedule[day.id] || []).includes(slot.id)
+                              return (
+                                <div
+                                  key={`${day.id}-${slot.id}`}
+                                  className="flex-1 h-8 rounded"
+                                  style={{
+                                    backgroundColor: hasSlot ? COLORS.mintDark : '#f5f5f5',
+                                  }}
+                                />
+                              )
+                            })}
+                          </div>
+                        )
+                      })}
+                    </>
+                  )}
 
                   {member.schedule_flexible && (
                     <p style={{ color: COLORS.textMuted }} className="text-xs mt-3 italic">
@@ -371,83 +416,61 @@ export default function MemberProfile() {
                 Kids
               </h3>
 
-              {member.kids.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
-                  {member.kids.map(kid => {
-                    const name = kid.first_name || kid.name || 'Child'
-                    const age = kid.birth_year ? calculateKidAge(kid.birth_month || 1, kid.birth_year) : null
-                    const genderColors = getGenderColor(kid.gender)
+              {(member.num_kids > 0 || member.kids.length > 0) ? (
+                /* Gating Logic */
+                connectionStatus !== 'accepted' && user?.id !== member.id ? (
+                  /* Public / Private View (Safe) */
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span style={{ color: COLORS.text }} className="font-semibold text-lg">
+                        {member.num_kids} {member.num_kids === 1 ? 'Child' : 'Children'}
+                      </span>
+                    </div>
+                    {member.children_age_groups && member.children_age_groups.length > 0 && (
+                      <span style={{ color: COLORS.textMuted }} className="text-sm">
+                        Age Groups: {member.children_age_groups.join(', ')}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  /* Connected View (Detailed) */
+                  <div className="flex flex-wrap gap-3">
+                    {member.kids.map(kid => {
+                      const name = kid.first_name || kid.name || 'Child'
+                      const age = kid.birth_year ? calculateKidAge(kid.birth_month || 1, kid.birth_year) : null
+                      const genderColors = getGenderColor(kid.gender)
 
-                    return (
-                      <div
-                        key={kid.id}
-                        className="flex items-center gap-2 px-4 py-2 rounded-full"
-                        style={{ backgroundColor: genderColors.bg }}
-                      >
+                      return (
                         <div
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold"
-                          style={{ backgroundColor: genderColors.text + '20', color: genderColors.text }}
+                          key={kid.id}
+                          className="flex items-center gap-2 px-4 py-2 rounded-full"
+                          style={{ backgroundColor: genderColors.bg }}
                         >
-                          {name.charAt(0)}
-                        </div>
-                        <span style={{ color: genderColors.text }} className="font-medium">
-                          {name}
-                        </span>
-                        {age && (
-                          <span style={{ color: genderColors.text }} className="text-sm opacity-75">
-                            {age}
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold"
+                            style={{ backgroundColor: genderColors.text + '20', color: genderColors.text }}
+                          >
+                            {name.charAt(0)}
+                          </div>
+                          <span style={{ color: genderColors.text }} className="font-medium">
+                            {name}
                           </span>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
+                          {age && (
+                            <span style={{ color: genderColors.text }} className="text-sm opacity-75">
+                              {age}
+                            </span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
               ) : (
                 <p style={{ color: COLORS.textMuted }} className="text-sm italic">
                   No kids listed
                 </p>
               )}
             </div>
-
-            {/* Looking For Section */}
-            {lookingForLabels.length > 0 && (
-              <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
-                <h3 style={{ color: COLORS.textMuted }} className="text-xs font-semibold uppercase tracking-wider mb-4">
-                  Looking For
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {lookingForLabels.map((label, idx) => (
-                    <span
-                      key={idx}
-                      className="px-4 py-2 rounded-full text-sm font-medium"
-                      style={{ backgroundColor: COLORS.mint, color: COLORS.primary }}
-                    >
-                      {label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Also Open To */}
-            {openToLabels.length > 0 && (
-              <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
-                <h3 style={{ color: COLORS.textMuted }} className="text-xs font-semibold uppercase tracking-wider mb-4">
-                  Also Open To
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {openToLabels.map((label, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1.5 rounded-full text-sm"
-                      style={{ backgroundColor: '#f5f5f5', color: COLORS.textMuted }}
-                    >
-                      {label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* About Section */}
             {member.bio && (
@@ -468,7 +491,7 @@ export default function MemberProfile() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                 </svg>
                 <p style={{ color: COLORS.textMuted }} className="text-sm">
-                  <strong style={{ color: COLORS.primary }}>Connect to see more:</strong> Kids' names, allergies, pets, and household details are shared once you connect.
+                  <strong style={{ color: COLORS.primary }}>Connect to see more:</strong> Kids' names, specific schedules, and household details are shared once you connect.
                 </p>
               </div>
             </div>
@@ -494,7 +517,7 @@ export default function MemberProfile() {
                   className="w-full py-4 rounded-full font-bold text-lg shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-50"
                   style={{ backgroundColor: COLORS.primary, color: 'white' }}
                 >
-                  {connecting ? 'Sending Request...' : 'Request to Chat →'}
+                  {connecting ? 'Sending Request...' : 'Request to Chat'}
                 </button>
               )}
 

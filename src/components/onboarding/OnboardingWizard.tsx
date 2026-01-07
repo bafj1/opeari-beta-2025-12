@@ -20,10 +20,10 @@ export default function OnboardingWizard() {
         data,
         loading,
         passwordConfirm,
-        hostingInterest,
+        // hostingInterest removed
         showSomethingElseInput,
         setPasswordConfirm,
-        setHostingInterest,
+        // setHostingInterest removed
         setShowSomethingElseInput,
         updateData,
         nextStep,
@@ -59,10 +59,11 @@ export default function OnboardingWizard() {
 
     const renderStep = () => {
         // Shared Step 0: Intent
-        if (step === 0) return <IntentStep data={data} updateData={updateData} hostingInterest={hostingInterest} setHostingInterest={setHostingInterest} />;
+        // Removed specific hosting props passing, handled via data/updateData inside now
+        if (step === 0) return <IntentStep data={data} updateData={updateData} />;
 
         // --- CAREGIVER FLOW ---
-        if (data.userIntent === 'caregiver') {
+        if (data.intent === 'caregiver') {
             switch (step) {
                 case 1: return <CaregiverAboutStep data={data} updateData={updateData} />;
                 case 2: return <CaregiverExperienceStep data={data} updateData={updateData} />;
@@ -103,15 +104,16 @@ export default function OnboardingWizard() {
     };
 
     return (
-        <OnboardingLayout step={step} intent={data.userIntent}>
+        <OnboardingLayout step={step} intent={data.intent}>
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 animate-fade-in text-center">
-                    <div className="relative mb-8">
-                        {/* Branded Loader: Simple Green Spinner */}
-                        <div className="w-16 h-16 border-4 border-[#1e6b4e]/20 border-t-[#1e6b4e] rounded-full animate-spin mx-auto" />
+                    <div className="flex flex-col items-center justify-center p-8 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl">
+                        <div className="relative w-16 h-16 flex items-center justify-center mb-4">
+                            <img src="/icon.svg" alt="Loading" className="w-12 h-12 animate-pulse" />
+                        </div>
+                        <h2 className="text-xl font-bold text-[#1e6b4e] mb-2 font-comfortaa">Building your village...</h2>
+                        <p className="text-[#1e6b4e]/70 text-center font-comfortaa">This will just take a moment.</p>
                     </div>
-                    <h2 className="text-2xl font-bold text-opeari-heading mb-2">Building your village...</h2>
-                    <p className="text-gray-500">Connecting you with neighbors.</p>
                 </div>
             ) : (
                 <>

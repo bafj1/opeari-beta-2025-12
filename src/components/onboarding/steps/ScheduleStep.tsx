@@ -34,7 +34,7 @@ export default function ScheduleStep({ data, updateData }: ScheduleStepProps) {
                 />
             </div>
 
-            {data.userIntent === 'caregiver' && (
+            {data.intent === 'caregiver' && (
                 <div className="pt-2 animate-fade-in">
                     <label className="flex items-center gap-3 cursor-pointer select-none group">
                         <div className="relative">

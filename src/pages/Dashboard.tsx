@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import DashboardHeader from '../components/Dashboard/DashboardHeader'
 import VillageRadar from '../components/Dashboard/VillageRadar'
 import SmartStack from '../components/Dashboard/SmartStack'
-import { ChevronRight, Sprout, ShieldCheck } from 'lucide-react'
+import { ChevronRight, Sprout } from 'lucide-react'
 import {
   calculateOverlap,
   calculateCompatibility,
@@ -15,6 +15,9 @@ import {
 } from '../lib/matching'
 
 import CaregiverDashboard from '../components/Dashboard/CaregiverDashboard'
+
+// Helper to normalize schedule shape
+const normalizeSchedule = (s: any) => (s?.grid ?? s ?? {});
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -57,6 +60,9 @@ export default function Dashboard() {
   const [recentMatches, setRecentMatches] = useState<FamilyMatch[]>([])
   const [totalFamilies, setTotalFamilies] = useState(0)
 
+  // Intel State
+  const [intel, setIntel] = useState<any>(null);
+
   useEffect(() => {
     // Double check to prevent race conditions or heavy queries if intent is wrong
     if (!user || normalizedIntent !== 'family') return
@@ -65,6 +71,8 @@ export default function Dashboard() {
       setLoading(true)
       try {
         // 1. Get My Profile
+        // strict logic: if members has user_id, use that. 
+        // We know members.id is auth.id from previous context, but strictly we should check
         const { data: myProfile } = await supabase
           .from('members')
           .select('*')
@@ -87,41 +95,75 @@ export default function Dashboard() {
           }))
         }
 
+        // Normalize Schedule
+        const mySchedule = normalizeSchedule(myProfile.schedule);
+
         const userProfile: UserProfile = {
           id: myProfile.id,
-          schedule: myProfile.schedule || {},
-          location: myProfile.location || '',
+          schedule: mySchedule,
           neighborhood: myProfile.neighborhood || '',
           nanny_situation: myProfile.nanny_situation || '',
           kids: mapKids(myProfile.kids_ages),
           invited_by: myProfile.invited_by,
-          care_timeline: myProfile.care_timeline
+          care_timeline: myProfile.care_timeline,
+          zip_code: myProfile.zip_code // Needed for fallback
         }
         setProfile(userProfile)
 
-        // 2. Get Potential Matches
-        const { data: allMembers } = await supabase
-          .from('members')
-          .select('*', { count: 'exact' })
-          .neq('id', myProfile.id)
+        // 2. Get Potential Matches (FAMILIES ONLY) & Intel concurrently
+        // Safe explicit select for browsing
+        const [membersResult, intelResult] = await Promise.all([
+          supabase
+            .from('members_preview')
+            .select(`
+              id, first_name, role, neighborhood, zip_code, bio,
+              availability_days, availability_blocks, num_kids,
+              children_age_groups, care_types, situation, timeline
+            `, { count: 'exact' })
+            .eq('role', 'family') // FILTER: Only families
+            .neq('id', myProfile.id),
+
+          supabase.rpc('get_community_intel', {
+            query_user_id: user!.id
+          })
+        ]);
+
+        // Process Intel
+        const { data: intelData, error: intelError } = intelResult;
+        if (!intelError && intelData) {
+          console.log('Intel Data:', intelData);
+          setIntel(intelData);
+        } else {
+          console.warn('Intel Error:', intelError);
+        }
+
+        // Process Members
+        const { data: allMembers, count } = membersResult;
 
         if (allMembers) {
-          setTotalFamilies(allMembers.length) // or count
+          setTotalFamilies(count ?? allMembers.length ?? 0)
 
           // Process Matches
-          const processed = allMembers.map(member => {
-            const overlap = calculateOverlap(userProfile.schedule, member.schedule || {})
+          const processed = allMembers.map((member: any) => {
+            // Map Preview Fields to Match Model
+            const memberSchedule = member.availability_days
+              ? member.availability_days.reduce((acc: any, day: string) => ({ ...acc, [day]: ['partial'] }), {})
+              : {};
+
+            const overlap = calculateOverlap(userProfile.schedule, memberSchedule)
+
             const match: FamilyMatch = {
               id: member.id,
               first_name: member.first_name || 'Family',
-              location: member.location || '',
+              location: member.neighborhood || member.zip_code || '', // Neighborhood First, then Zip
               neighborhood: member.neighborhood || '',
-              photo_url: member.photo_url,
-              nanny_situation: member.nanny_situation || '',
-              care_timeline: member.care_timeline || '',
-              schedule: member.schedule || {},
-              kids: mapKids(member.kids_ages),
-              invited_by: member.invited_by,
+              photo_url: null, // Removed per prod schema
+              nanny_situation: member.situation || '', // Map alias
+              care_timeline: member.timeline || '',    // Map alias
+              schedule: memberSchedule,
+              // Map num_kids to dummy array if needed, or empty
+              kids: Array(member.num_kids || 0).fill({ id: 'unknown', birth_year: null }),
+              invited_by: null, // Not in preview
               overlapDays: overlap.days,
               matchReasons: [],
               compatibility: 0
@@ -131,7 +173,9 @@ export default function Dashboard() {
             return match
           })
 
-          // Sort and Segment into Stacks
+          // Sort and Segment into Stacks with De-duplication
+
+          const matchIds = new Set<string>();
 
           // Stack 1: Perfect Schedule (>50% overlap OR 'schedule' reason highlighted)
           const scheduleStack = processed
@@ -139,21 +183,33 @@ export default function Dashboard() {
             .sort((a, b) => b.compatibility - a.compatibility)
             .slice(0, 5)
 
-          // Stack 2: Neighbors (Location match, excluding ones already in schedule stack to avoid dupes? or keep logic simple for now)
-          // Let's allow dupes across stacks if relevant, or filter. Simple for now.
+          scheduleStack.forEach(m => matchIds.add(m.id));
+
+          // Stack 2: Neighbors (Location match, excluding already shown)
+          // GUARD: Strict Neighborhood matching (no blanks)
+          const myNeighborhood = (userProfile.neighborhood || '').trim();
+
           const neighborStack = processed
-            .filter(m => m.neighborhood === userProfile.neighborhood)
+            .filter(m => {
+              const theirNeighborhood = (m.neighborhood || '').trim();
+              return myNeighborhood && theirNeighborhood &&
+                theirNeighborhood.toLowerCase() === myNeighborhood.toLowerCase() &&
+                !matchIds.has(m.id);
+            })
             .sort((a, b) => b.compatibility - a.compatibility)
             .slice(0, 5)
 
-          // Stack 3: High Logic / Catch All (Top Comp)
+          neighborStack.forEach(m => matchIds.add(m.id));
+
+          // Stack 3: Recommended / Recent (Excluding already shown)
           const topStack = processed
+            .filter(m => !matchIds.has(m.id))
             .sort((a, b) => b.compatibility - a.compatibility)
             .slice(0, 5)
 
           setScheduleMatches(scheduleStack)
           setNearbyMatches(neighborStack)
-          setRecentMatches(topStack) // Using top stack as "Recent" or "Recommended" for MVP
+          setRecentMatches(topStack)
         }
 
       } catch (error) {
@@ -165,6 +221,38 @@ export default function Dashboard() {
 
     loadDashboardData()
   }, [user, normalizedIntent])
+
+  // --- PRIMARY ACTION LOGIC ---
+  const getPrimaryAction = () => {
+    // Check normalized schedule for availability (Stronger check)
+    const schedule = profile?.schedule ?? {};
+    const hasAvailability = Object.values(schedule).some((slots: any) => Array.isArray(slots) && slots.length > 0);
+
+    if (!hasAvailability) {
+      return {
+        title: "Set Your Availability",
+        desc: "You won't appear in schedule searches until you add your times.",
+        cta: "Update Schedule",
+        link: "/settings"
+      };
+    }
+
+    // Default: Build Village
+    return {
+      title: "Grow Your Village",
+      desc: "Connect with families to unlock more care options.",
+      cta: "Find Families",
+      link: "/build-your-village"
+    };
+  };
+
+  const primaryAction = getPrimaryAction();
+
+  // STRONGER LOCATION FALLBACK
+  const displayLocation =
+    profile?.neighborhood?.trim() ||
+    profile?.zip_code?.trim() ||
+    'your area';
 
   return (
     <div className="min-h-screen bg-opeari-bg pb-20">
@@ -189,7 +277,8 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-10">
 
             {/* 2. Village Radar (Hero) */}
-            <VillageRadar />
+            {/* Show only if we have a location or it looks broken */}
+            <VillageRadar location={displayLocation} intel={intel} />
 
             {/* 3. Smart Stacks */}
             {loading ? (
@@ -215,29 +304,32 @@ export default function Dashboard() {
                 {nearbyMatches.length > 0 && (
                   <SmartStack
                     title="In Your Neighborhood"
-                    subtitle={`Neighbors in ${profile?.neighborhood}.`}
+                    subtitle={displayLocation && displayLocation.trim().length > 0 && displayLocation !== 'your area' ? `Neighbors in ${displayLocation}.` : "Families nearby."}
                     matches={nearbyMatches}
                     viewAllLink="/build-your-village?filter=location"
                   />
                 )}
 
-                <SmartStack
-                  title="Recommended Neighbors"
-                  subtitle="Families compatible with your needs."
-                  matches={recentMatches}
-                  viewAllLink="/build-your-village"
-                />
+                {/* Only show Recommended if we have them */}
+                {recentMatches.length > 0 && (
+                  <SmartStack
+                    title="Recommended Neighbors"
+                    subtitle="Families compatible with your needs."
+                    matches={recentMatches}
+                    viewAllLink="/build-your-village"
+                  />
+                )}
 
                 {scheduleMatches.length === 0 && nearbyMatches.length === 0 && recentMatches.length === 0 && (
                   <div className="bg-white rounded-2xl p-8 text-center border-dashed border-2 border-gray-200">
                     <div className="w-16 h-16 bg-[#d8f5e5] rounded-full flex items-center justify-center mx-auto mb-4 text-[#1e6b4e]">
                       <Sprout size={32} />
                     </div>
-                    <h3 className="font-bold text-xl text-opeari-heading mb-2">You're one of the first in this neighborhood!</h3>
+                    <h3 className="font-bold text-xl text-opeari-heading mb-2">You're one of the first in {displayLocation || 'this area'}!</h3>
                     <p className="text-gray-500 mb-6">Your village is just getting started. Invite a neighbor to grow it faster.</p>
-                    <button className="bg-opeari-green text-white px-6 py-2 rounded-full font-bold shadow-md hover:bg-[#155d42] transition-colors">
+                    <Link to="/invite" className="inline-block bg-opeari-green text-white px-6 py-2 rounded-full font-bold shadow-md hover:bg-[#155d42] transition-colors">
                       Invite a Neighbor
-                    </button>
+                    </Link>
                   </div>
                 )}
               </>
@@ -246,61 +338,37 @@ export default function Dashboard() {
 
           {/* RIGHT SIDEBAR */}
           <div className="space-y-6">
-            {/* Profile Card Mini */}
+
+            {/* Primary Action Card (Replaces Profile Strength) */}
             <div className="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-opeari-mint rounded-full flex items-center justify-center text-xl border-2 border-white shadow-sm overflow-hidden">
-                  {profile?.id && <span>{firstName.charAt(0)}</span>}
-                  {/* Future: Real Avatar */}
-                </div>
-                <div>
-                  <h3 className="font-bold text-opeari-heading">Your Profile</h3>
-                  <Link to="/settings" className="text-xs text-gray-400 hover:text-opeari-green">Edit Preferences</Link>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Profile Strength</span>
-                  <span className="font-bold text-opeari-green">98%</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div className="bg-opeari-green h-2 rounded-full w-[98%]" />
-                </div>
-              </div>
+              <h3 className="font-bold text-opeari-heading mb-2">{primaryAction.title}</h3>
+              <p className="text-sm text-gray-500 mb-4">{primaryAction.desc}</p>
+              <Link to={primaryAction.link} className="block w-full text-center bg-opeari-green text-white py-2 rounded-lg font-bold hover:bg-[#155d42] transition-colors">
+                {primaryAction.cta}
+              </Link>
             </div>
 
-            {/* Quick Actions */}
+            {/* Quick Links (Simplified) */}
             <div className="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
-              <h3 className="font-bold text-opeari-heading mb-4">Quick Actions</h3>
+              <h3 className="font-bold text-opeari-heading mb-4">Quick Links</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link to="/build-your-village" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                    <span className="w-8 h-8 rounded-full bg-opeari-mint/50 flex items-center justify-center text-opeari-green">
+                  <Link to="/settings" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                    <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
                       <ChevronRight size={16} />
                     </span>
-                    <span className="text-sm font-medium text-gray-700">Find Families</span>
+                    <span className="text-sm font-medium text-gray-700">Edit Profile</span>
                   </Link>
                 </li>
                 <li>
-                  <button className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors text-left">
+                  <Link to="/invite" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
                     <span className="w-8 h-8 rounded-full bg-opeari-peach/50 flex items-center justify-center text-[#e08e70]">
                       <ChevronRight size={16} />
                     </span>
                     <span className="text-sm font-medium text-gray-700">Invite Friends</span>
-                  </button>
+                  </Link>
                 </li>
               </ul>
-            </div>
-
-            {/* Trust Badge (Mock) */}
-            <div className="bg-[#f0faf4] rounded-2xl p-4 border border-opeari-green/20">
-              <div className="flex items-start gap-3">
-                <span className="text-xl text-opeari-green"><ShieldCheck size={24} /></span>
-                <div>
-                  <h4 className="font-bold text-opeari-green text-sm">Opeari Verified</h4>
-                  <p className="text-xs text-opeari-green/80 mt-1">Complete your background check to unlock the Verified badge.</p>
-                </div>
-              </div>
             </div>
 
           </div>

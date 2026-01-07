@@ -619,7 +619,7 @@ export default function Waitlist() {
                       className="text-sm font-semibold text-[#1e6b4e] flex items-center gap-2 hover:opacity-80 mb-2"
                       aria-expanded={referralSource === 'referral_code'}
                     >
-                      <span className={`transition-transform duration-200 ${referralSource === 'referral_code' ? 'rotate-90' : ''}`} aria-hidden="true">▶</span>
+                      <span className={`transition-transform duration-200 ${referralSource === 'referral_code' ? 'rotate-90' : ''}`} aria-hidden="true"></span>
                       Have a referral code?
                     </button>
 
@@ -680,7 +680,7 @@ export default function Waitlist() {
                   className="text-sm font-semibold text-[#1e6b4e] flex items-center gap-2 hover:opacity-80 mb-2"
                   aria-expanded={instagram !== ''}
                 >
-                  <span className={`transition-transform duration-200 ${instagram ? 'rotate-90' : ''}`} aria-hidden="true">▶</span>
+                  <span className={`transition-transform duration-200 ${instagram ? 'rotate-90' : ''}`} aria-hidden="true"></span>
                   Have an Instagram handle?
                 </button>
 

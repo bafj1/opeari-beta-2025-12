@@ -330,7 +330,7 @@ export default function Invite() {
             onClick={() => navigate('/dashboard')}
             className="block mx-auto mt-4 text-sm text-[#1e6b4e] font-semibold hover:underline opacity-80"
           >
-            Skip for now →
+            Skip for now
           </button>
         </div>
       </div>
@@ -372,7 +372,7 @@ export default function Invite() {
                 {error}
                 {error.includes('already registered') && (
                   <Link to="/login" className="block mt-2 font-bold underline hover:text-[#c47764]">
-                    Go to login →
+                    Go to login
                   </Link>
                 )}
               </div>

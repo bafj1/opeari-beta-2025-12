@@ -58,7 +58,7 @@ export default function OnboardingSuccess() {
             const profile: UserProfile = {
                 id: myProfile.id,
                 schedule: myProfile.schedule || {},
-                location: myProfile.location || '',
+                // location: myProfile.location || '', // Removing per prod schema
                 neighborhood: myProfile.neighborhood || '',
                 nanny_situation: myProfile.nanny_situation || '',
                 kids: myProfile.kids || [],
