@@ -1,22 +1,15 @@
+// Single source of truth for weekdays
 export const WEEKDAYS = [
-    { id: 'mon', short: 'Mon', letter: 'M' },
-    { id: 'tue', short: 'Tue', letter: 'T' },
-    { id: 'wed', short: 'Wed', letter: 'W' },
-    { id: 'thu', short: 'Thu', letter: 'Th' },
-    { id: 'fri', short: 'Fri', letter: 'F' },
-    { id: 'sat', short: 'Sat', letter: 'Sa' },
-    { id: 'sun', short: 'Sun', letter: 'Su' },
+    { id: 'mon', short: 'Mon', letter: 'M', label: 'Monday' },
+    { id: 'tue', short: 'Tue', letter: 'T', label: 'Tuesday' },
+    { id: 'wed', short: 'Wed', letter: 'W', label: 'Wednesday' },
+    { id: 'thu', short: 'Thu', letter: 'Th', label: 'Thursday' },
+    { id: 'fri', short: 'Fri', letter: 'F', label: 'Friday' },
+    { id: 'sat', short: 'Sat', letter: 'Sa', label: 'Saturday' },
+    { id: 'sun', short: 'Sun', letter: 'Su', label: 'Sunday' },
 ];
 
-export const DAYS_OPTIONS = [
-    { value: "mon", label: "Mon" },
-    { value: "tue", label: "Tue" },
-    { value: "wed", label: "Wed" },
-    { value: "thu", label: "Thu" },
-    { value: "fri", label: "Fri" },
-    { value: "sat", label: "Sat" },
-    { value: "sun", label: "Sun" },
-];
+export const DAYS_OPTIONS = WEEKDAYS.map(d => ({ value: d.id, label: d.short }));
 
 export const BLOCKS_OPTIONS = [
     { value: "morning", label: "Morning" },

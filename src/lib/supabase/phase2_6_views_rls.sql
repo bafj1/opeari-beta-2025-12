@@ -4,6 +4,7 @@
 -- A) members_preview
 -- Safe columns only. strictly from production schema.
 -- Includes zip_code for reliable matching, and neighborhood for display.
+DROP VIEW IF EXISTS public.members_preview CASCADE;
 CREATE OR REPLACE VIEW public.members_preview AS
 SELECT
     id,
@@ -35,6 +36,7 @@ FROM public.members;
 
 -- B) members_connected (Secure View)
 -- Access Rule: Viewer = ID (Self) OR Connection Status = 'accepted'
+DROP VIEW IF EXISTS public.members_connected CASCADE;
 CREATE OR REPLACE VIEW public.members_connected AS
 SELECT m.*
 FROM public.members m

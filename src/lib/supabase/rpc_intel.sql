@@ -3,6 +3,8 @@
 -- Privacy Rule: n >= 5 families in cohort.
 -- Cohort Priority: Neighborhood -> Zip Code.
 
+DROP FUNCTION IF EXISTS public.get_community_intel(UUID);
+
 CREATE OR REPLACE FUNCTION get_community_intel(query_user_id UUID)
 RETURNS JSONB
 LANGUAGE plpgsql
