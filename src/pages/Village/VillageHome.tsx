@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
-import type { Post } from '../../types/FeedTypes';
-import FeedHeader from '../../components/Feed/FeedHeader';
-import PostCard from '../../components/Feed/PostCard';
-import CreatePost from '../../components/Feed/CreatePost';
+import type { Post, PostType } from '../../types/FeedTypes';
+import VillageHeader from '../../components/Village/VillageHeader';
+import PostCard from '../../components/Village/PostCard';
+import CreatePost from '../../components/Village/CreatePost';
 import Header from '../../components/common/Header';
+import VillagePulse from '../../components/Village/VillagePulse';
+import VillageFilter from '../../components/Village/VillageFilter';
 
-export default function Feed() {
+export default function VillageHome() {
     const { user } = useAuth();
 
     // State
@@ -17,6 +19,7 @@ export default function Feed() {
     const [showCreate, setShowCreate] = useState(false);
     const [userNeighborhood, setUserNeighborhood] = useState<string>('');
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [filter, setFilter] = useState<PostType | 'all'>('all');
 
     // 1. Get User Neighborhood
     useEffect(() => {
@@ -50,11 +53,11 @@ export default function Feed() {
 
                 if (error) throw error;
 
-                // Server filtered via RLS + Query. No client filtering needed.
+                // Server filtered via RLS + Query.
                 setPosts(postsData as unknown as Post[]);
 
             } catch (err) {
-                console.error('Feed fetch error:', err);
+                console.error('Village fetch error:', err);
             } finally {
                 setLoading(false);
             }
@@ -71,14 +74,27 @@ export default function Feed() {
         setRefreshTrigger(p => p + 1);
     };
 
-    if (!user) return null; // Or redirect
+    // Client-side filtering for V1 responsiveness
+    const filteredPosts = filter === 'all'
+        ? posts
+        : posts.filter(p => p.type === filter);
+
+    if (!user) return null;
 
     return (
         <div className="min-h-screen bg-[#faf8f5]">
             <Header />
 
             <main className="max-w-xl mx-auto px-4 py-8">
-                <FeedHeader neighborhood={userNeighborhood} onCreateClick={() => setShowCreate(true)} />
+                <VillageHeader neighborhood={userNeighborhood} onCreateClick={() => setShowCreate(true)} />
+
+                {/* Village Pulse Widget (Intel-Lite) */}
+                <VillagePulse />
+
+                {/* Filters */}
+                <div className="mb-4">
+                    <VillageFilter currentFilter={filter} onFilterChange={setFilter} />
+                </div>
 
                 {loading ? (
                     <div className="space-y-4">
@@ -86,7 +102,7 @@ export default function Feed() {
                             <div key={i} className="h-40 bg-white rounded-xl animate-pulse" />
                         ))}
                     </div>
-                ) : posts.length === 0 ? (
+                ) : filteredPosts.length === 0 ? (
                     <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
                         {/* Brand Rule: No Emojis. Use Styled Icon. */}
                         <div className="w-16 h-16 bg-[#d8f5e5] rounded-full flex items-center justify-center mx-auto mb-4 text-[#1e6b4e]">
@@ -97,7 +113,9 @@ export default function Feed() {
                                 <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2Z" />
                             </svg>
                         </div>
-                        <h3 className="font-bold text-gray-800 text-lg mb-2">Be the first to post!</h3>
+                        <h3 className="font-bold text-gray-800 text-lg mb-2">
+                            {filter === 'all' ? 'Be the first to post!' : `No ${filter} posts yet`}
+                        </h3>
                         <p className="text-gray-500 max-w-xs mx-auto mb-6">
                             Start the conversation in {userNeighborhood || 'your neighborhood'}. Ask a question or share a win.
                         </p>
@@ -110,7 +128,7 @@ export default function Feed() {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {posts.map(post => (
+                        {filteredPosts.map(post => (
                             <PostCard key={post.id} post={post} />
                         ))}
                     </div>

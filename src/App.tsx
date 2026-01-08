@@ -37,20 +37,19 @@ const CaregiverInterest = lazy(() => import('./pages/CaregiverInterest'));
 const VerificationGate = lazy(() => import('./pages/VerificationGate'));
 const OnboardingSuccess = lazy(() => import('./pages/OnboardingSuccess'));
 
-// V1 Feed Pivot
-const Feed = lazy(() => import('./pages/Feed/Feed'));
+// V1 Feed Pivot -> Village Home
+const VillageHome = lazy(() => import('./pages/Village/VillageHome'));
 
-// Legacy / Future Features (Hidden for V1 Feed Pivot)
+// Legacy / Future Features (Hidden for V1)
 // const Dashboard = lazy(() => import('./pages/Dashboard'));
-// const Matches = lazy(() => import('./pages/Matches')); 
-const Village = lazy(() => import('./pages/Village')); // Leaving reachable for dev but hidden from nav
+const Village = lazy(() => import('./pages/Village')); // Old Village page, keeping for reference
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const MemberProfile = lazy(() => import('./pages/MemberProfile'));
 const Messages = lazy(() => import('./pages/Messages'));
-const Connections = lazy(() => import('./pages/Connections'));
-const InviteFriends = lazy(() => import('./pages/InviteFriends'));
-const NannyShare = lazy(() => import('./pages/NannyShare'));
+// const Connections = lazy(() => import('./pages/Connections'));
+// const InviteFriends = lazy(() => import('./pages/InviteFriends'));
+// const NannyShare = lazy(() => import('./pages/NannyShare'));
 
 function App() {
   return (
@@ -62,7 +61,6 @@ function App() {
             <Route element={<MarketingLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
-
               <Route path="/why-opeari" element={<WhyOpeari />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/terms" element={<Terms />} />
@@ -80,7 +78,7 @@ function App() {
             <Route path="/request-link" element={<RequestNewLink />} />
             <Route path="/auth/confirm" element={<AuthCallback />} />
 
-            {/* ONBOARDING ROUTES (Protected but NOT AuthGated for completion) */}
+            {/* ONBOARDING ROUTES */}
             <Route element={
               <ProtectedRoute>
                 <div className="min-h-screen flex flex-col">
@@ -88,7 +86,6 @@ function App() {
                   <main id="main-content" className="flex-grow focus:outline-none" tabIndex={-1}>
                     <Outlet />
                   </main>
-                  {/* Footer optional/hidden for onboarding typically, or just Header */}
                   <Footer />
                 </div>
               </ProtectedRoute>
@@ -99,7 +96,7 @@ function App() {
               <Route path="/verify" element={<VerificationGate />} />
             </Route>
 
-            {/* ERROR / 404 (Use Marketing Layout) */}
+            {/* ERROR / 404 */}
             <Route element={<MarketingLayout />}>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
@@ -109,38 +106,34 @@ function App() {
               <Route path="/admin-waitlist" element={<AdminWaitlist />} />
               <Route element={<AppLayout />}>
 
-                {/* 1. Accessible Restricted Routes (No Onboarding Check) */}
+                {/* 1. Accessible Restricted Routes */}
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />
 
                 {/* 2. Accessible Core App (Require Onboarding Complete) */}
                 <Route element={<RequireOnboardingComplete />}>
 
-                  {/* V1 FEED PIVOT: Feed is the main authenticated experience */}
-                  <Route path="/feed" element={<Feed />} />
-                  <Route path="/dashboard" element={<Navigate to="/feed" replace />} /> {/* Redirect old dashboard */}
+                  {/* V1 Village Home: The main authenticated experience */}
+                  <Route path="/village" element={<VillageHome />} />
 
-                  {/* Other routes accessible but hidden from nav */}
-                  <Route path="/nanny-share" element={<NannyShare />} />
-                  <Route path="/matches" element={<Navigate to="/feed" replace />} />
-                  <Route path="/build-your-village" element={<Navigate to="/feed" replace />} />
-                  <Route path="/member/:id" element={<MemberProfile />} />
+                  {/* Core V1 Features */}
+                  <Route path="/matches" element={<Village />} /> {/* Matches (Legacy Village.tsx) */}
                   <Route path="/messages" element={<Messages />} />
                   <Route path="/messages/:id" element={<Messages />} />
-                  <Route path="/connections" element={<Connections />} />
-                  <Route path="/invite-friends" element={<InviteFriends />} />
+                  <Route path="/member/:id" element={<MemberProfile />} />
 
-                  {/* Redirects */}
-                  <Route path="/village" element={<Village />} />
+                  {/* Redirects & Locks */}
+                  <Route path="/feed" element={<Navigate to="/village" replace />} />
+                  <Route path="/dashboard" element={<Navigate to="/village" replace />} />
+
+                  {/* Other routes */}
+                  {/* <Route path="/build-your-village" element={<Navigate to="/village" replace />} /> */}
+
                 </Route>
-
               </Route>
             </Route>
-
           </Routes>
         </Suspense>
-
-        {/* DEV-ONLY DEBUG PANEL */}
         <DevDebugPanel />
       </Router>
     </AuthProvider>
