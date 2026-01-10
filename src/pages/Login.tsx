@@ -127,7 +127,7 @@ export default function Login() {
         <meta name="twitter:image" content="https://opeari.com/opeari-village-hero.png" />
       </Helmet>
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-[#1E6B4E] to-[#2d7a5e] p-12 pt-12 flex-col justify-between text-white relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-[#1E6B4E] to-[#2d7a5e] p-12 pt-12 flex-col text-white relative overflow-hidden gap-12">
         {/* Decorative circles */}
         <div className="absolute top-20 right-20 w-32 h-32 bg-white/5 rounded-full" />
         <div className="absolute bottom-40 left-10 w-24 h-24 bg-white/5 rounded-full" />
