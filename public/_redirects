@@ -1,1 +1,15 @@
+# --- DO NOT rewrite Vite dev module paths ---
+/src/* /src/:splat 200
+/@vite/* /@vite/:splat 200
+/@react-refresh /@react-refresh 200
+/node_modules/* /node_modules/:splat 200
+/assets/* /assets/:splat 200
+/favicon.ico /favicon.ico 200
+/manifest.webmanifest /manifest.webmanifest 200
+/icons/* /icons/:splat 200
+
+# --- Functions passthrough ---
+/.netlify/functions/* /.netlify/functions/:splat 200
+
+# --- SPA fallback LAST ---
 /* /index.html 200
