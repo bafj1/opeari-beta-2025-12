@@ -1,8 +1,12 @@
 
-const { createClient } = require('@supabase/supabase-js')
-const { Resend } = require('resend')
+import { createClient } from '@supabase/supabase-js'
+import { Resend } from 'resend'
 
-exports.handler = async (event) => {
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const resendApiKey = process.env.RESEND_API_KEY
+
+export const handler = async (event) => {
     // 1. Headers & Method Check
     const headers = {
         'Access-Control-Allow-Origin': '*',
@@ -26,9 +30,6 @@ exports.handler = async (event) => {
     }
 
     // 3. Env Check
-    const supabaseUrl = process.env.SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    const resendApiKey = process.env.RESEND_API_KEY
     const siteUrl = process.env.URL || 'https://opeari.com'
 
     if (!supabaseUrl || !supabaseServiceKey || !resendApiKey) {

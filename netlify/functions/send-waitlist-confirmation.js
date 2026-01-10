@@ -1,17 +1,19 @@
+import { Resend } from 'resend'; // Converted to CJS
 
-const { Resend } = require('resend'); // Converted to CJS
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendApiKey = process.env.RESEND_API_KEY
+const resend = new Resend(resendApiKey)
 
 const headers = {
   'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*'
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
 // Helper: Clean strings
 const clean = (str) => (str ? str.trim() : '');
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   // 1. Handle OPTIONS
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
@@ -160,7 +162,7 @@ exports.handler = async (event) => {
                   <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Referral:</strong></td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${referralSource || 'None'} ${referralName ? `(${referralName})` : ''}</td></tr>
                 </table>
                 <p style="margin-top: 20px;">
-                    <a href="https://supabase.com/dashboard/project/rvostbkbbddbgcnxqchv/editor/28596" style="display: inline-block; padding: 10px 20px; background: #1e6b4e; color: white; text-decoration: none; border-radius: 4px;">View in Supabase</a>
+                    <a href="https://supabase.com/dashboard/project/ycrxnejxvdghseygrnve/editor/28596" style="display: inline-block; padding: 10px 20px; background: #1e6b4e; color: white; text-decoration: none; border-radius: 4px;">View in Supabase</a>
                 </p>
               </div>
             </div>

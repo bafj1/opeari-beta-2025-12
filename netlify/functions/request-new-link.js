@@ -1,8 +1,11 @@
+import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
 
-const { createClient } = require('@supabase/supabase-js');
-const { Resend } = require('resend');
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const resendApiKey = process.env.RESEND_API_KEY
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',

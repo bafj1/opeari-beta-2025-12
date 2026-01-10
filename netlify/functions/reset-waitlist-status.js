@@ -1,7 +1,10 @@
 
-const { createClient } = require('@supabase/supabase-js')
+import { createClient } from '@supabase/supabase-js'
 
-exports.handler = async (event) => {
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+export const handler = async (event) => {
     // 1. Headers & Method Check
     const headers = {
         'Access-Control-Allow-Origin': '*',
@@ -25,9 +28,6 @@ exports.handler = async (event) => {
     }
 
     // 3. Env Check
-    const supabaseUrl = process.env.SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
     if (!supabaseUrl || !supabaseServiceKey) {
         return { statusCode: 500, headers, body: JSON.stringify({ error: 'Configuration Error' }) }
     }
