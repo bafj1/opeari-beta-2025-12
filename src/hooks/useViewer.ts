@@ -103,17 +103,29 @@ export function useViewer() {
     // Initial Mount Effect: Ensure Row -> Then Refresh
     useEffect(() => {
         let mounted = true;
+        // Failsafe: if loading takes > 8s, error out
+        const failsafe = setTimeout(() => {
+            if (mounted && loading) {
+                console.warn('useViewer: Loading timed out');
+                setLoading(false);
+                setError(new Error('Data failed to load in time. Please refresh.'));
+            }
+        }, 8000);
 
         const init = async () => {
             if (!user) {
                 setLoading(false);
+                clearTimeout(failsafe);
                 return;
             }
 
             setLoading(true);
             try {
-                // Run ensureMemberRow ONCE on mount
-                await ensureMemberRow();
+                // Run ensureMemberRow ONCE on mount (with 5s timeout race)
+                await Promise.race([
+                    ensureMemberRow(),
+                    new Promise(resolve => setTimeout(resolve, 5000))
+                ]);
 
                 // Then fetch data
                 if (mounted) {
@@ -125,12 +137,17 @@ export function useViewer() {
                     setError(err);
                     setLoading(false);
                 }
+            } finally {
+                clearTimeout(failsafe);
             }
         };
 
         init();
 
-        return () => { mounted = false; };
+        return () => {
+            mounted = false;
+            clearTimeout(failsafe);
+        };
     }, [user, refresh]); // Rely on stable user/refresh identity
 
     return { viewer, loading, error, refresh };

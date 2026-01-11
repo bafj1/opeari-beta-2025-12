@@ -18,9 +18,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
+    // Failsafe: If nothing resolves in 8 seconds, force loading to false
+    const failsafeTimer = setTimeout(() => {
+      setLoading((prev) => {
+        if (prev) {
+          console.warn('AuthContext: Failsafe triggered - forcing loading to false');
+          return false;
+        }
+        return prev;
+      });
+    }, 8000);
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
+      clearTimeout(failsafeTimer);
       if (error) {
         console.error('Session error:', error)
         // Clear invalid session
@@ -33,7 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // GUARANTEE MEMBER ROW ON INIT
         if (session?.user) {
-          ensureMemberRow().finally(() => setLoading(false))
+          // Race condition: Don't let ensureMemberRow block forever
+          const rowPromise = ensureMemberRow();
+          const timeoutPromise = new Promise(resolve => setTimeout(resolve, 4000));
+
+          Promise.race([rowPromise, timeoutPromise])
+            .finally(() => setLoading(false))
         } else {
           setLoading(false)
         }
@@ -56,14 +72,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           // GUARANTEE MEMBER ROW ON CHANGE
           if (session?.user) {
-            await ensureMemberRow()
+            // Race condition: Don't let ensureMemberRow block forever
+            try {
+              await Promise.race([
+                ensureMemberRow(),
+                new Promise(resolve => setTimeout(resolve, 4000))
+              ]);
+            } catch (err) {
+              console.error('Member row check timed out or failed', err);
+            }
           }
           setLoading(false)
         }
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(failsafeTimer);
+    }
   }, [])
 
   const signOut = async () => {
