@@ -206,21 +206,18 @@ export default function Settings() {
             age_groups: formData.cg_age_groups
           };
 
-          // Caregiver Schedule Contract
-          const cgDaysChanged = JSON.stringify(formData.cg_availability_days) !== JSON.stringify(viewer.caregiverProfile?.availability_days || []);
-          const cgBlocksChanged = JSON.stringify(formData.cg_availability_blocks) !== JSON.stringify(viewer.caregiverProfile?.availability_blocks || []);
+          // Source of truth:
+          // - Caregivers: caregiver_profiles.availability_* (members.schedule must remain NULL)
+          // - Families: members.availability_* and members.schedule (grid)
+          memberUpdates.schedule = null;
 
-          // Note: Caregivers currently store schedule in `members.schedule` or `caregiver_profiles`? 
-          // `useOnboarding` writes `schedule` to `members`. `BuildYourVillage` reads `members.schedule`.
-          // `Settings` maps `cg_availability_days` to `caregiver_profiles`.
-          // This reveals a split brain. `members` has the grid. `caregiver_profiles` has the tags.
-          // For now, if caregiver changes tags, we should probably update `members.schedule` too to be empty?
-          // Since `handleSave` separates `memberUpdates` and `cgUpdates`, we need to add to `memberUpdates` if we want to clear key `schedule`.
+          // const cgDaysChanged = JSON.stringify(formData.cg_availability_days) !== JSON.stringify(viewer.caregiverProfile?.availability_days || []);
+          // const cgBlocksChanged = JSON.stringify(formData.cg_availability_blocks) !== JSON.stringify(viewer.caregiverProfile?.availability_blocks || []);
 
-          if (cgDaysChanged || cgBlocksChanged) {
-            memberUpdates.schedule = {}; // Clear the detailed grid on members table to ensure sync
-            setShowScheduleWarning(true); // Show warning if schedule is reset
-          }
+          // if (cgDaysChanged || cgBlocksChanged) {
+          //   memberUpdates.schedule = {}; // Clear the detailed grid on members table to ensure sync
+          //   setShowScheduleWarning(true); // Show warning if schedule is reset
+          // }
         }
       }
 
