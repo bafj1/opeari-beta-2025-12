@@ -209,15 +209,16 @@ export default function Settings() {
           // Source of truth:
           // - Caregivers: caregiver_profiles.availability_* (members.schedule must remain NULL)
           // - Families: members.availability_* and members.schedule (grid)
+
+          const cgDaysChanged = JSON.stringify(formData.cg_availability_days) !== JSON.stringify(viewer.caregiverProfile?.availability_days || []);
+          const cgBlocksChanged = JSON.stringify(formData.cg_availability_blocks) !== JSON.stringify(viewer.caregiverProfile?.availability_blocks || []);
+
+          if (cgDaysChanged || cgBlocksChanged) {
+            setShowScheduleWarning(true);
+          }
+
+          // ALWAYS enforce null for caregivers to prevent any split-brain data.
           memberUpdates.schedule = null;
-
-          // const cgDaysChanged = JSON.stringify(formData.cg_availability_days) !== JSON.stringify(viewer.caregiverProfile?.availability_days || []);
-          // const cgBlocksChanged = JSON.stringify(formData.cg_availability_blocks) !== JSON.stringify(viewer.caregiverProfile?.availability_blocks || []);
-
-          // if (cgDaysChanged || cgBlocksChanged) {
-          //   memberUpdates.schedule = {}; // Clear the detailed grid on members table to ensure sync
-          //   setShowScheduleWarning(true); // Show warning if schedule is reset
-          // }
         }
       }
 
