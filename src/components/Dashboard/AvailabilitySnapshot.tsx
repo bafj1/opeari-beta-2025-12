@@ -12,7 +12,7 @@ export default function AvailabilitySnapshot() {
     const blocks = profile?.availability_blocks || [];
     const rate = profile?.hourly_rate;
 
-    const rateString = rate ? `$${rate.min}-$${rate.max}/hr` : 'Rate not set';
+    const rateString = rate ? `$${rate}/hr` : 'Rate not set';
 
     const DAYS_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
@@ -36,7 +36,7 @@ export default function AvailabilitySnapshot() {
                     Your Availability
                 </h2>
                 <Link
-                    to="/settings?tab=schedule"
+                    to="/settings"
                     className="text-sm font-semibold text-[#1e6b4e] hover:bg-[#1e6b4e]/10 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
                 >
                     <Edit2 size={14} />
