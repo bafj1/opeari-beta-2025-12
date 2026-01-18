@@ -106,6 +106,7 @@ export default function Settings() {
         // Family Needs (Members)
         availability_days: viewer.member.availability_days || [],
         availability_blocks: viewer.member.availability_blocks || [],
+        schedule_flexible: viewer.member.schedule_flexible || false,
         special_availability: viewer.member.special_availability || [],
         children_age_groups: viewer.member.children_age_groups || [],
         care_types: viewer.member.care_types || [],
@@ -182,6 +183,7 @@ export default function Settings() {
             care_types: formData.care_types,
             availability_days: formData.availability_days,
             availability_blocks: formData.availability_blocks,
+            schedule_flexible: formData.schedule_flexible,
             special_availability: formData.special_availability,
             budget_tiers: formData.budget_tiers,
             transportation_required: formData.transportation_required,
@@ -670,6 +672,22 @@ export default function Settings() {
                       selected={formData.availability_blocks}
                       onChange={(vals) => setFormData({ ...formData, availability_blocks: vals })}
                     />
+
+                    <div className="pt-2">
+                      <label className="flex items-start gap-3 p-3 rounded-xl hover:bg-white transition-colors cursor-pointer border border-transparent hover:border-gray-100">
+                        <input
+                          type="checkbox"
+                          checked={formData.schedule_flexible || false}
+                          onChange={(e) => setFormData({ ...formData, schedule_flexible: e.target.checked })}
+                          className="w-5 h-5 mt-0.5 text-opeari-green rounded focus:ring-opeari-green border-gray-300"
+                        />
+                        <div>
+                          <span className="text-opeari-text font-bold text-sm block">My schedule is flexible</span>
+                          <span className="text-xs text-gray-500 block mt-0.5">If your availability changes week to week, we’ll treat your schedule as flexible.</span>
+                        </div>
+                      </label>
+                    </div>
+
                     <ChipMultiSelect
                       label="Special Requirements"
                       options={SPECIAL_OPTIONS}
