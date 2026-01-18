@@ -176,8 +176,11 @@ export default function Settings() {
 
       // === CARE SECTION ===
       if (section === 'care') {
+        const role = (viewer.member.role || '').toLowerCase().trim();
+        const isCaregiver = role === 'caregiver' || role === 'provider';
+
         // Family: Update Member fields
-        if (viewer.member.role !== 'caregiver') {
+        if (!isCaregiver) {
           memberUpdates = {
             children_age_groups: formData.children_age_groups,
             care_types: formData.care_types,
@@ -294,7 +297,10 @@ export default function Settings() {
   }
 
   const { member, user } = viewer;
-  const isCaregiver = member.role === 'caregiver';
+  // Normalize role for robust checking (Village logic alignment)
+  const role = (member.role || '').toLowerCase().trim();
+  const isCaregiver = role === 'caregiver' || role === 'provider';
+
   const displayEmail = user?.email || member.email || "No email found";
 
   // Common UI classes
