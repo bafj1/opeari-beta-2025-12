@@ -85,8 +85,7 @@ export default function VerificationGate() {
                 <div className="hidden md:flex md:w-[40%] bg-opeari-bg flex-col items-center justify-center p-12 text-center relative transition-all duration-500 border-none">
                     <div className="mb-6 w-56 h-56">
                         <img
-                            src="/opeari-shield.png" // Using existing asset if avail, or verify later. For now assume match or shield.
-                            onError={(e) => { e.currentTarget.src = '/opeari-match.png' }} // Fallback
+                            src="/opeari-match.png"
                             alt="Verification"
                             className="w-full h-full object-contain animate-fade-in"
                         />

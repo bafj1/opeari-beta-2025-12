@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useViewer } from '../hooks/useViewer';
 import { supabase } from '../lib/supabase';
 
@@ -61,9 +61,9 @@ const CERT_OPTIONS = [
 
 
 export default function Settings() {
-  const { viewer, loading, error, refresh } = useViewer(); // Added error here
+  const { viewer, loading, error, refresh } = useViewer();
   const navigate = useNavigate();
-  // const { signOut } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeSection, setActiveSection] = useState<'account' | 'profile' | 'care' | 'village'>('profile');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -71,6 +71,19 @@ export default function Settings() {
   // Form State - Initialize from viewer when loaded
   const [formData, setFormData] = useState<any>({});
   const [showScheduleWarning, setShowScheduleWarning] = useState(false);
+
+  // Sync tab from URL
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['profile', 'care', 'village', 'account'].includes(tab)) {
+      setActiveSection(tab as any);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab: 'profile' | 'care' | 'village' | 'account') => {
+    setActiveSection(tab);
+    setSearchParams({ tab });
+  };
 
   // Initialize form data when viewer loads or refreshes
   useEffect(() => {
@@ -206,10 +219,6 @@ export default function Settings() {
             age_groups: formData.cg_age_groups
           };
 
-          // Source of truth:
-          // - Caregivers: caregiver_profiles.availability_* (members.schedule must remain NULL)
-          // - Families: members.availability_* and members.schedule (grid)
-
           const cgDaysChanged = JSON.stringify(formData.cg_availability_days) !== JSON.stringify(viewer.caregiverProfile?.availability_days || []);
           const cgBlocksChanged = JSON.stringify(formData.cg_availability_blocks) !== JSON.stringify(viewer.caregiverProfile?.availability_blocks || []);
 
@@ -236,11 +245,15 @@ export default function Settings() {
 
       // 2. Update Caregiver Profile (if cgUpdates has keys)
       if (Object.keys(cgUpdates).length > 0) {
-        // ... (rest of logic same) ...
+        const userId = viewer.user?.id;
+        if (!userId) {
+          throw new Error("User ID missing. Please reload.");
+        }
+
         const { error: cgError } = await supabase
           .from('caregiver_profiles')
           .update(cgUpdates)
-          .eq('user_id', memberId);
+          .eq('user_id', userId);
 
         if (cgError) throw cgError;
       }
@@ -256,27 +269,21 @@ export default function Settings() {
     }
   };
 
-  // REMOVED duplicate useViewer hook call here
-
-  // ... (rest of constants/hooks same)
-
-  // ... (rest of constants/hooks same)
-
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="p-8 text-center text-[#1E6B4E] animate-pulse">Loading settings...</div>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-opeari-bg">
+        <div className="w-10 h-10 border-4 border-opeari-peach border-t-opeari-green rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (error || !viewer) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6">
-        <div className="text-red-600 font-bold mb-4">Unable to load settings.</div>
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-opeari-bg">
+        <div className="text-red-600 font-bold mb-6 text-lg">Unable to load settings.</div>
         <button
           onClick={refresh}
-          className="px-6 py-2 bg-[#1E6B4E] text-white rounded-lg hover:bg-[#16503a]"
+          className="px-8 py-3 bg-opeari-heading text-white font-bold rounded-full hover:bg-opeari-green transition-all shadow-button hover:shadow-button-hover"
         >
           Retry
         </button>
@@ -284,461 +291,507 @@ export default function Settings() {
     );
   }
 
-  const { member, user } = viewer; // Destructure user for auth email
+  const { member, user } = viewer;
   const isCaregiver = member.role === 'caregiver';
-
-  // Robust Email
   const displayEmail = user?.email || member.email || "No email found";
 
+  // Common UI classes
+  const inputClass = "w-full p-3.5 rounded-xl border border-opeari-border/50 bg-white text-opeari-text focus:outline-none focus:border-opeari-green focus:ring-4 focus:ring-opeari-green/5 transition-all duration-200 placeholder:text-gray-400";
+  const labelClass = "block text-xs font-bold text-opeari-text-secondary uppercase tracking-wide mb-2";
+  const sectionCardClass = "bg-white rounded-2xl border border-opeari-border shadow-card hover:shadow-card-hover transition-all duration-300 p-6 sm:p-10";
+
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10 bg-[#FAF8F5] min-h-screen">
+    <div className="min-h-screen bg-opeari-bg pb-24 font-sans">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
 
-      {/* ONBOARDING REMINDER BANNER */}
-      {!member.onboarding_complete && (
-        <div className="mb-8 p-6 bg-[#1E6B4E]/5 border-l-4 border-[#1E6B4E] rounded-r-xl flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="w-2 h-2 rounded-full bg-[#1E6B4E] shrink-0" />
-            <div>
-              <h3 className="font-bold text-[#1E6B4E] text-lg">Complete your profile</h3>
-              <p className="text-sm text-[#1E6B4E]/80">Finish onboarding to fully unlock your village.</p>
+        {/* ONBOARDING REMINDER */}
+        {!member.onboarding_complete && (
+          <div className="mb-8 p-6 bg-white border border-opeari-green/20 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-opeari-green/10 flex items-center justify-center shrink-0">
+                <div className="w-2.5 h-2.5 rounded-full bg-opeari-green animate-pulse" />
+              </div>
+              <div>
+                <h3 className="font-bold text-opeari-heading text-lg">Complete your profile</h3>
+                <p className="text-sm text-opeari-text-secondary">Finish onboarding to fully unlock your village.</p>
+              </div>
             </div>
+            <button
+              onClick={() => navigate('/onboarding?step=0')}
+              className="px-6 py-2.5 bg-opeari-heading text-white font-bold rounded-full hover:bg-opeari-green shadow-button hover:shadow-button-hover transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Continue Onboarding
+            </button>
           </div>
-          <button
-            onClick={() => navigate('/onboarding?step=0')}
-            className="px-5 py-2.5 bg-[#1E6B4E] text-white font-bold rounded-lg hover:bg-[#16523d] text-sm transition-all"
-          >
-            Continue Onboarding
-          </button>
+        )}
+
+        <header className="mb-10">
+          <h1 className="text-3xl md:text-4xl font-bold text-opeari-heading tracking-tight mb-2">Settings</h1>
+          <p className="text-opeari-text-secondary">Manage your profile, preferences, and account details.</p>
+        </header>
+
+        {/* Tabs */}
+        <div className="flex gap-1 border-b border-opeari-border/30 mb-8 overflow-x-auto no-scrollbar pb-1">
+          {['profile', 'care', 'village', 'account'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => handleTabChange(tab as any)}
+              className={`px-6 py-3 text-sm font-bold rounded-t-xl transition-all whitespace-nowrap border-b-2 ${activeSection === tab
+                ? 'text-opeari-heading border-opeari-heading bg-white/50'
+                : 'text-opeari-text-secondary border-transparent hover:text-opeari-heading hover:bg-white/30'
+                }`}
+            >
+              {tab === 'care' ? (isCaregiver ? 'Experience' : 'Family Needs') : (tab === 'village' ? 'Village Intent' : tab.charAt(0).toUpperCase() + tab.slice(1))}
+            </button>
+          ))}
         </div>
-      )}
 
-      <h1 className="text-3xl font-bold text-[#1E6B4E] mb-8 font-comfortaa">Settings</h1>
+        {/* Notification */}
+        {message && (
+          <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 animate-fade-in ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-100' : 'bg-red-50 text-red-800 border border-red-100'}`}>
+            <span className="flex-shrink-0">
+              {message.type === 'success' ? (
+                <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              )}
+            </span>
+            <div className="font-medium text-sm sm:text-base">{message.text}</div>
+          </div>
+        )}
 
-      {/* Tabs */}
-      <div className="flex gap-6 border-b border-[#1E6B4E]/20 mb-8 overflow-x-auto">
-        {['profile', 'care', 'village', 'account'].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveSection(tab as any)}
-            className={`pb-3 px-1 text-sm font-bold uppercase tracking-wider transition-colors whitespace-nowrap ${activeSection === tab
-              ? 'text-[#1E6B4E] border-b-2 border-[#1E6B4E]'
-              : 'text-[#1E6B4E]/60 hover:text-[#1E6B4E]'
-              }`}
-          >
-            {tab === 'care' ? (isCaregiver ? 'Experience & Logistics' : 'Family Needs') : (tab === 'village' ? 'Village Intent' : tab)}
-          </button>
-        ))}
-      </div>
-
-      {/* Notification */}
-      {message && (
-        <div className={`mb-6 p-4 rounded-lg flex items-center gap-2 ${message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-100' : 'bg-red-50 text-red-800 border border-red-100'}`}>
-          {message.text}
-        </div>
-      )}
-
-      {showScheduleWarning && (
-        <div className="mb-6 p-4 rounded-lg bg-yellow-50 text-yellow-800 border border-yellow-100 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M8.257 3.099c.765-1.542 2.705-1.542 3.47 0l5.58 11.25A1.5 1.5 0 0117.37 17H2.63a1.5 1.5 0 01-1.381-2.651l5.58-11.25zM10 13a1 1 0 100-2 1 1 0 000 2zm-1-3a1 1 0 112 0v2a1 1 0 11-2 0V10z" clipRule="evenodd" />
-          </svg>
-          Your detailed schedule grid has been reset due to changes in availability days or time blocks. Please update it if needed.
-        </div>
-      )}
-
-      {/* Sections */}
-      <div className="bg-white rounded-2xl p-6 sm:p-10 shadow-sm border border-[#1E6B4E]/10">
-
-        {/* ACCOUNT SECTION */}
-        {activeSection === 'account' && (
-          <div className="space-y-8">
+        {showScheduleWarning && (
+          <div className="mb-6 p-4 rounded-xl bg-amber-50 text-amber-900 border border-amber-100 flex items-start gap-3">
+            <span className="mt-0.5 flex-shrink-0">
+              <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </span>
             <div>
-              <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Email Address</label>
-              <div className="text-lg text-[#1E6B4E] font-medium">{displayEmail}</div>
-              <p className="text-xs text-[#1E6B4E]/50 mt-1">Contact support to change email.</p>
-            </div>
-
-            <div className="pt-6 border-t border-[#1E6B4E]/10">
-              <h3 className="text-lg font-bold text-[#1E6B4E] mb-4">Password</h3>
-              <button
-                onClick={() => window.location.href = '/forgot-password'}
-                className="px-5 py-2.5 border border-[#1E6B4E]/30 text-[#1E6B4E] font-bold rounded-full hover:bg-[#F5F1EB] transition-colors"
-              >
-                Reset Password
-              </button>
-            </div>
-
-            <div className="pt-6 border-t border-[#1E6B4E]/10">
-              <h3 className="text-lg font-bold text-red-600 mb-4">Danger Zone</h3>
-              <button
-                onClick={() => alert('Please contact support to verify identity and delete account.')}
-                className="px-5 py-2.5 border border-red-200 text-red-600 font-bold rounded-full hover:bg-red-50 transition-colors"
-              >
-                Delete Account
-              </button>
+              <p className="font-bold text-sm">Schedule Updated</p>
+              <p className="text-xs sm:text-sm opacity-90 mt-0.5">Your detailed schedule grid has been reset due to changes in availability days or time blocks. Please review it.</p>
             </div>
           </div>
         )}
 
+        {/* Content Card */}
+        <div className={sectionCardClass}>
 
-        {/* PROFILE SECTION */}
-        {activeSection === 'profile' && (
-          <form onSubmit={(e) => { e.preventDefault(); handleSave('profile'); }} className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* ACCOUNT SECTION */}
+          {activeSection === 'account' && (
+            <div className="space-y-10 animate-fade-in">
               <div>
-                <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">First Name</label>
-                <input
-                  type="text"
-                  value={formData.first_name}
-                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                  className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Last Name</label>
-                <input
-                  type="text"
-                  value={formData.last_name}
-                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                  className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Phone Number</label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Zip Code</label>
-                <input
-                  type="text"
-                  value={formData.zip_code}
-                  onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
-                  className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Neighborhood (Optional)</label>
-                <input
-                  type="text"
-                  value={formData.neighborhood}
-                  onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
-                  className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Languages Spoken</label>
-              <input
-                type="text"
-                value={formData.languages}
-                onChange={(e) => setFormData({ ...formData, languages: e.target.value })}
-                placeholder="English, Spanish, French..."
-                className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-              />
-              <p className="text-xs text-[#1E6B4E]/50 mt-1">Separate multiple languages with commas.</p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Bio / Introduction</label>
-              <textarea
-                value={formData.bio}
-                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                rows={4}
-                className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                placeholder="Tell us a bit about yourself..."
-              />
-            </div>
-
-            <div className="pt-4 flex justify-end">
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-8 py-3 bg-[#1E6B4E] text-white font-bold rounded-full hover:bg-[#16523d] transition-colors disabled:opacity-50"
-              >
-                {saving ? 'Saving...' : 'Save Profile'}
-              </button>
-            </div>
-          </form>
-        )}
-
-
-        {/* CARE DETAILS SECTION */}
-        {activeSection === 'care' && (
-          <form onSubmit={(e) => { e.preventDefault(); handleSave('care'); }} className="space-y-8">
-            {isCaregiver ? (
-              // CAREGIVER FORM
-              <div className="space-y-6">
-
-                {/* ROLE & EXPERIENCE */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Primary Role</label>
-                    <select
-                      value={formData.cg_role_type}
-                      onChange={(e) => setFormData({ ...formData, cg_role_type: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] bg-white focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                    >
-                      <option value="">Select Role</option>
-                      {ROLE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Years Experience</label>
-                    <select
-                      value={formData.cg_years_experience}
-                      onChange={(e) => setFormData({ ...formData, cg_years_experience: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] bg-white focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                    >
-                      <option value="">Select Experience</option>
-                      {YEARS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
-                  </div>
+                <label className={labelClass}>Email Address</label>
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+                  <div className="text-lg text-opeari-heading font-medium">{displayEmail}</div>
+                  <span className="text-xs font-bold px-3 py-1 bg-gray-200 text-gray-500 rounded-full uppercase tracking-wider">Verified</span>
                 </div>
+                <p className="text-xs text-gray-400 mt-2 px-1">Contact support to change your email address.</p>
+              </div>
 
-                <ChipMultiSelect
-                  label="Secondary Roles"
-                  options={ROLE_OPTIONS}
-                  selected={formData.cg_secondary_roles}
-                  onChange={(vals) => setFormData({ ...formData, cg_secondary_roles: vals })}
-                />
+              <div className="pt-8 border-t border-gray-100">
+                <h3 className="text-lg font-bold text-opeari-heading mb-4">Security</h3>
+                <button
+                  onClick={() => window.location.href = '/forgot-password'}
+                  className="px-6 py-3 bg-white border border-opeari-border text-opeari-heading font-bold rounded-full hover:bg-opeari-mint/10 hover:border-opeari-green/30 transition-all"
+                >
+                  Reset Password
+                </button>
+              </div>
 
-                {/* HOURLY RATE - Replaced Tiers with Input */}
+              <div className="pt-8 border-t border-gray-100">
+                <h3 className="text-lg font-bold text-red-600 mb-4">Danger Zone</h3>
+                <p className="text-sm text-gray-500 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
+                <button
+                  onClick={() => alert('Please contact support to verify identity and delete account.')}
+                  className="px-6 py-3 bg-white border border-red-200 text-red-600 font-bold rounded-full hover:bg-red-50 hover:border-red-300 transition-all"
+                >
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          )}
+
+
+          {/* PROFILE SECTION */}
+          {activeSection === 'profile' && (
+            <form onSubmit={(e) => { e.preventDefault(); handleSave('profile'); }} className="space-y-8 animate-fade-in">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Hourly Rate ($/hr)</label>
-                  <div className="flex items-center">
-                    <span className="p-3 bg-gray-50 border border-r-0 border-[#1E6B4E]/20 rounded-l-lg text-[#1E6B4E]/70 font-bold">$</span>
-                    <input
-                      type="text"
-                      value={formData.cg_hourly_rate}
-                      onChange={(e) => setFormData({ ...formData, cg_hourly_rate: e.target.value.replace(/[^0-9]/g, '') })}
-                      placeholder="25"
-                      className="w-full p-3 rounded-r-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                    />
-                  </div>
-                </div>
-
-                <hr className="border-[#1E6B4E]/10" />
-
-                <ChipMultiSelect
-                  label="Availability Days"
-                  options={DAYS_OPTIONS}
-                  selected={formData.cg_availability_days}
-                  onChange={(vals) => setFormData({ ...formData, cg_availability_days: vals })}
-                />
-                <ChipMultiSelect
-                  label="Time Blocks"
-                  options={BLOCKS_OPTIONS}
-                  selected={formData.cg_availability_blocks}
-                  onChange={(vals) => setFormData({ ...formData, cg_availability_blocks: vals })}
-                />
-
-                <hr className="border-[#1E6B4E]/10" />
-
-                <ChipMultiSelect
-                  label="Age Groups Experience"
-                  options={AGE_GROUPS}
-                  selected={formData.cg_age_groups}
-                  onChange={(vals) => setFormData({ ...formData, cg_age_groups: vals })}
-                />
-
-                <ChipMultiSelect
-                  label="Logistics & Skills"
-                  options={LOGISTICS_OPTIONS}
-                  selected={formData.cg_logistics}
-                  onChange={(vals) => setFormData({ ...formData, cg_logistics: vals })}
-                />
-
-                <ChipMultiSelect
-                  label="Certifications"
-                  options={CERT_OPTIONS}
-                  selected={formData.cg_certifications}
-                  onChange={(vals) => setFormData({ ...formData, cg_certifications: vals })}
-                />
-
-                <div>
-                  <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Transportation</label>
-                  <select
-                    value={formData.cg_transportation}
-                    onChange={(e) => setFormData({ ...formData, cg_transportation: e.target.value })}
-                    className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] bg-white focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                  >
-                    <option value="none">None</option>
-                    <option value="own_car">Own Car</option>
-                    <option value="public_transit">Public Transit</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Languages (Caregiver Specific)</label>
+                  <label className={labelClass}>First Name</label>
                   <input
                     type="text"
-                    value={formData.cg_languages}
-                    onChange={(e) => setFormData({ ...formData, cg_languages: e.target.value })}
-                    placeholder="English, Spanish..."
-                    className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                    className={inputClass}
                   />
-                  <p className="text-xs text-[#1E6B4E]/50 mt-1">If different from profile, list here.</p>
+                </div>
+                <div>
+                  <label className={labelClass}>Last Name</label>
+                  <input
+                    type="text"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                    className={inputClass}
+                  />
                 </div>
               </div>
-            ) : (
-              // FAMILY FORM
-              <div className="space-y-6">
-                <div className="p-4 bg-white border border-[#1E6B4E]/10 rounded-xl space-y-4">
-                  <ChipMultiSelect
-                    label="Care Type Needed"
-                    options={CARE_TYPES}
-                    selected={formData.care_types}
-                    onChange={(vals) => setFormData({ ...formData, care_types: vals })}
-                  />
-                  <ChipMultiSelect
-                    label="Children Age Groups"
-                    options={AGE_GROUPS}
-                    selected={formData.children_age_groups}
-                    onChange={(vals) => setFormData({ ...formData, children_age_groups: vals })}
-                  />
-                  <ChipMultiSelect
-                    label="Budget per Hour"
-                    options={BUDGET_TIERS}
-                    selected={formData.budget_tiers}
-                    onChange={(vals) => setFormData({ ...formData, budget_tiers: vals })}
+
+              <div>
+                <label className={labelClass}>Phone Number</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className={labelClass}>Zip Code</label>
+                  <input
+                    type="text"
+                    value={formData.zip_code}
+                    onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
+                    className={inputClass}
                   />
                 </div>
-
-                <div className="p-4 bg-white border border-[#1E6B4E]/10 rounded-xl space-y-4">
-                  <ChipMultiSelect
-                    label="Days Needed"
-                    options={DAYS_OPTIONS}
-                    selected={formData.availability_days}
-                    onChange={(vals) => setFormData({ ...formData, availability_days: vals })}
-                  />
-                  <ChipMultiSelect
-                    label="Time Blocks"
-                    options={BLOCKS_OPTIONS}
-                    selected={formData.availability_blocks}
-                    onChange={(vals) => setFormData({ ...formData, availability_blocks: vals })}
-                  />
-                  <ChipMultiSelect
-                    label="Special Requirements"
-                    options={SPECIAL_OPTIONS}
-                    selected={formData.special_availability}
-                    onChange={(vals) => setFormData({ ...formData, special_availability: vals })}
+                <div>
+                  <label className={labelClass}>Neighborhood</label>
+                  <input
+                    type="text"
+                    value={formData.neighborhood}
+                    onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                    className={inputClass}
+                    placeholder="e.g. Noe Valley"
                   />
                 </div>
+              </div>
 
-                <div className="p-4 bg-white border border-[#1E6B4E]/10 rounded-xl space-y-4">
-                  <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase">Additional Requirements</label>
+              <div>
+                <label className={labelClass}>Languages Spoken</label>
+                <input
+                  type="text"
+                  value={formData.languages}
+                  onChange={(e) => setFormData({ ...formData, languages: e.target.value })}
+                  placeholder="English, Spanish, French..."
+                  className={inputClass}
+                />
+              </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-[#1E6B4E] mb-2">Language Preference</label>
-                    <select
-                      value={formData.language_requirement}
-                      onChange={(e) => setFormData({ ...formData, language_requirement: e.target.value })}
-                      className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] bg-white focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                    >
-                      <option value="nice_to_have">Nice to have</option>
-                      <option value="must_have">Must have</option>
-                    </select>
+              <div>
+                <label className={labelClass}>Bio / Introduction</label>
+                <textarea
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  rows={5}
+                  className={inputClass}
+                  placeholder="Tell your neighbors a bit about yourself..."
+                />
+              </div>
+
+              <div className="pt-6 flex justify-end border-t border-gray-50">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-10 py-3.5 bg-opeari-heading text-white font-bold rounded-full hover:bg-opeari-green shadow-button hover:shadow-button-hover hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
+                >
+                  {saving ? 'Saving...' : 'Save Profile'}
+                </button>
+              </div>
+            </form>
+          )}
+
+
+          {/* CARE DETAILS SECTION */}
+          {activeSection === 'care' && (
+            <form onSubmit={(e) => { e.preventDefault(); handleSave('care'); }} className="space-y-10 animate-fade-in">
+              {isCaregiver ? (
+                // CAREGIVER FORM
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className={labelClass}>Primary Role</label>
+                      <select
+                        value={formData.cg_role_type}
+                        onChange={(e) => setFormData({ ...formData, cg_role_type: e.target.value })}
+                        className={inputClass}
+                      >
+                        <option value="">Select Role</option>
+                        {ROLE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Years Experience</label>
+                      <select
+                        value={formData.cg_years_experience}
+                        onChange={(e) => setFormData({ ...formData, cg_years_experience: e.target.value })}
+                        className={inputClass}
+                      >
+                        <option value="">Select Experience</option>
+                        {YEARS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                      </select>
+                    </div>
                   </div>
 
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={formData.transportation_required || false}
-                      onChange={(e) => setFormData({ ...formData, transportation_required: e.target.checked })}
-                      className="w-5 h-5 text-[#1E6B4E] rounded focus:ring-[#1E6B4E]"
-                    />
-                    <span className="text-[#1E6B4E] font-medium">Transportation Required</span>
-                  </label>
+                  <ChipMultiSelect
+                    label="Secondary Roles"
+                    options={ROLE_OPTIONS}
+                    selected={formData.cg_secondary_roles}
+                    onChange={(vals) => setFormData({ ...formData, cg_secondary_roles: vals })}
+                  />
 
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={formData.require_identity_verified || false}
-                      onChange={(e) => setFormData({ ...formData, require_identity_verified: e.target.checked })}
-                      className="w-5 h-5 text-[#1E6B4E] rounded focus:ring-[#1E6B4E]"
-                    />
-                    <span className="text-[#1E6B4E] font-medium">Require Identity Verified</span>
-                  </label>
+                  {/* HOURLY RATE */}
+                  <div>
+                    <label className={labelClass}>Hourly Rate ($/hr)</label>
+                    <div className="flex items-center">
+                      <span className="p-3.5 bg-gray-50 border border-r-0 border-opeari-border/50 rounded-l-xl text-gray-500 font-bold">$</span>
+                      <input
+                        type="text"
+                        value={formData.cg_hourly_rate}
+                        onChange={(e) => setFormData({ ...formData, cg_hourly_rate: e.target.value.replace(/[^0-9]/g, '') })}
+                        placeholder="25"
+                        className="w-full p-3.5 rounded-r-xl border border-opeari-border/50 text-opeari-text focus:outline-none focus:border-opeari-green focus:ring-4 focus:ring-opeari-green/5 transition-all"
+                      />
+                    </div>
+                  </div>
 
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={formData.require_background_verified || false}
-                      onChange={(e) => setFormData({ ...formData, require_background_verified: e.target.checked })}
-                      className="w-5 h-5 text-[#1E6B4E] rounded focus:ring-[#1E6B4E]"
+                  <div className="border-t border-gray-100 my-8"></div>
+
+                  <div className="space-y-6">
+                    <ChipMultiSelect
+                      label="Availability Days"
+                      options={DAYS_OPTIONS}
+                      selected={formData.cg_availability_days}
+                      onChange={(vals) => setFormData({ ...formData, cg_availability_days: vals })}
                     />
-                    <span className="text-[#1E6B4E] font-medium">Require Background Check</span>
-                  </label>
+                    <ChipMultiSelect
+                      label="Time Blocks"
+                      options={BLOCKS_OPTIONS}
+                      selected={formData.cg_availability_blocks}
+                      onChange={(vals) => setFormData({ ...formData, cg_availability_blocks: vals })}
+                    />
+                  </div>
+
+                  <div className="border-t border-gray-100 my-8"></div>
+
+                  <div className="space-y-6">
+                    <ChipMultiSelect
+                      label="Age Groups Experience"
+                      options={AGE_GROUPS}
+                      selected={formData.cg_age_groups}
+                      onChange={(vals) => setFormData({ ...formData, cg_age_groups: vals })}
+                    />
+
+                    <ChipMultiSelect
+                      label="Logistics & Skills"
+                      options={LOGISTICS_OPTIONS}
+                      selected={formData.cg_logistics}
+                      onChange={(vals) => setFormData({ ...formData, cg_logistics: vals })}
+                    />
+
+                    <ChipMultiSelect
+                      label="Certifications"
+                      options={CERT_OPTIONS}
+                      selected={formData.cg_certifications}
+                      onChange={(vals) => setFormData({ ...formData, cg_certifications: vals })}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className={labelClass}>Transportation</label>
+                      <select
+                        value={formData.cg_transportation}
+                        onChange={(e) => setFormData({ ...formData, cg_transportation: e.target.value })}
+                        className={inputClass}
+                      >
+                        <option value="none">None</option>
+                        <option value="own_car">Own Car</option>
+                        <option value="public_transit">Public Transit</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Languages</label>
+                      <input
+                        type="text"
+                        value={formData.cg_languages}
+                        onChange={(e) => setFormData({ ...formData, cg_languages: e.target.value })}
+                        placeholder="English, Spanish..."
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
                 </div>
+              ) : (
+                // FAMILY FORM
+                <div className="space-y-6">
+                  <div className="p-6 bg-stone-50/50 rounded-2xl border border-stone-100 space-y-6 hover:border-opeari-green/20 transition-colors">
+                    <ChipMultiSelect
+                      label="Care Type Needed"
+                      options={CARE_TYPES}
+                      selected={formData.care_types}
+                      onChange={(vals) => setFormData({ ...formData, care_types: vals })}
+                    />
+                    <div className="space-y-1">
+                      <ChipMultiSelect
+                        label="Age groups only (for now)"
+                        options={AGE_GROUPS}
+                        selected={formData.children_age_groups}
+                        onChange={(vals) => setFormData({ ...formData, children_age_groups: vals })}
+                      />
+                      <p className="text-xs text-gray-400 font-medium px-1">
+                        These tags help us match your care needs. You’ll be able to add kid details later.
+                      </p>
+                    </div>
+                    <ChipMultiSelect
+                      label="Budget per Hour"
+                      options={BUDGET_TIERS}
+                      selected={formData.budget_tiers}
+                      onChange={(vals) => setFormData({ ...formData, budget_tiers: vals })}
+                    />
+                  </div>
+
+                  <div className="p-6 bg-stone-50/50 rounded-2xl border border-stone-100 space-y-6 hover:border-opeari-green/20 transition-colors">
+                    <ChipMultiSelect
+                      label="Days Needed"
+                      options={DAYS_OPTIONS}
+                      selected={formData.availability_days}
+                      onChange={(vals) => setFormData({ ...formData, availability_days: vals })}
+                    />
+                    <ChipMultiSelect
+                      label="Time Blocks"
+                      options={BLOCKS_OPTIONS}
+                      selected={formData.availability_blocks}
+                      onChange={(vals) => setFormData({ ...formData, availability_blocks: vals })}
+                    />
+                    <ChipMultiSelect
+                      label="Special Requirements"
+                      options={SPECIAL_OPTIONS}
+                      selected={formData.special_availability}
+                      onChange={(vals) => setFormData({ ...formData, special_availability: vals })}
+                    />
+                  </div>
+
+                  <div className="p-6 bg-stone-50/50 rounded-2xl border border-stone-100 space-y-4 hover:border-opeari-green/20 transition-colors">
+                    <label className={labelClass}>Additional Requirements</label>
+
+                    <div className="mb-4">
+                      <label className="text-xs font-bold text-gray-500 mb-1 block">Language Preference</label>
+                      <select
+                        value={formData.language_requirement}
+                        onChange={(e) => setFormData({ ...formData, language_requirement: e.target.value })}
+                        className={inputClass}
+                      >
+                        <option value="nice_to_have">Nice to have</option>
+                        <option value="must_have">Must have</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-3 p-3 rounded-xl hover:bg-white transition-colors cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.transportation_required || false}
+                          onChange={(e) => setFormData({ ...formData, transportation_required: e.target.checked })}
+                          className="w-5 h-5 text-opeari-green rounded focus:ring-opeari-green border-gray-300"
+                        />
+                        <span className="text-opeari-text font-medium">Transportation Required</span>
+                      </label>
+
+                      <label className="flex items-center gap-3 p-3 rounded-xl hover:bg-white transition-colors cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.require_identity_verified || false}
+                          onChange={(e) => setFormData({ ...formData, require_identity_verified: e.target.checked })}
+                          className="w-5 h-5 text-opeari-green rounded focus:ring-opeari-green border-gray-300"
+                        />
+                        <span className="text-opeari-text font-medium">Require Identity Verified</span>
+                      </label>
+
+                      <label className="flex items-center gap-3 p-3 rounded-xl hover:bg-white transition-colors cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.require_background_verified || false}
+                          onChange={(e) => setFormData({ ...formData, require_background_verified: e.target.checked })}
+                          className="w-5 h-5 text-opeari-green rounded focus:ring-opeari-green border-gray-300"
+                        />
+                        <span className="text-opeari-text font-medium">Require Background Check</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-6 flex justify-end border-t border-gray-50">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-10 py-3.5 bg-opeari-heading text-white font-bold rounded-full hover:bg-opeari-green shadow-button hover:shadow-button-hover hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : 'Save Details'}
+                </button>
               </div>
-            )}
+            </form>
+          )}
 
-            <div className="pt-4 flex justify-end">
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-8 py-3 bg-[#1E6B4E] text-white font-bold rounded-full hover:bg-[#16523d] transition-colors disabled:opacity-50"
-              >
-                {saving ? 'Saving...' : 'Save Details'}
-              </button>
-            </div>
-          </form>
-        )}
+          {/* VILLAGE INTENT SECTION */}
+          {activeSection === 'village' && (
+            <form onSubmit={(e) => { e.preventDefault(); handleSave('village'); }} className="space-y-10 animate-fade-in">
+              <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-blue-900 text-sm font-medium flex gap-3">
+                <span className="flex-shrink-0 mt-0.5">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </span>
+                <p className="mt-0.5">Opeari is about give and take. Use this section for neighborly help (meal trains, carpools) rather than professional care.</p>
+              </div>
 
-        {/* VILLAGE INTENT SECTION */}
-        {activeSection === 'village' && (
-          <form onSubmit={(e) => { e.preventDefault(); handleSave('village'); }} className="space-y-8">
-            <div className="text-sm text-[#1E6B4E]/70 mb-4 italic">
-              Opeari is about give and take. Use this section for neighborly help (meal trains, carpools) rather than professional care.
-            </div>
+              <div className="space-y-8">
+                <ChipMultiSelect
+                  label="Support I can OFFER"
+                  options={VILLAGE_SUPPORT_OPTIONS}
+                  selected={formData.support_offered}
+                  onChange={(vals) => setFormData({ ...formData, support_offered: vals })}
+                />
 
-            <ChipMultiSelect
-              label="Support I can OFFER"
-              options={VILLAGE_SUPPORT_OPTIONS}
-              selected={formData.support_offered}
-              onChange={(vals) => setFormData({ ...formData, support_offered: vals })}
-            />
+                <ChipMultiSelect
+                  label="Support I NEED"
+                  options={VILLAGE_SUPPORT_OPTIONS}
+                  selected={formData.support_needed}
+                  onChange={(vals) => setFormData({ ...formData, support_needed: vals })}
+                />
+              </div>
 
-            <ChipMultiSelect
-              label="Support I NEED"
-              options={VILLAGE_SUPPORT_OPTIONS}
-              selected={formData.support_needed}
-              onChange={(vals) => setFormData({ ...formData, support_needed: vals })}
-            />
+              <div>
+                <label className={labelClass}>Additional Notes / Other Ideas</label>
+                <textarea
+                  value={formData.support_notes}
+                  onChange={(e) => setFormData({ ...formData, support_notes: e.target.value })}
+                  rows={4}
+                  className={inputClass}
+                  placeholder="I can also bake bread on weekends..."
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#1E6B4E]/70 uppercase mb-2">Additional Notes / Other Ideas</label>
-              <textarea
-                value={formData.support_notes}
-                onChange={(e) => setFormData({ ...formData, support_notes: e.target.value })}
-                rows={4}
-                className="w-full p-3 rounded-lg border border-[#1E6B4E]/20 text-[#1E6B4E] focus:outline-none focus:ring-2 focus:ring-[#1E6B4E]/20"
-                placeholder="I can also bake bread on weekends..."
-              />
-            </div>
+              <div className="pt-6 flex justify-end border-t border-gray-50">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-10 py-3.5 bg-opeari-heading text-white font-bold rounded-full hover:bg-opeari-green shadow-button hover:shadow-button-hover hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : 'Save Intent'}
+                </button>
+              </div>
+            </form>
+          )}
 
-            <div className="pt-4 flex justify-end">
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-8 py-3 bg-[#1E6B4E] text-white font-bold rounded-full hover:bg-[#16523d] transition-colors disabled:opacity-50"
-              >
-                {saving ? 'Saving...' : 'Save Intent'}
-              </button>
-            </div>
-          </form>
-        )}
-
+        </div>
       </div>
     </div>
   );

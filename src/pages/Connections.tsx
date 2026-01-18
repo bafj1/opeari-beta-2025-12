@@ -48,7 +48,7 @@ export default function Connections() {
       const { data: member } = await supabase
         .from('members')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .single()
 
       if (!member) {

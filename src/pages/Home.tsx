@@ -86,16 +86,16 @@ export default function Home() {
         Layout: Split Content / Image
       */}
       <section className="pt-32 pb-16 sm:pt-40 sm:pb-24 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
             {/* Left Content */}
-            <div className="flex-1 text-center lg:text-left">
+            <div className="flex-1 text-center md:text-left">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#1E6B4E] leading-[1.1] mb-6 font-display">
-                It takes a village. <br />
-                <span className="text-[#1E6B4E]">Let's build yours.</span>
+                <span className="block">It takes a village.</span>
+                <span className="block text-[#1E6B4E]">Let's build yours.</span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-[#1E6B4E]/80 mb-6 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+              <p className="text-lg sm:text-xl text-[#1E6B4E]/80 mb-6 max-w-xl mx-auto md:mx-0 leading-relaxed font-medium">
                 A private way for parents to share and coordinate childcare locally — from nanny shares to backup help.
               </p>
 
@@ -103,7 +103,7 @@ export default function Home() {
                 Flexible care, perfectly paired.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
                 <Link
                   to="/waitlist"
                   className="inline-flex items-center justify-center h-12 sm:h-14 px-8 rounded-full bg-[#F8C3B3] text-[#1E6B4E] font-bold text-lg hover:bg-[#f0b5a5] hover:-translate-y-0.5 transition-all duration-300 shadow-sm hover:shadow-md"

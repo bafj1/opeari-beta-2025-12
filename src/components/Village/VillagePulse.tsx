@@ -52,6 +52,9 @@ export default function VillagePulse() {
 
             {data.status === 'active' ? (
                 <div>
+                    <p className="text-sm text-opeari-text-secondary mb-3 italic">
+                        Village Pulse comes alive as your village grows.
+                    </p>
                     <div className="flex items-center gap-2 text-sm text-opeari-text mb-3">
                         <Users size={14} className="text-opeari-green" />
                         <span>Based on {data.cohort_size} families in your {data.cohort_type}</span>

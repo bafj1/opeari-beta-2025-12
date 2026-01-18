@@ -43,8 +43,8 @@ export default {
         'tag': '50px',
       },
       boxShadow: {
-        'card': '0 4px 16px var(--opeari-shadow)',
-        'card-hover': '0 8px 24px var(--opeari-shadow-hover)',
+        'card': '0 4px 20px rgba(0, 0, 0, 0.08)',
+        'card-hover': '0 8px 28px rgba(0, 0, 0, 0.12)',
         'button': '0 4px 12px rgba(30, 107, 78, 0.2)',
         'button-hover': '0 6px 16px rgba(30, 107, 78, 0.25)',
         'input-focus': '0 0 0 3px rgba(30, 107, 78, 0.1)',

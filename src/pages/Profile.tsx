@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Plus } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import Header from '../components/common/Header'
 import {
   NANNY_SITUATION_OPTIONS,
   LOOKING_FOR_OPTIONS,
@@ -40,18 +40,19 @@ interface ProfileData {
   schedule_flexible: boolean
   schedule_notes: string
   pets: string[]
+  children_age_groups: string[]
   kids: Kid[]
 }
 
-// Gender color helper
-function getGenderColor(gender: string | null): { bg: string; text: string } {
+// Gender color helper - Converted to Tailwind classes
+function getGenderClasses(gender: string | null): string {
   switch (gender) {
     case 'boy':
-      return { bg: '#E3F2FD', text: '#1976D2' } // Blue
+      return 'bg-blue-50 text-blue-700'
     case 'girl':
-      return { bg: '#FCE4EC', text: '#C2185B' } // Pink
+      return 'bg-pink-50 text-pink-700'
     default:
-      return { bg: '#d8f5e5', text: '#1e6b4e' } // Green/gray
+      return 'bg-opeari-green/10 text-opeari-heading'
   }
 }
 
@@ -77,6 +78,15 @@ function getLookingForLabel(item: string): string {
   return item.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
+// Format age group tags
+function formatAgeGroup(tag: string): string {
+  return tag
+    .replace(/_/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase())
+}
+
 export default function Profile() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -96,7 +106,7 @@ export default function Profile() {
       const { data: member, error } = await supabase
         .from('members')
         .select('*, kids(*)')
-        .eq('user_id', user!.id)
+        .eq('id', user!.id)
         .single()
 
       if (error) throw error
@@ -117,6 +127,7 @@ export default function Profile() {
         schedule_flexible: member.schedule_flexible || false,
         schedule_notes: member.schedule_notes || '',
         pets: member.pets || [],
+        children_age_groups: member.children_age_groups || [],
         kids: member.kids || [],
       })
     } catch (err) {
@@ -131,23 +142,17 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <>
-        <Header />
-        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#d8f5e5' }}>
-          <div style={{ color: '#1e6b4e' }} className="font-semibold animate-pulse">Loading profile...</div>
-        </div>
-      </>
+      <div className="min-h-screen flex items-center justify-center bg-opeari-bg">
+        <div className="w-10 h-10 border-4 border-opeari-peach border-t-opeari-green rounded-full animate-spin"></div>
+      </div>
     )
   }
 
   if (!profile) {
     return (
-      <>
-        <Header />
-        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#d8f5e5' }}>
-          <p style={{ color: '#4A6163' }}>Profile not found</p>
-        </div>
-      </>
+      <div className="min-h-screen flex items-center justify-center bg-opeari-bg">
+        <p className="text-gray-500 font-bold">Profile not found</p>
+      </div>
     )
   }
 
@@ -156,121 +161,196 @@ export default function Profile() {
   const hasSchedule = Object.values(profile.schedule).some(slots => slots && slots.length > 0)
 
   return (
-    <>
-      <Header />
-      {/* MINT BACKGROUND */}
-      <div className="min-h-screen" style={{ backgroundColor: '#d8f5e5' }}>
-        <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-opeari-bg pb-24 font-sans">
 
-          {/* Header with Edit */}
-          <div className="flex items-center justify-between mb-5">
-            <h1 style={{ color: '#1e6b4e' }} className="text-2xl font-bold">My Profile</h1>
-            <Link
-              to="/settings"
-              style={{ backgroundColor: '#F8C3B3', color: '#1e6b4e' }}
-              className="px-4 py-2 font-semibold rounded-full text-sm"
-            >
-              Edit Profile
-            </Link>
-          </div>
 
-          {/* Profile Completeness - NOW A CTA */}
-          {!isComplete && (
-            <Link
-              to="/settings?tab=profile"
-              className="block mb-5 p-4 rounded-xl"
-              style={{ backgroundColor: '#F9E3D2', border: '2px solid #F8C3B3' }}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span style={{ color: '#1e6b4e' }} className="text-sm font-semibold">Profile completeness</span>
-                <span style={{ color: '#F8C3B3' }} className="text-sm font-bold">{completeness}%</span>
+      <div className="max-w-3xl mx-auto px-4 py-8">
+
+        {/* Header with Edit */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-opeari-heading tracking-tight">My Profile</h1>
+          <Link
+            to="/settings"
+            className="px-6 py-2.5 bg-white border border-opeari-border text-opeari-heading font-bold rounded-full text-sm hover:bg-opeari-mint/10 hover:border-opeari-green/30 transition-all shadow-sm hover:shadow"
+          >
+            Edit Profile
+          </Link>
+        </div>
+
+        {/* Profile Completeness - CTA */}
+        {!isComplete && (
+          <Link
+            to="/settings?tab=profile"
+            className="block mb-8 p-6 rounded-2xl bg-white border border-opeari-peach/30 shadow-card hover:shadow-card-hover hover:border-opeari-peach transition-all group relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-opeari-peach/5 group-hover:bg-opeari-peach/10 transition-colors" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-bold text-opeari-heading uppercase tracking-wide">Profile strength</span>
+                <span className="text-sm font-bold text-opeari-peach">{completeness}%</span>
               </div>
-              <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#fffaf5' }}>
+              <div className="h-2.5 rounded-full overflow-hidden bg-stone-100">
                 <div
-                  className="h-full rounded-full transition-all"
-                  style={{ width: `${completeness}%`, backgroundColor: '#F8C3B3' }}
+                  className="h-full rounded-full transition-all bg-gradient-to-r from-opeari-peach to-opeari-coral"
+                  style={{ width: `${completeness}%` }}
                 />
               </div>
-              <p style={{ color: '#1e6b4e' }} className="text-xs mt-2 flex items-center gap-1">
+              <p className="text-sm mt-3 flex items-center gap-2 text-opeari-heading font-bold group-hover:text-opeari-coral transition-colors">
                 Complete your profile to get 3x more connections
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </p>
-            </Link>
-          )}
+            </div>
+          </Link>
+        )}
 
-          {/* Main Card */}
-          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#fffaf5', border: '1px solid #8bd7c7' }}>
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl overflow-hidden border border-opeari-border shadow-card hover:shadow-card-hover transition-all duration-300">
 
-            {/* Photo & Basic Info */}
-            <div className="p-5 sm:p-6" style={{ borderBottom: '1px solid #8bd7c7' }}>
-              <div className="flex items-start gap-4">
-                {/* Avatar */}
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0" style={{ backgroundColor: '#d8f5e5' }}>
-                  {profile.photo_url ? (
-                    <img src={profile.photo_url} alt={profile.first_name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span style={{ color: '#1e6b4e' }} className="text-3xl font-bold">
+          {/* Photo & Basic Info */}
+          <div className="p-6 sm:p-8 border-b border-gray-100 bg-gradient-to-b from-white to-stone-50/30">
+            <div className="flex items-start gap-6">
+              {/* Avatar */}
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 bg-white border-4 border-white shadow-md">
+                {profile.photo_url ? (
+                  <img src={profile.photo_url} alt={profile.first_name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-opeari-green/10 flex items-center justify-center">
+                    <span className="text-4xl font-bold text-opeari-heading/50">
                       {profile.first_name?.charAt(0) || '?'}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0 pt-2">
+                <h2 className="text-2xl sm:text-3xl font-bold text-opeari-heading tracking-tight">
+                  {profile.first_name}'s Family
+                </h2>
+                <div className="flex items-center gap-2 mt-1">
+                  <svg className="w-4 h-4 text-opeari-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span className="font-medium text-opeari-heading/70">
+                    {profile.neighborhood || 'Neighborhood Not Set'}
+                  </span>
+                </div>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {situationLabel && (
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${profile.nanny_situation === 'have_nanny' ? 'bg-opeari-green/10 text-opeari-green' : 'bg-opeari-peach/10 text-opeari-peach'}`}>
+                      {situationLabel}
+                    </span>
+                  )}
+                  {timelineLabel && (
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600">
+                      {timelineLabel}
                     </span>
                   )}
                 </div>
+              </div>
+            </div>
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <h2 style={{ color: '#1e6b4e' }} className="text-xl sm:text-2xl font-bold">
-                    {profile.first_name}'s Family
-                  </h2>
-                  <p style={{ color: '#4A6163' }} className="mt-1">
-                    {profile.neighborhood || 'Add your neighborhood in settings'}
-                  </p>
+            {/* Tagline */}
+            {profile.tagline && (
+              <div className="mt-8 p-5 rounded-xl bg-opeari-bg/50 border border-opeari-border/30">
+                <p className="text-lg italic text-opeari-heading/80 leading-relaxed font-medium text-center">"{profile.tagline}"</p>
+              </div>
+            )}
+          </div>
 
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {situationLabel && (
-                      <span
-                        className="px-3 py-1 rounded-full text-xs font-medium"
-                        style={{
-                          backgroundColor: profile.nanny_situation === 'have_nanny' ? '#d8f5e5' : 'rgba(248, 195, 179, 0.2)',
-                          color: profile.nanny_situation === 'have_nanny' ? '#1e6b4e' : '#F8C3B3',
-                        }}
+          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+            {/* Kids Section */}
+            <div className="p-6 sm:p-8">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-opeari-text-secondary mb-5 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Kids (Profiles coming soon)
+              </h3>
+
+              {profile.kids.length > 0 ? (
+                <div className="flex flex-wrap gap-3">
+                  {profile.kids.map(kid => {
+                    const genderClasses = getGenderClasses(kid.gender)
+                    const age = kid.birth_year ? calculateKidAge(kid.birth_month || 1, kid.birth_year) : null
+                    const primaryLabel = kid.first_name && kid.first_name.trim() ? kid.first_name.trim() : 'Child'
+
+                    return (
+                      <div
+                        key={kid.id}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full ${genderClasses} font-bold text-sm shadow-sm`}
                       >
-                        {situationLabel}
+                        {/* Gender icon */}
+                        <div className="w-5 h-5 rounded-full bg-white/60 flex items-center justify-center">
+                          {kid.gender === 'boy' ? (
+                            <svg className="w-3" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9H15V22H13V16H11V22H9V9H3V7H21V9Z" />
+                            </svg>
+                          ) : kid.gender === 'girl' ? (
+                            <svg className="w-3" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM15 9H9V14H7V22H9V17H11V22H13V17H15V22H17V14H15V9Z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-3" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9H15V22H13V16H11V22H9V9H3V7H21V9Z" />
+                            </svg>
+                          )}
+                        </div>
+                        {primaryLabel}
+                        {age && (
+                          <span className="opacity-80 font-medium border-l border-current/20 pl-2 text-xs">
+                            {age}
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : profile.children_age_groups && profile.children_age_groups.length > 0 ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-gray-400 font-medium">Age groups you're planning around</p>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.children_age_groups.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 rounded-full text-xs font-bold bg-opeari-green/10 text-opeari-heading border border-opeari-green/20"
+                      >
+                        {formatAgeGroup(tag)}
                       </span>
-                    )}
-                    {timelineLabel && (
-                      <span style={{ backgroundColor: '#d8f5e5', color: '#1e6b4e' }} className="px-3 py-1 rounded-full text-xs font-medium">
-                        {timelineLabel}
-                      </span>
-                    )}
+                    ))}
                   </div>
                 </div>
-              </div>
-
-              {/* Tagline */}
-              {profile.tagline && (
-                <div className="mt-4 p-3 rounded-xl" style={{ backgroundColor: '#d8f5e5' }}>
-                  <p style={{ color: '#1e6b4e' }} className="text-sm italic">"{profile.tagline}"</p>
-                </div>
+              ) : (
+                <Link
+                  to="/settings?tab=care"
+                  className="block text-center py-8 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 hover:border-opeari-mint hover:text-opeari-mint transition-colors hover:bg-opeari-mint/5 group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-2 text-current group-hover:bg-white transition-colors">
+                    <Plus size={20} />
+                  </div>
+                  <span className="text-sm font-bold">Add age groups</span>
+                </Link>
               )}
             </div>
 
             {/* Schedule Section */}
-            <div className="p-5 sm:p-6" style={{ borderBottom: '1px solid #8bd7c7' }}>
-              <h3 style={{ color: '#4A6163' }} className="text-xs font-semibold uppercase tracking-wider mb-3">
+            <div className="p-6 sm:p-8">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-opeari-text-secondary mb-5 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Care Schedule
               </h3>
 
               {hasSchedule ? (
                 <div className="overflow-x-auto">
-                  {/* Visual Grid - Much easier to scan */}
-                  <div className="min-w-[300px]">
+                  <div className="min-w-[280px]">
                     {/* Day headers */}
-                    <div className="flex">
-                      <div className="w-14 flex-shrink-0" />
+                    <div className="flex mb-2">
+                      <div className="w-12 flex-shrink-0" />
                       {WEEKDAYS.map(day => (
-                        <div key={day.id} className="flex-1 text-center text-xs font-semibold py-2" style={{ color: '#1e6b4e' }}>
+                        <div key={day.id} className="flex-1 text-center text-[10px] font-bold text-opeari-heading uppercase">
                           {day.short}
                         </div>
                       ))}
@@ -282,25 +362,17 @@ export default function Profile() {
                       if (!hasAnySlot) return null
 
                       return (
-                        <div key={slot.id} className="flex items-center">
-                          <div className="w-14 flex-shrink-0 text-xs py-1" style={{ color: '#4A6163' }}>
+                        <div key={slot.id} className="flex items-center mb-1">
+                          <div className="w-12 flex-shrink-0 text-[10px] text-gray-400 font-bold">
                             {slot.time}
                           </div>
                           {WEEKDAYS.map(day => {
                             const isSelected = (profile.schedule[day.id] || []).includes(slot.id)
                             return (
-                              <div key={`${day.id}-${slot.id}`} className="flex-1 flex justify-center py-1">
+                              <div key={`${day.id}-${slot.id}`} className="flex-1 flex justify-center py-0.5 px-0.5">
                                 <div
-                                  className="w-6 h-6 rounded-md flex items-center justify-center"
-                                  style={{
-                                    backgroundColor: isSelected ? '#8bd7c7' : '#f5f5f5',
-                                  }}
+                                  className={`w-full aspect-square rounded-[4px] flex items-center justify-center transition-colors ${isSelected ? 'bg-opeari-mint shadow-sm' : 'bg-gray-50'}`}
                                 >
-                                  {isSelected && (
-                                    <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  )}
                                 </div>
                               </div>
                             )
@@ -311,8 +383,8 @@ export default function Profile() {
                   </div>
 
                   {profile.schedule_flexible && (
-                    <p style={{ color: '#4A6163' }} className="text-xs mt-3 flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <p className="text-xs mt-4 flex items-center gap-1.5 text-opeari-green font-bold bg-opeari-green/5 p-2 rounded-lg inline-block">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       Flexible schedule
@@ -321,120 +393,56 @@ export default function Profile() {
                 </div>
               ) : (
                 <Link
-                  to="/settings?tab=schedule"
-                  className="block text-center py-6 rounded-xl"
-                  style={{ border: '2px dashed #8bd7c7', color: '#4A6163' }}
+                  to="/settings?tab=care"
+                  className="block text-center py-8 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 hover:border-opeari-mint hover:text-opeari-mint transition-colors hover:bg-opeari-mint/5 group"
                 >
-                  <svg style={{ color: '#8bd7c7' }} className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Add your schedule
+                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-2 text-current group-hover:bg-white transition-colors">
+                    <Plus size={20} />
+                  </div>
+                  <span className="text-sm font-bold">Add your schedule</span>
                 </Link>
               )}
             </div>
-
-            {/* Kids Section - WITH GENDER COLORS */}
-            <div className="p-5 sm:p-6" style={{ borderBottom: '1px solid #8bd7c7' }}>
-              <h3 style={{ color: '#4A6163' }} className="text-xs font-semibold uppercase tracking-wider mb-3">
-                Kids
-              </h3>
-
-              {profile.kids.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
-                  {profile.kids.map(kid => {
-                    const genderColors = getGenderColor(kid.gender)
-                    const age = kid.birth_year ? calculateKidAge(kid.birth_month || 1, kid.birth_year) : null
-                    const genderLabel = kid.gender === 'boy' ? 'Boy' : kid.gender === 'girl' ? 'Girl' : 'Child'
-
-                    return (
-                      <div
-                        key={kid.id}
-                        className="flex items-center gap-2 px-4 py-2 rounded-full"
-                        style={{ backgroundColor: genderColors.bg }}
-                      >
-                        {/* Gender icon */}
-                        <div
-                          className="w-6 h-6 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: genderColors.text + '20' }}
-                        >
-                          {kid.gender === 'boy' ? (
-                            <svg className="w-3.5 h-3.5" style={{ color: genderColors.text }} fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9H15V22H13V16H11V22H9V9H3V7H21V9Z" />
-                            </svg>
-                          ) : kid.gender === 'girl' ? (
-                            <svg className="w-3.5 h-3.5" style={{ color: genderColors.text }} fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM15 9H9V14H7V22H9V17H11V22H13V17H15V22H17V14H15V9Z" />
-                            </svg>
-                          ) : (
-                            <svg className="w-3.5 h-3.5" style={{ color: genderColors.text }} fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9H15V22H13V16H11V22H9V9H3V7H21V9Z" />
-                            </svg>
-                          )}
-                        </div>
-                        <span style={{ color: genderColors.text }} className="text-sm font-semibold">
-                          {genderLabel}
-                        </span>
-                        {age && (
-                          <span style={{ color: genderColors.text }} className="text-sm font-medium">
-                            {age}
-                          </span>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <Link
-                  to="/settings?tab=kids"
-                  className="block text-center py-4 rounded-xl text-sm"
-                  style={{ border: '2px dashed #8bd7c7', color: '#4A6163' }}
-                >
-                  Add your children
-                </Link>
-              )}
-            </div>
-
-            {/* Looking For - FIXED LABEL MAPPING */}
-            {profile.looking_for.length > 0 && (
-              <div className="p-5 sm:p-6" style={{ borderBottom: '1px solid #8bd7c7' }}>
-                <h3 style={{ color: '#4A6163' }} className="text-xs font-semibold uppercase tracking-wider mb-3">
-                  Looking For
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {/* Deduplicate and normalize labels */}
-                  {[...new Set(profile.looking_for.map(getLookingForLabel))].map((label, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1.5 rounded-full text-sm"
-                      style={{ backgroundColor: '#d8f5e5', color: '#1e6b4e' }}
-                    >
-                      {label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Bio */}
-            {profile.bio && (
-              <div className="p-5 sm:p-6">
-                <h3 style={{ color: '#4A6163' }} className="text-xs font-semibold uppercase tracking-wider mb-3">
-                  About Us
-                </h3>
-                <p style={{ color: '#1e6b4e' }} className="text-sm leading-relaxed">
-                  {profile.bio}
-                </p>
-              </div>
-            )}
           </div>
 
-          {/* Privacy Note */}
-          <p style={{ color: '#4A6163' }} className="text-xs text-center mt-6 px-4">
-            Your last name and exact location are only shared after you connect with another family.
-          </p>
+          {/* Looking For */}
+          {profile.looking_for.length > 0 && (
+            <div className="p-6 sm:p-8 border-t border-gray-100 bg-stone-50/50">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-opeari-text-secondary mb-4">
+                Looking For
+              </h3>
+              <div className="flex flex-wrap gap-2.5">
+                {[...new Set(profile.looking_for.map(getLookingForLabel))].map((label, idx) => (
+                  <span
+                    key={idx}
+                    className="px-4 py-2 rounded-full text-sm font-bold bg-white border border-opeari-border/50 text-opeari-heading shadow-sm"
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Bio */}
+          {profile.bio && (
+            <div className="p-6 sm:p-8 border-t border-gray-100">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-opeari-text-secondary mb-4">
+                About Us
+              </h3>
+              <div className="prose prose-sm prose-stone text-opeari-text leading-relaxed font-medium">
+                {profile.bio}
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Privacy Note */}
+        <p className="text-xs text-opeari-text-secondary text-center mt-8 px-4 font-medium opacity-70">
+          Your last name and exact location are only shared after you connect with another family.
+        </p>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -459,7 +467,8 @@ function calculateCompleteness(profile: ProfileData): number {
   if (profile.looking_for.length > 0) score += weights.looking_for
   if (profile.care_timeline) score += weights.care_timeline
   if (Object.values(profile.schedule).some(s => s && s.length > 0)) score += weights.schedule
-  if (profile.kids.length > 0) score += weights.kids
+  // Update completeness to account for fallback
+  if (profile.kids.length > 0 || (profile.children_age_groups && profile.children_age_groups.length > 0)) score += weights.kids
   if (profile.bio) score += weights.bio
 
   return score

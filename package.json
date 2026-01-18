@@ -8,7 +8,11 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "postbuild": "cp public/_redirects dist/_redirects || true"
+    "postbuild": "cp public/_redirects dist/_redirects || true",
+    "pw:setup": "npx playwright test --project=setup",
+    "pw:test": "npx playwright test --project=chromium authenticated.spec.ts",
+    "pw:review": "npx playwright test tests/review.spec.ts --headed",
+    "pw:ui": "npx playwright test --ui"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.87.1",

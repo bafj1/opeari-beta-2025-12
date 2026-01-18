@@ -8,7 +8,7 @@
      ================================ */
   --opeari-bg: #fffaf5;
   --opeari-bg-secondary: #F9E3D2;
-  --opeari-bg-card: rgba(255, 255, 255, 0.6);
+  --opeari-bg-card: #ffffff;
 
   /* ================================
      TEXT HIERARCHY
@@ -31,8 +31,8 @@
      BORDERS & SHADOWS
      ================================ */
   --opeari-border: #8BD7C7;
-  --opeari-shadow: rgba(30, 107, 78, 0.1);
-  --opeari-shadow-hover: rgba(30, 107, 78, 0.15);
+  --opeari-shadow: rgba(0, 0, 0, 0.08);
+  --opeari-shadow-hover: rgba(0, 0, 0, 0.12);
 }
 
 /* ================================

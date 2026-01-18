@@ -24,7 +24,7 @@ export default function FeedHeader({ neighborhood, onCreateClick }: FeedHeaderPr
                 onClick={onCreateClick}
                 className="bg-[#1e6b4e] text-white px-4 py-2 rounded-full font-bold shadow-sm hover:bg-[#155d42] transition-colors text-sm"
             >
-                Post Update
+                Create a Post
             </button>
         </div>
     );

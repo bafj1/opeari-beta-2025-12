@@ -1,8 +1,8 @@
-# Opeari Beta (Dec 2025)
+# Opeari Beta (2025-12)
 
-## Local Development
+> **Local Dev Port**: The development server runs strictly on **<http://localhost:5173>**.
 
-To run the application locally with full support for Netlify Functions (required for email sending), use the Netlify CLI:
+This is the beta version of the Opeari platform. To run the application locally with full support for Netlify Functions (required for email sending), use the Netlify CLI:
 
 ```bash
 npx netlify dev

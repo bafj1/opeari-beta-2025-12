@@ -50,7 +50,7 @@ export default function OnboardingSuccess() {
     async function loadMatches() {
         if (!user) return
         try {
-            const { data: myProfile } = await supabase.from('members').select('*').eq('user_id', user.id).single()
+            const { data: myProfile } = await supabase.from('members').select('*').eq('id', user.id).single()
             if (!myProfile) return
 
             setUserFirstName(myProfile.first_name)

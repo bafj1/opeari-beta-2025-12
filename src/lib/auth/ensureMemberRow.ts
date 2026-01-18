@@ -19,34 +19,24 @@ export async function ensureMemberRow() {
         const email = user.email;
         const metadata = user.user_metadata || {};
 
-        // 2. Check if member exists
-        const { data: existing, error: fetchError } = await supabase
-            .from('members')
-            .select('id, email')
-            .eq('id', userId)
+        // 2. Check if caregiver profile exists (Source of Truth for Role)
+        const { data: caregiverProfile } = await supabase
+            .from('caregiver_profiles')
+            .select('id')
+            .eq('user_id', userId)
             .maybeSingle();
 
-        if (fetchError) {
-            console.error('ensureMemberRow: Error checking existence:', fetchError);
-            throw fetchError;
-        }
+        const hasCaregiverProfile = !!caregiverProfile;
+        console.log(`ensureMemberRow: Caregiver profile check: ${hasCaregiverProfile ? 'FOUND' : 'NOT FOUND'}`);
 
-        // 3. If exists, ensure EMAIL is backfilled if missing (Defensive Sync)
-        if (existing) {
-            if (!existing.email && email) {
-                console.log('ensureMemberRow: Backfilling missing email for existing member');
-                await supabase.from('members').update({ email }).eq('id', userId);
-            }
-            return { success: true, created: false };
-        }
-
-        // 4. Determine Defaults (Canonical Only)
-        // strict logic: family | caregiver
+        // 3. Determine Defaults (Canonical Only)
+        // If caregiver profile exists, FORCIBLY set role to caregiver
         const rawIntent = metadata.intent;
         let role = 'family'; // Default
 
-        // Strict mapping: only 'caregiver' maps to 'caregiver'
-        if (rawIntent === 'caregiver') {
+        if (hasCaregiverProfile) {
+            role = 'caregiver';
+        } else if (rawIntent === 'caregiver' || rawIntent === 'providing') {
             role = 'caregiver';
         }
 
@@ -62,36 +52,39 @@ export async function ensureMemberRow() {
             }
         }
 
-        // Zip Code Default - Use '00000' as safe DB default if metadata missing
-        // This is better than failing insert. User can update in Onboarding/Settings.
+        // Zip Code Default
         const zipCode = metadata.zip_code || '00000';
 
         const payload = {
             id: userId,
-            email: email, // STRICTLY ENFORCED
+            email: email,
             first_name: firstName,
             last_name: lastName,
             role: role,
             onboarding_complete: false,
             zip_code: zipCode,
-            // Init arrays/jsonb handled by DB defaults if omitted, but explicit here for clarity
-            care_types: [],
-            languages: []
+            updated_at: new Date().toISOString()
         };
 
-        console.log('ensureMemberRow: Creating new member row', payload);
+        console.log('ensureMemberRow: UPSERTING member row', { id: userId, role });
 
-        // 5. Insert
-        const { error: insertError } = await supabase
+        // 4. Upsert (Idempotent)
+        const { error: upsertError } = await supabase
             .from('members')
-            .insert(payload);
+            .upsert(payload, { onConflict: 'id', ignoreDuplicates: false });
 
-        if (insertError) {
-            console.error('ensureMemberRow: Error inserting row:', insertError);
-            throw insertError;
+        if (upsertError) {
+            console.error('ensureMemberRow: Error upserting row:', upsertError);
+            // If error is duplicate key (shouldn't happen with upsert but RLS might block), fallback to checking existence
+            const { error: fetchError } = await supabase.from('members').select('id').eq('id', userId).single();
+            if (fetchError) {
+                throw upsertError; // Real error
+            }
+            // If row exists, we are good, just couldn't update it due to RLS policies perhaps
+            console.warn('ensureMemberRow: Upsert failed but row exists (likely RLS). Continuing.');
         }
 
-        return { success: true, created: true };
+        return { success: true, role };
 
     } catch (error) {
         console.error('ensureMemberRow: Unexpected error:', error);

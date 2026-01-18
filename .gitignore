@@ -38,3 +38,7 @@ pnpm-debug.log*
 /dist
 # deps
 node_modules
+
+# Playwright
+.playwright/
+**/state.json

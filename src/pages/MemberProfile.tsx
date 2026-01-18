@@ -145,7 +145,8 @@ export default function MemberProfile() {
           const { data: connection } = await supabase
             .from('connections')
             .select('status')
-            // Correct requester/requestee logic
+            // Correct requester/requestee logic using proper Supabase filter syntax
+            // Format: and(requester_id.eq.ME,requestee_id.eq.THEM),and(requester_id.eq.THEM,requestee_id.eq.ME)
             .or(`and(requester_id.eq.${myMemberId},requestee_id.eq.${id}),and(requester_id.eq.${id},requestee_id.eq.${myMemberId})`)
             .maybeSingle()
 

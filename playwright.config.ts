@@ -1,4 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const STORAGE_STATE = path.join(__dirname, '.playwright/.auth/state.json');
 
 export default defineConfig({
     testDir: './tests',
@@ -22,16 +29,36 @@ export default defineConfig({
 
     projects: [
         {
+            name: 'setup',
+            testMatch: /auth\.setup\.ts/,
+            use: {
+                ...devices['Desktop Chrome'],
+                headless: false,
+            },
+        },
+        {
             name: 'chromium',
-            use: { ...devices['Desktop Chrome'] },
+            use: {
+                ...devices['Desktop Chrome'],
+                storageState: STORAGE_STATE,
+            },
+            dependencies: ['setup'],
         },
         {
             name: 'Mobile Safari',
-            use: { ...devices['iPhone 12'] },
+            use: {
+                ...devices['iPhone 12'],
+                storageState: STORAGE_STATE,
+            },
+            dependencies: ['setup'],
         },
         {
             name: 'Mobile Chrome',
-            use: { ...devices['Pixel 5'] },
+            use: {
+                ...devices['Pixel 5'],
+                storageState: STORAGE_STATE,
+            },
+            dependencies: ['setup'],
         },
     ],
 });

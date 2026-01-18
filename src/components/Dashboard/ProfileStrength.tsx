@@ -5,19 +5,23 @@ interface ProfileStrengthProps {
     strength: number;
 }
 
-export default function ProfileStrength({ strength = 65 }: ProfileStrengthProps) {
+export default function ProfileStrength({ strength }: ProfileStrengthProps) {
+    const hasScore = typeof strength === 'number';
+    const displayScore = hasScore ? `${strength}%` : '—';
+    const barWidth = hasScore ? `${strength}%` : '0%';
+
     return (
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-card">
             <div className="flex justify-between items-end mb-2">
                 <h3 className="font-bold text-gray-800">Profile Strength</h3>
-                <span className="font-bold text-[#1e6b4e]">{strength}%</span>
+                <span className="font-bold text-[#1e6b4e]">{displayScore}</span>
             </div>
 
             {/* Progress Bar */}
             <div className="w-full bg-gray-100 rounded-full h-2.5 mb-6 overflow-hidden">
                 <div
                     className="bg-[#1e6b4e] h-2.5 rounded-full transition-all duration-1000 ease-out"
-                    style={{ width: `${strength}%` }}
+                    style={{ width: barWidth }}
                 />
             </div>
 

@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useViewer } from '../../hooks/useViewer';
 
 export default function AuthGate() {
-    const { user, loading: authLoading } = useAuth();
+    const { user, loading: authLoading, signOut } = useAuth();
     const { viewer, loading: viewerLoading } = useViewer();
 
     // 1. Wait for Auth
@@ -33,13 +33,26 @@ export default function AuthGate() {
     if (!viewer) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-[#F5F1EB] p-4">
-                <div className="text-red-600 mb-4">Error loading profile. Please try again.</div>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="px-4 py-2 bg-[#1B4D3E] text-white rounded-full hover:opacity-90"
-                >
-                    Retry
-                </button>
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-[#e8e4de] max-w-sm w-full text-center">
+                    <h2 className="text-xl font-bold text-red-700 mb-2">Detailed Profile Error</h2>
+                    <p className="text-[#5a6e5a] mb-6 text-sm">
+                        Unable to load your profile information.
+                    </p>
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="w-full px-6 py-3 bg-[#1B4D3E] text-white rounded-xl font-semibold hover:opacity-90"
+                        >
+                            Retry
+                        </button>
+                        <button
+                            onClick={() => signOut()} // Verify signOut is available from useAuth
+                            className="w-full px-6 py-3 border border-[#e8e4de] text-[#5a6e5a] rounded-xl font-semibold hover:bg-gray-50"
+                        >
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
             </div>
         );
     }

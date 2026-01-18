@@ -34,54 +34,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(failsafeTimer);
       if (error) {
         console.error('Session error:', error)
-        // Clear invalid session
         setSession(null)
         setUser(null)
-        setLoading(false)
       } else {
         setSession(session)
         setUser(session?.user ?? null)
 
-        // GUARANTEE MEMBER ROW ON INIT
+        // Background check for member row
         if (session?.user) {
-          // Race condition: Don't let ensureMemberRow block forever
-          const rowPromise = ensureMemberRow();
-          const timeoutPromise = new Promise(resolve => setTimeout(resolve, 4000));
-
-          Promise.race([rowPromise, timeoutPromise])
-            .finally(() => setLoading(false))
-        } else {
-          setLoading(false)
+          ensureMemberRow().catch(err => console.error('Background init member row check failed', err));
         }
       }
+      setLoading(false) // Always unblock immediately after getting session
     })
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event)
+        // console.log('Auth state changed:', event) 
 
         if (event === 'SIGNED_OUT') {
-          // Explicitly clear state on signout
           setSession(null)
           setUser(null)
           setLoading(false)
-        } else {
+        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setSession(session)
           setUser(session?.user ?? null)
+          setLoading(false) // Unblock UI immediately for better perceived performance
 
-          // GUARANTEE MEMBER ROW ON CHANGE
+          // Run data consistency check in background
           if (session?.user) {
-            // Race condition: Don't let ensureMemberRow block forever
-            try {
-              await Promise.race([
-                ensureMemberRow(),
-                new Promise(resolve => setTimeout(resolve, 4000))
-              ]);
-            } catch (err) {
-              console.error('Member row check timed out or failed', err);
-            }
+            ensureMemberRow().catch(err => console.error('Background member row check failed', err));
           }
+        } else {
+          // For other events (initial session check often falls here or above), ensure we update state
+          setSession(session)
+          setUser(session?.user ?? null)
           setLoading(false)
         }
       }

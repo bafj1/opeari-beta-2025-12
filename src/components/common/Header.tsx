@@ -108,33 +108,41 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
               <Link to="/village" className="text-sm font-medium text-[#1E6B4E] hover:underline">Village</Link>
             </div>
           ) : (
-            <Link to="/login" className="text-sm font-bold text-[#1E6B4E] hover:opacity-80">Login</Link>
+            <Link
+              to={user && !forceGuest && !onboarding ? '/village' : '/'}
+              className={`flex items-center gap-2 transition-opacity focus:outline-none decoration-transparent ${onboarding ? 'pointer-events-none' : 'hover:opacity-80'}`}
+            >
+              <img src="/icon.svg" alt="" className="h-7 w-7 sm:h-8 sm:w-8" />
+              <span className="text-[#1E6B4E] font-bold text-lg sm:text-2xl">Opeari</span>
+            </Link>
           )
         ) : user && !forceGuest ? (
           /* User Logged In */
           location.pathname !== '/onboarding' ? (
             <>
-              {/* Desktop Navigation */}
+              {/* LOGO AREA REMOVED - Preventing Duplicate */}
+
+              {/* --- RIGHT SIDE ACTIONS (Desktop) --- */}
               <div className="hidden sm:flex items-center gap-6">
-                <nav className="flex items-center gap-6">
+                <nav className="flex items-center gap-2">
                   <Link
                     to="/village"
-                    className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/village')
-                      ? 'text-opeari-heading font-bold'
-                      : 'text-opeari-text-secondary hover:text-opeari-heading'
+                    className={`text-sm font-medium transition-colors focus:outline-none px-3 py-2 rounded-full ${isActive('/village')
+                      ? 'text-opeari-heading font-bold bg-opeari-mint/20'
+                      : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
                       }`}
                   >
                     Village
                   </Link>
-                  {/* <Link
-                    to="/village"
-                    className={`text-sm font-medium transition-colors focus:outline-none focus:text-opeari-heading ${isActive('/village')
-                      ? 'text-opeari-heading font-bold'
-                      : 'text-opeari-text-secondary hover:text-opeari-heading'
+                  <Link
+                    to="/feed"
+                    className={`text-sm font-medium transition-colors focus:outline-none px-3 py-2 rounded-full ${isActive('/feed')
+                      ? 'text-opeari-heading font-bold bg-opeari-mint/20'
+                      : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
                       }`}
                   >
-                    Village
-                  </Link> */}
+                    Feed
+                  </Link>
 
                 </nav>
 
@@ -147,7 +155,7 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                     aria-label="User menu"
                     className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-opeari-green/30 ${menuOpen
                       ? 'bg-opeari-green shadow-[0_4px_12px_rgba(30,107,78,0.2)] scale-105'
-                      : 'bg-opeari-mint hover:bg-opeari-green hover:shadow-[0_4px_12px_rgba(30,107,78,0.2)] hover:scale-105 active:scale-95'
+                      : 'bg-opeari-mint hover:bg-[#1E6B4E] hover:shadow-[0_4px_12px_rgba(30,107,78,0.2)] hover:scale-105 active:scale-95'
                       } group`}
                   >
                     <svg
@@ -230,6 +238,16 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                       }`}
                   >
                     Village
+                  </Link>
+                  <Link
+                    to="/feed"
+                    onClick={() => setMenuOpen(false)}
+                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/feed')
+                      ? 'bg-opeari-mint text-opeari-heading font-bold'
+                      : 'text-opeari-text hover:bg-opeari-mint/50'
+                      }`}
+                  >
+                    Feed
                   </Link>
                   {/* <Link
                     to="/village"
