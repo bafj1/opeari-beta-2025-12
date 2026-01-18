@@ -42,6 +42,8 @@ interface ProfileData {
   pets: string[]
   children_age_groups: string[]
   kids: Kid[]
+  languages: string[]
+  special_availability: string[]
 }
 
 // Gender color helper - Converted to Tailwind classes
@@ -129,6 +131,8 @@ export default function Profile() {
         pets: member.pets || [],
         children_age_groups: member.children_age_groups || [],
         kids: member.kids || [],
+        languages: member.languages || [],
+        special_availability: member.special_availability || [],
       })
     } catch (err) {
       console.error('Error loading profile:', err)
@@ -382,7 +386,8 @@ export default function Profile() {
                     })}
                   </div>
 
-                  {profile.schedule_flexible && (
+                  {/* Check both the boolean col AND the tagging array from Settings */}
+                  {(profile.schedule_flexible || profile.special_availability?.includes('flexible')) && (
                     <p className="text-xs mt-4 flex items-center gap-1.5 text-opeari-green font-bold bg-opeari-green/5 p-2 rounded-lg inline-block">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -418,6 +423,25 @@ export default function Profile() {
                     className="px-4 py-2 rounded-full text-sm font-bold bg-white border border-opeari-border/50 text-opeari-heading shadow-sm"
                   >
                     {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Languages */}
+          {profile.languages.length > 0 && (
+            <div className="p-6 sm:p-8 border-t border-gray-100 bg-stone-50/50">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-opeari-text-secondary mb-4">
+                Languages Spoken
+              </h3>
+              <div className="flex flex-wrap gap-2.5">
+                {profile.languages.map((lang, idx) => (
+                  <span
+                    key={idx}
+                    className="px-4 py-2 rounded-full text-sm font-bold bg-white border border-opeari-border/50 text-opeari-heading shadow-sm capitalize"
+                  >
+                    {lang}
                   </span>
                 ))}
               </div>
