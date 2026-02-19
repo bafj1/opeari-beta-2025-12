@@ -90,9 +90,8 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
             {/* Left Content */}
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#1E6B4E] leading-[1.1] mb-6 font-display">
-                <span className="block">It takes a village.</span>
-                <span className="block text-[#1E6B4E]">Let's build yours.</span>
+              <h1 className="text-4xl sm:text-5xl lg:text-5xl font-bold text-[#1E6B4E] leading-[1.1] mb-6 font-display max-w-[12em] mx-auto md:mx-0">
+                It takes a village. Let's build yours.
               </h1>
 
               <p className="text-lg sm:text-xl text-[#1E6B4E]/80 mb-6 max-w-xl mx-auto md:mx-0 leading-relaxed font-medium">

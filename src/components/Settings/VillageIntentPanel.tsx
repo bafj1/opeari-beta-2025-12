@@ -1,6 +1,8 @@
-
-import ChipMultiSelect from '../common/ChipMultiSelect';
+import PreferenceRow from './PreferenceRow';
+import NoteBanner from '../common/NoteBanner';
+import SettingsCard from './SettingsCard';
 import { VILLAGE_SUPPORT_OPTIONS } from '../../lib/constants/careConstants';
+import { Users, HeartHandshake, HelpingHand } from 'lucide-react';
 
 interface VillageIntentPanelProps {
     formData: any;
@@ -10,53 +12,74 @@ interface VillageIntentPanelProps {
 }
 
 export default function VillageIntentPanel({ formData, setFormData, saving, onSave }: VillageIntentPanelProps) {
-    const labelClass = "block text-xs font-bold text-opeari-text-secondary uppercase tracking-wide mb-2";
+
+    // Helper to toggle array items
+    const toggleItem = (currentList: string[], item: string) => {
+        if (currentList.includes(item)) {
+            return currentList.filter(i => i !== item);
+        } else {
+            return [...currentList, item];
+        }
+    };
 
     return (
-        <form onSubmit={(e) => { e.preventDefault(); onSave(); }} className="space-y-10 animate-fade-in max-w-2xl">
-            <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-blue-900 text-sm font-medium flex gap-3">
-                <span className="flex-shrink-0 mt-0.5">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </span>
-                <p className="mt-0.5">Opeari is about give and take. Use this section for neighborly help (meal trains, carpools) rather than professional care.</p>
-            </div>
+        <form onSubmit={(e) => { e.preventDefault(); onSave(); }} className="space-y-8 animate-fade-in max-w-3xl">
+            <NoteBanner>
+                Opeari is about give and take. Use this section for neighborly help (meal trains, carpools) rather than professional care.
+            </NoteBanner>
 
-            <div className="space-y-8">
-                <ChipMultiSelect
-                    label="Support I can OFFER"
-                    options={VILLAGE_SUPPORT_OPTIONS}
-                    selected={formData.support_offered}
-                    onChange={(vals) => setFormData({ ...formData, support_offered: vals })}
-                />
+            {/* Support Offered */}
+            <SettingsCard title="Support I can OFFER" description="Ways you can help neighbors in your village." icon={HelpingHand}>
+                <div className="space-y-4">
+                    {VILLAGE_SUPPORT_OPTIONS.map(opt => (
+                        <PreferenceRow
+                            key={opt.value}
+                            label={opt.label}
+                            checked={(formData.support_offered || []).includes(opt.value)}
+                            onChange={() => setFormData({
+                                ...formData,
+                                support_offered: toggleItem(formData.support_offered || [], opt.value)
+                            })}
+                        />
+                    ))}
+                </div>
+            </SettingsCard>
 
-                <ChipMultiSelect
-                    label="Support I NEED"
-                    options={VILLAGE_SUPPORT_OPTIONS}
-                    selected={formData.support_needed}
-                    onChange={(vals) => setFormData({ ...formData, support_needed: vals })}
-                />
-            </div>
+            {/* Support Needed */}
+            <SettingsCard title="Support I NEED" description="Ways neighbors can help you." icon={HeartHandshake}>
+                <div className="space-y-4">
+                    {VILLAGE_SUPPORT_OPTIONS.map(opt => (
+                        <PreferenceRow
+                            key={opt.value}
+                            label={opt.label}
+                            checked={(formData.support_needed || []).includes(opt.value)}
+                            onChange={() => setFormData({
+                                ...formData,
+                                support_needed: toggleItem(formData.support_needed || [], opt.value)
+                            })}
+                        />
+                    ))}
+                </div>
+            </SettingsCard>
 
-            <div>
-                <label className={labelClass}>Additional Notes / Other Ideas</label>
+            {/* Notes */}
+            <SettingsCard title="Additional Notes / Other Ideas" icon={Users}>
                 <textarea
                     value={formData.support_notes}
                     onChange={(e) => setFormData({ ...formData, support_notes: e.target.value })}
                     rows={4}
-                    className="w-full p-3.5 rounded-xl border border-opeari-border/50 bg-white text-opeari-text focus:outline-none focus:border-opeari-green focus:ring-4 focus:ring-opeari-green/5 transition-all duration-200 placeholder:text-gray-400"
+                    className="w-full p-4 rounded-[15px] border border-opeari-border/50 bg-stone-50 text-opeari-text focus:outline-none focus:border-opeari-green focus:ring-4 focus:ring-opeari-green/5 transition-all duration-200 placeholder:text-gray-400"
                     placeholder="e.g. I work from home and can host playdates on Fridays..."
                 />
-            </div>
+            </SettingsCard>
 
             <div className="pt-6 flex justify-end border-t border-gray-50">
                 <button
                     type="submit"
                     disabled={saving}
-                    className="px-10 py-3.5 bg-opeari-heading text-white font-bold rounded-full hover:bg-opeari-green shadow-button hover:shadow-button-hover hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                    className="px-8 py-3 bg-opeari-green text-white font-semibold rounded-[50px] hover:bg-opeari-green-dark disabled:opacity-50 shadow-button hover:shadow-button-hover transition-all"
                 >
-                    {saving ? 'Saving...' : 'Save Intent'}
+                    {saving ? 'Saving...' : 'Save Village Intent'}
                 </button>
             </div>
         </form>

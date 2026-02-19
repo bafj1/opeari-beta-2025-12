@@ -25,6 +25,17 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 640) {
+        setMenuOpen(false)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   const isActive = (path: string) => {
     return location.pathname === path
   }
@@ -54,7 +65,8 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
   const hideHeader =
     location.pathname.startsWith('/admin-waitlist') ||
     location.pathname.startsWith('/login') ||
-    location.pathname.startsWith('/signin')
+    location.pathname.startsWith('/signin') ||
+    location.pathname.startsWith('/village')
 
   if (hideHeader) return null
 
@@ -135,15 +147,32 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                     Village
                   </Link>
                   <Link
-                    to="/feed"
-                    className={`text-sm font-medium transition-colors focus:outline-none px-3 py-2 rounded-full ${isActive('/feed')
+                    to="/matches"
+                    className={`text-sm font-medium transition-colors focus:outline-none px-3 py-2 rounded-full ${isActive('/matches')
                       ? 'text-opeari-heading font-bold bg-opeari-mint/20'
                       : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
                       }`}
                   >
-                    Feed
+                    Discover
                   </Link>
-
+                  <Link
+                    to="/posts"
+                    className={`text-sm font-medium transition-colors focus:outline-none px-3 py-2 rounded-full ${isActive('/posts')
+                      ? 'text-opeari-heading font-bold bg-opeari-mint/20'
+                      : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
+                      }`}
+                  >
+                    Community
+                  </Link>
+                  <Link
+                    to="/messages"
+                    className={`text-sm font-medium transition-colors focus:outline-none px-3 py-2 rounded-full ${isActive('/messages')
+                      ? 'text-opeari-heading font-bold bg-opeari-mint/20'
+                      : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
+                      }`}
+                  >
+                    Messages
+                  </Link>
                 </nav>
 
                 {/* Profile Dropdown (Desktop Only) */}
@@ -240,14 +269,24 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                     Village
                   </Link>
                   <Link
-                    to="/feed"
+                    to="/matches"
                     onClick={() => setMenuOpen(false)}
-                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/feed')
+                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/matches')
                       ? 'bg-opeari-mint text-opeari-heading font-bold'
                       : 'text-opeari-text hover:bg-opeari-mint/50'
                       }`}
                   >
-                    Feed
+                    Discover
+                  </Link>
+                  <Link
+                    to="/posts"
+                    onClick={() => setMenuOpen(false)}
+                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/posts')
+                      ? 'bg-opeari-mint text-opeari-heading font-bold'
+                      : 'text-opeari-text hover:bg-opeari-mint/50'
+                      }`}
+                  >
+                    Community
                   </Link>
                   {/* <Link
                     to="/village"

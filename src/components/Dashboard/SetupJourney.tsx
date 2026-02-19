@@ -23,7 +23,7 @@ export default function SetupJourney({ firstName, hasProfile, hasBrowsed, hasInv
     if (phase === 'stalled') {
         headline = "It's quiet... for now."
         subhead = "Your area is still growing. Be the seed and invite a trusted friend."
-        primaryColor = "bg-orange-100" // subtle urgency
+        primaryColor = "bg-[#FFF0EB]" // subtle urgency (Coral tint)
     } else if (phase === 'retention') {
         headline = "Still looking for care?"
         subhead = "Update your schedule to signal you're still active."
@@ -101,13 +101,13 @@ export default function SetupJourney({ firstName, hasProfile, hasBrowsed, hasInv
                     <div
                         key={step.id}
                         className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${step.highlight
-                            ? 'bg-orange-50 border-orange-200 shadow-sm'
+                            ? 'bg-[#FFF0EB] border-[#F8C3B3] shadow-sm'
                             : step.done
                                 ? 'bg-opeari-mint/10 border-opeari-border'
                                 : 'bg-white border-opeari-border hover:border-opeari-green/50'
                             }`}
                     >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${step.done ? 'bg-opeari-mint text-opeari-heading' : step.highlight ? 'bg-orange-200 text-orange-700' : 'bg-gray-100 text-gray-400'
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${step.done ? 'bg-opeari-mint text-opeari-heading' : step.highlight ? 'bg-[#F8C3B3] text-[#E07A5F]' : 'bg-gray-100 text-gray-400'
                             }`}>
                             {step.done ? (
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -118,8 +118,8 @@ export default function SetupJourney({ firstName, hasProfile, hasBrowsed, hasInv
                             )}
                         </div>
                         <div className="flex-1">
-                            <h3 className={`font-bold ${step.highlight ? 'text-orange-900' : step.done ? 'text-opeari-heading' : 'text-opeari-text'}`}>
-                                {step.label} {step.highlight && <span className="ml-2 text-xs bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full">Priority</span>}
+                            <h3 className={`font-bold ${step.highlight ? 'text-[#E07A5F]' : step.done ? 'text-opeari-heading' : 'text-opeari-text'}`}>
+                                {step.label} {step.highlight && <span className="ml-2 text-xs bg-[#F8C3B3] text-[#E07A5F] px-2 py-0.5 rounded-full">Priority</span>}
                             </h3>
                             <p className="text-sm text-opeari-text-secondary">
                                 {step.description}

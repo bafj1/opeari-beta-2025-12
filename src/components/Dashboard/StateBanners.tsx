@@ -3,7 +3,7 @@ import { ArrowRight, Check } from 'lucide-react';
 export function EmptyStateBanner() {
     return (
 
-        <div className="relative overflow-hidden bg-gradient-to-r from-orange-50 via-white to-green-50 rounded-card p-8 shadow-card">
+        <div className="relative overflow-hidden bg-gradient-to-r from-[#fffaf5] via-white to-green-50 rounded-card p-8 shadow-card">
             <div className="relative z-10 max-w-lg">
                 <h2 className="text-2xl font-bold text-opeari-heading mb-2">Your village is just getting started.</h2>
                 <p className="text-opeari-text mb-6 font-medium">You're early—and that's a good thing.</p>

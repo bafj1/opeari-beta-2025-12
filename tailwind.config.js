@@ -33,6 +33,7 @@ export default {
       },
       fontFamily: {
         sans: ['Comfortaa', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        serif: ['Fraunces', 'serif'],
       },
       borderRadius: {
         'button': '50px',

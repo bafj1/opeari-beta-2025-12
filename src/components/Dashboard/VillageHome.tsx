@@ -58,7 +58,7 @@ interface VillageHomeProps {
 export default function VillageHome({ userName = "Breada", selectedNeeds, onToggleNeed }: VillageHomeProps) {
 
     const needs = [
-        { id: 'part-time', label: 'Part-time help', icon: <Heart size={22} />, color: 'bg-amber-100 text-amber-700' },
+        { id: 'part-time', label: 'Part-time help', icon: <Heart size={22} />, color: 'bg-teal-100 text-teal-700' },
         { id: 'backup', label: 'Backup care', icon: <Calendar size={22} />, color: 'bg-rose-100 text-rose-700' },
         { id: 'nanny-share', label: 'Nanny share', icon: <Users size={22} />, color: 'bg-emerald-100 text-emerald-700' },
         { id: 'school-runs', label: 'School runs', icon: <Car size={22} />, color: 'bg-blue-100 text-blue-700' },

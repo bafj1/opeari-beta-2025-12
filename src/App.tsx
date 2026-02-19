@@ -11,8 +11,21 @@ import RequireAuth from './components/auth/RequireAuth';
 import RequireOnboardingComplete from './components/auth/RequireOnboardingComplete';
 import DevDebugPanel from './components/dev/DevDebugPanel';
 
+// ... (imports)
+
 // Lazy load pages for performance
 const Home = lazy(() => import('./pages/Home'));
+// ... 
+// ... 
+// ...
+
+// ...
+
+
+
+
+
+{/* APP ROUTES (Authenticated) */ }
 const HowItWorks = lazy(() => import('./pages/HowItWorks'));
 
 const WhyOpeari = lazy(() => import('./pages/WhyOpeari'));
@@ -35,18 +48,21 @@ const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const CaregiverInterest = lazy(() => import('./pages/CaregiverInterest'));
 const VerificationGate = lazy(() => import('./pages/VerificationGate'));
-const OnboardingSuccess = lazy(() => import('./pages/OnboardingSuccess'));
 
 // V1 Feed Pivot -> Village Home
-const VillageHome = lazy(() => import('./pages/Village/VillageHome.tsx'));
+// const VillageHome = lazy(() => import('./pages/Village/VillageHome.tsx'));
 
 // Legacy / Future Features (Hidden for V1)
 const Dashboard = lazy(() => import('./pages/Dashboard.tsx'));
-const Village = lazy(() => import('./pages/Village')); // Old Village page, keeping for reference
+const Matches = lazy(() => import('./pages/Matches')); // Replaces legacy Village
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const MemberProfile = lazy(() => import('./pages/MemberProfile'));
 const Messages = lazy(() => import('./pages/Messages'));
+const MessagesInbox = lazy(() => import('./pages/MessagesInbox'));
+const PostsPage = lazy(() => import('./pages/PostsPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const CalendarPage = lazy(() => import('./pages/CalendarPage'));
 // const Connections = lazy(() => import('./pages/Connections'));
 // const InviteFriends = lazy(() => import('./pages/InviteFriends'));
 // const NannyShare = lazy(() => import('./pages/NannyShare'));
@@ -96,15 +112,14 @@ function App() {
                 </ProtectedRoute>
               }>
                 <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/onboarding-success" element={<OnboardingSuccess />} />
                 <Route path="/caregiver-interest" element={<CaregiverInterest />} />
                 <Route path="/verify" element={<VerificationGate />} />
               </Route>
 
-              {/* ERROR / 404 */}
-              <Route element={<MarketingLayout />}>
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Route>
+              // ... (existing imports)
+
+              // Inside Routes:
+
 
               {/* APP ROUTES (Authenticated) */}
               <Route element={<RequireAuth />}>
@@ -121,14 +136,15 @@ function App() {
                     {/* V1 Village Home: The main authenticated post-login experience */}
                     <Route path="/village" element={<Dashboard />} />
 
-                    {/* Old Feed (moved here) */}
-                    <Route path="/feed" element={<VillageHome />} />
-
                     {/* Core V1 Features */}
-                    <Route path="/matches" element={<Village />} /> {/* Matches (Legacy Village.tsx) */}
-                    <Route path="/messages" element={<Messages />} />
+                    <Route path="/matches" element={<Matches />} /> {/* New Role-Based Matches */}
+                    <Route path="/calendar" element={<CalendarPage />} />
+                    <Route path="/posts" element={<PostsPage />} />
+                    <Route path="/notifications" element={<NotificationsPage />} />
+                    <Route path="/messages" element={<MessagesInbox />} />
                     <Route path="/messages/:id" element={<Messages />} />
                     <Route path="/member/:id" element={<MemberProfile />} />
+                    <Route path="/profile/:id" element={<Profile />} />
 
                     {/* Redirects & Locks */}
                     <Route path="/dashboard" element={<Navigate to="/village" replace />} />
@@ -138,6 +154,11 @@ function App() {
 
                   </Route>
                 </Route>
+              </Route>
+
+              {/* ERROR / 404 - Must be last */}
+              <Route element={<MarketingLayout />}>
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Routes>
           </RouteErrorBoundary>

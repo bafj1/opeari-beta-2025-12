@@ -35,5 +35,170 @@ a,
 button,
 input,
 label {
-    font-family: 'Comfortaa', cursive, sans-serif !important;
+    font-family: 'Comfortaa', cursive, sans-serif;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* =========================================
+   CUSTOM CHECKBOXES (Brand Aligned)
+   ========================================= */
+
+/* Hide native checkbox but keep accessible */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Custom checkbox wrapper */
+.flexible-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+/* The box itself */
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #D1D5DB;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+    background-color: #fffaf5;
+}
+
+/* Checked state — green background */
+.sr-only:checked+.checkbox-custom {
+    background-color: #1E6B4E;
+    border-color: #1E6B4E;
+}
+
+/* Checkmark icon */
+.sr-only:checked+.checkbox-custom::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-top: -2px;
+}
+
+/* Hover state */
+.flexible-checkbox:hover .checkbox-custom {
+    border-color: #8bd7c7;
+}
+
+/* Focus state for accessibility */
+.sr-only:focus-visible+.checkbox-custom {
+    box-shadow: 0 0 0 2px rgba(139, 215, 199, 0.4);
+    border-color: #8bd7c7;
+}
+
+/* Label text style */
+.checkbox-label {
+    font-family: 'Comfortaa', sans-serif;
+    font-size: 14px;
+    color: #1E6B4E;
+}
+
+/* =========================================
+   TIME SELECT DROPDOWNS
+   ========================================= */
+
+select.time-select {
+    appearance: none;
+    background-color: #fffaf5;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 10px 36px 10px 14px;
+    font-family: 'Comfortaa', sans-serif;
+    font-size: 14px;
+    color: #1E6B4E;
+    cursor: pointer;
+    min-width: 140px;
+
+    /* Custom dropdown arrow */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231E6B4E' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+select.time-select:focus {
+    border-color: #8bd7c7;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(139, 215, 199, 0.3);
+}
+
+select.time-select:hover {
+    border-color: #8bd7c7;
+}
+
+/* =========================================
+   SEARCH INPUT RESET (Remove native icons)
+   ========================================= */
+input[type="text"]::-webkit-search-decoration,
+input[type="text"]::-webkit-search-cancel-button,
+input[type="text"]::-webkit-search-results-button,
+input[type="text"]::-webkit-search-results-decoration,
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none !important;
+}
+
+/* Kill ALL browser-injected icons on inputs */
+.opeari-plain-input::-webkit-search-decoration,
+.opeari-plain-input::-webkit-search-cancel-button,
+.opeari-plain-input::-webkit-search-results-button,
+.opeari-plain-input::-webkit-search-results-decoration,
+.opeari-plain-input::-webkit-contacts-auto-fill-button,
+.opeari-plain-input::-webkit-credentials-auto-fill-button,
+.opeari-plain-input::-webkit-textfield-decoration-container>*,
+.opeari-plain-input::-webkit-inner-spin-button,
+.opeari-plain-input::-webkit-outer-spin-button,
+.opeari-plain-input::-webkit-calendar-picker-indicator,
+.opeari-plain-input::-webkit-clear-button,
+.opeari-plain-input::-webkit-list-button {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* =========================================
+   GLOBAL INPUT FOCUS (Brand Green)
+   ========================================= */
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #8bd7c7 !important;
+    box-shadow: 0 0 0 1px rgba(139, 215, 199, 0.3);
 }

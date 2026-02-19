@@ -1,85 +1,163 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+    ChevronLeft,
+    User,
+    Calendar,
+    Bell,
+    Target,
+    Users,
+    Shield,
+    Star,
+    Lock,
+    Baby,
+    Eye,
+    MessageSquare
+} from 'lucide-react';
 
-interface Tab {
+interface NavItem {
     id: string;
     label: string;
-    icon: any;
+    icon: React.ElementType;
+}
+
+interface NavSection {
+    title: string;
+    items: NavItem[];
 }
 
 interface SettingsLayoutProps {
     activeTab: string;
     onTabChange: (id: string) => void;
-    tabs: Tab[];
     children: React.ReactNode;
 }
 
-export default function SettingsLayout({ activeTab, onTabChange, tabs, children }: SettingsLayoutProps) {
-    const activeTabDetails = tabs.find(t => t.id === activeTab);
+import { useViewer } from '../../hooks/useViewer';
+
+const navSections: NavSection[] = [
+    {
+        title: 'SETTINGS',
+        items: [
+            { id: 'profile', label: 'Profile', icon: User },
+            { id: 'children', label: 'Children', icon: Baby },
+            { id: 'schedule', label: 'Schedule & Availability', icon: Calendar },
+        ],
+    },
+    {
+        title: 'MY ACCOUNT',
+        items: [
+            { id: 'notifications', label: 'Notifications', icon: Bell },
+            { id: 'account', label: 'Account & Security', icon: Lock },
+            { id: 'privacy', label: 'Privacy', icon: Eye },
+        ],
+    },
+    {
+        title: 'MATCHING',
+        items: [
+            { id: 'preferences', label: 'Matching Preferences', icon: Target },
+            { id: 'village', label: 'Village & Network', icon: Users },
+            { id: 'reviews', label: 'Reviews & Reputation', icon: Star },
+        ],
+    },
+    {
+        title: 'TRUST & SAFETY',
+        items: [
+            { id: 'safety', label: 'Safety & Verification', icon: Shield },
+        ],
+    },
+    {
+        title: 'SUPPORT',
+        items: [
+            { id: 'feedback', label: 'Share Feedback', icon: MessageSquare },
+        ],
+    },
+];
+
+export default function SettingsLayout({ activeTab, onTabChange, children }: SettingsLayoutProps) {
+    const { viewer } = useViewer();
+    const isCaregiver = viewer?.member?.role === 'caregiver';
 
     return (
-        <div className="flex flex-col md:flex-row gap-8 md:gap-12 animate-fade-in">
-
-            {/* SIDEBAR NAVIGATION (Desktop) */}
-            <nav className="hidden md:block w-64 flex-shrink-0 space-y-2">
-                {tabs.map((tab) => {
-                    const isActive = activeTab === tab.id;
-                    const Icon = tab.icon;
-
-                    return (
-                        <button
-                            key={tab.id}
-                            onClick={() => onTabChange(tab.id)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group text-left
-                ${isActive
-                                    ? 'bg-white shadow-sm border border-gray-100 text-opeari-heading font-bold'
-                                    : 'text-gray-500 hover:bg-white/60 hover:text-gray-700 font-medium'
-                                }`}
-                        >
-                            <span className={`${isActive ? 'text-opeari-green' : 'text-gray-400 group-hover:text-gray-500'}`}>
-                                <Icon size={20} />
-                            </span>
-                            <span>{tab.label}</span>
-                            {isActive && (
-                                <ChevronRight size={16} className="ml-auto text-opeari-green" />
-                            )}
-                        </button>
-                    );
-                })}
-            </nav>
-
-            {/* MOBILE NAVIGATION (Mobile) */}
-            <nav className="md:hidden">
-                <div className="relative">
-                    <select
-                        value={activeTab}
-                        onChange={(e) => onTabChange(e.target.value)}
-                        className="w-full appearance-none bg-white border border-gray-200 text-opeari-heading font-bold py-3 pl-4 pr-10 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-opeari-green/20 focus:border-opeari-green"
+        <div className="min-h-screen bg-gradient-to-b from-[#e8f5f1] to-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+                {/* Header */}
+                <div className="mb-6 sm:mb-8">
+                    <Link
+                        to="/village"
+                        className="inline-flex items-center gap-2 text-[#1e6b4e] hover:text-[#155a3e] transition-colors mb-4"
                     >
-                        {tabs.map((tab) => (
-                            <option key={tab.id} value={tab.id}>
-                                {tab.label}
-                            </option>
-                        ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                        <ChevronRight className="rotate-90" size={20} />
-                    </div>
+                        <ChevronLeft className="w-4 h-4" />
+                        <span className="text-sm font-medium">Back to Village</span>
+                    </Link>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-[#1e6b4e] mb-2">Settings</h1>
+                    <p className="text-sm sm:text-base text-[#546E5C]">Manage your account and preferences</p>
                 </div>
-            </nav>
 
-            {/* MAIN CONTENT AREA */}
-            <main className="flex-1 min-w-0">
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
-                    <div className="mb-6 pb-6 border-b border-gray-50">
-                        <h2 className="text-2xl font-bold text-opeari-heading flex items-center gap-2">
-                            {activeTabDetails?.icon && <activeTabDetails.icon className="text-opeari-green" size={24} />}
-                            {activeTabDetails?.label}
-                        </h2>
-                    </div>
-                    {children}
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Sidebar Navigation - Desktop */}
+                    <aside className="hidden lg:block lg:w-64 flex-shrink-0">
+                        <div className="bg-white border-2 border-[#8bd7c7]/30 rounded-[20px] p-4 shadow-sm sticky top-6">
+                            <nav className="space-y-6">
+                                {navSections.map((section) => (
+                                    <div key={section.title}>
+                                        <h3 className="text-xs font-bold text-[#546E5C] mb-2 px-3 uppercase tracking-wide">
+                                            {section.title}
+                                        </h3>
+                                        <ul className="space-y-1">
+                                            {section.items.map((item) => {
+                                                if (item.id === 'children' && isCaregiver) return null;
+                                                const Icon = item.icon;
+                                                const isActive = activeTab === item.id;
+                                                return (
+                                                    <li key={item.id}>
+                                                        <button
+                                                            onClick={() => onTabChange(item.id)}
+                                                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-[15px] transition-all text-left ${isActive
+                                                                ? 'bg-[#8bd7c7]/20 text-[#1e6b4e] font-semibold'
+                                                                : 'text-[#546E5C] hover:bg-[#8bd7c7]/10 hover:text-[#1e6b4e]'
+                                                                }`}
+                                                        >
+                                                            <Icon className="w-4 h-4 flex-shrink-0" />
+                                                            <span className="text-sm">{item.label}</span>
+                                                        </button>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </div>
+                                ))}
+                            </nav>
+                        </div>
+                    </aside>
+
+                    {/* Mobile Navigation */}
+                    <nav className="lg:hidden">
+                        <select
+                            value={activeTab}
+                            onChange={(e) => onTabChange(e.target.value)}
+                            className="w-full bg-white border-2 border-[#8bd7c7]/30 text-[#1e6b4e] font-semibold py-3 px-4 rounded-[15px] shadow-sm focus:outline-none focus:border-[#1e6b4e]"
+                        >
+                            {navSections.map((section) => (
+                                <optgroup key={section.title} label={section.title}>
+                                    {section.items.map((item) => {
+                                        if (item.id === 'children' && isCaregiver) return null;
+                                        return (
+                                            <option key={item.id} value={item.id}>
+                                                {item.label}
+                                            </option>
+                                        );
+                                    })}
+                                </optgroup>
+                            ))}
+                        </select>
+                    </nav>
+
+                    {/* Main Content */}
+                    <main className="flex-1 min-w-0">
+                        {children}
+                    </main>
                 </div>
-            </main>
-        </div>
+            </div>
+        </div >
     );
 }

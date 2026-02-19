@@ -49,9 +49,9 @@ WHERE
         SELECT 1 FROM public.connections c
         WHERE c.status = 'accepted'
         AND (
-            (c.requester_id = auth.uid() AND c.requestee_id = m.id)
+            (c.requester_id = auth.uid() AND c.recipient_id = m.id)
             OR
-            (c.requester_id = m.id AND c.requestee_id = auth.uid())
+            (c.requester_id = m.id AND c.recipient_id = auth.uid())
         )
     );
 

@@ -19,7 +19,28 @@ export async function ensureMemberRow() {
         const email = user.email;
         const metadata = user.user_metadata || {};
 
-        // 2. Check if caregiver profile exists (Source of Truth for Role)
+        // 2. Check if row exists first (Idempotency)
+        const { data: existingMember } = await supabase
+            .from('members')
+            .select('email, role')
+            .eq('id', userId)
+            .maybeSingle();
+
+        if (existingMember) {
+            // Row exists. Check if we need to backfill email.
+            if (!existingMember.email && email) {
+                console.log('ensureMemberRow: Backfilling missing email');
+                await supabase.from('members').update({ email }).eq('id', userId);
+            }
+            // Otherwise, we are good. Do NOT update simple timestamp.
+            return { success: true, role: existingMember.role };
+        }
+
+        // 3. If we get here, row is missing. Proceed with default creation logic.
+
+        // Determine Defaults (Canonical Only)
+
+        // Check if caregiver profile exists (Source of Truth for Role)
         const { data: caregiverProfile } = await supabase
             .from('caregiver_profiles')
             .select('id')
@@ -27,20 +48,17 @@ export async function ensureMemberRow() {
             .maybeSingle();
 
         const hasCaregiverProfile = !!caregiverProfile;
-        console.log(`ensureMemberRow: Caregiver profile check: ${hasCaregiverProfile ? 'FOUND' : 'NOT FOUND'}`);
 
-        // 3. Determine Defaults (Canonical Only)
-        // If caregiver profile exists, FORCIBLY set role to caregiver
+        // Role Logic
         const rawIntent = metadata.intent;
         let role = 'family'; // Default
-
         if (hasCaregiverProfile) {
             role = 'caregiver';
         } else if (rawIntent === 'caregiver' || rawIntent === 'providing') {
             role = 'caregiver';
         }
 
-        // Name Logic: Prefer broken out fields, fallback to splitting full_name
+        // Name Logic
         let firstName = metadata.first_name || '';
         let lastName = metadata.last_name || '';
 
@@ -52,8 +70,8 @@ export async function ensureMemberRow() {
             }
         }
 
-        // Zip Code Default
-        const zipCode = metadata.zip_code || '00000';
+        // Zip Code: Strict - No defaults like '00000'
+        const zipCode = metadata.zip_code || null;
 
         const payload = {
             id: userId,
@@ -62,26 +80,22 @@ export async function ensureMemberRow() {
             last_name: lastName,
             role: role,
             onboarding_complete: false,
-            zip_code: zipCode,
-            updated_at: new Date().toISOString()
+            zip_code: zipCode
+            // REMOVED: updated_at to avoid feedback loops
         };
 
-        console.log('ensureMemberRow: UPSERTING member row', { id: userId, role });
+        console.log('ensureMemberRow: INSERTING new member row', { id: userId, role });
 
-        // 4. Upsert (Idempotent)
+        // 4. Insert (using Upsert to be safe against race conditions)
         const { error: upsertError } = await supabase
             .from('members')
-            .upsert(payload, { onConflict: 'id', ignoreDuplicates: false });
+            .upsert(payload, { onConflict: 'id' });
 
         if (upsertError) {
-            console.error('ensureMemberRow: Error upserting row:', upsertError);
-            // If error is duplicate key (shouldn't happen with upsert but RLS might block), fallback to checking existence
-            const { error: fetchError } = await supabase.from('members').select('id').eq('id', userId).single();
-            if (fetchError) {
-                throw upsertError; // Real error
-            }
-            // If row exists, we are good, just couldn't update it due to RLS policies perhaps
-            console.warn('ensureMemberRow: Upsert failed but row exists (likely RLS). Continuing.');
+            console.error('ensureMemberRow: Error inserting row:', upsertError);
+            // Fallback check using maybeSingle instead of single
+            const { error: fetchError } = await supabase.from('members').select('id').eq('id', userId).maybeSingle();
+            if (fetchError) throw upsertError;
         }
 
         return { success: true, role };

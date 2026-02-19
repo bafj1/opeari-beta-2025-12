@@ -102,6 +102,18 @@ export function useOnboarding() {
                     .eq('id', user.id)
                     .maybeSingle()
 
+                // HOTFIX: Priority Redirect if DB says complete
+                // This breaks the loop if localStorage or Auth Metadata is stale
+                if (member?.onboarding_complete) {
+                    console.log('User is already onboarded (DB Source of Truth). Redirecting to village...');
+                    // Clear legacy storage to prevent loops
+                    const storageKey = `opeari_onboarding_progress_${user.id}`
+                    localStorage.removeItem(storageKey);
+
+                    navigate('/village', { replace: true });
+                    return;
+                }
+
                 // Check what we have from Members + Auth Metadata to decide if Waitlist is needed
                 const hasFirst = !!(member?.first_name || user.user_metadata?.first_name)
                 const hasLast = !!(member?.last_name || user.user_metadata?.last_name)
@@ -520,7 +532,7 @@ export function useOnboarding() {
             }
 
             // Navigate to Success Page (Village Reveal)
-            navigate('/onboarding-success');
+            navigate('/village');
         } catch (err: any) {
             console.error('=== ONBOARDING SAVE FAILED ===', err);
             // If it's a Supabase error it might have details

@@ -260,7 +260,7 @@ export default function CaregiverExperienceStep({ data, updateData }: CaregiverE
                         className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-opeari-green focus:border-transparent min-h-[100px] text-sm"
                         placeholder="Tell families a bit about your style, hobbies, or why you love childcare..."
                     />
-                    <div className={`absolute bottom-3 right-3 text-xs font-medium ${data.bio && data.bio.length > BIO_MAX * 0.9 ? 'text-orange-500' : 'text-gray-400'}`}>
+                    <div className={`absolute bottom-3 right-3 text-xs font-medium ${data.bio && data.bio.length > BIO_MAX * 0.9 ? 'text-[#E07A5F]' : 'text-gray-400'}`}>
                         {data.bio?.length || 0}/{BIO_MAX}
                     </div>
                 </div>

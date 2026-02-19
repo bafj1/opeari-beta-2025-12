@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react';
 import type { OnboardingData } from '../OnboardingTypes';
 import { StepHeader } from '../components/WizardUI';
-import { ScheduleGrid } from '../components/ScheduleGrid';
+import { ScheduleGrid } from '../../common/ScheduleGrid';
 
 interface ScheduleStepProps {
     data: OnboardingData;
@@ -29,7 +29,7 @@ export default function ScheduleStep({ data, updateData }: ScheduleStepProps) {
             {/* Grid - Dimmed if flexible, but still interactive */}
             <div className={`transition-all duration-300 ${data.scheduleFlexible ? 'opacity-60 grayscale-[0.5]' : 'opacity-100'}`}>
                 <ScheduleGrid
-                    value={data.schedule}
+                    value={data.schedule || {}}
                     onChange={(v: any) => updateData('schedule', v)}
                 />
             </div>

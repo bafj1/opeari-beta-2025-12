@@ -1,273 +1,611 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useViewer } from '../hooks/useViewer';
 import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
-import { WEEKDAYS } from '../lib/constants/careConstants';
+import Header from '../components/common/Header';
+import {
+    computeMatchScore,
+    filterByShowMe,
+    filterByCareTypes,
+    filterByAgeGroups,
+    filterByLanguages,
+    filterByTimeline,
+    type MatchResult
+} from '../lib/matchingScore';
+import { SharedCareTag, getSharedCareTags } from '../components/Shared/SharedCareTag';
 
-// --- Types ---
-interface Member {
-    id: string;
-    first_name: string;
-    last_name: string;
-    role: 'family' | 'caregiver'; // Explicit role check
-    location: string;
-    neighborhood: string;
-    zip_code?: string;
-    // photo_url: string; // Removing per prod schema
-    bio: string;
-
-    // Schedule
-    schedule: Record<string, string[]>; // { dayId: [slotId, ...] }
-    availability_days: string[];
-    availability_blocks: string[];
-
-    // Care
-    care_types: string[];
-    children_age_groups: string[];
-    budget_tiers: string[];
-    hourly_rate?: number;
-
-    // Family specific
-    kids: any[];
-}
-
-interface MatchResult {
-    member: Member;
-    score: number;
-    overlapDays: string[];
-    overlapBlocks: string[];
-    distanceScore: number;
-    reasons: string[];
-}
-
-// --- Helpers ---
-
-
-// Helper removed: getScheduleOverlap (Unused in Preview Mode)
-
-// Fallback: Calculate tag overlap if detailed schedule missing
-const getTagOverlap = (myDays: string[], theirDays: string[]) => {
-    const common = myDays.filter(d => theirDays.includes(d));
-    // Map IDs to Short Names
-    const commonNames = common.map(id => WEEKDAYS.find((w: { id: string; short: string }) => w.id === id)?.short || id);
-    return { overlapDays: commonNames, overlapCount: common.length * 2 }; // Weight days roughly as 2 slots
+// Brand colors
+const C = {
+    green: '#1e6b4e',
+    mint: '#8bd7c7',
+    mintLight: '#d8f5e5',
+    coral: '#E07A5F',
+    cream: '#fffaf5',
+    bg: '#f0faf4',
+    textDark: '#1e6b4e',
+    textMuted: '#5f7c6b',
+    border: 'rgba(139,215,199,0.35)',
+    white: '#ffffff',
 };
+
+const CARE_TYPES = [
+    { id: 'babysitter', label: 'Babysitter' },
+    { id: 'nanny', label: 'Nanny' },
+    { id: 'nanny-share', label: 'Nanny Share' },
+    { id: 'mothers-helper', label: "Mother's Helper" },
+    { id: 'backup-care', label: 'Backup Care' },
+    { id: 'household-manager', label: 'Household Mgr' },
+    { id: 'special-needs', label: 'Special Needs' },
+];
+
+interface CandidateWithScore {
+    candidate: any;
+    matchResult: MatchResult;
+}
+
+
+
 
 
 export default function Matches() {
     const { viewer, loading: viewerLoading } = useViewer();
-    const [matches, setMatches] = useState<MatchResult[]>([]);
+    const [allCandidates, setAllCandidates] = useState<any[]>([]);
+    const [connectedIds, setConnectedIds] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(true);
+    const [showFilters, setShowFilters] = useState(false);
+
+    const [filters, setFilters] = useState({
+        showMe: 'both' as string,
+        careTypes: [] as string[],
+        ageGroups: [] as string[],
+        languages: [] as string[],
+        asapOnly: false,
+        scheduleOnly: false,
+    });
+
+    // Initialize filters from viewer's saved preferences
+    useEffect(() => {
+        if (!viewer?.member) return;
+        const prefs = viewer.member.matching_prefs || {};
+        setFilters({
+            showMe: prefs.show_me || 'both',
+            careTypes: viewer.member.care_types || [],
+            ageGroups: prefs.age_ranges_need || viewer.member.children_age_groups || [],
+            languages: [],
+            asapOnly: false,
+            scheduleOnly: false,
+        });
+    }, [viewer?.member?.id]);
 
     useEffect(() => {
-        if (viewer) {
-            fetchMatches();
-        }
+        if (viewer) fetchData();
     }, [viewer]);
 
-    const fetchMatches = async () => {
+    async function fetchData() {
         try {
             setLoading(true);
-            if (!viewer) return;
-
+            if (!viewer?.member) return;
             const myId = viewer.member.id;
-            const myRole = viewer.member.role;
-            // const mySchedule = viewer.member.schedule || {}; // Unused in preview matching
-            const myDays = viewer.member.availability_days || [];
-            const myZip = viewer.member.zip_code;
 
-            // 1. Fetch Candidates
-            //    Families see: Caregivers + Other Families
-            //    Caregivers see: Families only
-            //    STRICT PROD SCHEMA: id, first_name, role, neighborhood, zip_code, bio, ...
-            let query = supabase.from('members_preview').select(`
-        id, first_name, role, neighborhood, zip_code, bio,
-        availability_days, availability_blocks,
-        care_types, children_age_groups, num_kids, budget_tiers
-      `).neq('id', myId);
-
-            if (myRole === 'caregiver') {
-                query = query.eq('role', 'family'); // Only see families
-            } else {
-                // Family sees everyone.
-            }
-
-            const { data: candidates, error } = await query;
+            const { data: candidates, error } = await supabase
+                .from('members')
+                .select(`
+                    id, first_name, last_name, role, bio,
+                    zip_code, neighborhood, languages,
+                    care_types, availability_days, vetting_status, avatar_url,
+                    children_age_groups, support_offered,
+                    smoke_free_required, comfortable_with_pets, schedule_flexible,
+                    timeline,
+                    looking_for, nanny_situation, open_to
+                `)
+                .neq('id', myId);
             if (error) throw error;
 
-            // 2. Rank & Score
-            const ranked: MatchResult[] = (candidates || []).map((candidate: any) => {
-                let score = 0;
-                let reasons: string[] = [];
-                let overlapDays: string[] = [];
+            // Exclude connected + pending
+            const { data: connections } = await supabase
+                .from('connections')
+                .select('requester_id, recipient_id')
+                .or(`requester_id.eq.${myId},recipient_id.eq.${myId}`)
+                .in('status', ['accepted', 'pending']);
 
-                // --- A. Schedule Score (Primary) ---
-                // Prefer detailed grid, fallback to tags
-
-                // Use Tag Overlap primarily for preview candidates (since schedule might be empty)
-                const overlap = getTagOverlap(myDays, candidate.availability_days || []);
-                overlapDays = overlap.overlapDays;
-
-                // Scoring: 10 pts per overlap day
-                score += (overlapDays.length * 10);
-
-                if (overlapDays.length > 0) {
-                    reasons.push(`Overlaps on ${overlapDays.join(', ')}`);
-                }
-
-                // --- B. Location Score (Secondary) ---
-
-                // 1. Zip Code (Stable Match) - Primary Location Check
-                if (candidate.zip_code && myZip && candidate.zip_code === myZip) {
-                    score += 15;
-                    reasons.push('Same zip code');
-                }
-                // 2. Neighborhood (Display Match) - Secondary
-                // STRICT: Both must be present, non-empty, and match when normalized.
-                else if (candidate.neighborhood && viewer.member.neighborhood) {
-                    const cNorm = candidate.neighborhood.trim().toLowerCase();
-                    const vNorm = viewer.member.neighborhood.trim().toLowerCase();
-
-                    if (cNorm.length > 0 && vNorm.length > 0 && cNorm === vNorm) {
-                        score += 10;
-                        reasons.push('Same neighborhood');
-                    }
-                }
-                // NO PARTIAL/INCLUDES FALLBACK ALLOWED
-
-                let distScore = (score >= 10 && reasons.some(r => r.includes('Same'))) ? 10 : 0;
-
-                return {
-                    member: candidate,
-                    score,
-                    overlapDays,
-                    overlapBlocks: [], // Todo if needed
-                    distanceScore: distScore,
-                    reasons
-                };
+            const connIds = new Set<string>();
+            (connections || []).forEach((c: any) => {
+                if (c.requester_id !== myId) connIds.add(c.requester_id);
+                if (c.recipient_id !== myId) connIds.add(c.recipient_id);
             });
 
-            // 3. Sort
-            // Descending score
-            ranked.sort((a, b) => b.score - a.score);
-
-            setMatches(ranked);
-
+            setAllCandidates(candidates || []);
+            setConnectedIds(connIds);
         } catch (err) {
             console.error('Match fetch error:', err);
         } finally {
             setLoading(false);
         }
+    }
+
+    const rankedMatches: CandidateWithScore[] = useMemo(() => {
+        if (!viewer?.member || allCandidates.length === 0) return [];
+
+        let filtered = allCandidates.filter(c => !connectedIds.has(c.id));
+        filtered = filterByShowMe(filtered, filters.showMe);
+        filtered = filterByCareTypes(filtered, filters.careTypes);
+        filtered = filterByAgeGroups(filtered, filters.ageGroups);
+        filtered = filterByLanguages(filtered, filters.languages);
+        filtered = filterByTimeline(filtered, filters.asapOnly);
+
+        let scored = filtered.map(candidate => ({
+            candidate,
+            matchResult: computeMatchScore(viewer.member, candidate),
+        }));
+
+        if (filters.scheduleOnly) {
+            scored = scored.filter(s => s.matchResult.scheduleOverlap > 0);
+        }
+
+        scored.sort((a, b) => b.matchResult.score - a.matchResult.score);
+        return scored;
+    }, [allCandidates, connectedIds, viewer?.member, filters]);
+
+    const toggleFilter = (key: 'careTypes' | 'ageGroups' | 'languages', item: string) => {
+        setFilters(prev => ({
+            ...prev,
+            [key]: prev[key].includes(item)
+                ? prev[key].filter(i => i !== item)
+                : [...prev[key], item],
+        }));
     };
 
+    const clearFilters = () => setFilters({
+        showMe: 'both',
+        careTypes: [],
+        ageGroups: [],
+        languages: [],
+        asapOnly: false,
+        scheduleOnly: false,
+    });
+
+    // Count individual active filters
+    const activeFilterCount =
+        (filters.showMe !== 'both' ? 1 : 0) +
+        filters.careTypes.length +
+        filters.ageGroups.length +
+        filters.languages.length +
+        (filters.asapOnly ? 1 : 0) +
+        (filters.scheduleOnly ? 1 : 0);
 
     if (viewerLoading || loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#FAF8F5]">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-[#1E6B4E] border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-[#1E6B4E] font-medium animate-pulse">Finding your matches...</p>
+            <>
+                <Header />
+                <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: C.bg }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ width: '40px', height: '40px', border: `3px solid ${C.green}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                        <p style={{ color: C.green, fontSize: '14px', fontWeight: 500 }}>Finding your matches...</p>
+                    </div>
                 </div>
-            </div>
+            </>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#FAF8F5] pb-20">
-            {/* Header */}
-            <div className="bg-[#1E6B4E] text-white pt-8 pb-16 px-6 relative overflow-hidden">
-                <div className="max-w-md mx-auto relative z-10 text-center">
-                    <h1 className="text-3xl font-bold font-comfortaa mb-2">Your Matches</h1>
-                    <p className="opacity-90 text-sm">Ranked by schedule & location compatibility.</p>
-                </div>
+        <>
+            <Header />
+            <div style={{ minHeight: '100vh', backgroundColor: C.bg, paddingTop: '72px' }}>
+                <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 20px 80px' }}>
 
-                {/* Decor */}
-                <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                    <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white blur-3xl"></div>
-                    <div className="absolute bottom-0 left-10 w-32 h-32 rounded-full bg-yellow-300 blur-3xl"></div>
-                </div>
-            </div>
-
-            {/* Content */}
-            <div className="max-w-md mx-auto px-4 -mt-10 relative z-20 space-y-4">
-
-                {matches.length === 0 ? (
-                    <div className="bg-white p-8 rounded-2xl shadow-sm text-center">
-                        <p className="text-gray-500">No strong matches found yet.</p>
-                        <Link to="/settings" className="text-[#1E6B4E] font-bold mt-2 inline-block">Update your availability</Link>
+                    {/* Page Header */}
+                    <div style={{ marginBottom: '24px' }}>
+                        <h1 style={{ color: C.green, fontSize: '24px', fontWeight: 700, marginBottom: '4px' }}>
+                            Discover Your Village
+                        </h1>
+                        <p style={{ color: C.textMuted, fontSize: '14px' }}>
+                            Families and caregivers ranked by compatibility with your preferences.
+                        </p>
                     </div>
-                ) : (
-                    matches.map((match) => (
-                        <div key={match.member.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow border border-[#1E6B4E]/5 relative overflow-hidden group">
 
-                            {/* High Match Badge */}
-                            {match.score > 30 && (
-                                <div className="absolute top-0 right-0 bg-[#e0f2fe] text-[#0369a1] text-[10px] font-bold px-2 py-1 rounded-bl-lg">
-                                    HIGH MATCH
-                                </div>
+                    {/* Filter Bar */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            aria-expanded={showFilters}
+                            aria-controls="filter-panel"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                padding: '8px 16px',
+                                borderRadius: '24px',
+                                border: `1.5px solid ${showFilters ? C.green : C.border}`,
+                                backgroundColor: showFilters ? C.green : C.white,
+                                color: showFilters ? C.white : C.green,
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                            }}
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="4" y1="6" x2="20" y2="6" />
+                                <line x1="8" y1="12" x2="16" y2="12" />
+                                <line x1="11" y1="18" x2="13" y2="18" />
+                            </svg>
+                            Filters
+                            {activeFilterCount > 0 && (
+                                <span style={{
+                                    backgroundColor: showFilters ? C.white : C.coral,
+                                    color: showFilters ? C.green : C.white,
+                                    fontSize: '10px',
+                                    fontWeight: 700,
+                                    borderRadius: '10px',
+                                    padding: '1px 6px',
+                                    minWidth: '16px',
+                                    textAlign: 'center',
+                                    lineHeight: '16px',
+                                }}>
+                                    {activeFilterCount}
+                                </span>
                             )}
+                        </button>
 
-                            <div className="flex items-start gap-4">
-                                {/* Avatar */}
-                                <div className="w-14 h-14 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden relative border-2 border-white shadow-sm">
-                                    {/* (match.member as any).photo_url check removed, always fallback or safe check */}
-                                    <div className="w-full h-full flex items-center justify-center bg-[#1E6B4E]/10 text-[#1E6B4E] font-bold text-xl">
-                                        {match.member.first_name[0]}
-                                    </div>
-                                </div>
+                        <span style={{ color: C.textMuted, fontSize: '13px' }}>
+                            {rankedMatches.length} {rankedMatches.length === 1 ? 'match' : 'matches'}
+                        </span>
 
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <h3 className="font-bold text-[#1E6B4E] text-lg">
-                                                {match.member.first_name} <span className="text-xs font-normal opacity-60 ml-1">{match.member.role === 'caregiver' ? 'Caregiver' : 'Family'}</span>
-                                            </h3>
-                                            <p className="text-xs text-gray-400 mb-2">
-                                                {match.member.neighborhood || 'Nearby'}
-                                            </p>
-                                        </div>
-                                    </div>
+                        {activeFilterCount > 0 && (
+                            <button
+                                onClick={clearFilters}
+                                style={{
+                                    marginLeft: 'auto',
+                                    fontSize: '12px',
+                                    color: C.coral,
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    background: 'none',
+                                    border: 'none',
+                                    padding: 0,
+                                }}
+                            >
+                                Clear all
+                            </button>
+                        )}
+                    </div>
 
-                                    {/* Primary Stat: Schedule */}
-                                    <div className="flex flex-wrap gap-2 mb-3">
-                                        {match.overlapDays.length > 0 ? (
-                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#1E6B4E]/10 text-[#1E6B4E] text-xs font-bold rounded-full">
-                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                                Matches: {match.overlapDays.join('/')}
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-500 text-xs font-medium rounded-full">
-                                                No schedule overlap
-                                            </span>
-                                        )}
-
-                                        {/* Distance Badge if applicable */}
-                                        {match.distanceScore > 0 && (
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full">
-                                                NEARBY
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Explainability (Expandable-ish, or just inline for MVP) */}
-                                    {match.reasons.length > 0 && (
-                                        <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded-lg mb-3">
-                                            <span className="font-semibold text-gray-700">Why:</span> {match.reasons.join('. ')}.
-                                        </div>
-                                    )}
-
-                                    <Link
-                                        to={`/profile/${match.member.id}`}
-                                        className="block w-full text-center py-2 rounded-lg bg-[#FAF8F5] text-[#1E6B4E] font-bold text-sm border border-[#1E6B4E]/20 hover:bg-[#1E6B4E] hover:text-white transition-colors"
-                                    >
-                                        View Profile
-                                    </Link>
+                    {/* Filter Panel */}
+                    {showFilters && (
+                        <div
+                            id="filter-panel"
+                            role="region"
+                            aria-label="Filter options"
+                            style={{
+                                backgroundColor: C.white,
+                                borderRadius: '16px',
+                                padding: '20px',
+                                marginBottom: '20px',
+                                border: `1px solid ${C.border}`,
+                                boxShadow: '0 2px 8px rgba(30,107,78,0.06)',
+                            }}
+                        >
+                            {/* Show Me */}
+                            <div style={{ marginBottom: '20px' }}>
+                                <p style={{ fontSize: '12px', fontWeight: 700, color: C.textMuted, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Show Me
+                                </p>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    {[
+                                        { id: 'both', label: 'Everyone' },
+                                        { id: 'parents', label: 'Parents' },
+                                        { id: 'caregivers', label: 'Caregivers' },
+                                    ].map(opt => {
+                                        const active = filters.showMe === opt.id;
+                                        return (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => setFilters(prev => ({ ...prev, showMe: opt.id }))}
+                                                aria-pressed={active}
+                                                style={{
+                                                    padding: '6px 16px',
+                                                    borderRadius: '20px',
+                                                    border: `1.5px solid ${active ? C.green : C.border}`,
+                                                    backgroundColor: active ? C.mintLight : C.white,
+                                                    color: C.green,
+                                                    fontSize: '13px',
+                                                    fontWeight: active ? 600 : 400,
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.15s',
+                                                }}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
+
+                            {/* Care Types */}
+                            <div style={{ marginBottom: '20px' }}>
+                                <p style={{ fontSize: '12px', fontWeight: 700, color: C.textMuted, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Care Types
+                                </p>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                    {CARE_TYPES.map(ct => {
+                                        const active = filters.careTypes.includes(ct.id);
+                                        return (
+                                            <button
+                                                key={ct.id}
+                                                onClick={() => toggleFilter('careTypes', ct.id)}
+                                                aria-pressed={active}
+                                                style={{
+                                                    padding: '5px 14px',
+                                                    borderRadius: '20px',
+                                                    border: `1.5px solid ${active ? C.green : C.border}`,
+                                                    backgroundColor: active ? C.mintLight : C.white,
+                                                    color: C.green,
+                                                    fontSize: '12px',
+                                                    fontWeight: active ? 600 : 400,
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.15s',
+                                                    whiteSpace: 'nowrap',
+                                                }}
+                                            >
+                                                {ct.label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Toggle Row */}
+                            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: C.green, cursor: 'pointer', userSelect: 'none' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={filters.asapOnly}
+                                        onChange={e => setFilters(prev => ({ ...prev, asapOnly: e.target.checked }))}
+                                        style={{ accentColor: C.green, width: '16px', height: '16px' }}
+                                    />
+                                    ASAP only
+                                </label>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: C.green, cursor: 'pointer', userSelect: 'none' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={filters.scheduleOnly}
+                                        onChange={e => setFilters(prev => ({ ...prev, scheduleOnly: e.target.checked }))}
+                                        style={{ accentColor: C.green, width: '16px', height: '16px' }}
+                                    />
+                                    Schedule overlap only
+                                </label>
+                            </div>
                         </div>
-                    ))
-                )}
+                    )}
+
+                    {/* Results */}
+                    {rankedMatches.length === 0 ? (
+                        <div style={{
+                            backgroundColor: C.white,
+                            borderRadius: '20px',
+                            padding: '48px 24px',
+                            textAlign: 'center',
+                            border: `1px solid ${C.border}`,
+                        }}>
+                            <div style={{
+                                width: '56px',
+                                height: '56px',
+                                borderRadius: '50%',
+                                backgroundColor: C.mintLight,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 20px',
+                            }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                            </div>
+                            <h3 style={{ color: C.green, fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
+                                No matches yet
+                            </h3>
+                            <p style={{ color: C.textMuted, fontSize: '14px', marginBottom: '20px', maxWidth: '300px', margin: '0 auto 20px', lineHeight: '1.5' }}>
+                                {activeFilterCount > 0
+                                    ? 'Try adjusting your filters to see more people.'
+                                    : 'Your village is growing! New families and caregivers are joining. Check back soon.'}
+                            </p>
+                            {activeFilterCount > 0 ? (
+                                <button
+                                    onClick={clearFilters}
+                                    style={{
+                                        padding: '10px 28px',
+                                        borderRadius: '24px',
+                                        backgroundColor: C.green,
+                                        color: C.white,
+                                        fontWeight: 600,
+                                        fontSize: '14px',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    Clear Filters
+                                </button>
+                            ) : (
+                                <Link
+                                    to="/settings"
+                                    style={{
+                                        display: 'inline-block',
+                                        padding: '10px 28px',
+                                        borderRadius: '24px',
+                                        backgroundColor: C.green,
+                                        color: C.white,
+                                        fontWeight: 600,
+                                        fontSize: '14px',
+                                        textDecoration: 'none',
+                                    }}
+                                >
+                                    Update Preferences
+                                </Link>
+                            )}
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {rankedMatches.map(({ candidate, matchResult }) => (
+                                <DiscoveryCard
+                                    key={candidate.id}
+                                    candidate={candidate}
+                                    matchResult={matchResult}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
+    );
+}
+
+// --- Discovery Card ---
+
+function DiscoveryCard({ candidate, matchResult }: { candidate: any; matchResult: MatchResult }) {
+    const roleLabel = candidate.role === 'caregiver' ? 'Caregiver' : 'Family';
+
+    const scoreColor = matchResult.score >= 60 ? C.green
+        : matchResult.score >= 30 ? C.mint
+            : '#ccc';
+    const scoreTextColor = matchResult.score >= 60 ? C.white
+        : matchResult.score >= 30 ? C.green
+            : C.textMuted;
+
+    return (
+        <Link
+            to={`/member/${candidate.id}`}
+            style={{
+                display: 'block',
+                backgroundColor: C.white,
+                borderRadius: '16px',
+                border: `1px solid ${C.border}`,
+                textDecoration: 'none',
+                transition: 'transform 0.15s, box-shadow 0.15s',
+                padding: '16px 20px',
+            }}
+            className="hover:shadow-md hover:-translate-y-0.5"
+        >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                {/* Avatar */}
+                <div style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '50%',
+                    backgroundColor: C.mintLight,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                }}>
+                    <span style={{ color: C.green, fontSize: '20px', fontWeight: 700 }}>
+                        {candidate.first_name?.charAt(0) || '?'}
+                    </span>
+                </div>
+
+                {/* Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ color: C.green, fontWeight: 700, fontSize: '15px' }}>
+                            {candidate.role === 'caregiver'
+                                ? candidate.first_name
+                                : `${candidate.first_name}'s Family`}
+                        </span>
+                        <span style={{
+                            fontSize: '11px',
+                            fontWeight: 500,
+                            padding: '2px 8px',
+                            borderRadius: '10px',
+                            backgroundColor: C.mintLight,
+                            color: C.green,
+                        }}>
+                            {roleLabel}
+                        </span>
+                        {candidate.timeline === 'asap' && (
+                            <span style={{
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                padding: '2px 8px',
+                                borderRadius: '10px',
+                                backgroundColor: '#FEF3C7',
+                                color: '#92400E',
+                            }}>
+                                ASAP
+                            </span>
+                        )}
+                    </div>
+                    <span style={{ color: C.textMuted, fontSize: '12px' }}>
+                        {candidate.neighborhood || candidate.zip_code || 'Nearby'}
+                    </span>
+                </div>
+
+                {/* Score */}
+                <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: scoreColor,
+                    color: scoreTextColor,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    flexShrink: 0,
+                }}>
+                    {matchResult.score}
+                </div>
+            </div>
+
+
+            {/* Shared Care Tags */}
+            {getSharedCareTags(candidate).length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
+                    {getSharedCareTags(candidate).map((tag, idx) => (
+                        <SharedCareTag key={idx} label={tag} />
+                    ))}
+                </div>
+            )}
+
+            {/* Signals */}
+            {matchResult.signals.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
+                    {matchResult.signals.slice(0, 3).map((signal, idx) => (
+                        <span
+                            key={idx}
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '3px 10px',
+                                borderRadius: '12px',
+                                backgroundColor: C.mintLight,
+                                fontSize: '11px',
+                                color: C.green,
+                                fontWeight: 500,
+                            }}
+                        >
+                            {signal.icon} {signal.label}
+                        </span>
+                    ))}
+                </div>
+            )}
+
+            {/* Bio */}
+            {candidate.bio && (
+                <p style={{
+                    color: C.textMuted,
+                    fontSize: '13px',
+                    marginTop: '10px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    lineHeight: '1.4',
+                }}>
+                    {candidate.bio}
+                </p>
+            )}
+        </Link>
     );
 }

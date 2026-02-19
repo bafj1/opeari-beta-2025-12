@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import Header from '../components/common/Header'
 import Toast from '../components/common/Toast'
 import { formatLocation } from '../lib/zipLookup'
+import { createNotification } from '../lib/notifications'
 
 interface ConnectionRequest {
   id: string
@@ -34,7 +35,7 @@ interface AcceptedConnection {
 export default function Connections() {
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
-  const [_, setMyMemberId] = useState('')
+  const [myMember, setMyMember] = useState<{ id: string, first_name: string } | null>(null)
   const [pendingReceived, setPendingReceived] = useState<ConnectionRequest[]>([])
   const [pendingSent, setPendingSent] = useState<ConnectionRequest[]>([])
   const [accepted, setAccepted] = useState<AcceptedConnection[]>([])
@@ -47,7 +48,7 @@ export default function Connections() {
 
       const { data: member } = await supabase
         .from('members')
-        .select('id')
+        .select('id, first_name')
         .eq('id', user.id)
         .single()
 
@@ -56,7 +57,7 @@ export default function Connections() {
         return
       }
 
-      setMyMemberId(member.id)
+      setMyMember(member)
 
       // Get pending requests received (others want to connect with me)
       const { data: received } = await supabase
@@ -131,6 +132,17 @@ export default function Connections() {
       // Move from pending to accepted
       const request = pendingReceived.find(r => r.id === connectionId)
       if (request) {
+        // Send notification
+        if (myMember) {
+          await createNotification({
+            userId: request.member.id,
+            type: 'connection_accepted',
+            title: `${myMember.first_name} accepted your connection`,
+            body: 'You are now connected',
+            fromUserId: myMember.id
+          })
+        }
+
         setPendingReceived(prev => prev.filter(r => r.id !== connectionId))
         setAccepted(prev => [{
           id: connectionId,

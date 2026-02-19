@@ -149,7 +149,7 @@ export default function CaregiverOpportunities() {
                                         {normalizeArea(op.area_bucket)}
                                     </div>
                                 </div>
-                                {op.pay_band && !/^0+$/.test(op.pay_band) && (
+                                {op.pay_band && !/^[\s\d$]*0+[\s\d$]*$/.test(op.pay_band) && (
                                     <div className="px-3 py-1 bg-green-50 text-opeari-green font-bold text-sm rounded-full">
                                         {op.pay_band}
                                     </div>

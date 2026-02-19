@@ -158,7 +158,7 @@ export default function IncomingInterests() {
                 return <span className="px-2.5 py-0.5 bg-stone-100 text-stone-500 text-[10px] font-bold uppercase tracking-wide rounded-full">Passed</span>;
             case 'pending':
             default:
-                return <span className="px-2.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wide rounded-full">Pending</span>;
+                return <span className="px-2.5 py-0.5 bg-[#FFF0EB] text-[#E07A5F] text-[10px] font-bold uppercase tracking-wide rounded-full">Pending</span>;
         }
     };
 

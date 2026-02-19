@@ -76,7 +76,7 @@ export default function VillagePanel({
 
             {/* Next Step Box (Dynamic) */}
             {!availabilityAdded && (
-                <div className="mt-8 bg-amber-50 rounded-2xl p-5 border border-amber-100">
+                <div className="mt-8 bg-[#fff0eb] rounded-2xl p-5 border border-[#f8c3b3]">
                     <h3 className="font-bold text-opeari-heading mb-1">Next step:</h3>
                     <Link to="/settings" className="flex items-center justify-between text-opeari-heading font-medium hover:text-opeari-green-dark hover:opacity-80 transition-all">
                         Add general availability

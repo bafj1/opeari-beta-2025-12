@@ -55,8 +55,14 @@ export default function Login() {
         console.log('Redirecting: Incomplete -> /onboarding?step=0')
         navigate('/onboarding?step=0')
       } else {
-        console.log('Redirecting: Complete -> /dashboard')
-        navigate('/dashboard')
+        console.log('Redirecting: Complete -> checking role')
+        if (intent === 'caregiver') {
+          console.log('Redirecting: Caregiver -> /matches')
+          navigate('/matches')
+        } else {
+          console.log('Redirecting: Family/Other -> /village')
+          navigate('/village')
+        }
       }
     } catch (err: any) {
       console.error('Login error:', err)

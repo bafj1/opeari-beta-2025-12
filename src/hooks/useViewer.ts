@@ -17,11 +17,8 @@ export function useViewer() {
 
     // Fetch canonical rows (Member + Optional Caregiver Profile)
     const refresh = useCallback(async () => {
-        // Always get the latest auth user to ensure we have the email
-        const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
-
-        if (authError || !currentUser) {
-            console.error('useViewer: Auth error or no user', authError);
+        // Task 2.A: Do NOT call getUser(). Use user from useAuth().
+        if (!user) {
             setLoading(false);
             return;
         }
@@ -30,38 +27,60 @@ export function useViewer() {
             setLoading(true);
             setError(null);
 
-            // 1. Fetch Member
+            // 1. Fetch Member - Task 2.B: Use maybeSingle()
             const { data: member, error: memberError } = await supabase
                 .from('members')
                 .select('*')
-                .eq('id', currentUser.id)
-                .single();
+                .eq('id', user.id)
+                .maybeSingle();
 
             if (memberError) {
-                // If member doesn't exist, this is critical
                 throw new Error(`Failed to load member profile: ${memberError.message}`);
             }
 
+            let loadedMember = member;
+
+            // Task 2.C: If member is null, ensure then retry once
+            if (!loadedMember) {
+                console.warn('useViewer: Member not found, re-ensuring...');
+                await ensureMemberRow();
+
+                const { data: retryData, error: retryError } = await supabase
+                    .from('members')
+                    .select('*')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                if (retryError) throw new Error(`Failed to load member profile (retry): ${retryError.message}`);
+
+                if (!retryData) {
+                    // Task 2.C: If still null, stop loading and error (no infinite spinner)
+                    throw new Error('Failed to load member profile: no member row found after ensureMemberRow retry.');
+                }
+
+                loadedMember = retryData;
+            }
+
             // BACKFILL EMAIL IF MISSING (Non-destructive sync)
-            if (!member.email && currentUser.email) {
+            if (!loadedMember.email && user.email) {
                 const { error: updateError } = await supabase
                     .from('members')
-                    .update({ email: currentUser.email })
-                    .eq('id', currentUser.id);
+                    .update({ email: user.email })
+                    .eq('id', user.id);
 
                 if (!updateError) {
-                    member.email = currentUser.email; // Optimistic update
+                    loadedMember.email = user.email; // Optimistic update
                 }
             }
 
             let caregiverProfile = null;
 
-            // 2. If role is caregiver, fetch caregiver profile
-            if (member.role === 'caregiver') {
+            // 2. If role is caregiver, fetch caregiver profile - Task 2.D: ONLY if member loaded and role is caregiver
+            if (loadedMember && loadedMember.role === 'caregiver') {
                 const { data: profile, error: profileError } = await supabase
                     .from('caregiver_profiles')
                     .select('*')
-                    .eq('user_id', currentUser.id)
+                    .eq('user_id', user.id)
                     .maybeSingle();
 
                 if (profileError) throw profileError;
@@ -71,25 +90,44 @@ export function useViewer() {
                 } else {
                     // Lazy creation if missing for caregiver role
                     console.log('useViewer: Caregiver role but no profile. Creating stub.');
+
+                    // Optimistic insert with .single()
                     const { data: newProfile, error: createError } = await supabase
                         .from('caregiver_profiles')
                         .insert({
-                            user_id: currentUser.id,
-                            first_name: member.first_name,
-                            last_name: member.last_name,
-                            email: currentUser.email, // Use Auth Email for robustness
-                            zip_code: member.zip_code
+                            user_id: user.id,
+                            first_name: loadedMember.first_name,
+                            last_name: loadedMember.last_name,
+                            email: user.email,
+                            zip_code: loadedMember.zip_code
                         })
-                        .select()
+                        .select('*')
                         .single();
 
-                    if (createError) throw createError;
-                    caregiverProfile = newProfile;
+                    if (!createError && newProfile) {
+                        caregiverProfile = newProfile;
+                    } else {
+                        // Conflict or error? Re-fetch safely.
+                        // This handles the race where it was created in another tab/process
+                        console.warn('useViewer: Insert failed or conflicted, refetching...', createError?.message);
+
+                        const { data: retryProfile, error: retryError } = await supabase
+                            .from('caregiver_profiles')
+                            .select('*')
+                            .eq('user_id', user.id)
+                            .maybeSingle();
+
+                        if (retryError) throw retryError;
+                        if (!retryProfile) {
+                            throw new Error('Caregiver profile could not be created or loaded.');
+                        }
+                        caregiverProfile = retryProfile;
+                    }
                 }
             }
 
             // Attach the Auth User object to the viewer for specialized access if needed
-            setViewer({ member, caregiverProfile, user: currentUser });
+            setViewer({ member: loadedMember, caregiverProfile, user });
 
         } catch (err: any) {
             console.error('useViewer: Error fetching viewer:', err);
@@ -98,47 +136,22 @@ export function useViewer() {
         } finally {
             setLoading(false);
         }
-    }, []); // Removed 'user' dependency to avoid loops, rely on explicit getUser calls
+    }, [user]); // Rely on stable user identity
 
-    // Initial Mount Effect: Ensure Row -> Then Refresh
+    // Initial Mount Effect
     useEffect(() => {
         let mounted = true;
-        // Failsafe: if loading takes > 8s, error out
-        const failsafe = setTimeout(() => {
-            if (mounted && loading) {
-                console.warn('useViewer: Loading timed out');
-                setLoading(false);
-                setError(new Error('Data failed to load in time. Please refresh.'));
-            }
-        }, 8000);
 
         const init = async () => {
             if (!user) {
                 setLoading(false);
-                clearTimeout(failsafe);
                 return;
             }
 
-            setLoading(true);
-            try {
-                // Run ensureMemberRow ONCE on mount (with 5s timeout race)
-                await Promise.race([
-                    ensureMemberRow(),
-                    new Promise(resolve => setTimeout(resolve, 5000))
-                ]);
-
-                // Then fetch data
-                if (mounted) {
-                    await refresh();
-                }
-            } catch (err: any) {
-                if (mounted) {
-                    console.error('useViewer: Init error', err);
-                    setError(err);
-                    setLoading(false);
-                }
-            } finally {
-                clearTimeout(failsafe);
+            // Task 2.F: Ensure useEffect does not create loops.
+            // Just call refresh() which has the ensure logic inside.
+            if (mounted) {
+                await refresh();
             }
         };
 
@@ -146,9 +159,8 @@ export function useViewer() {
 
         return () => {
             mounted = false;
-            clearTimeout(failsafe);
         };
-    }, [user, refresh]); // Rely on stable user/refresh identity
+    }, [user, refresh]);
 
     return { viewer, loading, error, refresh };
 }
