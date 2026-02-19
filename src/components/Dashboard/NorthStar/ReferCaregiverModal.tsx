@@ -105,6 +105,24 @@ export function ReferCaregiverModal({ isOpen, onClose, userId, onSuccess }: Refe
                     throw insertError;
                 }
 
+                // Also create an endorsement for the existing caregiver
+                if (rating > 0) {
+                    try {
+                        await supabase
+                            .from('endorsements')
+                            .insert({
+                                endorser_id: userId,
+                                recipient_id: selectedCaregiver.id,
+                                rating,
+                                relationship: relationship || null,
+                                note: note.trim() || null,
+                                source: 'referral',
+                            });
+                    } catch (endorseErr) {
+                        console.error('Error creating endorsement:', endorseErr);
+                    }
+                }
+
                 setSuccess(true);
                 setTimeout(() => {
                     onSuccess?.();
@@ -112,8 +130,7 @@ export function ReferCaregiverModal({ isOpen, onClose, userId, onSuccess }: Refe
                 }, 1500);
 
             } else if (activeTab === 'invite' && inviteEmail) {
-                // For now, just create a pending invite record
-                // In the future, this would send an email via Netlify function
+                // Create a pending invite record
                 const { error: inviteError } = await supabase
                     .from('invites')
                     .insert({
@@ -128,6 +145,26 @@ export function ReferCaregiverModal({ isOpen, onClose, userId, onSuccess }: Refe
                     }
                     // Table might not exist yet - just show success anyway
                     console.log('Invite would be sent to:', inviteEmail);
+                }
+
+                // Also create an endorsement from the referral data
+                if (rating > 0) {
+                    try {
+                        await supabase
+                            .from('endorsements')
+                            .insert({
+                                endorser_id: userId,
+                                endorser_name: null, // Will be filled from member data
+                                recipient_email: inviteEmail.toLowerCase().trim(),
+                                rating,
+                                relationship: relationship || null,
+                                note: note.trim() || null,
+                                source: 'referral',
+                            });
+                    } catch (endorseErr) {
+                        // Don't block invite — endorsement is secondary
+                        console.error('Error creating endorsement:', endorseErr);
+                    }
                 }
 
                 setSuccess(true);

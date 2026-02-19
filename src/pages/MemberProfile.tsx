@@ -117,6 +117,8 @@ export default function MemberProfile() {
   const [connectionCount, setConnectionCount] = useState(0)
   const [mutualCount, setMutualCount] = useState(0)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+  const [endorsementCount, setEndorsementCount] = useState(0)
+  const [avgRating, setAvgRating] = useState(0)
 
   function computeCompatibility() {
     if (!viewer?.member || !member || !isConnected) return null;
@@ -380,6 +382,22 @@ export default function MemberProfile() {
         setMutualCount(mutualData || 0);
       }
 
+      // Fetch Endorsements
+      try {
+        const { data: endorseData } = await supabase
+          .from('endorsements')
+          .select('rating')
+          .eq('recipient_id', id)
+          .eq('is_visible', true);
+        if (endorseData) {
+          setEndorsementCount(endorseData.length);
+          const ratings = endorseData.filter((e: any) => e.rating).map((e: any) => e.rating as number);
+          if (ratings.length > 0) {
+            setAvgRating(Math.round((ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length) * 10) / 10);
+          }
+        }
+      } catch { /* endorsements table might not exist yet */ }
+
     } catch (err) {
       console.error('Error loading member:', err)
     } finally {
@@ -598,6 +616,19 @@ export default function MemberProfile() {
                       </span>
                     )}
                   </div>
+
+                  {/* Endorsement Badge */}
+                  {endorsementCount > 0 && (
+                    <div className="flex items-center gap-1.5 mt-2" style={{ display: 'inline-flex', padding: '4px 12px', borderRadius: '20px', backgroundColor: COLORS.mint }}>
+                      <span style={{ color: '#F59E0B', fontSize: '14px' }}>★</span>
+                      <span className="text-xs font-semibold" style={{ color: COLORS.primary }}>
+                        {endorsementCount} {endorsementCount === 1 ? 'endorsement' : 'endorsements'}
+                      </span>
+                      {avgRating > 0 && (
+                        <span className="text-xs" style={{ color: COLORS.textMuted }}>· {avgRating} avg</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

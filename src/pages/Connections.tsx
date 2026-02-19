@@ -18,7 +18,6 @@ interface ConnectionRequest {
     first_name: string
     location: string
     tagline: string
-    nanny_situation: string
   }
 }
 
@@ -62,7 +61,7 @@ export default function Connections() {
       // Get pending requests received (others want to connect with me)
       const { data: received } = await supabase
         .from('connections')
-        .select('*, member:members!member_id(id, first_name, location, tagline, nanny_situation)')
+        .select('*, member:members!member_id(id, first_name, location, tagline)')
         .eq('connected_member_id', member.id)
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
@@ -74,7 +73,7 @@ export default function Connections() {
       // Get pending requests sent (I want to connect with others)
       const { data: sent } = await supabase
         .from('connections')
-        .select('*, member:members!connected_member_id(id, first_name, location, tagline, nanny_situation)')
+        .select('*, member:members!connected_member_id(id, first_name, location, tagline)')
         .eq('member_id', member.id)
         .eq('status', 'pending')
         .order('created_at', { ascending: false })

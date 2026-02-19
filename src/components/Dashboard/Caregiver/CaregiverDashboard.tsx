@@ -50,23 +50,24 @@ const calculateAgeFromBirthday = (birthday: string | null): number | null => {
 };
 
 interface MemberData {
-    looking_for?: string[];
-    nanny_situation?: string;
-    open_to?: string[];
+    care_types?: string[];
+    looking_for?: string[]; // legacy fallback
+    also_open_to?: string[];
     [key: string]: any;
 }
 
 function getSharedCareTags(match: MemberData): string[] {
     const tags: string[] = [];
 
-    // Check looking_for array
-    if (match.looking_for?.includes('nanny-share')) {
+    // Check care_types array (with looking_for as fallback)
+    const careArr = match.care_types || match.looking_for || [];
+    if (careArr.includes('nanny-share')) {
         tags.push('Open to nanny share');
     }
-    if (match.looking_for?.includes('co-share')) {
+    if (careArr.includes('co-share')) {
         tags.push('Open to co-share');
     }
-    if (match.looking_for?.includes('backup-care')) {
+    if (careArr.includes('backup-care')) {
         tags.push('Wants backup care');
     }
 
@@ -78,8 +79,8 @@ function getSharedCareTags(match: MemberData): string[] {
         tags.push('Seeking nanny share');
     }
 
-    // Check open_to array
-    if (match.open_to?.includes('weekend_swaps')) {
+    // Check also_open_to array
+    if (match.also_open_to?.includes('weekend_swaps')) {
         tags.push('Open to weekend swaps');
     }
 
@@ -465,7 +466,7 @@ export default function CaregiverDashboard() {
         try {
             const { data, error } = await supabase
                 .from('members')
-                .select('id, first_name, last_name, role, bio, zip_code, neighborhood, num_kids, kids_ages, availability_days, vetting_status, avatar_url, looking_for, nanny_situation, open_to')
+                .select('id, first_name, last_name, role, bio, zip_code, neighborhood, num_kids, kids_ages, availability_days, vetting_status, avatar_url, care_types, also_open_to')
                 .neq('id', effectiveUserId)
                 .neq('role', 'caregiver');
 
@@ -536,10 +537,9 @@ export default function CaregiverDashboard() {
 
                     // Context Text
                     contextText:
-                        m.nanny_situation === 'seeking_share' ? 'Actively seeking a nanny share partner' :
-                            m.looking_for?.includes('nanny-share') ? 'Open to nanny share' :
-                                stableScoreFromId(m.id, 82, 98) >= 80 ? 'Strong match based on schedule and care type' :
-                                    'Schedule overlap' // fallback for now
+                        m.care_types?.includes('nanny-share') ? 'Open to nanny share' :
+                            stableScoreFromId(m.id, 82, 98) >= 80 ? 'Strong match based on schedule and care type' :
+                                'Schedule overlap' // fallback for now
                 };
             });
 

@@ -32,7 +32,7 @@ export default function Footer() {
 
                     {/* Copyright */}
                     <p className="text-[#1E6B4E]/60 text-sm">
-                        © 2025 Opeari
+                        © {new Date().getFullYear()} Opeari
                     </p>
                 </div>
             </div>

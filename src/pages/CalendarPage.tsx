@@ -177,8 +177,26 @@ export default function CalendarPage() {
                 await createCareNeed({
                     ...data,
                     member_id: viewer?.member?.id,
-                    is_active: true
+                    is_active: true,
+                    area_bucket: 'local',
                 } as any);
+
+                // Sync schedule back to member for regular care needs
+                if (data.duration_type === 'regular' && data.days_needed && data.days_needed.length > 0 && viewer?.member?.id) {
+                    const { supabase } = await import('../lib/supabase');
+                    await supabase
+                        .from('members')
+                        .update({
+                            availability_days: data.days_needed,
+                            schedule: {
+                                days: data.days_needed,
+                                start_time: data.start_time || '09:00',
+                                end_time: data.end_time || '17:00',
+                                flexible: false,
+                            },
+                        })
+                        .eq('id', viewer.member.id);
+                }
             }
             setShowEditNeed(false);
             setActiveCareNeedToEdit(null);

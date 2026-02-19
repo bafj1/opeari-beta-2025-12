@@ -95,8 +95,7 @@ export default function Matches() {
                     care_types, availability_days, vetting_status, avatar_url,
                     children_age_groups, support_offered,
                     smoke_free_required, comfortable_with_pets, schedule_flexible,
-                    timeline,
-                    looking_for, nanny_situation, open_to
+                    timeline
                 `)
                 .neq('id', myId);
             if (error) throw error;

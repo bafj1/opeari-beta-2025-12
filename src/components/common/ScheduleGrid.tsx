@@ -4,12 +4,46 @@ import React from 'react';
 // Day IDs: mon, tue, wed, thu, fri, sat, sun
 // Time IDs: Morning, Afternoon, Evening
 
+// Defensive: normalize any schedule format into the grid's expected shape
+const normalizeScheduleForGrid = (schedule: any): Record<string, string[]> => {
+  if (!schedule || typeof schedule !== 'object') return {};
+
+  // New format: { days: [...], start_time, end_time }
+  if (Array.isArray(schedule.days)) {
+    const blocks: string[] = [];
+    const startHour = parseInt(schedule.start_time?.split(':')[0] || '9');
+    const endHour = parseInt(schedule.end_time?.split(':')[0] || '17');
+
+    if (startHour < 12 && endHour > 6) blocks.push('Morning');
+    if (startHour < 17 && endHour > 12) blocks.push('Afternoon');
+    if (endHour > 17 || startHour >= 17) blocks.push('Evening');
+
+    const result: Record<string, string[]> = {};
+    schedule.days.forEach((day: string) => { result[day] = blocks; });
+    return result;
+  }
+
+  // Old format: { mon: ["Morning", "Afternoon"], ... } or { mon: { blocks: [...] } }
+  const result: Record<string, string[]> = {};
+  Object.keys(schedule).forEach(day => {
+    const val = schedule[day];
+    if (Array.isArray(val)) {
+      result[day] = val;
+    } else if (val && typeof val === 'object' && Array.isArray(val.blocks)) {
+      result[day] = val.blocks;
+    }
+  });
+  return result;
+};
+
 interface ScheduleGridProps {
-  value: Record<string, string[]>;
+  value: Record<string, any>;
   onChange: (val: Record<string, string[]>) => void;
 }
 
-export const ScheduleGrid = ({ value, onChange }: ScheduleGridProps) => {
+export const ScheduleGrid = ({ value: rawValue, onChange }: ScheduleGridProps) => {
+  // Normalize incoming data to guard against format mismatch
+  const value = normalizeScheduleForGrid(rawValue);
   // Standard capitalized display names, but we use lowercase keys for storage
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const times = ['Morning', 'Afternoon', 'Evening'];

@@ -8,7 +8,7 @@ export interface CareNeed {
     days_needed: string[];
     start_time: string | null;
     end_time: string | null;
-    duration_type: 'ongoing' | 'short-term';
+    duration_type: 'ongoing' | 'short-term' | 'regular' | 'temporary' | 'one-time' | 'backup';
     start_date: string | null;
     end_date: string | null;
     status: string;

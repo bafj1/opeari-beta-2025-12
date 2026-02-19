@@ -704,8 +704,25 @@ export default function FamilyDashboard() {
                 await createCareNeed({
                     ...data,
                     member_id: effectiveUserId,
-                    is_active: true
+                    is_active: true,
+                    area_bucket: 'local',
                 } as any);
+
+                // Sync schedule back to member for regular care needs
+                if (data.duration_type === 'regular' && data.days_needed && data.days_needed.length > 0) {
+                    await supabase
+                        .from('members')
+                        .update({
+                            availability_days: data.days_needed,
+                            schedule: {
+                                days: data.days_needed,
+                                start_time: data.start_time || '09:00',
+                                end_time: data.end_time || '17:00',
+                                flexible: false,
+                            },
+                        })
+                        .eq('id', effectiveUserId);
+                }
             }
             setShowEditNeed(false);
             setActiveCareNeedToEdit(null);
@@ -907,7 +924,7 @@ export default function FamilyDashboard() {
         <div className="min-h-screen bg-[#d8f5e5]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
             {/* ========== HEADER ========== */}
             <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3 sm:gap-8">
                         <h1 className="text-xl sm:text-2xl font-bold text-[#1e6b4e]">Opeari</h1>
                         <button
@@ -918,6 +935,15 @@ export default function FamilyDashboard() {
                             <Home className="w-4 h-4 sm:w-5 sm:h-5 text-[#1e6b4e]" />
                             <span className="text-xs sm:text-sm font-semibold text-[#1e6b4e] hidden sm:inline">My Village</span>
                         </button>
+                        {/* Core Navigation */}
+                        <nav className="hidden md:flex items-center gap-5">
+                            <Link
+                                to="/matches"
+                                className="text-sm font-semibold text-[#546E5C] hover:text-[#1e6b4e] transition-colors"
+                            >
+                                Discover
+                            </Link>
+                        </nav>
                     </div>
 
                     <div className="flex items-center gap-1 sm:gap-2">
@@ -1022,7 +1048,7 @@ export default function FamilyDashboard() {
 
             {/* ========== VILLAGE ACTIVITY BANNER ========== */}
             <div className="bg-[#d8f5e5] border-b border-[#8bd7c7]/30">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <span className="text-sm text-[#1e6b4e]">
@@ -1061,7 +1087,7 @@ export default function FamilyDashboard() {
             </div>
 
             {/* ========== MAIN CONTENT ========== */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
                 {/* Pending Connections Section */}
                 <div className="mb-6">
                     <ConnectionRequestsCard />
@@ -1139,7 +1165,7 @@ export default function FamilyDashboard() {
                                                 ))}
                                             </div>
 
-                                            {!person.nanny_situation && !person.looking_for?.includes('nanny-share') && (
+                                            {!person.care_types?.includes('nanny-share') && (
                                                 <div className="mb-3"></div>
                                             )}
 
@@ -1223,46 +1249,61 @@ export default function FamilyDashboard() {
                                 ) : topMatches.length === 0 ? (
                                     <p className="text-center text-gray-500 py-8">No matches found.</p>
                                 ) : (
-                                    topMatches.map(match => (
-                                        <MatchCard
-                                            key={match.member_id}
-                                            {...{
-                                                id: match.member_id,
-                                                targetMemberId: match.member_id,
-                                                name: match.display_name,
-                                                photo: match.avatar_url || 'https://via.placeholder.com/150',
-                                                distance: match.distance_miles,
-                                                scheduleOverlap: match.match_score,
-                                                matchDays: match.availability_days || [],
-                                                type: match.role === 'caregiver' ? 'caregiver' : 'parent',
-                                                availability: match.availability_days || [],
-                                                bio: '',
-                                                verified: false,
-                                                inVillage: false,
-                                                // Derived fields
-                                                kids: [], // TODO: map kids
-                                                matchScore: match.match_score
-                                            } as any}
-                                            tags={getSharedCareTags(match)}
-                                            contextText={
-                                                match.nanny_situation === 'seeking_share' ? 'Actively seeking a nanny share partner' :
-                                                    match.looking_for?.includes('nanny-share') ? 'Open to nanny share' :
+                                    topMatches.map(match => {
+                                        // Calculate Schedule Overlap
+                                        // Priority: Active Care Need -> User Profile -> Empty
+                                        const myDays = (activeCareNeed?.days_needed || viewer?.member?.availability_days || []).map((d: string) => d.toLowerCase());
+                                        const theirDays = (match.availability_days || []).map(d => d.toLowerCase());
+                                        const overlappingDays = theirDays.filter(d => myDays.includes(d));
+
+                                        // Format overlap text
+                                        let overlapText = '';
+                                        if (overlappingDays.length > 0) {
+                                            if (overlappingDays.length === 7) overlapText = 'Full week overlap';
+                                            else if (overlappingDays.length === 5 && ['mon', 'tue', 'wed', 'thu', 'fri'].every(d => overlappingDays.includes(d))) overlapText = 'Mon-Fri match';
+                                            else overlapText = `${overlappingDays.length} day${overlappingDays.length === 1 ? '' : 's'} overlap`;
+                                        }
+
+                                        return (
+                                            <MatchCard
+                                                key={match.member_id}
+                                                {...{
+                                                    id: match.member_id,
+                                                    targetMemberId: match.member_id,
+                                                    name: match.display_name,
+                                                    photo: match.avatar_url || 'https://via.placeholder.com/150',
+                                                    distance: match.distance_miles,
+                                                    scheduleOverlap: match.match_score,
+                                                    matchDays: overlappingDays, // Pass INTERSECTION
+                                                    type: match.role === 'caregiver' ? 'caregiver' : 'parent',
+                                                    availability: match.availability_days || [],
+                                                    bio: '',
+                                                    verified: false,
+                                                    inVillage: false,
+                                                    // Derived fields
+                                                    kids: [], // TODO: map kids
+                                                    matchScore: match.match_score
+                                                } as any}
+                                                tags={getSharedCareTags(match)}
+                                                contextText={
+                                                    match.care_types?.includes('nanny-share') ? 'Open to nanny share' :
                                                         match.match_score >= 80 ? 'Strong match based on your preferences' :
-                                                            match.distance_miles < 1 ? `Nearby · ${match.distance_miles} miles` :
-                                                                match.availability_days?.length ? 'Schedule overlap' :
+                                                            overlappingDays.length > 0 ? `${overlapText} · ${match.distance_miles} miles` : // Use overlap text
+                                                                match.distance_miles < 1 ? `Nearby · ${match.distance_miles} miles` :
                                                                     'Based on your care preferences'
-                                            }
-                                            onClick={() => handleViewProfile(match.member_id)}
-                                            onConnect={() => handleConnect(match.member_id)}
-                                            connectionStatus={statusById[match.member_id] || 'none'}
-                                            isConnecting={connectingTo === match.member_id}
-                                            onMessage={(id, name) => {
-                                                setMessageRecipientId(id);
-                                                setMessageRecipientName(name);
-                                                setMessageOpen(true);
-                                            }}
-                                        />
-                                    ))
+                                                }
+                                                onClick={() => handleViewProfile(match.member_id)}
+                                                onConnect={() => handleConnect(match.member_id)}
+                                                connectionStatus={statusById[match.member_id] || 'none'}
+                                                isConnecting={connectingTo === match.member_id}
+                                                onMessage={(id, name) => {
+                                                    setMessageRecipientId(id);
+                                                    setMessageRecipientName(name);
+                                                    setMessageOpen(true);
+                                                }}
+                                            />
+                                        )
+                                    })
                                 )}
                             </div>
                         </section>

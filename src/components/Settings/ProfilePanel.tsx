@@ -581,6 +581,45 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                 </div>
             </SettingsCard>
 
+            {/* SECTION 5B: WHAT I CAN OFFER (Parents Only) */}
+            {viewer?.member?.role !== 'caregiver' && (
+                <SettingsCard title="What I Can Offer My Village" description="Ways you can help other families in your neighborhood" icon={Users}>
+                    <div className="flex flex-wrap gap-2">
+                        {[
+                            'Emergency backup care',
+                            'Playdate hosting',
+                            'School pickup/dropoff',
+                            'Weekend care',
+                            'Meal sharing',
+                            'Carpool',
+                            'Homework help',
+                            'Nanny share partner',
+                        ].map(item => {
+                            const current = formData.support_offered || [];
+                            const isSelected = current.includes(item);
+                            return (
+                                <button
+                                    key={item}
+                                    type="button"
+                                    onClick={() => {
+                                        const updated = isSelected
+                                            ? current.filter((s: string) => s !== item)
+                                            : [...current, item];
+                                        setFormData({ ...formData, support_offered: updated });
+                                    }}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isSelected
+                                        ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
+                                        : 'bg-white text-[#546E5C] border-[#8bd7c7]/30 hover:border-[#8bd7c7]'
+                                        }`}
+                                >
+                                    {item}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </SettingsCard>
+            )}
+
             {/* SECTION 6: TRUST & SAFETY */}
             {/* SECTION 6: TRUST & SAFETY */}
             <div style={{

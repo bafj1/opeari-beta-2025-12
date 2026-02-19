@@ -1,22 +1,23 @@
 
 export interface MemberData {
-    looking_for?: string[];
-    nanny_situation?: string;
-    open_to?: string[];
+    care_types?: string[] | null;
+    looking_for?: string[]; // legacy fallback
+    also_open_to?: string[];
     [key: string]: any;
 }
 
 export function getSharedCareTags(match: MemberData): string[] {
     const tags: string[] = [];
 
-    // Check looking_for array
-    if (match.looking_for?.includes('nanny-share')) {
+    // Check care_types array (with looking_for as fallback)
+    const careArr = match.care_types || match.looking_for || [];
+    if (careArr.includes('nanny-share')) {
         tags.push('Open to nanny share');
     }
-    if (match.looking_for?.includes('co-share')) {
+    if (careArr.includes('co-share')) {
         tags.push('Open to co-share');
     }
-    if (match.looking_for?.includes('backup-care')) {
+    if (careArr.includes('backup-care')) {
         tags.push('Wants backup care');
     }
 
@@ -28,8 +29,8 @@ export function getSharedCareTags(match: MemberData): string[] {
         tags.push('Seeking nanny share');
     }
 
-    // Check open_to array
-    if (match.open_to?.includes('weekend_swaps')) {
+    // Check also_open_to array
+    if (match.also_open_to?.includes('weekend_swaps')) {
         tags.push('Open to weekend swaps');
     }
 

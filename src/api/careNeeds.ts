@@ -28,10 +28,26 @@ export async function getAllCareNeeds(userId: string): Promise<CareNeed[]> {
     return data || [];
 }
 
+// Helper to sanitize date fields — empty strings → null for PostgreSQL
+function sanitizeDates(data: Record<string, any>): Record<string, any> {
+    const result = { ...data };
+    const dateFields = ['start_date', 'end_date'];
+    dateFields.forEach(field => {
+        if (result[field] === '' || result[field] === undefined) {
+            result[field] = null;
+        }
+    });
+    // Also sanitize time fields
+    if (result.start_time === '') result.start_time = null;
+    if (result.end_time === '') result.end_time = null;
+    return result;
+}
+
 export async function createCareNeed(careNeed: Partial<CareNeed>): Promise<CareNeed> {
+    const sanitized = sanitizeDates(careNeed);
     const { data, error } = await supabase
         .from('care_needs')
-        .insert(careNeed)
+        .insert(sanitized)
         .select()
         .single();
 
@@ -40,9 +56,10 @@ export async function createCareNeed(careNeed: Partial<CareNeed>): Promise<CareN
 }
 
 export async function updateCareNeed(id: string, updates: Partial<CareNeed>): Promise<CareNeed> {
+    const sanitized = sanitizeDates({ ...updates, updated_at: new Date().toISOString() });
     const { data, error } = await supabase
         .from('care_needs')
-        .update({ ...updates, updated_at: new Date().toISOString() })
+        .update(sanitized)
         .eq('id', id)
         .select()
         .single();

@@ -15,6 +15,7 @@ import SchedulePanel from '../components/Settings/SchedulePanel';
 import VillageNetworkPanel from '../components/Settings/VillageNetworkPanel';
 import PrivacyPanel from '../components/Settings/PrivacyPanel';
 import FeedbackPanel from '../components/Settings/FeedbackPanel';
+import ReviewsPanel from '../components/Settings/ReviewsPanel';
 
 export default function Settings() {
   const { viewer, refresh } = useViewer();
@@ -312,7 +313,7 @@ export default function Settings() {
         return <VillageNetworkPanel formData={formData} setFormData={setFormData} saving={saving} onSave={handleSave} />;
 
       case 'reviews':
-        return <div className="p-6 bg-white rounded-[20px] border-2 border-[#8bd7c7]/30"><p className="text-[#546E5C] text-center">Reviews & Reputation coming soon...</p></div>;
+        return <ReviewsPanel />;
 
       case 'safety':
         return <SafetyVerificationPanel />;

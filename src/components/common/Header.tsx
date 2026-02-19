@@ -155,24 +155,6 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                   >
                     Discover
                   </Link>
-                  <Link
-                    to="/posts"
-                    className={`text-sm font-medium transition-colors focus:outline-none px-3 py-2 rounded-full ${isActive('/posts')
-                      ? 'text-opeari-heading font-bold bg-opeari-mint/20'
-                      : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
-                      }`}
-                  >
-                    Community
-                  </Link>
-                  <Link
-                    to="/messages"
-                    className={`text-sm font-medium transition-colors focus:outline-none px-3 py-2 rounded-full ${isActive('/messages')
-                      ? 'text-opeari-heading font-bold bg-opeari-mint/20'
-                      : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
-                      }`}
-                  >
-                    Messages
-                  </Link>
                 </nav>
 
                 {/* Profile Dropdown (Desktop Only) */}
@@ -277,16 +259,6 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                       }`}
                   >
                     Discover
-                  </Link>
-                  <Link
-                    to="/posts"
-                    onClick={() => setMenuOpen(false)}
-                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/posts')
-                      ? 'bg-opeari-mint text-opeari-heading font-bold'
-                      : 'text-opeari-text hover:bg-opeari-mint/50'
-                      }`}
-                  >
-                    Community
                   </Link>
                   {/* <Link
                     to="/village"

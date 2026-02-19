@@ -9,9 +9,7 @@ export interface MatchResult {
     distance_miles: number;
     availability_days: string[] | null;
     care_types: string[] | null;
-    looking_for?: string[];
-    nanny_situation?: string;
-    open_to?: string[];
+    also_open_to?: string[];
 }
 
 export async function getTopMatches(

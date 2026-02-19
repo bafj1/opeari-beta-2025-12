@@ -19,13 +19,13 @@ export default function AccountPanel({
     saving
 }: AccountPanelProps) {
     // Password state
+    const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordSaving, setPasswordSaving] = useState(false);
-
-    // Remove passwordMessage state as we handle it with temporary success state or simpler error messages
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState(false);
+    const [forgotPasswordSent, setForgotPasswordSent] = useState(false);
 
     // Delete account state
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -58,6 +58,10 @@ export default function AccountPanel({
         setPasswordError('');
         setPasswordSuccess(false);
 
+        if (!currentPassword) {
+            setPasswordError('Please enter your current password.');
+            return;
+        }
         if (!newPassword || !confirmPassword) {
             setPasswordError('Please fill in all password fields.');
             return;
@@ -67,16 +71,39 @@ export default function AccountPanel({
             return;
         }
         if (newPassword.length < 8) {
-            setPasswordError('Password must be at least 8 characters.');
+            setPasswordError('New password must be at least 8 characters.');
+            return;
+        }
+        if (currentPassword === newPassword) {
+            setPasswordError('New password must be different from current password.');
             return;
         }
 
         setPasswordSaving(true);
         try {
-            const { error } = await supabase.auth.updateUser({ password: newPassword });
-            if (error) throw error;
+            // Step 1: Verify current password by re-authenticating
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user?.email) throw new Error('No user email found');
+
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user.email,
+                password: currentPassword,
+            });
+
+            if (signInError) {
+                setPasswordError('Current password is incorrect.');
+                setPasswordSaving(false);
+                return;
+            }
+
+            // Step 2: Update to new password
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: newPassword,
+            });
+            if (updateError) throw updateError;
 
             setPasswordSuccess(true);
+            setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
             setTimeout(() => setPasswordSuccess(false), 5000);
@@ -238,13 +265,73 @@ export default function AccountPanel({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div>
                         <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1E6B4E', marginBottom: '6px' }}>
+                            Current Password
+                        </label>
+                        <input
+                            type="password"
+                            value={currentPassword}
+                            onChange={(e) => { setCurrentPassword(e.target.value); setPasswordError(''); }}
+                            placeholder="Enter current password"
+                            style={inputStyle}
+                        />
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                try {
+                                    const { data: { user } } = await supabase.auth.getUser();
+                                    if (!user?.email) return;
+                                    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+                                        redirectTo: `${window.location.origin}/update-password`,
+                                    });
+                                    if (error) throw error;
+                                    setForgotPasswordSent(true);
+                                    setTimeout(() => setForgotPasswordSent(false), 10000);
+                                } catch (err) {
+                                    console.error('Error sending reset email:', err);
+                                }
+                            }}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: '4px 0',
+                                marginTop: '6px',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                color: '#1E6B4E',
+                                cursor: 'pointer',
+                                fontFamily: 'Comfortaa, sans-serif',
+                                textDecoration: 'none',
+                            }}
+                            onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                            onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                        >
+                            Forgot your password?
+                        </button>
+                        {forgotPasswordSent && (
+                            <div style={{
+                                marginTop: '8px',
+                                padding: '10px 14px',
+                                backgroundColor: 'rgba(139,215,199,0.15)',
+                                border: '1px solid rgba(139,215,199,0.4)',
+                                borderRadius: '12px',
+                                fontSize: '13px',
+                                color: '#1E6B4E',
+                                fontWeight: 500,
+                            }}>
+                                Password reset email sent. Check your inbox.
+                            </div>
+                        )}
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1E6B4E', marginBottom: '6px' }}>
                             New Password
                         </label>
                         <input
                             type="password"
                             value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
+                            onChange={(e) => { setNewPassword(e.target.value); setPasswordError(''); }}
                             placeholder="Enter new password"
+                            style={inputStyle}
                         />
                         {newPassword.length > 0 && (
                             <div className="mt-2">
@@ -269,7 +356,7 @@ export default function AccountPanel({
                         <input
                             type="password"
                             value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            onChange={(e) => { setConfirmPassword(e.target.value); setPasswordError(''); }}
                             placeholder="Confirm new password"
                             style={inputStyle}
                         />
@@ -306,11 +393,11 @@ export default function AccountPanel({
                     <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '8px' }}>
                         <button
                             onClick={handleUpdatePassword}
-                            disabled={!newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 8 || passwordSaving}
+                            disabled={!currentPassword || !newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 8 || passwordSaving}
                             style={{
                                 ...buttonPrimaryStyle,
-                                opacity: (!newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 8 || passwordSaving) ? 0.5 : 1,
-                                cursor: (!newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 8 || passwordSaving) ? 'not-allowed' : 'pointer',
+                                opacity: (!currentPassword || !newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 8 || passwordSaving) ? 0.5 : 1,
+                                cursor: (!currentPassword || !newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 8 || passwordSaving) ? 'not-allowed' : 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '8px',

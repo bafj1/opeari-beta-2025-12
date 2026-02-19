@@ -10,8 +10,7 @@
  *   Age group match:     15 points max
  *   Location proximity:  15 points max
  *   Language overlap:    10 points max
- *   Support alignment:    5 points max
- *   Lifestyle match:      5 points max
+ *   Practical match:     10 points max  (lifestyle + transportation + overnight + support)
  */
 
 export interface MatchSignal {
@@ -149,7 +148,33 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
         }
     }
 
-    // --- 6. Support Offered Alignment (5 pts max) ---
+    // --- 6. Practical + Lifestyle Match (10 pts max) ---
+    // Replaces Support Alignment (5) + Lifestyle Match (5) with a single practical section
+    let practicalScore = 0;
+
+    // Smoke-free alignment
+    if (viewer.smoke_free_required && candidate.smoke_free_required) practicalScore += 2;
+
+    // Pet comfort alignment
+    if (viewer.comfortable_with_pets && candidate.comfortable_with_pets) practicalScore += 1;
+
+    // Schedule flexibility
+    if (viewer.schedule_flexible && candidate.schedule_flexible) practicalScore += 1;
+
+    // Transportation match
+    if (viewer.role === 'family' && viewer.needs_caregiver_driver && candidate.has_transportation) {
+        practicalScore += 3;
+        signals.push({ icon: '🚗', label: 'Has own transportation', weight: 3 });
+    } else if (viewer.role === 'caregiver' && viewer.has_transportation && candidate.zip_code) {
+        practicalScore += 2;
+    }
+
+    // Overnight alignment
+    if (viewer.role === 'family' && candidate.overnight_available) {
+        practicalScore += 1;
+    }
+
+    // Support offered overlap (minor signal)
     const mySupport = viewer.support_offered || [];
     const theirSupport = candidate.support_offered || [];
     if (Array.isArray(mySupport) && Array.isArray(theirSupport)) {
@@ -157,21 +182,16 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
             theirSupport.some((t: string) => t.toLowerCase() === s.toLowerCase())
         );
         if (sharedSupport.length > 0) {
-            totalScore += 5;
+            practicalScore += 2;
             signals.push({
                 icon: '🤝',
                 label: `Both offer ${sharedSupport[0].toLowerCase()}`,
-                weight: 5
+                weight: 2
             });
         }
     }
 
-    // --- 7. Lifestyle Match (5 pts max) ---
-    let lifestyleScore = 0;
-    if (viewer.smoke_free_required && candidate.smoke_free_required) lifestyleScore += 2;
-    if (viewer.comfortable_with_pets && candidate.comfortable_with_pets) lifestyleScore += 2;
-    if (viewer.schedule_flexible && candidate.schedule_flexible) lifestyleScore += 1;
-    totalScore += lifestyleScore;
+    totalScore += Math.min(practicalScore, 10);
 
     // Compute schedule overlap percentage for MatchCard compatibility
     const scheduleOverlapPct = myDays.length > 0

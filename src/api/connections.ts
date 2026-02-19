@@ -8,8 +8,7 @@ export interface SuggestedConnection {
     zip_code: string | null;
     role: string | null;
     mutual_connection_count: number;
-    looking_for?: string[];
-    nanny_situation?: string;
+    care_types?: string[];
 }
 
 export async function getSuggestedConnections(

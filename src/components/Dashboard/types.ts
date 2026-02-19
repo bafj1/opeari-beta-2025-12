@@ -8,7 +8,7 @@ export interface Match {
     neighborhood: string
     distance_miles: number
     bio: string
-    looking_for: string[]
+    care_types: string[]
     nanny_share_experience: string
   }
   kids: {

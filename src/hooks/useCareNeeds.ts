@@ -3,6 +3,17 @@ import { supabase } from '../lib/supabase';
 import type { CareNeed } from '../types/careNeed';
 import { useViewer } from './useViewer';
 
+// Sanitize empty date/time strings to null for PostgreSQL
+function sanitizeDateFields(data: Record<string, any>): Record<string, any> {
+    const result = { ...data };
+    ['start_date', 'end_date', 'start_time', 'end_time'].forEach(field => {
+        if (result[field] === '' || result[field] === undefined) {
+            result[field] = null;
+        }
+    });
+    return result;
+}
+
 export function useCareNeeds() {
     const { viewer } = useViewer();
     const [careNeeds, setCareNeeds] = useState<CareNeed[]>([]);
@@ -39,14 +50,15 @@ export function useCareNeeds() {
         if (!viewer?.member?.id) return null;
 
         try {
+            const sanitized = sanitizeDateFields({
+                ...careNeedData,
+                member_id: viewer.member.id,
+                status: 'open',
+                is_active: true
+            });
             const { data, error } = await supabase
                 .from('care_needs')
-                .insert({
-                    ...careNeedData,
-                    member_id: viewer.member.id,
-                    status: 'open', // Default status
-                    is_active: true
-                })
+                .insert(sanitized)
                 .select()
                 .single();
 
@@ -62,9 +74,10 @@ export function useCareNeeds() {
 
     const updateCareNeed = async (id: string, updates: Partial<CareNeed>) => {
         try {
+            const sanitized = sanitizeDateFields({ ...updates, updated_at: new Date().toISOString() });
             const { data, error } = await supabase
                 .from('care_needs')
-                .update({ ...updates, updated_at: new Date().toISOString() })
+                .update(sanitized)
                 .eq('id', id)
                 .select()
                 .single();
