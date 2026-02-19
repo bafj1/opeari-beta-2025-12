@@ -20,6 +20,7 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [roleChanged, setRoleChanged] = useState(false);
+    const [pendingRole, setPendingRole] = useState<string | null>(null);
 
     // Styles
     const inputClass = "w-full p-3.5 rounded-xl border-[1.5px] border-opeari-mint/40 bg-white text-opeari-text-body text-sm font-comfortaa focus:outline-none focus:border-opeari-green transition-all duration-200 placeholder:text-opeari-text-secondary/50";
@@ -148,7 +149,7 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                     I Am A
                 </h3>
                 <p className="text-xs text-[#546E5C] mb-3">
-                    This determines your dashboard experience and how you appear to others.
+                    This changes your dashboard, what you see, and how others find you. Selecting "Caregiver" shows you families looking for care. Selecting "Parent" shows you matches and caregivers.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {ROLE_OPTIONS.map(option => {
@@ -160,9 +161,9 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                                 key={option.value}
                                 type="button"
                                 onClick={() => {
-                                    setFormData({ ...formData, role: option.value });
-                                    setRoleChanged(true);
-                                    setTimeout(() => setRoleChanged(false), 3000);
+                                    if (formData.role !== option.value) {
+                                        setPendingRole(option.value);
+                                    }
                                 }}
                                 className="text-left flex flex-col justify-between h-full group relative"
                                 style={{
@@ -223,6 +224,35 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         Role updated — save your profile to apply.
                     </p>
+                )}
+
+                {pendingRole && pendingRole !== formData.role && (
+                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl animate-fade-in">
+                        <p className="text-sm text-amber-800 mb-2">
+                            Switching to <span className="font-bold">{pendingRole === 'parent' ? 'Parent' : pendingRole === 'caregiver' ? 'Caregiver' : 'Both'}</span> will change your dashboard experience.
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setFormData({ ...formData, role: pendingRole });
+                                    setPendingRole(null);
+                                    setRoleChanged(true);
+                                    setTimeout(() => setRoleChanged(false), 3000);
+                                }}
+                                className="px-4 py-1.5 bg-[#1e6b4e] text-white text-sm rounded-full font-semibold hover:bg-[#155a3e] transition-colors"
+                            >
+                                Confirm
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPendingRole(null)}
+                                className="px-4 py-1.5 border border-gray-300 text-[#546E5C] text-sm rounded-full font-medium hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
                 )}
             </div>
 

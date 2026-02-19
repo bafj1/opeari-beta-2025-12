@@ -333,7 +333,7 @@ export default function KidsPanel() {
                         <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
                             <div>
                                 <p className="text-sm font-medium text-[#1e6b4e]">Show name on profile</p>
-                                <p className="text-xs text-[#546E5C]">Others will see "Child {name ? name[0] : 'A'}" if hidden</p>
+                                <p className="text-xs text-[#546E5C]">Others will see "{name ? name[0] : 'C'}." instead of the full name</p>
                             </div>
                             <button
                                 type="button"
@@ -423,7 +423,7 @@ export default function KidsPanel() {
                                     flexShrink: 0,
                                 }}>
                                     <span style={{ fontSize: '20px', fontWeight: 700, color: gc.text }}>
-                                        {kid.display_name !== false ? kid.name.charAt(0).toUpperCase() : 'C'}
+                                        {kid.name ? kid.name.charAt(0).toUpperCase() : '?'}
                                     </span>
                                 </div>
 
@@ -431,7 +431,7 @@ export default function KidsPanel() {
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                                         <span style={{ fontSize: '16px', fontWeight: 600, color: '#1E6B4E' }}>
-                                            {kid.display_name !== false ? kid.name : `Child ${age || ''}`}
+                                            {kid.display_name !== false ? kid.name : `${kid.name.charAt(0).toUpperCase()}.`}
                                         </span>
                                         {age && (
                                             <span style={{

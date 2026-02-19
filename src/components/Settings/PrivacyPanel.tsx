@@ -38,17 +38,17 @@ export default function PrivacyPanel({ formData, setFormData, saving, onSave }: 
         {
             field: 'privacy_show_full_name',
             title: 'Show Full Name',
-            desc: 'Display your full name on your profile. When off, only your first name and last initial are shown.',
+            desc: 'Display your first and last name. If hidden, others see your first name and last initial (e.g., "Breada F.").',
         },
         {
             field: 'privacy_show_location',
-            title: 'Show Location',
-            desc: 'Display your neighborhood on your profile. Helps families find nearby connections.',
+            title: 'Show Neighborhood & City',
+            desc: 'Display your neighborhood and city (e.g., "Manhattan Beach") on your profile. Your exact address and zip code are never shared.',
         },
         {
             field: 'privacy_show_phone',
             title: 'Show Phone Number',
-            desc: 'Display your phone number to connected members. Off by default for your safety.',
+            desc: 'Allow connected members to see your phone number. Hidden by default.',
         },
         {
             field: 'privacy_appear_in_search',

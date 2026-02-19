@@ -38,7 +38,6 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
     const [scheduleLoading, setScheduleLoading] = useState(true);
     const [schedule, setSchedule] = useState<Record<string, string[]>>({});
     const [flexible, setFlexible] = useState(false);
-    const [scheduleNotes, setScheduleNotes] = useState('');
 
     // Auto-save Status
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -53,14 +52,13 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                 // NOTE: Intentionally querying schedule_notes - if column missing, migration needed
                 const { data, error } = await supabase
                     .from('members')
-                    .select('availability_days, schedule, schedule_flexible, schedule_notes')
+                    .select('availability_days, schedule, schedule_flexible')
                     .eq('id', viewer?.user?.id)
                     .single();
 
                 if (error) throw error; // Will fallback if column error? No, let's catch it.
 
                 setFlexible(data.schedule_flexible || false);
-                setScheduleNotes(data.schedule_notes || '');
 
                 // Populate schedule
                 if (data.schedule && Object.keys(data.schedule).length > 0) {
@@ -86,7 +84,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
 
     // Debounced Autosave
     const debouncedSave = useCallback(
-        debounce(async (currentSchedule: Record<string, string[]>, currentFlexible: boolean, currentNotes: string) => {
+        debounce(async (currentSchedule: Record<string, string[]>, currentFlexible: boolean) => {
             if (!viewer?.user?.id) return;
             setSaveStatus('saving');
             try {
@@ -100,8 +98,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                     .update({
                         schedule: currentSchedule,
                         availability_days: availabilityDays,
-                        schedule_flexible: currentFlexible,
-                        schedule_notes: currentNotes
+                        schedule_flexible: currentFlexible
                     })
                     .eq('id', viewer.user.id);
 
@@ -123,17 +120,12 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
 
     const updateSchedule = (newSchedule: Record<string, string[]>) => {
         setSchedule(newSchedule);
-        debouncedSave(newSchedule, flexible, scheduleNotes);
+        debouncedSave(newSchedule, flexible);
     };
 
     const updateFlexible = (newFlexible: boolean) => {
         setFlexible(newFlexible);
-        debouncedSave(schedule, newFlexible, scheduleNotes);
-    };
-
-    const updateNotes = (newNotes: string) => {
-        setScheduleNotes(newNotes);
-        debouncedSave(schedule, flexible, newNotes);
+        debouncedSave(schedule, newFlexible);
     };
 
     return (
@@ -176,22 +168,6 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                             isCaregiver={!!isCaregiver}
                         />
 
-                        {/* Schedule Notes */}
-                        <div className="mt-6">
-                            <label className="block text-sm font-bold text-[#1e6b4e] uppercase tracking-wide mb-1">
-                                Schedule Notes
-                            </label>
-                            <p className="text-xs text-[#546E5C] mb-2">
-                                Anything specific about your schedule? Exact times, upcoming changes, or flexibility details.
-                            </p>
-                            <textarea
-                                value={scheduleNotes}
-                                onChange={(e) => updateNotes(e.target.value)}
-                                placeholder="e.g., Need care 8:30am-3pm on school days, flexible on Fridays after noon"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent text-sm resize-none"
-                            />
-                        </div>
                     </>
                 )}
             </div>
