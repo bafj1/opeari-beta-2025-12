@@ -10,6 +10,7 @@ interface Kid {
     birth_year?: number | null;
     gender: string | null;
     notes: string | null;
+    display_name?: boolean;
 }
 
 const GENDER_OPTIONS = [
@@ -32,6 +33,7 @@ export default function KidsPanel() {
     const [birthYear, setBirthYear] = useState('');
     const [gender, setGender] = useState('');
     const [notes, setNotes] = useState('');
+    const [displayName, setDisplayName] = useState(true);
 
     // UI state
     const [saving, setSaving] = useState(false);
@@ -64,6 +66,7 @@ export default function KidsPanel() {
         setBirthYear('');
         setGender('');
         setNotes('');
+        setDisplayName(true);
         setEditingKid(null);
         setIsAdding(false);
     };
@@ -82,6 +85,7 @@ export default function KidsPanel() {
                 birth_year: parseInt(birthYear),
                 gender: gender || null,
                 notes: notes || null,
+                display_name: displayName,
             };
 
             if (editingKid) {
@@ -135,6 +139,7 @@ export default function KidsPanel() {
             setBirthYear('');
         }
         setNotes(kid.notes || '');
+        setDisplayName(kid.display_name !== false);
         setIsAdding(true);
     };
 
@@ -178,8 +183,11 @@ export default function KidsPanel() {
 
     const genderColors: Record<string, { bg: string; text: string }> = {
         boy: { bg: '#E3F2FD', text: '#1976D2' },
+        male: { bg: '#E3F2FD', text: '#1976D2' },
         girl: { bg: '#FCE4EC', text: '#C2185B' },
+        female: { bg: '#FCE4EC', text: '#C2185B' },
         nonbinary: { bg: '#F3E5F5', text: '#7B1FA2' },
+        'non-binary': { bg: '#F3E5F5', text: '#7B1FA2' },
         default: { bg: 'rgba(139,215,199,0.15)', text: '#1E6B4E' },
     };
 
@@ -318,8 +326,25 @@ export default function KidsPanel() {
                                 onChange={e => setNotes(e.target.value)}
                                 placeholder="Allergies, personality, special needs, favorite activities..."
                                 rows={3}
-                                style={{ ...inputStyle, resize: 'none' as const }}
                             />
+                        </div>
+
+                        {/* Display Name Toggle */}
+                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                            <div>
+                                <p className="text-sm font-medium text-[#1e6b4e]">Show name on profile</p>
+                                <p className="text-xs text-[#546E5C]">Others will see "Child {name ? name[0] : 'A'}" if hidden</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setDisplayName(!displayName)}
+                                className={`relative w-10 h-6 rounded-full transition-colors ${displayName ? 'bg-[#1e6b4e]' : 'bg-gray-300'
+                                    }`}
+                                aria-label={`Toggle name display`}
+                            >
+                                <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${displayName ? 'translate-x-[18px]' : 'translate-x-0.5'
+                                    }`} />
+                            </button>
                         </div>
 
                         {/* Buttons */}
@@ -398,7 +423,7 @@ export default function KidsPanel() {
                                     flexShrink: 0,
                                 }}>
                                     <span style={{ fontSize: '20px', fontWeight: 700, color: gc.text }}>
-                                        {kid.name.charAt(0).toUpperCase()}
+                                        {kid.display_name !== false ? kid.name.charAt(0).toUpperCase() : 'C'}
                                     </span>
                                 </div>
 
@@ -406,7 +431,7 @@ export default function KidsPanel() {
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                                         <span style={{ fontSize: '16px', fontWeight: 600, color: '#1E6B4E' }}>
-                                            {kid.name}
+                                            {kid.display_name !== false ? kid.name : `Child ${age || ''}`}
                                         </span>
                                         {age && (
                                             <span style={{

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Lock, Download, Trash2, LogOut, Mail, Phone, CheckCircle, Loader2 } from 'lucide-react';
+import { User, Lock, Download, Trash2, LogOut, Mail, Phone, CheckCircle, Loader2, CheckCircle2, Check } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import SettingsCard from './SettingsCard';
 
@@ -22,7 +22,10 @@ export default function AccountPanel({
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordSaving, setPasswordSaving] = useState(false);
-    const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    // Remove passwordMessage state as we handle it with temporary success state or simpler error messages
+    const [passwordError, setPasswordError] = useState('');
+    const [passwordSuccess, setPasswordSuccess] = useState(false);
 
     // Delete account state
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -34,19 +37,37 @@ export default function AccountPanel({
 
     // ---- HANDLERS ----
 
+    const getPasswordStrength = (password: string): { level: string; color: string; width: string } => {
+        if (password.length === 0) return { level: '', color: '', width: '0%' };
+        if (password.length < 8) return { level: 'Too short', color: 'bg-red-400', width: '20%' };
+
+        let score = 0;
+        if (password.length >= 8) score++;
+        if (password.length >= 12) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+
+        if (score <= 2) return { level: 'Weak', color: 'bg-red-400', width: '40%' };
+        if (score <= 3) return { level: 'Fair', color: 'bg-amber-400', width: '60%' };
+        if (score <= 4) return { level: 'Good', color: 'bg-[#8bd7c7]', width: '80%' };
+        return { level: 'Strong', color: 'bg-[#1e6b4e]', width: '100%' };
+    };
+
     const handleUpdatePassword = async () => {
-        setPasswordMessage(null);
+        setPasswordError('');
+        setPasswordSuccess(false);
 
         if (!newPassword || !confirmPassword) {
-            setPasswordMessage({ type: 'error', text: 'Please fill in all password fields.' });
+            setPasswordError('Please fill in all password fields.');
             return;
         }
         if (newPassword !== confirmPassword) {
-            setPasswordMessage({ type: 'error', text: 'New passwords do not match.' });
+            setPasswordError('New passwords do not match.');
             return;
         }
         if (newPassword.length < 8) {
-            setPasswordMessage({ type: 'error', text: 'Password must be at least 8 characters.' });
+            setPasswordError('Password must be at least 8 characters.');
             return;
         }
 
@@ -55,15 +76,17 @@ export default function AccountPanel({
             const { error } = await supabase.auth.updateUser({ password: newPassword });
             if (error) throw error;
 
-            setPasswordMessage({ type: 'success', text: 'Password updated successfully.' });
+            setPasswordSuccess(true);
             setNewPassword('');
             setConfirmPassword('');
+            setTimeout(() => setPasswordSuccess(false), 5000);
         } catch (err: any) {
-            setPasswordMessage({ type: 'error', text: err.message || 'Failed to update password.' });
+            setPasswordError(err.message || 'Failed to update password.');
         } finally {
             setPasswordSaving(false);
         }
     };
+
 
     const handleSignOut = async () => {
         setSigningOut(true);
@@ -222,8 +245,22 @@ export default function AccountPanel({
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             placeholder="Enter new password"
-                            style={inputStyle}
                         />
+                        {newPassword.length > 0 && (
+                            <div className="mt-2">
+                                <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                    <div
+                                        className={`h-full ${getPasswordStrength(newPassword).color} rounded-full transition-all duration-300`}
+                                        style={{ width: getPasswordStrength(newPassword).width }}
+                                    />
+                                </div>
+                                <p className={`text-xs mt-1 ${getPasswordStrength(newPassword).level === 'Strong' || getPasswordStrength(newPassword).level === 'Good' ? 'text-[#1e6b4e]' :
+                                    getPasswordStrength(newPassword).level === 'Fair' ? 'text-amber-600' : 'text-red-500'
+                                    }`}>
+                                    {getPasswordStrength(newPassword).level}
+                                </p>
+                            </div>
+                        )}
                     </div>
                     <div>
                         <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1E6B4E', marginBottom: '6px' }}>
@@ -236,29 +273,44 @@ export default function AccountPanel({
                             placeholder="Confirm new password"
                             style={inputStyle}
                         />
+                        {confirmPassword.length > 0 && newPassword !== confirmPassword && (
+                            <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+                        )}
+                        {confirmPassword.length > 0 && newPassword === confirmPassword && (
+                            <p className="text-xs text-[#1e6b4e] mt-1 flex items-center gap-1">
+                                <Check className="w-3 h-3" /> Passwords match
+                            </p>
+                        )}
                     </div>
 
-                    {passwordMessage && (
+                    {passwordError && (
                         <div style={{
                             padding: '12px 16px',
                             borderRadius: '12px',
-                            backgroundColor: passwordMessage.type === 'success' ? 'rgba(139,215,199,0.15)' : 'rgba(224,122,95,0.1)',
-                            color: passwordMessage.type === 'success' ? '#1E6B4E' : '#E07A5F',
+                            backgroundColor: 'rgba(224,122,95,0.1)',
+                            color: '#E07A5F',
                             fontSize: '13px',
                             fontWeight: 500,
                         }}>
-                            {passwordMessage.text}
+                            {passwordError}
+                        </div>
+                    )}
+
+                    {passwordSuccess && (
+                        <div className="mt-3 p-3 bg-[#d8f5e5] rounded-xl text-sm text-[#1e6b4e] flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                            Password updated successfully.
                         </div>
                     )}
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '8px' }}>
                         <button
                             onClick={handleUpdatePassword}
-                            disabled={passwordSaving}
+                            disabled={!newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 8 || passwordSaving}
                             style={{
                                 ...buttonPrimaryStyle,
-                                opacity: passwordSaving ? 0.5 : 1,
-                                cursor: passwordSaving ? 'not-allowed' : 'pointer',
+                                opacity: (!newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 8 || passwordSaving) ? 0.5 : 1,
+                                cursor: (!newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 8 || passwordSaving) ? 'not-allowed' : 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '8px',

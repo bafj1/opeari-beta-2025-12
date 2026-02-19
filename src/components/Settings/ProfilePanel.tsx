@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useViewer } from '../../hooks/useViewer';
 import CaregiverProfileSection from './CaregiverProfileSection';
-import { Camera, User, Heart, AlertCircle, Lock, HandHeart, Users } from 'lucide-react'; // Shield, CheckCircle, Phone removed
+import { Camera, User, Heart, AlertCircle, Lock, HandHeart, Users, CheckCircle2 } from 'lucide-react'; // Shield, CheckCircle, Phone removed
 // import { Baby } from 'lucide-react'; // Removed unused import
 import SettingsCard from './SettingsCard';
 // import SettingsToggle from './SettingsToggle'; // Removed unused import
@@ -19,8 +19,7 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
     const [uploading, setUploading] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-
+    const [roleChanged, setRoleChanged] = useState(false);
 
     // Styles
     const inputClass = "w-full p-3.5 rounded-xl border-[1.5px] border-opeari-mint/40 bg-white text-opeari-text-body text-sm font-comfortaa focus:outline-none focus:border-opeari-green transition-all duration-200 placeholder:text-opeari-text-secondary/50";
@@ -144,65 +143,87 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
         <form onSubmit={(e) => { e.preventDefault(); onSave(); }} className="space-y-8 animate-fade-in max-w-4xl">
 
             {/* SECTION 1: ROLE SELECTOR */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {ROLE_OPTIONS.map(option => {
-                    const Icon = option.icon;
-                    const isSelected = formData.role === option.value;
-                    // Removed unused variables
+            <div className="mb-6">
+                <h3 className="text-sm font-bold text-[#1e6b4e] uppercase tracking-wide mb-1">
+                    I Am A
+                </h3>
+                <p className="text-xs text-[#546E5C] mb-3">
+                    This determines your dashboard experience and how you appear to others.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {ROLE_OPTIONS.map(option => {
+                        const Icon = option.icon;
+                        const isSelected = formData.role === option.value;
 
-                    return (
-                        <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, role: option.value })}
-                            className="text-left flex flex-col justify-between h-full group"
-                            style={{
-                                border: isSelected ? `2px solid ${option.selectedBorder}` : '1.5px solid rgba(139, 215, 199, 0.4)',
-                                backgroundColor: isSelected ? option.selectedBg : 'white',
-                                borderRadius: '12px',
-                                padding: '20px',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                            }}
-                            onMouseEnter={(e) => {
-                                if (!isSelected) e.currentTarget.style.borderColor = '#8bd7c7';
-                            }}
-                            onMouseLeave={(e) => {
-                                if (!isSelected) e.currentTarget.style.borderColor = 'rgba(139, 215, 199, 0.4)';
-                            }}
-                        >
-                            <div className="mb-3">
-                                <Icon
-                                    size={24}
-                                    color={isSelected ? option.selectedColor : '#9CA3AF'}
-                                    style={{ transition: 'color 0.2s' }}
-                                />
-                            </div>
-                            <div>
-                                <div
-                                    style={{
-                                        color: isSelected ? option.selectedColor : '#374151',
-                                        fontWeight: 700,
-                                        fontSize: '16px',
-                                        marginBottom: '4px',
-                                        transition: 'color 0.2s'
-                                    }}
-                                >
-                                    {option.label}
+                        return (
+                            <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => {
+                                    setFormData({ ...formData, role: option.value });
+                                    setRoleChanged(true);
+                                    setTimeout(() => setRoleChanged(false), 3000);
+                                }}
+                                className="text-left flex flex-col justify-between h-full group relative"
+                                style={{
+                                    border: isSelected ? `2px solid ${option.selectedBorder}` : '1.5px solid rgba(139, 215, 199, 0.4)',
+                                    backgroundColor: isSelected ? option.selectedBg : 'white',
+                                    borderRadius: '12px',
+                                    padding: '20px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!isSelected) e.currentTarget.style.borderColor = '#8bd7c7';
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!isSelected) e.currentTarget.style.borderColor = 'rgba(139, 215, 199, 0.4)';
+                                }}
+                            >
+                                {isSelected && (
+                                    <div className="absolute top-2 right-2">
+                                        <CheckCircle2 className="w-4 h-4 text-[#1e6b4e]" />
+                                    </div>
+                                )}
+                                <div className="mb-3">
+                                    <Icon
+                                        size={24}
+                                        color={isSelected ? option.selectedColor : '#9CA3AF'}
+                                        style={{ transition: 'color 0.2s' }}
+                                    />
                                 </div>
-                                <div
-                                    style={{
-                                        color: isSelected ? option.selectedColor : '#6B7280',
-                                        fontSize: '13px',
-                                        transition: 'color 0.2s'
-                                    }}
-                                >
-                                    {option.subtitle}
+                                <div>
+                                    <div
+                                        style={{
+                                            color: isSelected ? option.selectedColor : '#374151',
+                                            fontWeight: 700,
+                                            fontSize: '16px',
+                                            marginBottom: '4px',
+                                            transition: 'color 0.2s'
+                                        }}
+                                    >
+                                        {option.label}
+                                    </div>
+                                    <div
+                                        style={{
+                                            color: isSelected ? option.selectedColor : '#6B7280',
+                                            fontSize: '13px',
+                                            transition: 'color 0.2s'
+                                        }}
+                                    >
+                                        {option.subtitle}
+                                    </div>
                                 </div>
-                            </div>
-                        </button>
-                    );
-                })}
+                            </button>
+                        );
+                    })}
+                </div>
+                {roleChanged && (
+                    <p className="text-xs text-[#1e6b4e] mt-2 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Role updated — save your profile to apply.
+                    </p>
+                )}
             </div>
 
             {/* SECTION 2: PROFILE PHOTO */}
@@ -415,43 +436,7 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                     </div>
                 </div>
 
-                {/* Row 5: Children Age Groups */}
-                <div className="col-span-1 md:col-span-2">
-                    <label className={labelClass}>
-                        {viewer?.member?.role === 'caregiver' ? 'AGE GROUPS YOU WORK WITH' : 'CHILDREN AGE GROUPS'}
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                        {[
-                            'Infant (0-1)',
-                            'Toddler (1-3)',
-                            'Preschool (3-5)',
-                            'School Age (5-10)',
-                            'Preteen (10-13)',
-                            'Teen (13+)',
-                        ].map(age => {
-                            const current = formData.children_age_groups || [];
-                            const isSelected = current.includes(age);
-                            return (
-                                <button
-                                    key={age}
-                                    type="button"
-                                    onClick={() => {
-                                        const updated = isSelected
-                                            ? current.filter((a: string) => a !== age)
-                                            : [...current, age];
-                                        setFormData({ ...formData, children_age_groups: updated });
-                                    }}
-                                    className={`px-4 py-2 rounded-full border-[1.5px] text-sm font-medium transition-all ${isSelected
-                                        ? 'border-opeari-green bg-opeari-mint/20 text-opeari-green font-bold'
-                                        : 'border-[#D1D5DB] bg-white text-gray-500 hover:border-opeari-mint/50'
-                                        }`}
-                                >
-                                    {age}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
+                {/* Row 5: Children Age Groups - REMOVED */}
 
                 {/* Row 6: Bio */}
                 <div className="col-span-1 md:col-span-2">

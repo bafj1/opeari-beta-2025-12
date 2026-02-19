@@ -1,15 +1,27 @@
 
+import { useState, useEffect, useCallback } from 'react';
 import {
     Calendar,
     Globe,
     RefreshCw,
     Link2,
-    Clock
+    Clock,
+    Check,
+    Loader2
 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 import SettingsCard from './SettingsCard';
-
 import ScheduleBuilder from './ScheduleBuilder';
 import { useViewer } from '../../hooks/useViewer';
+
+// Simple debounce implementation
+function debounce<T extends (...args: any[]) => any>(func: T, wait: number) {
+    let timeout: ReturnType<typeof setTimeout>;
+    return (...args: Parameters<T>) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
 
 interface SchedulePanelProps {
     formData: any;
@@ -22,11 +34,167 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
     const { viewer } = useViewer();
     const isCaregiver = viewer?.member?.role === 'caregiver';
 
+    // Lifted Schedule State
+    const [scheduleLoading, setScheduleLoading] = useState(true);
+    const [schedule, setSchedule] = useState<Record<string, string[]>>({});
+    const [flexible, setFlexible] = useState(false);
+    const [scheduleNotes, setScheduleNotes] = useState('');
+
+    // Auto-save Status
+    const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+    // Load initial schedule
+    useEffect(() => {
+        if (!viewer?.user?.id) return;
+
+        async function loadSchedule() {
+            setScheduleLoading(true);
+            try {
+                // NOTE: Intentionally querying schedule_notes - if column missing, migration needed
+                const { data, error } = await supabase
+                    .from('members')
+                    .select('availability_days, schedule, schedule_flexible, schedule_notes')
+                    .eq('id', viewer?.user?.id)
+                    .single();
+
+                if (error) throw error; // Will fallback if column error? No, let's catch it.
+
+                setFlexible(data.schedule_flexible || false);
+                setScheduleNotes(data.schedule_notes || '');
+
+                // Populate schedule
+                if (data.schedule && Object.keys(data.schedule).length > 0) {
+                    setSchedule(data.schedule);
+                } else {
+                    const storedDays = (data.availability_days ?? []) as string[];
+                    const newSchedule: Record<string, string[]> = {};
+                    if (storedDays.length > 0) {
+                        storedDays.forEach(d => {
+                            newSchedule[d] = ['Morning', 'Afternoon'];
+                        });
+                        setSchedule(newSchedule);
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading schedule:', err);
+            } finally {
+                setScheduleLoading(false);
+            }
+        }
+        loadSchedule();
+    }, [viewer?.user?.id]);
+
+    // Debounced Autosave
+    const debouncedSave = useCallback(
+        debounce(async (currentSchedule: Record<string, string[]>, currentFlexible: boolean, currentNotes: string) => {
+            if (!viewer?.user?.id) return;
+            setSaveStatus('saving');
+            try {
+                // derived days
+                const availabilityDays = Object.keys(currentSchedule).filter(day =>
+                    currentSchedule[day] && currentSchedule[day].length > 0
+                );
+
+                const { error } = await supabase
+                    .from('members')
+                    .update({
+                        schedule: currentSchedule,
+                        availability_days: availabilityDays,
+                        schedule_flexible: currentFlexible,
+                        schedule_notes: currentNotes
+                    })
+                    .eq('id', viewer.user.id);
+
+                if (error) throw error;
+                setSaveStatus('saved');
+                setTimeout(() => setSaveStatus('idle'), 2000);
+            } catch (err) {
+                console.error('Schedule save error:', err);
+                setSaveStatus('error');
+                setTimeout(() => setSaveStatus('idle'), 3000);
+            }
+        }, 1000),
+        [viewer?.user?.id]
+    );
+
+    // Handlers to update local state + trigger save
+    // We use a ref to keep track of latest values for the debounced function if needed, 
+    // but passing values directly to debouncer is safer.
+
+    const updateSchedule = (newSchedule: Record<string, string[]>) => {
+        setSchedule(newSchedule);
+        debouncedSave(newSchedule, flexible, scheduleNotes);
+    };
+
+    const updateFlexible = (newFlexible: boolean) => {
+        setFlexible(newFlexible);
+        debouncedSave(schedule, newFlexible, scheduleNotes);
+    };
+
+    const updateNotes = (newNotes: string) => {
+        setScheduleNotes(newNotes);
+        debouncedSave(schedule, flexible, newNotes);
+    };
+
     return (
         <div className="space-y-6 pb-8 max-w-4xl">
 
-            {/* === SCHEDULE BUILDER (handles its own load/save) === */}
-            <ScheduleBuilder />
+            {/* === SCHEDULE BUILDER (Auto-save) === */}
+            <div className="relative">
+                {/* Save Status Indicator */}
+                <div className="absolute top-0 right-0 z-10">
+                    <div className="text-sm font-medium h-6 flex items-center justify-end">
+                        {saveStatus === 'saving' && (
+                            <span className="text-[#546E5C] flex items-center gap-1 bg-white/80 px-2 rounded-full">
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving...
+                            </span>
+                        )}
+                        {saveStatus === 'saved' && (
+                            <span className="text-[#1e6b4e] flex items-center gap-1 bg-white/80 px-2 rounded-full transition-all">
+                                <Check className="w-3.5 h-3.5" /> Saved
+                            </span>
+                        )}
+                        {saveStatus === 'error' && (
+                            <span className="text-red-500 flex items-center gap-1 bg-white/80 px-2 rounded-full">
+                                Failed to save
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                {scheduleLoading ? (
+                    <div className="flex justify-center py-12">
+                        <Loader2 className="animate-spin text-[#1e6b4e]" size={24} />
+                    </div>
+                ) : (
+                    <>
+                        <ScheduleBuilder
+                            schedule={schedule}
+                            onChange={updateSchedule}
+                            flexible={flexible}
+                            onFlexibleChange={updateFlexible}
+                            isCaregiver={!!isCaregiver}
+                        />
+
+                        {/* Schedule Notes */}
+                        <div className="mt-6">
+                            <label className="block text-sm font-bold text-[#1e6b4e] uppercase tracking-wide mb-1">
+                                Schedule Notes
+                            </label>
+                            <p className="text-xs text-[#546E5C] mb-2">
+                                Anything specific about your schedule? Exact times, upcoming changes, or flexibility details.
+                            </p>
+                            <textarea
+                                value={scheduleNotes}
+                                onChange={(e) => updateNotes(e.target.value)}
+                                placeholder="e.g., Need care 8:30am-3pm on school days, flexible on Fridays after noon"
+                                rows={3}
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent text-sm resize-none"
+                            />
+                        </div>
+                    </>
+                )}
+            </div>
 
             {/* === UPCOMING CARE NEEDS === */}
             <SettingsCard title={isCaregiver ? "Upcoming Bookings" : "Upcoming Care Needs"} icon={Clock}>
@@ -165,7 +333,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
                 <div className="flex-1 flex items-center">
                     <p className="text-xs text-gray-400 italic">
-                        Looking to save your availability? Use the "Save Schedule" button inside the calendar above.
+                        Note: Schedule grid saves automatically. Use this button for Timezone & Notification settings.
                     </p>
                 </div>
                 <button
