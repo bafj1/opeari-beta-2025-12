@@ -404,46 +404,76 @@ export default function Matches() {
                                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                                 </svg>
                             </div>
-                            <h3 style={{ color: C.green, fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
-                                No matches yet
-                            </h3>
-                            <p style={{ color: C.textMuted, fontSize: '14px', marginBottom: '20px', maxWidth: '300px', margin: '0 auto 20px', lineHeight: '1.5' }}>
-                                {activeFilterCount > 0
-                                    ? 'Try adjusting your filters to see more people.'
-                                    : 'Your village is growing! New families and caregivers are joining. Check back soon.'}
-                            </p>
-                            {activeFilterCount > 0 ? (
-                                <button
-                                    onClick={clearFilters}
-                                    style={{
-                                        padding: '10px 28px',
-                                        borderRadius: '24px',
-                                        backgroundColor: C.green,
-                                        color: C.white,
-                                        fontWeight: 600,
-                                        fontSize: '14px',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                    }}
-                                >
-                                    Clear Filters
-                                </button>
+
+                            {/* Detect: all connected vs filtered out */}
+                            {allCandidates.length > 0 && allCandidates.every(c => connectedIds.has(c.id)) ? (
+                                <>
+                                    <h3 style={{ color: C.green, fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
+                                        You're connected with everyone nearby
+                                    </h3>
+                                    <p style={{ color: C.textMuted, fontSize: '14px', maxWidth: '300px', margin: '0 auto 20px', lineHeight: '1.5' }}>
+                                        Great work building your village! Invite more people to expand your care circle.
+                                    </p>
+                                    <Link
+                                        to="/invite"
+                                        style={{
+                                            display: 'inline-block',
+                                            padding: '10px 28px',
+                                            borderRadius: '24px',
+                                            backgroundColor: C.green,
+                                            color: C.white,
+                                            fontWeight: 600,
+                                            fontSize: '14px',
+                                            textDecoration: 'none',
+                                        }}
+                                    >
+                                        Invite a Family
+                                    </Link>
+                                </>
                             ) : (
-                                <Link
-                                    to="/settings"
-                                    style={{
-                                        display: 'inline-block',
-                                        padding: '10px 28px',
-                                        borderRadius: '24px',
-                                        backgroundColor: C.green,
-                                        color: C.white,
-                                        fontWeight: 600,
-                                        fontSize: '14px',
-                                        textDecoration: 'none',
-                                    }}
-                                >
-                                    Update Preferences
-                                </Link>
+                                <>
+                                    <h3 style={{ color: C.green, fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
+                                        No matches yet
+                                    </h3>
+                                    <p style={{ color: C.textMuted, fontSize: '14px', maxWidth: '300px', margin: '0 auto 20px', lineHeight: '1.5' }}>
+                                        {activeFilterCount > 0
+                                            ? 'Try adjusting your filters to see more people.'
+                                            : 'Your village is growing! New families and caregivers are joining. Check back soon.'}
+                                    </p>
+                                    {activeFilterCount > 0 ? (
+                                        <button
+                                            onClick={clearFilters}
+                                            style={{
+                                                padding: '10px 28px',
+                                                borderRadius: '24px',
+                                                backgroundColor: C.green,
+                                                color: C.white,
+                                                fontWeight: 600,
+                                                fontSize: '14px',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                            }}
+                                        >
+                                            Clear Filters
+                                        </button>
+                                    ) : (
+                                        <Link
+                                            to="/settings"
+                                            style={{
+                                                display: 'inline-block',
+                                                padding: '10px 28px',
+                                                borderRadius: '24px',
+                                                backgroundColor: C.green,
+                                                color: C.white,
+                                                fontWeight: 600,
+                                                fontSize: '14px',
+                                                textDecoration: 'none',
+                                            }}
+                                        >
+                                            Update Preferences
+                                        </Link>
+                                    )}
+                                </>
                             )}
                         </div>
                     ) : (
