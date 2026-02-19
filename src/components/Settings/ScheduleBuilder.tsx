@@ -20,15 +20,58 @@ export default function ScheduleBuilder({
     disabled = false
 }: ScheduleBuilderProps) {
 
+    // Normalize schedule format — DB may store new format: { days: [...], start_time, end_time }
+    // But this component expects: { mon: { blocks: [...], start: '09:00', end: '17:00' }, ... }
+    const normalizedSchedule = (() => {
+        if (!schedule || typeof schedule !== 'object') return {};
+
+        // Detect new format: has 'days' array key
+        if (Array.isArray(schedule.days)) {
+            const dayMap: Record<string, string> = {
+                'Mon': 'mon', 'Tue': 'tue', 'Wed': 'wed', 'Thu': 'thu',
+                'Fri': 'fri', 'Sat': 'sat', 'Sun': 'sun',
+                'mon': 'mon', 'tue': 'tue', 'wed': 'wed', 'thu': 'thu',
+                'fri': 'fri', 'sat': 'sat', 'sun': 'sun',
+            };
+            const startTime = schedule.start_time || '09:00:00';
+            const endTime = schedule.end_time || '17:00:00';
+            const startHour = parseInt(startTime.split(':')[0]);
+            const endHour = parseInt(endTime.split(':')[0]);
+            const blocks: string[] = [];
+            if (startHour < 12 && endHour > 6) blocks.push('Morning');
+            if (startHour < 17 && endHour > 12) blocks.push('Afternoon');
+            if (endHour > 17 || startHour >= 17) blocks.push('Evening');
+
+            const result: Record<string, any> = {};
+            schedule.days.forEach((day: string) => {
+                const key = dayMap[day] || day.toLowerCase().slice(0, 3);
+                result[key] = { blocks, start: startTime, end: endTime };
+            });
+            return result;
+        }
+
+        // Old format — verify each value is an object with blocks
+        const result: Record<string, any> = {};
+        Object.entries(schedule).forEach(([key, value]: [string, any]) => {
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+                result[key] = value;
+            } else if (Array.isArray(value)) {
+                // Raw array of blocks without time metadata
+                result[key] = { blocks: value, start: '09:00:00', end: '17:00:00' };
+            }
+        });
+        return result;
+    })();
+
     // Derived state for the grid (only blocks)
-    const gridValue = Object.keys(schedule).reduce((acc, day) => {
-        if (schedule[day]?.blocks?.length) {
-            acc[day] = schedule[day].blocks;
+    const gridValue = Object.keys(normalizedSchedule).reduce((acc, day) => {
+        if (normalizedSchedule[day]?.blocks?.length) {
+            acc[day] = normalizedSchedule[day].blocks;
         }
         return acc;
     }, {} as Record<string, string[]>);
 
-    const activeDays = Object.keys(schedule).filter(day => schedule[day]?.blocks?.length > 0);
+    const activeDays = Object.keys(normalizedSchedule).filter(day => normalizedSchedule[day]?.blocks?.length > 0);
 
     // Global Time State
     const [globalStartTime, setGlobalStartTime] = useState('09:00:00');
@@ -36,7 +79,7 @@ export default function ScheduleBuilder({
 
     // Initialize global time from existing schedule on mount
     useEffect(() => {
-        const firstDayWithTimes = Object.values(schedule).find(
+        const firstDayWithTimes = Object.values(normalizedSchedule).find(
             (day: any) => day.start && day.end
         );
         if (firstDayWithTimes) {
@@ -66,7 +109,7 @@ export default function ScheduleBuilder({
     // Update schedule when global time changes
     const updateScheduleWithTimes = (newStart: string, newEnd: string) => {
         const blocks = getBlocksFromTimeRange(newStart, newEnd);
-        const newSchedule = { ...schedule };
+        const newSchedule = { ...normalizedSchedule };
 
         // Update all active days with new time and derived blocks
         // We only key off active days to avoid adding days just by changing time
@@ -83,7 +126,7 @@ export default function ScheduleBuilder({
     };
 
     const handleGridChange = (newGridValue: Record<string, string[]>) => {
-        const newSchedule = { ...schedule };
+        const newSchedule = { ...normalizedSchedule };
 
         // 1. Remove days that are gone
         Object.keys(newSchedule).forEach(day => {
