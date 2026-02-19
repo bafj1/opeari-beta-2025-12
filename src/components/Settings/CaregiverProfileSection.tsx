@@ -27,6 +27,8 @@ export default function CaregiverProfileSection() {
     const [hourlyRateMax, setHourlyRateMax] = useState<string>('');
     const [certifications, setCertifications] = useState<string[]>([]);
     const [education, setEducation] = useState<string>('');
+    const [canLift, setCanLift] = useState(false);
+    const [comfortableStairs, setComfortableStairs] = useState(false);
 
     useEffect(() => {
         if (!userId) return;
@@ -38,20 +40,22 @@ export default function CaregiverProfileSection() {
                     .from('caregiver_profiles')
                     .select('*')
                     .eq('id', userId)
-                    .single();
+                    .maybeSingle();
 
                 if (error) {
-                    // PGRST116 = no row found, fine for new caregivers
-                    // PGRST205/42P01 = table not in schema cache
-                    if (error.code !== 'PGRST116') {
-                        console.warn('Caregiver profile load:', error.message);
-                    }
+                    console.warn('Caregiver profile load:', error.message);
                 } else if (data) {
                     setYearsExperience(data.years_experience?.toString() || '');
                     setHourlyRateMin(data.hourly_rate_min?.toString() || data.hourly_rate?.toString() || '');
                     setHourlyRateMax(data.hourly_rate_max?.toString() || '');
                     setCertifications(data.certifications || []);
                     setEducation(data.education || '');
+                }
+
+                // Load physical capabilities from members table
+                if (viewer?.member) {
+                    setCanLift(viewer.member.can_lift_30lbs || false);
+                    setComfortableStairs(viewer.member.comfortable_with_stairs || false);
                 }
             } catch (err) {
                 console.warn('Caregiver profile load failed:', err);
@@ -105,6 +109,12 @@ export default function CaregiverProfileSection() {
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
         }
+
+        // Save physical capabilities to members table
+        await supabase.from('members').update({
+            can_lift_30lbs: canLift,
+            comfortable_with_stairs: comfortableStairs,
+        }).eq('id', userId);
 
         setSaving(false);
     };
@@ -237,6 +247,52 @@ export default function CaregiverProfileSection() {
                     className="w-full px-4 py-2.5 border border-[#8bd7c7]/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6B4E] focus:border-transparent text-sm"
                     aria-label="Education background"
                 />
+            </div>
+
+            {/* Physical Capabilities */}
+            <div className="mb-6">
+                <label className="block text-xs font-bold text-[#1e6b4e] uppercase tracking-wide mb-3">
+                    Physical Capabilities
+                </label>
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-[#1e6b4e]">Can lift 30+ lbs</p>
+                            <p className="text-xs text-[#546E5C]">Comfortable carrying toddlers, car seats, etc.</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setCanLift(!canLift)}
+                            className="relative w-11 h-6 rounded-full transition-colors"
+                            style={{ backgroundColor: canLift ? '#1e6b4e' : '#d1d5db' }}
+                            role="switch"
+                            aria-checked={canLift}
+                        >
+                            <div className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all"
+                                style={{ left: canLift ? '22px' : '2px' }} />
+                        </button>
+                    </div>
+
+                    <div className="border-t border-[#8bd7c7]/10" />
+
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-[#1e6b4e]">Comfortable with stairs</p>
+                            <p className="text-xs text-[#546E5C]">Can navigate stairs, hills, multi-level homes</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setComfortableStairs(!comfortableStairs)}
+                            className="relative w-11 h-6 rounded-full transition-colors"
+                            style={{ backgroundColor: comfortableStairs ? '#1e6b4e' : '#d1d5db' }}
+                            role="switch"
+                            aria-checked={comfortableStairs}
+                        >
+                            <div className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all"
+                                style={{ left: comfortableStairs ? '22px' : '2px' }} />
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* Save Button */}

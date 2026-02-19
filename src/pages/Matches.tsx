@@ -95,7 +95,10 @@ export default function Matches() {
                     care_types, availability_days, vetting_status, avatar_url,
                     children_age_groups, support_offered,
                     smoke_free_required, comfortable_with_pets, schedule_flexible,
-                    timeline
+                    timeline,
+                    has_transportation, needs_caregiver_driver, max_travel_miles, overnight_available,
+                    can_lift_30lbs, comfortable_with_stairs,
+                    has_parking, has_stairs, home_type, budget_min, budget_max
                 `)
                 .neq('id', myId);
             if (error) throw error;
