@@ -41,6 +41,7 @@ const AdminWaitlist = lazy(() => import('./pages/AdminWaitlist'));
 
 const RequestNewLink = lazy(() => import('./pages/RequestNewLink'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const UpdatePassword = lazy(() => import('./pages/UpdatePassword'));
 const SignIn = lazy(() => import('./pages/SignIn'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 
@@ -95,6 +96,7 @@ function App() {
               {/* AUTH ROUTES (Standalone - No Layout Wrapper) */}
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/update-password" element={<UpdatePassword />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/request-link" element={<RequestNewLink />} />
               <Route path="/auth/confirm" element={<AuthCallback />} />

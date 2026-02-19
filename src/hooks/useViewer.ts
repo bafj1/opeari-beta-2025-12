@@ -27,12 +27,21 @@ export function useViewer() {
             setLoading(true);
             setError(null);
 
-            // 1. Fetch Member - Task 2.B: Use maybeSingle()
-            const { data: member, error: memberError } = await supabase
+            // 1. Fetch Member - Task 2.B: Use maybeSingle() with timeout
+            const memberPromise = supabase
                 .from('members')
                 .select('*')
                 .eq('id', user.id)
                 .maybeSingle();
+
+            const timeoutPromise = new Promise<{ data: null, error: any }>((_, reject) =>
+                setTimeout(() => reject(new Error('Member fetch timed out')), 5000)
+            );
+
+            const { data: member, error: memberError } = await Promise.race([
+                memberPromise,
+                timeoutPromise
+            ]) as any;
 
             if (memberError) {
                 throw new Error(`Failed to load member profile: ${memberError.message}`);
