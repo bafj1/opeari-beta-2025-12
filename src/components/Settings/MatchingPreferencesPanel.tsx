@@ -123,6 +123,8 @@ export default function MatchingPreferencesPanel({ formData: _formData, setFormD
                 needs_caregiver_driver: 'needs_caregiver_driver',
                 max_travel_miles: 'max_travel_miles',
                 overnight_available: 'overnight_available',
+                can_lift_30lbs: 'can_lift_30lbs',
+                comfortable_with_stairs: 'comfortable_with_stairs',
             };
 
             if (syncColumns[key]) {
@@ -378,6 +380,26 @@ export default function MatchingPreferencesPanel({ formData: _formData, setFormD
                             onChange={(v) => updatePref('overnight_available', v)}
                             label="Available for overnight care"
                             desc="I can do evening/overnight sitting"
+                        />
+                    </>
+                )}
+
+                {/* Caregiver-specific: physical capabilities */}
+                {(viewer?.member?.role === 'caregiver' || viewer?.member?.role === 'both') && (
+                    <>
+                        <div className="border-t border-[#8bd7c7]/10 my-2" />
+                        <Toggle
+                            checked={(prefs as any).can_lift_30lbs || false}
+                            onChange={(v) => updatePref('can_lift_30lbs', v)}
+                            label="Can lift 30+ lbs"
+                            desc="Comfortable carrying toddlers, car seats, etc."
+                        />
+                        <div className="border-t border-[#8bd7c7]/10 my-2" />
+                        <Toggle
+                            checked={(prefs as any).comfortable_with_stairs || false}
+                            onChange={(v) => updatePref('comfortable_with_stairs', v)}
+                            label="Comfortable with stairs"
+                            desc="No issues navigating multi-level homes"
                         />
                     </>
                 )}

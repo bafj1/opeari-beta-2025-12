@@ -21,7 +21,7 @@ export default function CaregiverProfileSection() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
-    // Fields — adapt to actual schema
+    // Fields
     const [yearsExperience, setYearsExperience] = useState<string>('');
     const [hourlyRateMin, setHourlyRateMin] = useState<string>('');
     const [hourlyRateMax, setHourlyRateMax] = useState<string>('');
@@ -33,19 +33,28 @@ export default function CaregiverProfileSection() {
 
         async function loadProfile() {
             setLoading(true);
-            const { data } = await supabase
-                .from('caregiver_profiles')
-                .select('*')
-                .eq('id', userId)
-                .single();
+            try {
+                const { data, error } = await supabase
+                    .from('caregiver_profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
 
-            if (data) {
-                setYearsExperience(data.years_experience?.toString() || '');
-                // Adapt these to actual column names:
-                setHourlyRateMin(data.hourly_rate_min?.toString() || data.hourly_rate?.toString() || '');
-                setHourlyRateMax(data.hourly_rate_max?.toString() || '');
-                setCertifications(data.certifications || []);
-                setEducation(data.education || '');
+                if (error) {
+                    // PGRST116 = no row found, fine for new caregivers
+                    // PGRST205/42P01 = table not in schema cache
+                    if (error.code !== 'PGRST116') {
+                        console.warn('Caregiver profile load:', error.message);
+                    }
+                } else if (data) {
+                    setYearsExperience(data.years_experience?.toString() || '');
+                    setHourlyRateMin(data.hourly_rate_min?.toString() || data.hourly_rate?.toString() || '');
+                    setHourlyRateMax(data.hourly_rate_max?.toString() || '');
+                    setCertifications(data.certifications || []);
+                    setEducation(data.education || '');
+                }
+            } catch (err) {
+                console.warn('Caregiver profile load failed:', err);
             }
             setLoading(false);
         }
@@ -58,14 +67,16 @@ export default function CaregiverProfileSection() {
         setSaving(true);
         setSaved(false);
 
+        // Build payload — only include fields that exist in the table
         const payload: Record<string, any> = {
             id: userId,
             years_experience: yearsExperience ? parseInt(yearsExperience) : null,
             certifications,
-            education: education || null,
         };
 
-        // Adapt rate fields to actual schema
+        // Try to include education — column may not exist yet
+        payload.education = education || null;
+
         if (hourlyRateMin) payload.hourly_rate_min = parseFloat(hourlyRateMin);
         if (hourlyRateMax) payload.hourly_rate_max = parseFloat(hourlyRateMax);
 
@@ -74,7 +85,22 @@ export default function CaregiverProfileSection() {
             .upsert(payload, { onConflict: 'id' });
 
         if (error) {
-            console.error('Failed to save caregiver profile:', error);
+            // If education column doesn't exist yet, retry without it
+            if (error.message?.includes('education') || error.code === 'PGRST204') {
+                console.warn('Education column not yet available, saving without it');
+                delete payload.education;
+                const { error: retryError } = await supabase
+                    .from('caregiver_profiles')
+                    .upsert(payload, { onConflict: 'id' });
+                if (retryError) {
+                    console.error('Failed to save caregiver profile:', retryError);
+                } else {
+                    setSaved(true);
+                    setTimeout(() => setSaved(false), 3000);
+                }
+            } else {
+                console.error('Failed to save caregiver profile:', error);
+            }
         } else {
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
@@ -116,7 +142,7 @@ export default function CaregiverProfileSection() {
                 <select
                     value={yearsExperience}
                     onChange={(e) => setYearsExperience(e.target.value)}
-                    className="w-full sm:w-48 px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6B4E] focus:border-transparent text-sm bg-white"
+                    className="w-full sm:w-48 px-4 py-2.5 border border-[#8bd7c7]/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6B4E] focus:border-transparent text-sm bg-white"
                     aria-label="Years of childcare experience"
                 >
                     <option value="">Select...</option>
@@ -144,27 +170,27 @@ export default function CaregiverProfileSection() {
                             value={hourlyRateMin}
                             onChange={(e) => setHourlyRateMin(e.target.value)}
                             placeholder="20"
-                            className="w-24 pl-7 pr-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6B4E] focus:border-transparent text-sm"
+                            className="w-24 pl-7 pr-3 py-2.5 border border-[#8bd7c7]/30 rounded-xl text-sm text-[#1e6b4e] focus:border-[#1e6b4e] focus:ring-1 focus:ring-[#1e6b4e]/20 focus:outline-none"
                             aria-label="Minimum hourly rate"
                             min="0"
                             max="200"
                         />
                     </div>
-                    <span className="text-[#546E5C] text-sm">to</span>
+                    <span className="text-sm text-[#546E5C]">to</span>
                     <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#546E5C] text-sm">$</span>
                         <input
                             type="number"
                             value={hourlyRateMax}
                             onChange={(e) => setHourlyRateMax(e.target.value)}
-                            placeholder="35"
-                            className="w-24 pl-7 pr-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6B4E] focus:border-transparent text-sm"
+                            placeholder="40"
+                            className="w-24 pl-7 pr-3 py-2.5 border border-[#8bd7c7]/30 rounded-xl text-sm text-[#1e6b4e] focus:border-[#1e6b4e] focus:ring-1 focus:ring-[#1e6b4e]/20 focus:outline-none"
                             aria-label="Maximum hourly rate"
                             min="0"
                             max="200"
                         />
                     </div>
-                    <span className="text-xs text-[#546E5C]">/ hr</span>
+                    <span className="text-sm text-[#546E5C]">/ hr</span>
                 </div>
             </div>
 
@@ -184,7 +210,7 @@ export default function CaregiverProfileSection() {
                             onClick={() => toggleCertification(cert)}
                             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${certifications.includes(cert)
                                 ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
-                                : 'bg-white text-[#546E5C] border-gray-200 hover:border-[#8bd7c7]'
+                                : 'bg-white text-[#546E5C] border-[#8bd7c7]/30 hover:border-[#8bd7c7]'
                                 }`}
                             aria-pressed={certifications.includes(cert)}
                             aria-label={`Certification: ${cert}`}
@@ -193,6 +219,9 @@ export default function CaregiverProfileSection() {
                         </button>
                     ))}
                 </div>
+                <p className="text-[10px] text-[#546E5C]/60 mt-2 italic">
+                    Certifications are self-reported. Families can request verification during the connection process.
+                </p>
             </div>
 
             {/* Education */}
@@ -205,7 +234,7 @@ export default function CaregiverProfileSection() {
                     value={education}
                     onChange={(e) => setEducation(e.target.value)}
                     placeholder="e.g., B.A. in Early Childhood Education"
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6B4E] focus:border-transparent text-sm"
+                    className="w-full px-4 py-2.5 border border-[#8bd7c7]/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E6B4E] focus:border-transparent text-sm"
                     aria-label="Education background"
                 />
             </div>
@@ -217,7 +246,7 @@ export default function CaregiverProfileSection() {
                 disabled={saving}
                 className="px-6 py-2.5 rounded-[50px] bg-[#1e6b4e] text-white font-semibold text-sm hover:bg-[#155a3e] transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#8bd7c7] focus:ring-offset-1"
             >
-                {saving ? 'Saving...' : saved ? 'Saved' : 'Save Caregiver Details'}
+                {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Caregiver Details'}
             </button>
         </div>
     );

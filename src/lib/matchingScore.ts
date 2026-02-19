@@ -191,6 +191,19 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
         }
     }
 
+    // Physical capability match (family has stairs/needs lifting + caregiver can handle)
+    if (viewer.role === 'family' && viewer.has_stairs && candidate.comfortable_with_stairs) {
+        practicalScore += 1;
+    }
+    if (viewer.role === 'family' && candidate.can_lift_30lbs) {
+        practicalScore += 1;
+    }
+
+    // Parking bonus (caregiver drives + family has parking = less friction)
+    if (candidate.has_transportation && viewer.has_parking) {
+        signals.push({ icon: '🅿️', label: 'Parking available', weight: 1 });
+    }
+
     totalScore += Math.min(practicalScore, 10);
 
     // Compute schedule overlap percentage for MatchCard compatibility
