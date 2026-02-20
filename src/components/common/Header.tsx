@@ -164,6 +164,15 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                   >
                     Connections
                   </Link>
+                  <Link
+                    to="/care-needs"
+                    className={`text-sm font-medium transition-colors focus:outline-none px-3 py-2 rounded-full ${isActive('/care-needs')
+                      ? 'text-opeari-heading font-bold bg-opeari-mint/20'
+                      : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
+                      }`}
+                  >
+                    Care Needs
+                  </Link>
                 </nav>
 
                 {/* Profile Dropdown (Desktop Only) */}
@@ -279,36 +288,16 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                   >
                     Connections
                   </Link>
-                  {/* <Link
-                    to="/village"
-                    onClick={() => setMenuOpen(false)}
-                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/village')
-                      ? 'bg-opeari-mint text-opeari-heading font-bold'
-                      : 'text-opeari-text hover:bg-opeari-mint/50'
-                      }`}
-                  >
-                    Village
-                  </Link>
                   <Link
-                    to="/build-your-village"
+                    to="/care-needs"
                     onClick={() => setMenuOpen(false)}
-                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/build-your-village')
+                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/care-needs')
                       ? 'bg-opeari-mint text-opeari-heading font-bold'
                       : 'text-opeari-text hover:bg-opeari-mint/50'
                       }`}
                   >
-                    Find Matches
+                    Care Needs
                   </Link>
-                  <Link
-                    to="/connections"
-                    onClick={() => setMenuOpen(false)}
-                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/connections')
-                      ? 'bg-opeari-mint text-opeari-heading font-bold'
-                      : 'text-opeari-text hover:bg-opeari-mint/50'
-                      }`}
-                  >
-                    My Village
-                  </Link> */}
                   <Link
                     to="/messages"
                     onClick={() => setMenuOpen(false)}

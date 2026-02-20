@@ -95,7 +95,7 @@ export default function VillageNetworkPanel({ formData: _formData, setFormData: 
             <div style={cardStyle}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <Users size={20} color="#1E6B4E" />
-                    <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#1E6B4E', margin: 0 }}>My Village</h2>
+                    <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#1E6B4E', margin: 0 }}>Village & Network</h2>
                 </div>
                 <p style={{ fontSize: '13px', color: '#546E5C', margin: '0 0 20px' }}>
                     Your trusted network of families and caregivers
@@ -128,11 +128,11 @@ export default function VillageNetworkPanel({ formData: _formData, setFormData: 
                         {/* CTA Buttons */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <button
-                                onClick={() => navigate('/village')}
+                                onClick={() => navigate('/connections')}
                                 style={linkButtonStyle}
                             >
                                 <Users size={18} />
-                                View My Village
+                                View Connections
                                 <ArrowRight size={16} />
                             </button>
 
@@ -159,29 +159,14 @@ export default function VillageNetworkPanel({ formData: _formData, setFormData: 
                     The best villages are built on existing trust. Invite families you already know.
                 </p>
 
-                {/* Coming soon features */}
-                <div style={{
-                    padding: '20px',
-                    backgroundColor: 'rgba(139,215,199,0.08)',
-                    borderRadius: '16px',
-                    border: '1px dashed rgba(139,215,199,0.4)',
-                }}>
-                    <div style={{
-                        display: 'inline-flex',
-                        padding: '4px 12px',
-                        borderRadius: '12px',
-                        backgroundColor: 'rgba(139,215,199,0.2)',
-                        marginBottom: '12px',
-                    }}>
-                        <span style={{ fontSize: '11px', fontWeight: 600, color: '#1E6B4E' }}>Coming soon</span>
-                    </div>
-                    <p style={{ fontSize: '14px', color: '#1E6B4E', fontWeight: 600, margin: '0 0 8px' }}>
-                        Referral links, invite-by-email, and village privacy controls
-                    </p>
-                    <p style={{ fontSize: '13px', color: '#546E5C', margin: 0, lineHeight: 1.5 }}>
-                        Soon you'll be able to share a personal invite link, control who can see your village, and earn rewards for growing the community.
-                    </p>
-                </div>
+                <button
+                    onClick={() => navigate('/invite')}
+                    style={linkButtonStyle}
+                >
+                    <UserPlus size={18} />
+                    Invite a Family
+                    <ArrowRight size={16} />
+                </button>
             </div>
         </div>
     );

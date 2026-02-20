@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useViewer } from '../../hooks/useViewer';
 import CaregiverProfileSection from './CaregiverProfileSection';
-import { Camera, User, Heart, AlertCircle, Lock, HandHeart, Users, CheckCircle2 } from 'lucide-react'; // Shield, CheckCircle, Phone removed
+import { Camera, User, Heart, AlertCircle, HandHeart, Users, CheckCircle2 } from 'lucide-react';
 // import { Baby } from 'lucide-react'; // Removed unused import
 import SettingsCard from './SettingsCard';
 // import SettingsToggle from './SettingsToggle'; // Removed unused import
@@ -86,12 +86,7 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
         { key: 'available_overnight', label: 'Available for overnight care', desc: 'Can provide overnight or extended care' },
     ];
 
-    const PRIVACY_SETTINGS = [
-        { key: 'privacy_show_full_name', label: 'Show full name', desc: 'Display your full name on your profile' },
-        { key: 'privacy_show_location', label: 'Show precise location', desc: 'Show exact address vs general area only' },
-        { key: 'privacy_show_phone', label: 'Show phone number', desc: 'Allow matches to see your phone number' },
-        { key: 'privacy_appear_in_search', label: 'Appear in search results', desc: 'Allow others to find and match with you' },
-    ];
+
 
     const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -810,56 +805,6 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                     ))}
                 </div>
             </div>
-
-            {/* SECTION 7: PRIVACY SETTINGS */}
-            <SettingsCard title="Privacy Settings" description="Control what information is visible to other members." icon={Lock}>
-                <div className="space-y-3">
-                    {PRIVACY_SETTINGS.map(pref => {
-                        const isOn = formData[pref.key] ?? true; // Default to true if undefined, except phone which might be false by default in logic but here we just render
-                        return (
-                            <button
-                                key={pref.key}
-                                type="button"
-                                onClick={() => setFormData({ ...formData, [pref.key]: !isOn })}
-                                style={{
-                                    border: isOn ? '2px solid #1E6B4E' : '1.5px solid rgba(139, 215, 199, 0.4)',
-                                    backgroundColor: isOn ? 'rgba(139, 215, 199, 0.15)' : 'white',
-                                    borderRadius: '12px',
-                                    padding: '14px 18px',
-                                    cursor: 'pointer',
-                                    width: '100%',
-                                    textAlign: 'left',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    transition: 'all 0.2s',
-                                    fontFamily: 'Comfortaa, sans-serif',
-                                }}
-                            >
-                                <div>
-                                    <div style={{ fontSize: '14px', fontWeight: 600, color: isOn ? '#1E6B4E' : '#374151' }}>
-                                        {pref.label}
-                                    </div>
-                                    <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>{pref.desc}</div>
-                                </div>
-                                <div style={{
-                                    width: 24, height: 24, borderRadius: '50%',
-                                    border: isOn ? 'none' : '2px solid #D1D5DB',
-                                    backgroundColor: isOn ? '#1E6B4E' : 'transparent',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    flexShrink: 0,
-                                }}>
-                                    {isOn && (
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                    )}
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
-            </SettingsCard>
 
             {/* SECTION 8: SOCIAL CONNECTIONS */}
             <div style={{

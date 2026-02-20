@@ -128,6 +128,13 @@ export default function MemberProfile() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
   const [endorsementCount, setEndorsementCount] = useState(0)
   const [avgRating, setAvgRating] = useState(0)
+  const [endorsements, setEndorsements] = useState<any[]>([])
+  const [showEndorseForm, setShowEndorseForm] = useState(false)
+  const [endorseRating, setEndorseRating] = useState(0)
+  const [endorseText, setEndorseText] = useState('')
+  const [endorseRelationship, setEndorseRelationship] = useState('')
+  const [endorseSaving, setEndorseSaving] = useState(false)
+  const [hasEndorsed, setHasEndorsed] = useState(false)
 
   function computeCompatibility() {
     if (!viewer?.member || !member || !isConnected) return null;
@@ -413,26 +420,76 @@ export default function MemberProfile() {
         setMutualCount(mutualData || 0);
       }
 
-      // Fetch Endorsements
+      // Fetch Endorsements with author details
       try {
         const { data: endorseData } = await supabase
           .from('endorsements')
-          .select('rating')
+          .select(`
+            id, rating, text, relationship, created_at,
+            author:members!endorsements_author_id_fkey(first_name, last_name, avatar_url)
+          `)
           .eq('recipient_id', id)
-          .eq('is_visible', true);
+          .eq('is_visible', true)
+          .order('created_at', { ascending: false })
+          .limit(5);
         if (endorseData) {
           setEndorsementCount(endorseData.length);
           const ratings = endorseData.filter((e: any) => e.rating).map((e: any) => e.rating as number);
           if (ratings.length > 0) {
             setAvgRating(Math.round((ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length) * 10) / 10);
           }
+          setEndorsements(endorseData);
         }
       } catch { /* endorsements table might not exist yet */ }
+
+      // Check if current user already endorsed this member
+      if (user) {
+        try {
+          const { data: myEndorsement } = await supabase
+            .from('endorsements')
+            .select('id')
+            .eq('author_id', user.id)
+            .eq('recipient_id', id)
+            .maybeSingle();
+          if (myEndorsement) setHasEndorsed(true);
+        } catch { /* table might not exist */ }
+      }
 
     } catch (err) {
       console.error('Error loading member:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleEndorse() {
+    if (!user || !member || endorseRating === 0) return;
+    setEndorseSaving(true);
+    try {
+      const { error } = await supabase.from('endorsements').insert({
+        author_id: user.id,
+        recipient_id: member.id,
+        rating: endorseRating,
+        text: endorseText.trim(),
+        relationship: endorseRelationship,
+      });
+      if (error) throw error;
+      setHasEndorsed(true);
+      setShowEndorseForm(false);
+      setToast({ message: 'Endorsement submitted!', type: 'success' });
+      setTimeout(() => setToast(null), 3000);
+      // Refresh endorsement data
+      loadMember();
+    } catch (err: any) {
+      if (err.code === '23505') {
+        setToast({ message: 'You already endorsed this member.', type: 'info' });
+      } else {
+        console.error('Endorse error:', err);
+        setToast({ message: 'Could not save endorsement.', type: 'error' });
+      }
+      setTimeout(() => setToast(null), 3000);
+    } finally {
+      setEndorseSaving(false);
     }
   }
 
@@ -1106,7 +1163,153 @@ export default function MemberProfile() {
                 <Link to="/login" className="text-[#F8C3B3] font-semibold hover:underline">Log in</Link> to connect
               </p>
             )}
+
+            {/* Endorse Button — only if connected and haven't endorsed yet */}
+            {isConnected && !hasEndorsed && user?.id !== member.id && (
+              <button
+                onClick={() => setShowEndorseForm(!showEndorseForm)}
+                className="w-full mt-3 py-2.5 rounded-full border border-[#8bd7c7]/40 text-sm font-semibold text-[#1e6b4e] hover:bg-[#d8f5e5]/50 transition-colors flex items-center justify-center gap-2"
+              >
+                <Star className="w-4 h-4" />
+                Endorse {member.first_name}
+              </button>
+            )}
+
+            {/* Already Endorsed Badge */}
+            {isConnected && hasEndorsed && (
+              <div className="w-full mt-3 py-2.5 text-center text-sm text-[#546E5C]">
+                You endorsed {member.first_name}
+              </div>
+            )}
           </div>
+
+          {/* Endorsement Form */}
+          {showEndorseForm && (
+            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+              <h3 className="text-base font-bold text-[#1e6b4e] mb-4">
+                Endorse {member.first_name}
+              </h3>
+
+              {/* Star Rating */}
+              <div className="mb-4">
+                <p className="text-sm text-[#546E5C] mb-2">Rating</p>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setEndorseRating(star)}
+                      className="p-1 transition-colors"
+                    >
+                      <Star
+                        className={`w-6 h-6 ${star <= endorseRating
+                          ? 'text-[#F59E0B] fill-[#F59E0B]'
+                          : 'text-gray-200'
+                          }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Relationship */}
+              <div className="mb-4">
+                <p className="text-sm text-[#546E5C] mb-2">How do you know {member.first_name}?</p>
+                <div className="flex flex-wrap gap-2">
+                  {['Neighbor', 'Used as caregiver', 'Share a nanny', 'Friend', 'Community member'].map(rel => (
+                    <button
+                      key={rel}
+                      type="button"
+                      onClick={() => setEndorseRelationship(rel)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${endorseRelationship === rel
+                        ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
+                        : 'bg-white text-[#546E5C] border-gray-200 hover:border-[#8bd7c7]'
+                        }`}
+                    >
+                      {rel}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Written Endorsement */}
+              <div className="mb-4">
+                <p className="text-sm text-[#546E5C] mb-2">Your recommendation (optional)</p>
+                <textarea
+                  value={endorseText}
+                  onChange={e => setEndorseText(e.target.value)}
+                  placeholder={`What makes ${member.first_name} a great member of your village?`}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-[#546E5C] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent resize-none"
+                  rows={3}
+                  maxLength={500}
+                />
+                <p className="text-xs text-gray-400 mt-1 text-right">{endorseText.length}/500</p>
+              </div>
+
+              {/* Submit */}
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowEndorseForm(false)}
+                  className="flex-1 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-[#546E5C] hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEndorse}
+                  disabled={endorseSaving || endorseRating === 0}
+                  className="flex-1 py-2.5 rounded-full bg-[#1e6b4e] text-white text-sm font-semibold hover:bg-[#174f3a] disabled:opacity-50 transition-colors"
+                >
+                  {endorseSaving ? 'Submitting...' : 'Submit Endorsement'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Endorsements from Village */}
+          {endorsements.length > 0 && (
+            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+              <h3 className="text-base font-bold text-[#1e6b4e] mb-4">
+                What Others Say
+              </h3>
+              <div className="space-y-4">
+                {endorsements.map((e: any) => {
+                  const author = Array.isArray(e.author) ? e.author[0] : e.author;
+                  const authorName = author ? `${author.first_name} ${(author.last_name || '').charAt(0)}.` : 'Member';
+                  return (
+                    <div key={e.id} className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#d8f5e5] flex items-center justify-center flex-shrink-0">
+                        {author?.avatar_url ? (
+                          <img src={author.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          <span className="text-xs font-bold text-[#1e6b4e]">{authorName.charAt(0)}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-semibold text-[#1e6b4e]">{authorName}</span>
+                          {e.relationship && (
+                            <span className="text-xs text-[#546E5C]">· {e.relationship}</span>
+                          )}
+                        </div>
+                        {e.rating && (
+                          <div className="flex gap-0.5 mb-1">
+                            {[1, 2, 3, 4, 5].map((s: number) => (
+                              <Star key={s} className={`w-3 h-3 ${s <= e.rating ? 'text-[#F59E0B] fill-[#F59E0B]' : 'text-gray-200'}`} />
+                            ))}
+                          </div>
+                        )}
+                        {e.text && (
+                          <p className="text-sm text-[#546E5C] leading-relaxed">{e.text}</p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
         </div>
       </div>
