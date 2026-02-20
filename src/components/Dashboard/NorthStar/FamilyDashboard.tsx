@@ -971,7 +971,7 @@ export default function FamilyDashboard() {
                             className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[50px] bg-[#d8f5e5] hover:bg-[#8bd7c7]/30 transition-colors focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:ring-offset-2"
                         >
                             <Home className="w-4 h-4 sm:w-5 sm:h-5 text-[#1e6b4e]" />
-                            <span className="text-xs sm:text-sm font-semibold text-[#1e6b4e] hidden sm:inline">Connections</span>
+                            <span className="text-xs sm:text-sm font-semibold text-[#1e6b4e] hidden sm:inline">My Village</span>
                         </Link>
                         {/* Core Navigation */}
                         <nav className="hidden md:flex items-center gap-5">
@@ -1144,117 +1144,6 @@ export default function FamilyDashboard() {
                     {/* LEFT COLUMN (2/3) */}
                     <div className="lg:col-span-2 space-y-8">
 
-                        {/* People You May Know */}
-                        <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100 mb-6">
-                            {suggestedConnections.length > 0 && (
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-xl font-bold text-[#1e6b4e]">People You May Know</h2>
-                                    <Link to="/matches" className="text-sm text-[#1e6b4e] font-semibold hover:underline">
-                                        View All →
-                                    </Link>
-                                </div>
-                            )}
-
-                            {connectionsLoading ? (
-                                // Loading State
-                                <div className="flex gap-4 overflow-x-auto pb-2">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="flex-shrink-0 w-36 h-48 bg-gray-100 rounded-[15px] animate-pulse" />
-                                    ))}
-                                </div>
-                            ) : suggestedConnections.length === 0 ? (
-                                // Compact Empty Banner
-                                <div className="flex items-center justify-between py-1">
-                                    <p className="text-sm text-[#546E5C]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                        Know someone who'd love Opeari?
-                                    </p>
-                                    <div className="flex items-center gap-4">
-                                        <Link to="/invite-friends" className="text-sm font-semibold text-[#1E6B4E] hover:underline" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                            Invite a Friend
-                                        </Link>
-                                        <Link to="/matches" className="text-sm text-[#546E5C] hover:text-[#1E6B4E]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                            Discover More →
-                                        </Link>
-                                    </div>
-                                </div>
-                            ) : (
-                                // Has Connections (Same as before)
-                                <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-none">
-                                    {suggestedConnections.map(person => (
-                                        <div
-                                            key={person.member_id}
-                                            className="flex-shrink-0 w-36 bg-white rounded-[15px] p-4 border border-gray-100 hover:border-[#8bd7c7] hover:shadow-md transition-all text-center group"
-                                        >
-                                            <img
-                                                src={person.avatar_url || 'https://via.placeholder.com/100'}
-                                                alt={person.display_name}
-                                                className="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2 border-[#8bd7c7] group-hover:scale-105 transition-transform"
-                                            />
-                                            <p className="font-semibold text-sm text-[#1e6b4e] truncate mb-0.5">
-                                                {person.display_name}
-                                            </p>
-                                            <p className="text-xs text-[#546E5C] mb-1 truncate">
-                                                {person.neighborhood || 'Nearby'}
-                                            </p>
-                                            <p className="text-xs text-[#546E5C] mb-1">
-                                                {person.mutual_connection_count} mutual
-                                            </p>
-
-                                            {/* Shared care signal */}
-                                            <div className="flex flex-wrap gap-1 mt-2 mb-1">
-                                                {getSharedCareTags(person).map((tag, idx) => (
-                                                    <SharedCareTag key={idx} label={tag} />
-                                                ))}
-                                            </div>
-
-                                            {!person.care_types?.includes('nanny-share') && (
-                                                <div className="mb-3"></div>
-                                            )}
-
-                                            {person.connection_status === 'accepted' ? (
-                                                <Link
-                                                    to={`/messages?to=${person.member_id}`}
-                                                    className="w-full px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-medium text-center block"
-                                                >
-                                                    Message
-                                                </Link>
-                                            ) : person.connection_status === 'pending' ? (
-                                                <span className="w-full px-3 py-1.5 rounded-full border border-gray-200 text-[#546E5C] text-xs font-medium text-center block">
-                                                    Pending
-                                                </span>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleConnect(person.member_id)}
-                                                    disabled={connectingTo === person.member_id}
-                                                    className="w-full px-3 py-1.5 rounded-full border border-gray-300 text-[#546E5C] text-xs font-medium hover:border-[#1e6b4e] hover:text-[#1e6b4e] transition-all disabled:opacity-50"
-                                                >
-                                                    {connectingTo === person.member_id ? 'Sending...' : 'Connect'}
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
-
-                                    {/* Invite Card */}
-                                    <div className="flex-shrink-0 w-36 bg-gradient-to-br from-[#d8f5e5] to-[#8bd7c7]/20 rounded-[15px] p-4 border border-dashed border-[#8bd7c7] text-center flex flex-col items-center justify-center">
-                                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-3 shadow-sm">
-                                            <UserPlus className="w-6 h-6 text-[#1e6b4e]" />
-                                        </div>
-                                        <p className="text-xs text-[#1e6b4e] font-medium mb-3">
-                                            Invite friends
-                                        </p>
-                                        <button
-                                            type="button"
-                                            onClick={() => setInviteModalOpen(true)}
-                                            className="px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-semibold hover:bg-[#155a3e] transition-all"
-                                        >
-                                            Invite
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </section>
-
                         {/* Top Matches for You */}
                         <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100">
                             {/* Header */}
@@ -1368,6 +1257,108 @@ export default function FamilyDashboard() {
                                     })
                                 )}
                             </div>
+                        </section>
+
+                        {/* People You May Know */}
+                        <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100 mb-6">
+                            {suggestedConnections.length > 0 && (
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-xl font-bold text-[#1e6b4e]">People You May Know</h2>
+                                    <Link to="/matches" className="text-sm text-[#1e6b4e] font-semibold hover:underline">
+                                        View All →
+                                    </Link>
+                                </div>
+                            )}
+
+                            {connectionsLoading ? (
+                                <div className="flex gap-4 overflow-x-auto pb-2">
+                                    {[1, 2, 3, 4].map(i => (
+                                        <div key={i} className="flex-shrink-0 w-36 h-48 bg-gray-100 rounded-[15px] animate-pulse" />
+                                    ))}
+                                </div>
+                            ) : suggestedConnections.length === 0 ? (
+                                <div className="flex items-center justify-between py-1">
+                                    <p className="text-sm text-[#546E5C]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+                                        Know someone who'd love Opeari?
+                                    </p>
+                                    <div className="flex items-center gap-4">
+                                        <Link to="/invite-friends" className="text-sm font-semibold text-[#1E6B4E] hover:underline" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+                                            Invite a Friend
+                                        </Link>
+                                        <Link to="/matches" className="text-sm text-[#546E5C] hover:text-[#1E6B4E]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+                                            Discover More →
+                                        </Link>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-none">
+                                    {suggestedConnections.map(person => (
+                                        <div
+                                            key={person.member_id}
+                                            className="flex-shrink-0 w-36 bg-white rounded-[15px] p-4 border border-gray-100 hover:border-[#8bd7c7] hover:shadow-md transition-all text-center group"
+                                        >
+                                            <img
+                                                src={person.avatar_url || 'https://via.placeholder.com/100'}
+                                                alt={person.display_name}
+                                                className="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2 border-[#8bd7c7] group-hover:scale-105 transition-transform"
+                                            />
+                                            <p className="font-semibold text-sm text-[#1e6b4e] truncate mb-0.5">
+                                                {person.display_name}
+                                            </p>
+                                            <p className="text-xs text-[#546E5C] mb-1 truncate">
+                                                {person.neighborhood || 'Nearby'}
+                                            </p>
+                                            <p className="text-xs text-[#546E5C] mb-1">
+                                                {person.mutual_connection_count} mutual
+                                            </p>
+                                            <div className="flex flex-wrap gap-1 mt-2 mb-1">
+                                                {getSharedCareTags(person).map((tag, idx) => (
+                                                    <SharedCareTag key={idx} label={tag} />
+                                                ))}
+                                            </div>
+                                            {!person.care_types?.includes('nanny-share') && (
+                                                <div className="mb-3"></div>
+                                            )}
+                                            {person.connection_status === 'accepted' ? (
+                                                <Link
+                                                    to={`/messages?to=${person.member_id}`}
+                                                    className="w-full px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-medium text-center block"
+                                                >
+                                                    Message
+                                                </Link>
+                                            ) : person.connection_status === 'pending' ? (
+                                                <span className="w-full px-3 py-1.5 rounded-full border border-gray-200 text-[#546E5C] text-xs font-medium text-center block">
+                                                    Pending
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleConnect(person.member_id)}
+                                                    disabled={connectingTo === person.member_id}
+                                                    className="w-full px-3 py-1.5 rounded-full border border-gray-300 text-[#546E5C] text-xs font-medium hover:border-[#1e6b4e] hover:text-[#1e6b4e] transition-all disabled:opacity-50"
+                                                >
+                                                    {connectingTo === person.member_id ? 'Sending...' : 'Connect'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <div className="flex-shrink-0 w-36 bg-gradient-to-br from-[#d8f5e5] to-[#8bd7c7]/20 rounded-[15px] p-4 border border-dashed border-[#8bd7c7] text-center flex flex-col items-center justify-center">
+                                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-3 shadow-sm">
+                                            <UserPlus className="w-6 h-6 text-[#1e6b4e]" />
+                                        </div>
+                                        <p className="text-xs text-[#1e6b4e] font-medium mb-3">
+                                            Invite friends
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => setInviteModalOpen(true)}
+                                            className="px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-semibold hover:bg-[#155a3e] transition-all"
+                                        >
+                                            Invite
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </section>
 
                         {/* Active Care Need */}
