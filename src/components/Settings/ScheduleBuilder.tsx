@@ -170,7 +170,7 @@ export default function ScheduleBuilder({
 
             {/* Global Time Range - Placed above grid for "Source of Truth" feel */}
             {!flexible && (
-                <div className="mb-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                <div className="mb-4 p-4 bg-white rounded-xl border border-[#8bd7c7]/10 shadow-sm">
                     <div className="flex items-center justify-between mb-3">
                         <div>
                             <h4 className="text-sm font-bold text-[#1e6b4e]">Typical Hours</h4>
@@ -202,7 +202,7 @@ export default function ScheduleBuilder({
                 </div>
             )}
 
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <div className="bg-white rounded-2xl border border-[#8bd7c7]/30 p-6 shadow-sm">
                 <ScheduleGrid
                     value={gridValue}
                     onChange={disabled ? () => { } : handleGridChange}
@@ -212,11 +212,11 @@ export default function ScheduleBuilder({
             {/* Flexible Toggle */}
             <div
                 onClick={() => !disabled && onFlexibleChange(!flexible)}
-                className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 ${flexible ? 'border-[#1e6b4e] bg-[#f0faf4]' : 'border-gray-100 hover:border-gray-200 bg-white'
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-3 ${flexible ? 'border-[#1e6b4e] bg-[#f0faf4]' : 'border-[#8bd7c7]/10 hover:border-[#8bd7c7]/30 bg-white'
                     } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
                 {/* Checkbox visual */}
-                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${flexible ? 'bg-[#1e6b4e] border-[#1e6b4e]' : 'bg-white border-gray-300'
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${flexible ? 'bg-[#1e6b4e] border-[#1e6b4e]' : 'bg-white border-[#8bd7c7]/30'
                     }`}>
                     {/* Simplified Check icon since we removed lucid-react import for Check if not used elsewhere, oh wait used in updated impports */}
                     <svg

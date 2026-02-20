@@ -29,7 +29,7 @@ export default function SegmentedTimeControl({ options, selected, onChange, labe
                                 py-3 px-4 rounded-xl text-sm font-bold transition-all border
                                 ${isSelected
                                     ? 'bg-opeari-green text-white border-opeari-green shadow-sm'
-                                    : 'bg-white border-gray-200 text-gray-600 hover:border-opeari-green/30 hover:bg-green-50/30'
+                                    : 'bg-white border-[#8bd7c7]/30 text-gray-600 hover:border-opeari-green/30 hover:bg-green-50/30'
                                 }
                             `}
                         >

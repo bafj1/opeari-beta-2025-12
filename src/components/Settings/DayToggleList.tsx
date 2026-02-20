@@ -29,7 +29,7 @@ export default function DayToggleList({ days, selected, onChange, label }: DayTo
                                 flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all
                                 ${isSelected
                                     ? 'bg-opeari-green text-white shadow-md scale-105'
-                                    : 'bg-white border border-gray-200 text-gray-500 hover:border-opeari-green/30 hover:bg-green-50/50'
+                                    : 'bg-white border border-[#8bd7c7]/30 text-gray-500 hover:border-opeari-green/30 hover:bg-green-50/50'
                                 }
                             `}
                         >

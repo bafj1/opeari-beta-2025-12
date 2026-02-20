@@ -115,16 +115,6 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
 
 
 
-    const PREFERENCES = [
-        { key: 'comfortable_with_pets', label: 'Comfortable with pets', desc: 'Dogs, cats, or other pets in the home' },
-        { key: 'smoke_free_required', label: 'Smoke-free environment required', desc: 'No smoking in home or around children' },
-        { key: 'transportation_required', label: 'Own transportation', desc: 'Has reliable vehicle and valid license' },
-        { key: 'willing_to_travel', label: 'Willing to travel to families', desc: 'Can commute to different locations' },
-        { key: 'available_overnight', label: 'Available for overnight care', desc: 'Can provide overnight or extended care' },
-    ];
-
-
-
     const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file || !viewer?.user?.id) return;
@@ -559,57 +549,6 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                             placeholder="(555) 123-4567"
                         />
                     </div>
-                </div>
-            </SettingsCard>
-
-            {/* SECTION 5: PREFERENCES */}
-            <SettingsCard title="Preferences & Requirements" icon={Heart}>
-                <div className="space-y-3">
-                    {PREFERENCES.map(pref => {
-                        const isOn = !!formData[pref.key];
-                        return (
-                            <button
-                                key={pref.key}
-                                type="button"
-                                onClick={() => setFormData({ ...formData, [pref.key]: !isOn })}
-                                style={{
-                                    border: isOn ? '2px solid #1E6B4E' : '1.5px solid rgba(139, 215, 199, 0.4)',
-                                    backgroundColor: isOn ? 'rgba(139, 215, 199, 0.15)' : 'white',
-                                    borderRadius: '12px',
-                                    padding: '14px 18px',
-                                    cursor: 'pointer',
-                                    width: '100%',
-                                    textAlign: 'left',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    transition: 'all 0.2s',
-                                    fontFamily: 'Comfortaa, sans-serif',
-                                }}
-                            >
-                                <div>
-                                    <div style={{ fontSize: '14px', fontWeight: 600, color: isOn ? '#1E6B4E' : '#374151' }}>
-                                        {isOn ? '✓ ' : ''}{pref.label}
-                                    </div>
-                                    <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>{pref.desc}</div>
-                                </div>
-                                {/* Toggle circle indicator */}
-                                <div style={{
-                                    width: 24, height: 24, borderRadius: '50%',
-                                    border: isOn ? 'none' : '2px solid #D1D5DB',
-                                    backgroundColor: isOn ? '#1E6B4E' : 'transparent',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    flexShrink: 0,
-                                }}>
-                                    {isOn && (
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                    )}
-                                </div>
-                            </button>
-                        );
-                    })}
                 </div>
             </SettingsCard>
 

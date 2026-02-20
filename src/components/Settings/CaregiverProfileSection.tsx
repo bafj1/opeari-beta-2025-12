@@ -129,7 +129,7 @@ export default function CaregiverProfileSection() {
 
     if (loading) {
         return (
-            <div className="animate-pulse space-y-4 mt-8 pt-8 border-t border-gray-200">
+            <div className="animate-pulse space-y-4 mt-8 pt-8 border-t border-[#8bd7c7]/30">
                 <div className="h-6 bg-gray-100 rounded w-48" />
                 <div className="h-10 bg-gray-100 rounded w-full" />
                 <div className="h-10 bg-gray-100 rounded w-full" />
@@ -138,7 +138,7 @@ export default function CaregiverProfileSection() {
     }
 
     return (
-        <div className="mt-8 pt-8 border-t border-gray-200">
+        <div className="mt-8 pt-8 border-t border-[#8bd7c7]/30">
             <h2 className="text-lg font-bold text-[#1e6b4e] mb-1">Caregiver Details</h2>
             <p className="text-sm text-[#546E5C] mb-6">
                 Help families learn more about your experience and qualifications.

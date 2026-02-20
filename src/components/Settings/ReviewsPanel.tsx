@@ -75,7 +75,7 @@ export default function ReviewsPanel() {
     return (
         <div className="space-y-6 max-w-3xl">
             {/* Stats Summary */}
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="bg-white rounded-2xl p-5 border border-[#8bd7c7]/10 shadow-sm">
                 <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Your Reputation</h3>
                 <div className="grid grid-cols-3 gap-4">
                     <div className="text-center p-4 bg-[#f0faf4] rounded-xl">
@@ -101,7 +101,7 @@ export default function ReviewsPanel() {
             </div>
 
             {/* Endorsements List */}
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="bg-white rounded-2xl p-5 border border-[#8bd7c7]/10 shadow-sm">
                 <h3 className="text-base font-bold text-[#1e6b4e] mb-3">Endorsements from Your Village</h3>
 
                 {endorsements.length === 0 ? (

@@ -337,7 +337,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                         <Loader2 className="animate-spin text-[#1e6b4e]" size={24} />
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                    <div className="bg-white rounded-2xl p-5 border border-[#8bd7c7]/10 shadow-sm">
                         <h3 className="text-base font-bold text-[#1e6b4e] mb-1">Weekly Availability</h3>
                         <p className="text-xs text-[#546E5C] mb-4">Select the days and times you typically need care.</p>
 
@@ -346,23 +346,23 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                             <div className="flex flex-wrap gap-2 mb-3">
                                 {/* Quick select buttons */}
                                 <button type="button" onClick={() => setQuickDays(WEEKDAYS)}
-                                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${isWeekdaysSelected ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]' : 'border-gray-200 text-[#546E5C] hover:border-[#8bd7c7]'
+                                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${isWeekdaysSelected ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]' : 'border-[#8bd7c7]/30 text-[#546E5C] hover:border-[#8bd7c7]'
                                         }`}>
                                     Weekdays
                                 </button>
                                 <button type="button" onClick={() => toggleWeekends()}
-                                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${isWeekendsSelected ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]' : 'border-gray-200 text-[#546E5C] hover:border-[#8bd7c7]'
+                                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${isWeekendsSelected ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]' : 'border-[#8bd7c7]/30 text-[#546E5C] hover:border-[#8bd7c7]'
                                         }`}>
                                     Weekends
                                 </button>
                                 <button type="button" onClick={() => setQuickDays(ALL_DAYS)}
-                                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${selectedDays.length === 7 ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]' : 'border-gray-200 text-[#546E5C] hover:border-[#8bd7c7]'
+                                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${selectedDays.length === 7 ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]' : 'border-[#8bd7c7]/30 text-[#546E5C] hover:border-[#8bd7c7]'
                                         }`}>
                                     Every Day
                                 </button>
                                 {selectedDays.length > 0 && (
                                     <button type="button" onClick={() => setQuickDays([])}
-                                        className="px-3 py-1 rounded-full text-xs font-medium border border-gray-200 text-gray-400 hover:text-red-400 hover:border-red-200 transition-all">
+                                        className="px-3 py-1 rounded-full text-xs font-medium border border-[#8bd7c7]/30 text-gray-400 hover:text-red-400 hover:border-red-200 transition-all">
                                         Clear
                                     </button>
                                 )}
@@ -377,7 +377,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                                         onClick={() => toggleDay(day.value)}
                                         className={`w-11 h-11 rounded-full text-xs font-semibold transition-all ${selectedDays.includes(day.value)
                                             ? 'bg-[#1e6b4e] text-white shadow-sm'
-                                            : 'bg-gray-50 text-[#546E5C] hover:bg-[#d8f5e5] border border-gray-100'
+                                            : 'bg-gray-50 text-[#546E5C] hover:bg-[#d8f5e5] border border-[#8bd7c7]/10'
                                             }`}
                                     >
                                         {day.label}
@@ -388,7 +388,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
 
                         {/* Time Range — only show when days are selected */}
                         {selectedDays.length > 0 && (
-                            <div className="border-t border-gray-100 pt-4 animate-fade-in">
+                            <div className="border-t border-[#8bd7c7]/10 pt-4 animate-fade-in">
                                 <label className="block text-xs font-semibold text-[#1e6b4e] mb-2">Typical Hours</label>
                                 <div className="flex items-center gap-3">
                                     <TimePicker
@@ -408,7 +408,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                         )}
 
                         {/* Flexible toggle */}
-                        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                        <div className="mt-4 pt-4 border-t border-[#8bd7c7]/10 flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-semibold text-[#1e6b4e]">My schedule is flexible</p>
                                 <p className="text-xs text-[#546E5C]">I'm open to adjusting days or times</p>
@@ -440,7 +440,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
             </div>
 
             {/* === ACTIVE CARE NEEDS SUMMARY === */}
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="bg-white rounded-2xl p-5 border border-[#8bd7c7]/10 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                     <div>
                         <h3 className="text-base font-bold text-[#1e6b4e]">Your Care Needs</h3>
@@ -542,7 +542,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                                                 onClick={() => setNewEvent({ ...newEvent, event_type: type.value })}
                                                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${newEvent.event_type === type.value
                                                     ? 'bg-[#1e6b4e] text-white'
-                                                    : 'bg-white border border-gray-200 text-[#546E5C] hover:border-[#8bd7c7]'
+                                                    : 'bg-white border border-[#8bd7c7]/30 text-[#546E5C] hover:border-[#8bd7c7]'
                                                     }`}
                                             >
                                                 {type.label}
@@ -559,7 +559,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                                         value={newEvent.start_date}
                                         onChange={(e) => setNewEvent({ ...newEvent, start_date: e.target.value })}
                                         min={new Date().toISOString().split('T')[0]}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1e6b4e]"
+                                        className="w-full px-3 py-2 border border-[#8bd7c7]/30 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1e6b4e]"
                                     />
                                 </div>
                                 <div>
@@ -571,7 +571,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                                         value={newEvent.end_date || ''}
                                         onChange={(e) => setNewEvent({ ...newEvent, end_date: e.target.value })}
                                         min={newEvent.start_date || new Date().toISOString().split('T')[0]}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1e6b4e]"
+                                        className="w-full px-3 py-2 border border-[#8bd7c7]/30 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1e6b4e]"
                                     />
                                 </div>
 
@@ -583,7 +583,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                                         value={newEvent.name || ''}
                                         onChange={(e) => setNewEvent({ ...newEvent, name: e.target.value })}
                                         placeholder="e.g., Anniversary dinner"
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1e6b4e]"
+                                        className="w-full px-3 py-2 border border-[#8bd7c7]/30 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1e6b4e]"
                                     />
                                 </div>
 
@@ -606,7 +606,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                                         placeholder="e.g., Kids bedtime is 8pm, need someone comfortable with dogs"
                                         rows={2}
                                         maxLength={500}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] resize-none"
+                                        className="w-full px-3 py-2 border border-[#8bd7c7]/30 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] resize-none"
                                     />
                                 </div>
                             </div>
@@ -641,7 +641,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
                     ) : (
                         <div className="space-y-3">
                             {upcomingEvents.map(event => (
-                                <div key={event.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 shadow-sm animate-fade-in">
+                                <div key={event.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#8bd7c7]/10 shadow-sm animate-fade-in">
                                     <div className="flex items-center gap-3">
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${event.care_type === 'date-night' ? 'bg-pink-50 text-pink-500' :
                                             event.care_type === 'travel' ? 'bg-blue-50 text-blue-500' :
@@ -806,7 +806,7 @@ export default function SchedulePanel({ formData, setFormData, saving, onSave }:
             </div>
 
             {/* Footer - Save Preferences */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+            <div className="flex justify-end gap-3 pt-4 border-t border-[#8bd7c7]/10">
                 <div className="flex-1 flex items-center">
                     <p className="text-xs text-gray-400 italic">
                         Note: Schedule grid saves automatically. Use this button for Timezone & Notification settings.

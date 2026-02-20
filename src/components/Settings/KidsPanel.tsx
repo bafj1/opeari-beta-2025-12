@@ -461,7 +461,7 @@ export default function KidsPanel() {
                         </div>
 
                         {/* Display Name Toggle */}
-                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#8bd7c7]/10">
                             <div>
                                 <p className="text-sm font-medium text-[#1e6b4e]">Show name on profile</p>
                                 <p className="text-xs text-[#546E5C]">Others will see "{name ? name[0] : 'C'}." instead of the full name</p>
