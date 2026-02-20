@@ -128,7 +128,7 @@ export default function VillageNetworkPanel({ formData: _formData, setFormData: 
                         {/* CTA Buttons */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <button
-                                onClick={() => navigate('/village')}
+                                onClick={() => navigate('/connections')}
                                 style={linkButtonStyle}
                             >
                                 <Users size={18} />
@@ -138,7 +138,7 @@ export default function VillageNetworkPanel({ formData: _formData, setFormData: 
 
                             {pendingCount > 0 && (
                                 <button
-                                    onClick={() => navigate('/village')}
+                                    onClick={() => navigate('/connections')}
                                     style={secondaryButtonStyle}
                                 >
                                     {pendingCount} pending request{pendingCount !== 1 ? 's' : ''} to review

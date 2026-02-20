@@ -599,10 +599,6 @@ export default function FamilyDashboard() {
     const [referredCaregivers, setReferredCaregivers] = useState<ReferredCaregiver[]>([]);
     const [caregiversLoading, setCaregiversLoading] = useState(true);
 
-    // Village Connections State
-    const [villageConnections, setVillageConnections] = useState<any[]>([]);
-    const [villageLoading, setVillageLoading] = useState(true);
-
     const [authUserId, setAuthUserId] = useState<string | null>(null);
     const { viewer } = useViewer();
     const userId = viewer?.member?.id;
@@ -623,45 +619,7 @@ export default function FamilyDashboard() {
         return () => { active = false; };
     }, []);
 
-    // Fetch village connections (accepted connections with member details)
-    useEffect(() => {
-        async function fetchVillageConnections() {
-            if (!effectiveUserId) return;
-            setVillageLoading(true);
-            try {
-                const { data: connections, error: connErr } = await supabase
-                    .from('connections')
-                    .select('requester_id, recipient_id')
-                    .or(`requester_id.eq.${effectiveUserId},recipient_id.eq.${effectiveUserId}`)
-                    .eq('status', 'accepted');
 
-                if (connErr) throw connErr;
-
-                const connectedIds = (connections || []).map(c =>
-                    c.requester_id === effectiveUserId ? c.recipient_id : c.requester_id
-                );
-
-                if (connectedIds.length === 0) {
-                    setVillageConnections([]);
-                    setVillageLoading(false);
-                    return;
-                }
-
-                const { data: members, error: memErr } = await supabase
-                    .from('members')
-                    .select('id, first_name, last_name, role, zip_code, neighborhood, care_types, availability_days, avatar_url, bio')
-                    .in('id', connectedIds);
-
-                if (memErr) throw memErr;
-                setVillageConnections(members || []);
-            } catch (err) {
-                console.error('Error fetching village connections:', err);
-            } finally {
-                setVillageLoading(false);
-            }
-        }
-        fetchVillageConnections();
-    }, [effectiveUserId]);
 
 
 
@@ -971,14 +929,14 @@ export default function FamilyDashboard() {
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3 sm:gap-8">
                         <h1 className="text-xl sm:text-2xl font-bold text-[#1e6b4e]">Opeari</h1>
-                        <button
-                            type="button"
+                        <Link
+                            to="/connections"
                             aria-label="My Village"
                             className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[50px] bg-[#d8f5e5] hover:bg-[#8bd7c7]/30 transition-colors focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:ring-offset-2"
                         >
                             <Home className="w-4 h-4 sm:w-5 sm:h-5 text-[#1e6b4e]" />
                             <span className="text-xs sm:text-sm font-semibold text-[#1e6b4e] hidden sm:inline">My Village</span>
-                        </button>
+                        </Link>
                         {/* Core Navigation */}
                         <nav className="hidden md:flex items-center gap-5">
                             <Link
@@ -1140,93 +1098,6 @@ export default function FamilyDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                     {/* LEFT COLUMN (2/3) */}
                     <div className="lg:col-span-2 space-y-8">
-
-                        {/* === Your Village (Connected Members) === */}
-                        {!villageLoading && villageConnections.length > 0 && (
-                            <section className="bg-white rounded-[20px] p-6 shadow-sm border border-[#8bd7c7]/20">
-                                <div className="flex items-start justify-between mb-4">
-                                    <div>
-                                        <h2 className="text-xl font-bold text-[#1e6b4e]">Your Village</h2>
-                                        <p className="text-sm text-[#546E5C]">
-                                            {villageConnections.length} trusted connection{villageConnections.length !== 1 ? 's' : ''} in your care circle
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    {villageConnections.map((member) => {
-                                        const displayName = `${member.first_name || ''} ${(member.last_name || '').charAt(0)}.`.trim();
-                                        const roleLabel = member.role === 'caregiver' ? 'Caregiver' : member.role === 'both' ? 'Parent & Caregiver' : 'Parent';
-                                        const locationText = member.neighborhood || member.zip_code || '';
-
-                                        return (
-                                            <div
-                                                key={member.id}
-                                                className="flex items-center justify-between p-4 rounded-2xl border border-[#8bd7c7]/15 hover:border-[#8bd7c7]/40 transition-all"
-                                            >
-                                                <div className="flex items-center gap-3 min-w-0">
-                                                    <div className="w-12 h-12 rounded-full bg-[#d8f5e5] flex items-center justify-center flex-shrink-0 overflow-hidden">
-                                                        {member.avatar_url ? (
-                                                            <img src={member.avatar_url} alt={displayName} className="w-full h-full object-cover rounded-full" />
-                                                        ) : (
-                                                            <span className="text-lg font-bold text-[#1e6b4e]">
-                                                                {(member.first_name || '?').charAt(0)}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <div className="min-w-0">
-                                                        <p className="text-sm font-semibold text-[#1e6b4e] truncate">{displayName}</p>
-                                                        <div className="flex items-center gap-2 mt-0.5">
-                                                            <span className="text-xs px-2 py-0.5 rounded-full bg-[#d8f5e5] text-[#1e6b4e] font-medium">
-                                                                {roleLabel}
-                                                            </span>
-                                                            {locationText && (
-                                                                <span className="text-xs text-[#546E5C]">{locationText}</span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-2 flex-shrink-0">
-                                                    <Link
-                                                        to={`/messages?to=${member.id}`}
-                                                        className="px-3 py-1.5 text-xs font-semibold text-[#1e6b4e] border border-[#8bd7c7]/30 rounded-full hover:bg-[#d8f5e5]/50 transition-colors"
-                                                    >
-                                                        Message
-                                                    </Link>
-                                                    <Link
-                                                        to={`/member/${member.id}`}
-                                                        className="px-3 py-1.5 text-xs font-semibold text-[#1e6b4e] border border-[#8bd7c7]/30 rounded-full hover:bg-[#d8f5e5]/50 transition-colors"
-                                                    >
-                                                        View Profile
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </section>
-                        )}
-
-                        {/* Empty Village State */}
-                        {!villageLoading && villageConnections.length === 0 && (
-                            <section className="bg-white rounded-[20px] p-6 shadow-sm border border-[#8bd7c7]/20 text-center">
-                                <div className="w-14 h-14 mx-auto mb-3 bg-[#d8f5e5] rounded-full flex items-center justify-center">
-                                    <svg className="w-7 h-7 text-[#1e6b4e]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                                    </svg>
-                                </div>
-                                <h3 className="text-base font-bold text-[#1e6b4e] mb-1">Your village is empty</h3>
-                                <p className="text-sm text-[#546E5C] mb-4">
-                                    Invite families and caregivers you trust to start building your care circle.
-                                </p>
-                                <Link
-                                    to="/invite"
-                                    className="inline-block px-5 py-2 bg-[#1e6b4e] text-white text-sm font-semibold rounded-full hover:bg-[#174f3a] transition-colors"
-                                >
-                                    Invite a Family
-                                </Link>
-                            </section>
-                        )}
 
                         {/* Neighbors Near You */}
                         <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100 mb-6">

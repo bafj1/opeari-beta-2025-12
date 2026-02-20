@@ -63,14 +63,13 @@ export default function Matches() {
         scheduleOnly: false,
     });
 
-    // Initialize filters from viewer's saved preferences
+    // Default to showing everyone with no filters — users can narrow down via filter panel
     useEffect(() => {
         if (!viewer?.member) return;
-        const prefs = viewer.member.matching_prefs || {};
         setFilters({
-            showMe: prefs.show_me || 'both',
-            careTypes: viewer.member.care_types || [],
-            ageGroups: prefs.age_ranges_need || viewer.member.children_age_groups || [],
+            showMe: 'both',
+            careTypes: [],
+            ageGroups: [],
             languages: [],
             asapOnly: false,
             scheduleOnly: false,
