@@ -147,6 +147,20 @@ export default function Matches() {
         return scored;
     }, [allCandidates, connectedIds, viewer?.member, filters]);
 
+    const familyMatches = useMemo(() =>
+        rankedMatches.filter(({ candidate }) =>
+            candidate.role === 'family' || candidate.role === 'both'
+        ),
+        [rankedMatches]
+    );
+
+    const caregiverMatches = useMemo(() =>
+        rankedMatches.filter(({ candidate }) =>
+            candidate.role === 'caregiver' || candidate.role === 'both'
+        ),
+        [rankedMatches]
+    );
+
     const toggleFilter = (key: 'careTypes' | 'ageGroups' | 'languages', item: string) => {
         setFilters(prev => ({
             ...prev,
@@ -194,13 +208,29 @@ export default function Matches() {
             <div style={{ minHeight: '100vh', backgroundColor: C.bg, paddingTop: '72px' }}>
                 <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 20px 80px' }}>
 
+                    {/* Back to Village */}
+                    <Link
+                        to="/village"
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '13px',
+                            color: C.textMuted,
+                            textDecoration: 'none',
+                            marginBottom: '16px',
+                        }}
+                    >
+                        ← Back to Village
+                    </Link>
+
                     {/* Page Header */}
                     <div style={{ marginBottom: '24px' }}>
                         <h1 style={{ color: C.green, fontSize: '24px', fontWeight: 700, marginBottom: '4px' }}>
-                            Discover Your Village
+                            Discover
                         </h1>
                         <p style={{ color: C.textMuted, fontSize: '14px' }}>
-                            Families and caregivers ranked by compatibility with your preferences.
+                            Find families and caregivers in your area, ranked by compatibility.
                         </p>
                     </div>
 
@@ -476,14 +506,77 @@ export default function Matches() {
                             )}
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {rankedMatches.map(({ candidate, matchResult }) => (
-                                <DiscoveryCard
-                                    key={candidate.id}
-                                    candidate={candidate}
-                                    matchResult={matchResult}
-                                />
-                            ))}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                            {/* === Families Near You === */}
+                            {familyMatches.length > 0 && (
+                                <section>
+                                    <div style={{ marginBottom: '16px' }}>
+                                        <h2 style={{
+                                            color: C.green,
+                                            fontSize: '20px',
+                                            fontWeight: 700,
+                                            marginBottom: '4px',
+                                        }}>
+                                            Families Near You
+                                        </h2>
+                                        <p style={{ color: C.textMuted, fontSize: '13px' }}>
+                                            {familyMatches.length} {familyMatches.length === 1 ? 'family' : 'families'} matching your preferences
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {familyMatches.map(({ candidate, matchResult }) => (
+                                            <DiscoveryCard
+                                                key={candidate.id}
+                                                candidate={candidate}
+                                                matchResult={matchResult}
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* === Caregivers Available === */}
+                            {caregiverMatches.length > 0 && (
+                                <section>
+                                    <div style={{ marginBottom: '16px' }}>
+                                        <h2 style={{
+                                            color: C.green,
+                                            fontSize: '20px',
+                                            fontWeight: 700,
+                                            marginBottom: '4px',
+                                        }}>
+                                            Caregivers Available
+                                        </h2>
+                                        <p style={{ color: C.textMuted, fontSize: '13px' }}>
+                                            {caregiverMatches.length} {caregiverMatches.length === 1 ? 'caregiver' : 'caregivers'} in your area
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        {caregiverMatches.map(({ candidate, matchResult }) => (
+                                            <DiscoveryCard
+                                                key={candidate.id}
+                                                candidate={candidate}
+                                                matchResult={matchResult}
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* Edge case: both sections empty but rankedMatches has items */}
+                            {familyMatches.length === 0 && caregiverMatches.length === 0 && rankedMatches.length > 0 && (
+                                <div style={{
+                                    backgroundColor: C.white,
+                                    borderRadius: '16px',
+                                    padding: '32px',
+                                    textAlign: 'center',
+                                    border: `1px solid ${C.border}`,
+                                }}>
+                                    <p style={{ color: C.textMuted, fontSize: '14px' }}>
+                                        No matches in this category. Try adjusting your filters.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -529,10 +622,19 @@ function DiscoveryCard({ candidate, matchResult }: { candidate: any; matchResult
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
+                    overflow: 'hidden',
                 }}>
-                    <span style={{ color: C.green, fontSize: '20px', fontWeight: 700 }}>
-                        {candidate.first_name?.charAt(0) || '?'}
-                    </span>
+                    {candidate.avatar_url ? (
+                        <img
+                            src={candidate.avatar_url}
+                            alt={candidate.first_name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                    ) : (
+                        <span style={{ color: C.green, fontSize: '20px', fontWeight: 700 }}>
+                            {candidate.first_name?.charAt(0) || '?'}
+                        </span>
+                    )}
                 </div>
 
                 {/* Info */}
@@ -565,6 +667,39 @@ function DiscoveryCard({ candidate, matchResult }: { candidate: any; matchResult
                                 ASAP
                             </span>
                         )}
+                    </div>
+                    {/* Care details pills */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                        {candidate.role === 'caregiver' && candidate.care_types?.slice(0, 3).map((ct: string) => (
+                            <span
+                                key={ct}
+                                style={{
+                                    fontSize: '10px',
+                                    fontWeight: 500,
+                                    padding: '2px 8px',
+                                    borderRadius: '10px',
+                                    backgroundColor: '#FDF2F8',
+                                    color: '#9D174D',
+                                }}
+                            >
+                                {ct.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                            </span>
+                        ))}
+                        {candidate.role !== 'caregiver' && candidate.children_age_groups?.slice(0, 3).map((ag: string) => (
+                            <span
+                                key={ag}
+                                style={{
+                                    fontSize: '10px',
+                                    fontWeight: 500,
+                                    padding: '2px 8px',
+                                    borderRadius: '10px',
+                                    backgroundColor: C.mintLight,
+                                    color: C.green,
+                                }}
+                            >
+                                {ag}
+                            </span>
+                        ))}
                     </div>
                     <span style={{ color: C.textMuted, fontSize: '12px' }}>
                         {candidate.neighborhood || candidate.zip_code || 'Nearby'}
