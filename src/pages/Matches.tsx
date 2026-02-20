@@ -438,7 +438,7 @@ export default function Matches() {
                             {allCandidates.length > 0 && allCandidates.every(c => connectedIds.has(c.id)) ? (
                                 <>
                                     <h3 style={{ color: C.green, fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
-                                        You're connected with everyone nearby
+                                        You're connected with everyone
                                     </h3>
                                     <p style={{ color: C.textMuted, fontSize: '14px', maxWidth: '300px', margin: '0 auto 20px', lineHeight: '1.5' }}>
                                         Great work building your village! Invite more people to expand your care circle.
@@ -457,6 +457,19 @@ export default function Matches() {
                                         }}
                                     >
                                         Invite a Family
+                                    </Link>
+                                    <Link
+                                        to="/connections"
+                                        style={{
+                                            display: 'block',
+                                            marginTop: '12px',
+                                            fontSize: '13px',
+                                            color: C.green,
+                                            fontWeight: 600,
+                                            textDecoration: 'none',
+                                        }}
+                                    >
+                                        View Your Connections →
                                     </Link>
                                 </>
                             ) : (
