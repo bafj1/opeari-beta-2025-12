@@ -237,7 +237,7 @@ export default function Matches() {
             <div style={{ minHeight: '100vh', backgroundColor: C.bg }}>
                 <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 20px 80px' }}>
 
-                    {/* Back to Village */}
+                    {/* Back to Home */}
                     <Link
                         to="/village"
                         style={{
@@ -250,7 +250,7 @@ export default function Matches() {
                             marginBottom: '16px',
                         }}
                     >
-                        ← Back to Village
+                        ← Back to Home
                     </Link>
 
                     {/* Page Header */}
@@ -498,7 +498,7 @@ export default function Matches() {
                                             textDecoration: 'none',
                                         }}
                                     >
-                                        View Your Connections →
+                                        View Your Village →
                                     </Link>
 
                                     {/* Your Connections Grid */}

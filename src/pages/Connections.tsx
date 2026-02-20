@@ -73,9 +73,9 @@ export default function Connections() {
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-[#1e6b4e] mb-1">Connections</h1>
+              <h1 className="text-2xl font-bold text-[#1e6b4e] mb-1">My Village</h1>
               <p className="text-sm text-[#546E5C]">
-                {connections.length} trusted {connections.length === 1 ? 'connection' : 'connections'} in your care circle
+                {connections.length} trusted {connections.length === 1 ? 'member' : 'members'} in your village
               </p>
             </div>
             <Link
@@ -101,10 +101,10 @@ export default function Connections() {
                   >
                     {/* Top gradient banner */}
                     <div className={`h-16 ${member.role === 'caregiver'
-                        ? 'bg-gradient-to-r from-[#F8C3B3]/20 via-[#F8C3B3]/10 to-[#d8f5e5]/20'
-                        : member.role === 'both'
-                          ? 'bg-gradient-to-r from-[#8bd7c7]/20 via-[#d8f5e5]/20 to-[#F8C3B3]/10'
-                          : 'bg-gradient-to-r from-[#d8f5e5] via-[#8bd7c7]/20 to-[#F8C3B3]/10'
+                      ? 'bg-gradient-to-r from-[#F8C3B3]/20 via-[#F8C3B3]/10 to-[#d8f5e5]/20'
+                      : member.role === 'both'
+                        ? 'bg-gradient-to-r from-[#8bd7c7]/20 via-[#d8f5e5]/20 to-[#F8C3B3]/10'
+                        : 'bg-gradient-to-r from-[#d8f5e5] via-[#8bd7c7]/20 to-[#F8C3B3]/10'
                       }`} />
 
                     {/* Avatar + Info */}
@@ -130,10 +130,10 @@ export default function Connections() {
                       <h3 className="text-base font-bold text-[#1e6b4e] mb-0.5">{displayName}</h3>
                       <div className="flex items-center gap-2 mb-2">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${member.role === 'caregiver'
-                            ? 'bg-[#F8C3B3]/30 text-[#c4785e]'
-                            : member.role === 'both'
-                              ? 'bg-[#8bd7c7]/20 text-[#1e6b4e]'
-                              : 'bg-[#d8f5e5] text-[#1e6b4e]'
+                          ? 'bg-[#F8C3B3]/30 text-[#c4785e]'
+                          : member.role === 'both'
+                            ? 'bg-[#8bd7c7]/20 text-[#1e6b4e]'
+                            : 'bg-[#d8f5e5] text-[#1e6b4e]'
                           }`}>
                           {roleLabel}
                         </span>

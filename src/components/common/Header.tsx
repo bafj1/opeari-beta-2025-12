@@ -144,7 +144,7 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                       : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
                       }`}
                   >
-                    Village
+                    Home
                   </Link>
                   <Link
                     to="/matches"
@@ -162,7 +162,7 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                       : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
                       }`}
                   >
-                    Connections
+                    My Village
                   </Link>
                   <Link
                     to="/care-needs"
@@ -266,7 +266,7 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                       : 'text-opeari-text hover:bg-opeari-mint/50'
                       }`}
                   >
-                    Village
+                    Home
                   </Link>
                   <Link
                     to="/matches"
@@ -286,7 +286,7 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                       : 'text-opeari-text hover:bg-opeari-mint/50'
                       }`}
                   >
-                    Connections
+                    My Village
                   </Link>
                   <Link
                     to="/care-needs"

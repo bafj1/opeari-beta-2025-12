@@ -87,7 +87,7 @@ export default function SettingsLayout({ activeTab, onTabChange, children }: Set
                         className="inline-flex items-center gap-2 text-[#1e6b4e] hover:text-[#155a3e] transition-colors mb-4"
                     >
                         <ChevronLeft className="w-4 h-4" />
-                        <span className="text-sm font-medium">Back to Village</span>
+                        <span className="text-sm font-medium">Back to Home</span>
                     </Link>
                     <h1 className="text-2xl sm:text-3xl font-bold text-[#1e6b4e] mb-2">Settings</h1>
                     <p className="text-sm sm:text-base text-[#546E5C]">Manage your account and preferences</p>

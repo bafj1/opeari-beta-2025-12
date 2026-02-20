@@ -671,17 +671,20 @@ export default function FamilyDashboard() {
                     connStatusMap[otherId] = c.status;
                 });
 
-                const nearby = (members || []).map(m => ({
-                    member_id: m.id,
-                    display_name: `${m.first_name || ''} ${(m.last_name || '').charAt(0)}.`.trim(),
-                    avatar_url: m.avatar_url,
-                    neighborhood: m.neighborhood,
-                    zip_code: m.zip_code,
-                    role: m.role,
-                    care_types: m.care_types,
-                    mutual_connection_count: 0,
-                    connection_status: connStatusMap[m.id] || 'none',
-                }));
+                // Only show unconnected members in "People You May Know"
+                const nearby = (members || [])
+                    .filter(m => !connStatusMap[m.id])
+                    .map(m => ({
+                        member_id: m.id,
+                        display_name: `${m.first_name || ''} ${(m.last_name || '').charAt(0)}.`.trim(),
+                        avatar_url: m.avatar_url,
+                        neighborhood: m.neighborhood,
+                        zip_code: m.zip_code,
+                        role: m.role,
+                        care_types: m.care_types,
+                        mutual_connection_count: 0,
+                        connection_status: 'none' as const,
+                    }));
 
                 setSuggestedConnections(nearby);
             } catch (error) {
