@@ -8,9 +8,15 @@ interface Kid {
     name: string;
     birthday: string | null;
     birth_year?: number | null;
+    birth_month?: number | null;
     gender: string | null;
     notes: string | null;
     display_name?: boolean;
+    weight_range?: string | null;
+    allergies?: string[];
+    allergy_notes?: string | null;
+    special_needs?: string | null;
+    personality_notes?: string | null;
 }
 
 const GENDER_OPTIONS = [
@@ -18,6 +24,19 @@ const GENDER_OPTIONS = [
     { value: 'boy', label: 'Boy' },
     { value: 'girl', label: 'Girl' },
     { value: 'nonbinary', label: 'Nonbinary' },
+];
+
+const WEIGHT_RANGES = [
+    { id: 'under-15', label: 'Under 15 lbs' },
+    { id: '15-30', label: '15-30 lbs' },
+    { id: '30-50', label: '30-50 lbs' },
+    { id: 'over-50', label: 'Over 50 lbs' },
+];
+
+const CHILD_ALLERGIES = [
+    'Peanuts', 'Tree Nuts', 'Dairy', 'Eggs', 'Wheat/Gluten',
+    'Soy', 'Fish', 'Shellfish', 'Sesame', 'Strawberries',
+    'Latex', 'Bee Stings', 'Medications',
 ];
 
 export default function KidsPanel() {
@@ -34,6 +53,11 @@ export default function KidsPanel() {
     const [gender, setGender] = useState('');
     const [notes, setNotes] = useState('');
     const [displayName, setDisplayName] = useState(true);
+    const [weightRange, setWeightRange] = useState('');
+    const [allergies, setAllergies] = useState<string[]>([]);
+    const [allergyNotes, setAllergyNotes] = useState('');
+    const [specialNeeds, setSpecialNeeds] = useState('');
+    const [personalityNotes, setPersonalityNotes] = useState('');
 
     // UI state
     const [saving, setSaving] = useState(false);
@@ -67,6 +91,11 @@ export default function KidsPanel() {
         setGender('');
         setNotes('');
         setDisplayName(true);
+        setWeightRange('');
+        setAllergies([]);
+        setAllergyNotes('');
+        setSpecialNeeds('');
+        setPersonalityNotes('');
         setEditingKid(null);
         setIsAdding(false);
     };
@@ -83,9 +112,16 @@ export default function KidsPanel() {
                 name: name.trim(),
                 birthday,
                 birth_year: parseInt(birthYear),
+                birth_month: parseInt(birthMonth),
                 gender: gender || null,
                 notes: notes || null,
                 display_name: displayName,
+                weight_range: weightRange || null,
+                allergies: allergies,
+                allergy_notes: allergyNotes || null,
+                special_needs: specialNeeds || null,
+                personality_notes: personalityNotes || null,
+                updated_at: new Date().toISOString(),
             };
 
             if (editingKid) {
@@ -140,6 +176,11 @@ export default function KidsPanel() {
         }
         setNotes(kid.notes || '');
         setDisplayName(kid.display_name !== false);
+        setWeightRange(kid.weight_range || '');
+        setAllergies(kid.allergies || []);
+        setAllergyNotes(kid.allergy_notes || '');
+        setSpecialNeeds(kid.special_needs || '');
+        setPersonalityNotes(kid.personality_notes || '');
         setIsAdding(true);
     };
 
@@ -324,8 +365,98 @@ export default function KidsPanel() {
                             <textarea
                                 value={notes}
                                 onChange={e => setNotes(e.target.value)}
-                                placeholder="Allergies, personality, special needs, favorite activities..."
-                                rows={3}
+                                placeholder="Favorite activities, routines, comfort items..."
+                                rows={2}
+                                style={{ ...inputStyle, resize: 'vertical' as const }}
+                            />
+                        </div>
+
+                        {/* Weight Range */}
+                        <div>
+                            <label style={labelStyle}>Weight Range (optional)</label>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                {WEIGHT_RANGES.map(wr => (
+                                    <button
+                                        key={wr.id}
+                                        type="button"
+                                        onClick={() => setWeightRange(weightRange === wr.id ? '' : wr.id)}
+                                        style={{
+                                            padding: '6px 14px',
+                                            borderRadius: '20px',
+                                            border: `1.5px solid ${weightRange === wr.id ? '#1E6B4E' : 'rgba(139,215,199,0.3)'}`,
+                                            backgroundColor: weightRange === wr.id ? '#d8f5e5' : 'white',
+                                            color: '#1E6B4E',
+                                            fontSize: '12px',
+                                            fontWeight: weightRange === wr.id ? 600 : 400,
+                                            cursor: 'pointer',
+                                            fontFamily: 'Comfortaa, sans-serif',
+                                        }}
+                                    >
+                                        {wr.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Allergies */}
+                        <div>
+                            <label style={labelStyle}>Allergies (optional)</label>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                                {CHILD_ALLERGIES.map(allergy => (
+                                    <button
+                                        key={allergy}
+                                        type="button"
+                                        onClick={() => setAllergies(prev =>
+                                            prev.includes(allergy)
+                                                ? prev.filter(a => a !== allergy)
+                                                : [...prev, allergy]
+                                        )}
+                                        style={{
+                                            padding: '5px 12px',
+                                            borderRadius: '20px',
+                                            border: `1.5px solid ${allergies.includes(allergy) ? '#FCD34D' : 'rgba(139,215,199,0.3)'}`,
+                                            backgroundColor: allergies.includes(allergy) ? '#FEF3C7' : 'white',
+                                            color: allergies.includes(allergy) ? '#92400E' : '#546E5C',
+                                            fontSize: '11px',
+                                            fontWeight: allergies.includes(allergy) ? 600 : 400,
+                                            cursor: 'pointer',
+                                            fontFamily: 'Comfortaa, sans-serif',
+                                        }}
+                                    >
+                                        {allergy}
+                                    </button>
+                                ))}
+                            </div>
+                            <textarea
+                                value={allergyNotes}
+                                onChange={e => setAllergyNotes(e.target.value)}
+                                placeholder="Severity details, EpiPen info, etc."
+                                rows={2}
+                                style={{ ...inputStyle, resize: 'vertical' as const }}
+                            />
+                        </div>
+
+                        {/* Special Needs */}
+                        <div>
+                            <label style={labelStyle}>Special Needs (optional)</label>
+                            <textarea
+                                value={specialNeeds}
+                                onChange={e => setSpecialNeeds(e.target.value)}
+                                placeholder="Any diagnoses, therapies, or accommodations caregivers should be aware of..."
+                                rows={2}
+                                style={{ ...inputStyle, resize: 'vertical' as const }}
+                            />
+                        </div>
+
+                        {/* Personality Notes */}
+                        <div>
+                            <label style={labelStyle}>Personality Notes (optional)</label>
+                            <textarea
+                                value={personalityNotes}
+                                onChange={e => setPersonalityNotes(e.target.value)}
+                                placeholder="E.g., Loves dinosaurs, shy around new people, very active..."
+                                rows={2}
+                                style={{ ...inputStyle, resize: 'vertical' as const }}
                             />
                         </div>
 

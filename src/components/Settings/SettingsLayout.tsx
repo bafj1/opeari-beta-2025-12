@@ -12,7 +12,8 @@ import {
     Lock,
     Baby,
     Eye,
-    MessageSquare
+    MessageSquare,
+    Home
 } from 'lucide-react';
 
 interface NavItem {
@@ -40,6 +41,7 @@ const navSections: NavSection[] = [
         items: [
             { id: 'profile', label: 'Profile', icon: User },
             { id: 'children', label: 'Children', icon: Baby },
+            { id: 'home', label: 'Home Details', icon: Home },
             { id: 'schedule', label: 'Schedule & Availability', icon: Calendar },
         ],
     },
@@ -105,7 +107,7 @@ export default function SettingsLayout({ activeTab, onTabChange, children }: Set
                                         </h3>
                                         <ul className="space-y-1">
                                             {section.items.map((item) => {
-                                                if (item.id === 'children' && isCaregiver) return null;
+                                                if ((item.id === 'children' || item.id === 'home') && isCaregiver) return null;
                                                 const Icon = item.icon;
                                                 const isActive = activeTab === item.id;
                                                 return (
@@ -140,7 +142,7 @@ export default function SettingsLayout({ activeTab, onTabChange, children }: Set
                             {navSections.map((section) => (
                                 <optgroup key={section.title} label={section.title}>
                                     {section.items.map((item) => {
-                                        if (item.id === 'children' && isCaregiver) return null;
+                                        if ((item.id === 'children' || item.id === 'home') && isCaregiver) return null;
                                         return (
                                             <option key={item.id} value={item.id}>
                                                 {item.label}

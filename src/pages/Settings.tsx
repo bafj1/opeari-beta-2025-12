@@ -9,6 +9,7 @@ import ProfilePanel from '../components/Settings/ProfilePanel';
 import AccountPanel from '../components/Settings/AccountPanel';
 import SafetyVerificationPanel from '../components/Settings/SafetyVerificationPanel';
 import KidsPanel from '../components/Settings/KidsPanel';
+import HomeDetailsPanel from '../components/Settings/HomeDetailsPanel';
 import NotificationsPanel from '../components/Settings/NotificationsPanel';
 import MatchingPreferencesPanel from '../components/Settings/MatchingPreferencesPanel';
 import SchedulePanel from '../components/Settings/SchedulePanel';
@@ -286,6 +287,8 @@ export default function Settings() {
         return <ProfilePanel formData={formData} setFormData={setFormData} saving={saving} onSave={handleSave} />;
       case 'children':
         return <KidsPanel />;
+      case 'home':
+        return <HomeDetailsPanel />;
       case 'schedule':
         return <SchedulePanel formData={formData} setFormData={setFormData} saving={saving} onSave={handleSave} />;
 

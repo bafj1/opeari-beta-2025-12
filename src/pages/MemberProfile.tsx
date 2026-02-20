@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Star, Calendar, MapPin, Globe, Sparkles, Baby, Car, Handshake, Wind, PawPrint, CircleParking, CheckCircle2, Moon, Dumbbell } from 'lucide-react'
+import { Star, Calendar, MapPin, Globe, Sparkles, Baby, Car, Handshake, Wind, PawPrint, CircleParking, CheckCircle2, Moon, Dumbbell, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useViewer } from '../hooks/useViewer'
 import { supabase } from '../lib/supabase'
@@ -80,6 +80,18 @@ interface MemberData {
   can_lift_30lbs?: boolean
   comfortable_with_stairs?: boolean
   vetting_status?: string
+
+  // Home details
+  has_parking?: boolean
+  has_stairs?: boolean
+  has_yard?: boolean
+  has_pool?: boolean
+  has_pets?: boolean
+  pet_types?: string[]
+  home_type?: string
+  home_allergies?: string[]
+  home_allergy_notes?: string
+  home_notes?: string
 
   email?: string
   phone?: string
@@ -373,6 +385,18 @@ export default function MemberProfile() {
         can_lift_30lbs: dataToUse.can_lift_30lbs,
         comfortable_with_stairs: dataToUse.comfortable_with_stairs,
         vetting_status: dataToUse.vetting_status,
+
+        // Home details
+        has_parking: dataToUse.has_parking,
+        has_stairs: dataToUse.has_stairs,
+        has_yard: dataToUse.has_yard,
+        has_pool: dataToUse.has_pool,
+        has_pets: dataToUse.has_pets,
+        pet_types: dataToUse.pet_types || [],
+        home_type: dataToUse.home_type,
+        home_allergies: dataToUse.home_allergies || [],
+        home_allergy_notes: dataToUse.home_allergy_notes,
+        home_notes: dataToUse.home_notes,
       }
 
       setMember(fullMember)
@@ -860,6 +884,75 @@ export default function MemberProfile() {
                   </div>
                 );
               })()}
+            </div>
+          )}
+
+          {/* ===== HOME DETAILS (connected only) ===== */}
+          {isConnected && (member.has_stairs || member.has_parking || member.has_yard || member.has_pool || member.has_pets || member.home_type) && (
+            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+              <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Home Details</h3>
+
+              {member.home_type && (
+                <p className="text-sm text-[#546E5C] mb-3 capitalize">
+                  {member.home_type.replace(/-/g, ' ')}
+                </p>
+              )}
+
+              <div className="grid grid-cols-2 gap-2">
+                {member.has_parking && (
+                  <div className="flex items-center gap-2 text-sm text-[#546E5C]">
+                    <Car className="w-4 h-4 text-[#1e6b4e]" />
+                    <span>Parking available</span>
+                  </div>
+                )}
+                {member.has_stairs && (
+                  <div className="flex items-center gap-2 text-sm text-[#546E5C]">
+                    <Dumbbell className="w-4 h-4 text-[#1e6b4e]" />
+                    <span>Has stairs</span>
+                  </div>
+                )}
+                {member.has_yard && (
+                  <div className="flex items-center gap-2 text-sm text-[#546E5C]">
+                    <MapPin className="w-4 h-4 text-[#1e6b4e]" />
+                    <span>Outdoor space</span>
+                  </div>
+                )}
+                {member.has_pool && (
+                  <div className="flex items-center gap-2 text-sm text-[#546E5C]">
+                    <Star className="w-4 h-4 text-[#1e6b4e]" />
+                    <span>Pool</span>
+                  </div>
+                )}
+                {member.has_pets && (
+                  <div className="flex items-center gap-2 text-sm text-[#546E5C]">
+                    <PawPrint className="w-4 h-4 text-[#1e6b4e]" />
+                    <span>Pets in home{member.pet_types && member.pet_types.length > 0 ? ` (${member.pet_types.join(', ')})` : ''}</span>
+                  </div>
+                )}
+              </div>
+
+              {member.home_allergies && member.home_allergies.length > 0 && (
+                <div className="mt-4 pt-3 border-t border-gray-100">
+                  <p className="text-xs font-semibold text-[#92400E] uppercase tracking-wide mb-2 flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    Household Allergies
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {member.home_allergies.map((allergy: string) => (
+                      <span
+                        key={allergy}
+                        className="px-2 py-0.5 rounded-full text-xs bg-[#FEF3C7] text-[#92400E] font-medium"
+                      >
+                        {allergy}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {member.home_notes && (
+                <p className="text-sm text-[#546E5C] mt-3 italic">{member.home_notes}</p>
+              )}
             </div>
           )}
 
