@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Star, Calendar, MapPin, Globe, Sparkles, Baby, Car, Handshake, Wind, PawPrint, CircleParking } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useViewer } from '../hooks/useViewer'
 import { supabase } from '../lib/supabase'
@@ -136,7 +137,7 @@ export default function MemberProfile() {
     if (sharedLangs.length > 0 && sharedLangs.length < theirLangs.length) {
       // Only show if there's overlap but not everything matches (that's boring)
       const formatted = sharedLangs.map((l: string) => l.charAt(0).toUpperCase() + l.slice(1));
-      signals.push({ icon: '🗣', label: `You both speak ${formatted.join(' & ')}`, type: 'match' });
+      signals.push({ icon: 'language', label: `You both speak ${formatted.join(' & ')} `, type: 'match' });
     }
 
     // 2. Schedule day overlap
@@ -150,9 +151,9 @@ export default function MemberProfile() {
       };
       if (sharedDays.length <= 3) {
         const names = sharedDays.map((d: string) => dayNames[d] || d);
-        signals.push({ icon: '📅', label: `${names.join(', ')} overlap`, type: 'match' });
+        signals.push({ icon: 'calendar', label: `${names.join(', ')} overlap`, type: 'match' });
       } else {
-        signals.push({ icon: '📅', label: `${sharedDays.length} days of schedule overlap`, type: 'match' });
+        signals.push({ icon: 'calendar', label: `${sharedDays.length} days of schedule overlap`, type: 'match' });
       }
     }
 
@@ -169,7 +170,7 @@ export default function MemberProfile() {
     const sharedAgeGroups = myNeeds.filter((a: string) => theirProvides.includes(a));
     if (sharedAgeGroups.length > 0) {
       const label = ageGroupLabels[sharedAgeGroups[0]] || sharedAgeGroups[0];
-      signals.push({ icon: '👶', label: `Both have ${label}`, type: 'match' });
+      signals.push({ icon: 'baby', label: `Both have ${label} `, type: 'match' });
     }
 
     // 4. Shared support offered
@@ -180,7 +181,7 @@ export default function MemberProfile() {
         theirSupport.some((t: string) => t.toLowerCase() === s.toLowerCase())
       );
       if (sharedSupport.length > 0) {
-        signals.push({ icon: '🤝', label: `Both offer ${sharedSupport[0].toLowerCase()}`, type: 'match' });
+        signals.push({ icon: 'handshake', label: `Both offer ${sharedSupport[0].toLowerCase()} `, type: 'match' });
       }
     }
 
@@ -195,15 +196,15 @@ export default function MemberProfile() {
         'household-manager': 'household manager', 'special-needs': 'special needs care'
       };
       const label = careLabels[sharedCare[0]] || sharedCare[0].replace(/-/g, ' ');
-      signals.push({ icon: '✨', label: `Both looking for a ${label}`, type: 'match' });
+      signals.push({ icon: 'sparkles', label: `Both looking for a ${label}`, type: 'match' });
     }
 
     // 6. Lifestyle compatibility
     if (my.smoke_free_required && their.smoke_free_required) {
-      signals.push({ icon: '🚭', label: 'Both prefer smoke-free', type: 'match' });
+      signals.push({ icon: 'smoke-free', label: 'Both prefer smoke-free', type: 'match' });
     }
     if (my.comfortable_with_pets && their.comfortable_with_pets) {
-      signals.push({ icon: '🐾', label: 'Both comfortable with pets', type: 'match' });
+      signals.push({ icon: 'pets', label: 'Both comfortable with pets', type: 'match' });
     }
 
     // Cap at 4 signals to keep it clean
@@ -292,10 +293,10 @@ export default function MemberProfile() {
           .from('members_preview')
           .select(`
           id, first_name, role, neighborhood, zip_code, bio,
-          num_kids, children_age_groups, care_types,
-          availability_days, availability_blocks,
-          schedule_flexible, languages, situation, timeline
-        `)
+    num_kids, children_age_groups, care_types,
+    availability_days, availability_blocks,
+    schedule_flexible, languages, situation, timeline
+      `)
           .eq('id', id)
           .single()
 
@@ -323,8 +324,8 @@ export default function MemberProfile() {
         // Source 2: kids_ages array (fallback)
         else if (dataToUse.kids_ages && Array.isArray(dataToUse.kids_ages)) {
           kidsArray = dataToUse.kids_ages.map((year: number, idx: number) => ({
-            id: `k-${idx}`,
-            name: `Child ${idx + 1}`,
+            id: `k - ${idx} `,
+            name: `Child ${idx + 1} `,
             birth_year: year,
             birth_month: null,
             gender: null
@@ -437,7 +438,7 @@ export default function MemberProfile() {
         title: 'New connection request',
         body: `${user.user_metadata?.first_name || 'Someone'} wants to connect with you`,
         fromUserId: user.id,
-        link: `/member/${user.id}`,
+        link: `/ member / ${user.id} `,
       })
     } catch (err: any) {
       if (err.code === '23505') {
@@ -479,7 +480,7 @@ export default function MemberProfile() {
           title: 'Connection accepted',
           body: `${user?.user_metadata?.first_name || 'Someone'} accepted your connection request`,
           fromUserId: user?.id,
-          link: `/member/${user?.id}`,
+          link: `/ member / ${user?.id} `,
         });
       }
 
@@ -573,10 +574,10 @@ export default function MemberProfile() {
           </Link>
 
           {/* Main Card */}
-          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: COLORS.cream, border: `1px solid ${COLORS.mintDark}` }}>
+          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: COLORS.cream, border: `1px solid ${COLORS.mintDark} ` }}>
 
             {/* Header Section */}
-            <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
+            <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark} ` }}>
               <div className="flex items-start gap-4">
                 {/* Avatar */}
                 <div className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0" style={{ backgroundColor: COLORS.mint }}>
@@ -594,11 +595,11 @@ export default function MemberProfile() {
                   <div className="flex justify-between items-start">
                     <h1 style={{ color: COLORS.primary }} className="text-2xl font-bold">
                       {member.role === 'caregiver'
-                        ? `${member.first_name} ${member.first_name ? 'G.' : ''}`
-                        : `${member.first_name}'s Family`
+                        ? `${member.first_name} ${member.first_name ? 'G.' : ''} `
+                        : `${member.first_name} 's Family`
                       }
-                    </h1>
-                  </div>
+                    </h1 >
+                  </div >
                   <p style={{ color: COLORS.textMuted }} className="mt-1">
                     {member.neighborhood || member.zip_code || 'Location not shared'}
                   </p>
@@ -624,23 +625,25 @@ export default function MemberProfile() {
                   </div>
 
                   {/* Endorsement Badge */}
-                  {endorsementCount > 0 && (
-                    <div className="flex items-center gap-1.5 mt-2" style={{ display: 'inline-flex', padding: '4px 12px', borderRadius: '20px', backgroundColor: COLORS.mint }}>
-                      <span style={{ color: '#F59E0B', fontSize: '14px' }}>★</span>
-                      <span className="text-xs font-semibold" style={{ color: COLORS.primary }}>
-                        {endorsementCount} {endorsementCount === 1 ? 'endorsement' : 'endorsements'}
-                      </span>
-                      {avgRating > 0 && (
-                        <span className="text-xs" style={{ color: COLORS.textMuted }}>· {avgRating} avg</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+                  {
+                    endorsementCount > 0 && (
+                      <div className="flex items-center gap-1.5 mt-2" style={{ display: 'inline-flex', padding: '4px 12px', borderRadius: '20px', backgroundColor: COLORS.mint }}>
+                        <span style={{ color: '#F59E0B', fontSize: '14px' }}>★</span>
+                        <span className="text-xs font-semibold" style={{ color: COLORS.primary }}>
+                          {endorsementCount} {endorsementCount === 1 ? 'endorsement' : 'endorsements'}
+                        </span>
+                        {avgRating > 0 && (
+                          <span className="text-xs" style={{ color: COLORS.textMuted }}>· {avgRating} avg</span>
+                        )}
+                      </div>
+                    )
+                  }
+                </div >
+              </div >
+            </div >
 
             {/* STATS BAR */}
-            <div style={{
+            < div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '1px',
@@ -671,95 +674,114 @@ export default function MemberProfile() {
                   Mutual
                 </div>
               </div>
-            </div>
+            </div >
 
             {/* Compatibility Signals (Connected Only) */}
-            {(() => {
-              const signals = computeCompatibility();
-              if (!signals || signals.length === 0) return null;
-              return (
-                <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}`, backgroundColor: 'rgba(139,215,199,0.06)' }}>
-                  <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-3">
-                    Why You Might Be A Good Fit
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {signals.map((signal, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '6px 14px',
-                          borderRadius: '20px',
-                          backgroundColor: 'white',
-                          border: '1px solid rgba(139,215,199,0.4)',
-                          fontSize: '13px',
-                          color: COLORS.primary,
-                          fontWeight: 500,
-                        }}
-                      >
-                        <span style={{ fontSize: '14px' }}>{signal.icon}</span>
-                        {signal.label}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* FULL PROFILE CONTENT (Unlocked) */}
-            {isConnected && (
-              <div className="animate-fade-in">
-
-                {/* Languages */}
-                {member.languages && member.languages.length > 0 && (
-                  <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
-                    <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
-                      Languages
+            {
+              (() => {
+                const signals = computeCompatibility();
+                if (!signals || signals.length === 0) return null;
+                return (
+                  <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}`, backgroundColor: 'rgba(139,215,199,0.06)' }}>
+                    <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-3">
+                      Why You Might Be A Good Fit
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {member.languages.map(lang => (
-                        <div key={lang} className="px-3 py-1 rounded-full bg-white border border-[#E5E7EB] text-sm text-[#374151]">
-                          {lang}
+                      {signals.map((signal, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '6px 14px',
+                            borderRadius: '20px',
+                            backgroundColor: 'white',
+                            border: '1px solid rgba(139,215,199,0.4)',
+                            fontSize: '13px',
+                            color: COLORS.primary,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {(() => {
+                            const iconMap: Record<string, React.FC<any>> = {
+                              'calendar': Calendar,
+                              'sparkles': Sparkles,
+                              'baby': Baby,
+                              'location': MapPin,
+                              'language': Globe,
+                              'transport': Car,
+                              'handshake': Handshake,
+                              'smoke-free': Wind,
+                              'pets': PawPrint,
+                              'parking': CircleParking,
+                            };
+                            const IconComp = iconMap[signal.icon] || Star;
+                            return <IconComp className="w-4 h-4 text-[#1e6b4e] flex-shrink-0" />;
+                          })()}
+                          {signal.label}
                         </div>
                       ))}
                     </div>
                   </div>
-                )}
+                );
+              })()
+            }
 
-                {/* Preferences */}
-                <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
-                  <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
-                    Preferences & Lifestyle
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {[
-                      { key: 'comfortable_with_pets', label: 'Comfortable with pets' },
-                      { key: 'smoke_free_required', label: 'Smoke-free environment' },
-                      { key: 'transportation_required', label: 'Own transportation' },
-                      { key: 'willing_to_travel', label: 'Willing to travel' },
-                      { key: 'available_overnight', label: 'Available overnight' },
-                    ].map(pref => {
-                      // Check if property is true on member object (using any for index access simplicity)
-                      const val = (member as any)[pref.key];
-                      if (!val) return null;
-                      return (
-                        <div key={pref.key} className="flex items-center gap-2 text-[#374151] text-sm">
-                          <span className="text-[#1E6B4E]">✓</span> {pref.label}
-                        </div>
-                      )
-                    })}
-                    {/* If no preferences set */}
-                    {!member.comfortable_with_pets && !member.smoke_free_required && !member.transportation_required &&
-                      !member.willing_to_travel && !member.available_overnight && (
-                        <p className="text-sm text-gray-400 italic">No specific preferences listed.</p>
-                      )}
+            {/* FULL PROFILE CONTENT (Unlocked) */}
+            {
+              isConnected && (
+                <div className="animate-fade-in">
+
+                  {/* Languages */}
+                  {member.languages && member.languages.length > 0 && (
+                    <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
+                      <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
+                        Languages
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {member.languages.map(lang => (
+                          <div key={lang} className="px-3 py-1 rounded-full bg-white border border-[#E5E7EB] text-sm text-[#374151]">
+                            {lang}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Preferences */}
+                  <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
+                    <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
+                      Preferences & Lifestyle
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {[
+                        { key: 'comfortable_with_pets', label: 'Comfortable with pets' },
+                        { key: 'smoke_free_required', label: 'Smoke-free environment' },
+                        { key: 'transportation_required', label: 'Own transportation' },
+                        { key: 'willing_to_travel', label: 'Willing to travel' },
+                        { key: 'available_overnight', label: 'Available overnight' },
+                      ].map(pref => {
+                        // Check if property is true on member object (using any for index access simplicity)
+                        const val = (member as any)[pref.key];
+                        if (!val) return null;
+                        return (
+                          <div key={pref.key} className="flex items-center gap-2 text-[#374151] text-sm">
+                            <span className="text-[#1E6B4E]">✓</span> {pref.label}
+                          </div>
+                        )
+                      })}
+                      {/* If no preferences set */}
+                      {!member.comfortable_with_pets && !member.smoke_free_required && !member.transportation_required &&
+                        !member.willing_to_travel && !member.available_overnight && (
+                          <p className="text-sm text-gray-400 italic">No specific preferences listed.</p>
+                        )}
+                    </div>
                   </div>
-                </div>
 
-              </div>
-            )}
+                </div>
+              )
+            }
 
             {/* Schedule Section */}
             <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
@@ -923,33 +945,37 @@ export default function MemberProfile() {
             </div>
 
             {/* About Section */}
-            {member.bio && (
-              <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
-                <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
-                  About
-                </h3>
-                <p style={{ color: COLORS.primary }} className="text-sm leading-relaxed">
-                  {member.bio?.startsWith('Looking for:')
-                    ? `Looking for ${humanizeCareType(member.bio.replace('Looking for: ', '').trim())}`
-                    : member.bio
-                  }
-                </p>
-              </div>
-            )}
-
-            {/* Privacy Note (Only if NOT connected) */}
-            {!isConnected && user?.id !== member.id && (
-              <div className="p-6" style={{ backgroundColor: `${COLORS.mint}50` }}>
-                <div className="flex items-start gap-3">
-                  <svg style={{ color: COLORS.coral }} className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                  </svg>
-                  <p style={{ color: COLORS.textMuted }} className="text-sm">
-                    <strong style={{ color: COLORS.primary }}>Connect to see more:</strong> Kids' names, detailed schedules, preferences, and contact info are shared once you connect.
+            {
+              member.bio && (
+                <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
+                  <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
+                    About
+                  </h3>
+                  <p style={{ color: COLORS.primary }} className="text-sm leading-relaxed">
+                    {member.bio?.startsWith('Looking for:')
+                      ? `Looking for ${humanizeCareType(member.bio.replace('Looking for: ', '').trim())}`
+                      : member.bio
+                    }
                   </p>
                 </div>
-              </div>
-            )}
+              )
+            }
+
+            {/* Privacy Note (Only if NOT connected) */}
+            {
+              !isConnected && user?.id !== member.id && (
+                <div className="p-6" style={{ backgroundColor: `${COLORS.mint}50` }}>
+                  <div className="flex items-start gap-3">
+                    <svg style={{ color: COLORS.coral }} className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                    <p style={{ color: COLORS.textMuted }} className="text-sm">
+                      <strong style={{ color: COLORS.primary }}>Connect to see more:</strong> Kids' names, detailed schedules, preferences, and contact info are shared once you connect.
+                    </p>
+                  </div>
+                </div>
+              )
+            }
 
             {/* CTAs */}
             <div className="p-6">
@@ -1048,9 +1074,9 @@ export default function MemberProfile() {
                 </p>
               )}
             </div>
-          </div>
-        </div>
-      </div>
+          </div >
+        </div >
+      </div >
     </>
   )
 }

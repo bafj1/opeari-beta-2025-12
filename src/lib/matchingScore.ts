@@ -49,7 +49,7 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
 
     if (commonDays.length > 0) {
         signals.push({
-            icon: '📅',
+            icon: 'calendar',
             label: commonDays.length <= 3
                 ? `${matchDays.join(', ')} overlap`
                 : `${commonDays.length} days overlap`,
@@ -73,7 +73,7 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
         };
         const label = careLabels[sharedCare[0]] || sharedCare[0].replace(/-/g, ' ');
         signals.push({
-            icon: '✨',
+            icon: 'sparkles',
             label: sharedCare.length > 1
                 ? `${sharedCare.length} care types match`
                 : `Both need ${label}`,
@@ -99,7 +99,7 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
         };
         const label = ageLabels[sharedAges[0]] || sharedAges[0];
         signals.push({
-            icon: '👶',
+            icon: 'baby',
             label: `Both have ${label}`,
             weight: ageScore
         });
@@ -113,12 +113,12 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
         if (candidate.zip_code === viewer.zip_code) {
             distance = 0.5;
             locationScore = 15;
-            signals.push({ icon: '📍', label: 'Same zip code', weight: 15 });
+            signals.push({ icon: 'location', label: 'Same zip code', weight: 15 });
         } else if (candidate.neighborhood && viewer.neighborhood &&
             candidate.neighborhood.toLowerCase() === viewer.neighborhood.toLowerCase()) {
             distance = 1.5;
             locationScore = 12;
-            signals.push({ icon: '📍', label: 'Same neighborhood', weight: 12 });
+            signals.push({ icon: 'location', label: 'Same neighborhood', weight: 12 });
         } else {
             // Different area — give partial credit
             distance = 5.0;
@@ -139,7 +139,7 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
         if (sharedLangs.length > 0) {
             const formatted = sharedLangs.map((l: string) => l.charAt(0).toUpperCase() + l.slice(1));
             signals.push({
-                icon: '🗣',
+                icon: 'language',
                 label: formatted.length <= 2
                     ? `Both speak ${formatted.join(' & ')}`
                     : `${formatted.length} shared languages`,
@@ -164,7 +164,7 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
     // Transportation match
     if (viewer.role === 'family' && viewer.needs_caregiver_driver && candidate.has_transportation) {
         practicalScore += 3;
-        signals.push({ icon: '🚗', label: 'Has own transportation', weight: 3 });
+        signals.push({ icon: 'transport', label: 'Has own transportation', weight: 3 });
     } else if (viewer.role === 'caregiver' && viewer.has_transportation && candidate.zip_code) {
         practicalScore += 2;
     }
@@ -184,7 +184,7 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
         if (sharedSupport.length > 0) {
             practicalScore += 2;
             signals.push({
-                icon: '🤝',
+                icon: 'handshake',
                 label: `Both offer ${sharedSupport[0].toLowerCase()}`,
                 weight: 2
             });
@@ -201,7 +201,7 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
 
     // Parking bonus (caregiver drives + family has parking = less friction)
     if (candidate.has_transportation && viewer.has_parking) {
-        signals.push({ icon: '🅿️', label: 'Parking available', weight: 1 });
+        signals.push({ icon: 'parking', label: 'Parking available', weight: 1 });
     }
 
     totalScore += Math.min(practicalScore, 10);

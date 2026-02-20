@@ -162,7 +162,7 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                       : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
                       }`}
                   >
-                    My Village
+                    Connections
                   </Link>
                 </nav>
 
@@ -277,7 +277,7 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                       : 'text-opeari-text hover:bg-opeari-mint/50'
                       }`}
                   >
-                    My Village
+                    Connections
                   </Link>
                   {/* <Link
                     to="/village"

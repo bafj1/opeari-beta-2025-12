@@ -631,16 +631,7 @@ export default function FamilyDashboard() {
             try {
                 setMatchesLoading(true);
                 const result = await getTopMatches(effectiveUserId, matchFilter, 10);
-
-                // Filter out members we're already connected with
-                const connectedMemberIds = new Set(
-                    Object.entries(statusById)
-                        .filter(([_, status]) => status === 'accepted' || status === 'pending')
-                        .map(([id]) => id)
-                );
-                const filtered = result.filter((m: any) => !connectedMemberIds.has(m.member_id));
-
-                setTopMatches(filtered);
+                setTopMatches(result);
             } catch (error) {
                 console.error('Error fetching matches:', error);
             } finally {
@@ -648,7 +639,7 @@ export default function FamilyDashboard() {
             }
         }
         fetchMatches();
-    }, [effectiveUserId, matchFilter, activeCareNeed?.id, statusById]);
+    }, [effectiveUserId, matchFilter, activeCareNeed?.id]);
 
     // Fetch nearby members (includes connected — neighbors are neighbors)
     useEffect(() => {
@@ -977,7 +968,7 @@ export default function FamilyDashboard() {
                             className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[50px] bg-[#d8f5e5] hover:bg-[#8bd7c7]/30 transition-colors focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:ring-offset-2"
                         >
                             <Home className="w-4 h-4 sm:w-5 sm:h-5 text-[#1e6b4e]" />
-                            <span className="text-xs sm:text-sm font-semibold text-[#1e6b4e] hidden sm:inline">My Village</span>
+                            <span className="text-xs sm:text-sm font-semibold text-[#1e6b4e] hidden sm:inline">Connections</span>
                         </Link>
                         {/* Core Navigation */}
                         <nav className="hidden md:flex items-center gap-5">
@@ -1313,7 +1304,14 @@ export default function FamilyDashboard() {
                                         ))}
                                     </div>
                                 ) : topMatches.length === 0 ? (
-                                    <p className="text-center text-gray-500 py-8">No matches found.</p>
+                                    <div className="text-center py-8">
+                                        <p className="text-sm text-[#546E5C] mb-2">
+                                            We're finding the best matches for you.
+                                        </p>
+                                        <p className="text-xs text-gray-400">
+                                            As more families and caregivers join, your matches will appear here.
+                                        </p>
+                                    </div>
                                 ) : (
                                     topMatches.map(match => {
                                         // Calculate Schedule Overlap

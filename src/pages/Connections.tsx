@@ -75,7 +75,7 @@ export default function Connections() {
 
           {/* Page Header */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-[#1e6b4e] mb-1">My Village</h1>
+            <h1 className="text-2xl font-bold text-[#1e6b4e] mb-1">Connections</h1>
             <p className="text-sm text-[#546E5C]">
               {connections.length} trusted connection{connections.length !== 1 ? 's' : ''} in your care circle
             </p>
