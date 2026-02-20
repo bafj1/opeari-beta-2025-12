@@ -191,7 +191,7 @@ export default function Connections() {
               </p>
               <div className="flex flex-col items-center gap-3">
                 <Link
-                  to="/invite"
+                  to="/invite-friends"
                   className="inline-block px-6 py-2.5 bg-[#1e6b4e] text-white text-sm font-semibold rounded-full hover:bg-[#174f3a] transition-colors"
                 >
                   Invite a Family

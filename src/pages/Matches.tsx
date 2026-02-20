@@ -466,7 +466,7 @@ export default function Matches() {
                                         Great work building your village! Invite more people to expand your care circle.
                                     </p>
                                     <Link
-                                        to="/invite"
+                                        to="/invite-friends"
                                         style={{
                                             display: 'inline-block',
                                             padding: '10px 28px',

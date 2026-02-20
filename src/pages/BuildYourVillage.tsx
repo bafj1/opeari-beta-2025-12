@@ -541,7 +541,7 @@ export default function BuildYourVillage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-3 justify-center">
                 <Link
-                  to="/invite"
+                  to="/invite-friends"
                   className="inline-block px-6 py-3 rounded-full font-semibold shadow-[0_1px_3px_0_rgba(30,107,78,0.1),0_1px_2px_-1px_rgba(30,107,78,0.06)] hover:shadow-[0_4px_6px_-1px_rgba(30,107,78,0.1),0_2px_4px_-1px_rgba(30,107,78,0.06)] transition-all"
                   style={{ backgroundColor: COLORS.primary, color: 'white' }}
                 >

@@ -66,7 +66,7 @@ const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const CalendarPage = lazy(() => import('./pages/CalendarPage'));
 const Connections = lazy(() => import('./pages/Connections'));
 const CareNeeds = lazy(() => import('./pages/CareNeeds'));
-// const InviteFriends = lazy(() => import('./pages/InviteFriends'));
+const InviteFriends = lazy(() => import('./pages/InviteFriends'));
 // const NannyShare = lazy(() => import('./pages/NannyShare'));
 
 import RouteErrorBoundary from './components/common/RouteErrorBoundary';
@@ -146,6 +146,7 @@ function App() {
                     <Route path="/calendar" element={<CalendarPage />} />
                     <Route path="/posts" element={<PostsPage />} />
                     <Route path="/notifications" element={<NotificationsPage />} />
+                    <Route path="/invite-friends" element={<InviteFriends />} />
                     <Route path="/messages" element={<MessagesInbox />} />
                     <Route path="/messages/:id" element={<Messages />} />
                     <Route path="/member/:id" element={<MemberProfile />} />
