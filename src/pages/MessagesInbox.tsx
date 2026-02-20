@@ -1,27 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useViewer } from '../hooks/useViewer';
 import MessageModal from '../components/Dashboard/NorthStar/MessageModal';
 
-// Temporary Mapping until Profiles are fully stored
-const MEMBER_LABELS: Record<string, { name: string; photo: string }> = {
-    '17b593bd-41ca-44d0-bb7c-3e4f98010e0a': {
-        name: 'Carrie Giver-test',
-        photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?fit=crop&w=256&q=80'
-    },
-    '3a092606-43cf-4b50-b5de-0a911f38e333': {
-        name: 'Christian Jewett',
-        photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fit=crop&w=256&q=80'
-    },
-    '3467c628-ba75-4748-9579-fe20b1dc63c7': {
-        name: 'Breada Farrell',
-        photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?fit=crop&w=256&q=80'
-    }
-};
-
 interface ConversationPreview {
     id: string;
     otherMemberId: string;
+    otherName: string;
+    otherAvatar: string | null;
     lastMessage: string;
     updatedAt: string;
     unreadCount: number;
@@ -31,6 +18,7 @@ export default function MessagesInbox() {
     const [conversations, setConversations] = useState<ConversationPreview[]>([]);
     const [loading, setLoading] = useState(true);
     const [authUserId, setAuthUserId] = useState<string | null>(null);
+    const [searchParams] = useSearchParams();
 
     // Modal State
     const [messageOpen, setMessageOpen] = useState(false);
@@ -73,18 +61,30 @@ export default function MessagesInbox() {
 
             const convIds = convs.map(c => c.id);
 
-            // 2) Fetch last messages (optimisation: normally distinct on, but let's grab all recent and filter in JS for now as prompt suggested)
-            // Limit to e.g. last 50 messages total to avoid fetching everything
-            // Actually prompt approach: "Fetch last messages for those conversations... in('conversation_id', convIds)... order created_at desc"
-            // We'll fetch a chunk and map them. Using a reasonable limit or simplified approach.
-            // PROMPT said: "Then in JS, pick the first message per conversation_id as the 'last'"
+            // 2) Collect all other member IDs and fetch their live data
+            const otherIds = convs.map(c =>
+                c.participant_1 === effectiveUserId ? c.participant_2 : c.participant_1
+            );
+            const uniqueOtherIds = [...new Set(otherIds)];
+
+            const { data: memberData } = await supabase
+                .from('members')
+                .select('id, first_name, last_name, avatar_url')
+                .in('id', uniqueOtherIds);
+
+            const memberMap: Record<string, { name: string; avatar: string | null }> = {};
+            (memberData || []).forEach(m => {
+                const name = `${m.first_name || ''} ${(m.last_name || '').charAt(0)}.`.trim();
+                memberMap[m.id] = { name: name || 'Unknown Member', avatar: m.avatar_url };
+            });
+
+            // 3) Fetch last messages
             const { data: messages } = await supabase
                 .from('messages')
                 .select('id, conversation_id, sender_id, content, created_at')
                 .in('conversation_id', convIds)
                 .order('created_at', { ascending: false });
 
-            // Map: conversation_id -> last message
             const lastMessageMap: Record<string, any> = {};
             messages?.forEach(m => {
                 if (!lastMessageMap[m.conversation_id]) {
@@ -92,7 +92,7 @@ export default function MessagesInbox() {
                 }
             });
 
-            // 3) Fetch unread counts
+            // 4) Fetch unread counts
             const { data: unreadRows } = await supabase
                 .from('messages')
                 .select('conversation_id')
@@ -105,14 +105,17 @@ export default function MessagesInbox() {
                 unreadCounts[row.conversation_id] = (unreadCounts[row.conversation_id] || 0) + 1;
             });
 
-            // 4) Assemble view model
+            // 5) Assemble view model
             const inboxData: ConversationPreview[] = convs.map(c => {
                 const otherId = c.participant_1 === effectiveUserId ? c.participant_2 : c.participant_1;
                 const lastMsg = lastMessageMap[c.id];
+                const info = memberMap[otherId] || { name: 'Unknown Member', avatar: null };
 
                 return {
                     id: c.id,
                     otherMemberId: otherId,
+                    otherName: info.name,
+                    otherAvatar: info.avatar,
                     lastMessage: lastMsg?.content || 'No messages yet',
                     updatedAt: lastMsg?.created_at || c.updated_at,
                     unreadCount: unreadCounts[c.id] || 0
@@ -132,10 +135,31 @@ export default function MessagesInbox() {
         fetchInboxData();
     }, [effectiveUserId]);
 
-    const handleOpenMessage = (recipientId: string) => {
-        const info = MEMBER_LABELS[recipientId] || { name: 'Unknown Member' };
+    // Handle ?to= param — auto-open message modal for a specific member
+    useEffect(() => {
+        const sendTo = searchParams.get('to');
+        if (sendTo && effectiveUserId) {
+            // Fetch the member name, then open the modal
+            (async () => {
+                const { data: member } = await supabase
+                    .from('members')
+                    .select('first_name, last_name')
+                    .eq('id', sendTo)
+                    .maybeSingle();
+
+                const name = member
+                    ? `${member.first_name || ''} ${(member.last_name || '').charAt(0)}.`.trim()
+                    : 'Member';
+                setMessageRecipientId(sendTo);
+                setMessageRecipientName(name);
+                setMessageOpen(true);
+            })();
+        }
+    }, [searchParams, effectiveUserId]);
+
+    const handleOpenMessage = (recipientId: string, recipientName: string) => {
         setMessageRecipientId(recipientId);
-        setMessageRecipientName(info.name);
+        setMessageRecipientName(recipientName);
         setMessageOpen(true);
     };
 
@@ -161,11 +185,7 @@ export default function MessagesInbox() {
                 ) : (
                     <div className="grid gap-3">
                         {conversations.map(conv => {
-                            const info = MEMBER_LABELS[conv.otherMemberId] || {
-                                name: 'Unknown Member',
-                                photo: `https://ui-avatars.com/api/?name=${conv.otherMemberId}&background=random`
-                            };
-
+                            const initial = conv.otherName?.charAt(0) || '?';
                             const date = new Date(conv.updatedAt);
                             const isToday = date.toDateString() === new Date().toDateString();
                             const timeStr = isToday
@@ -175,16 +195,22 @@ export default function MessagesInbox() {
                             return (
                                 <button
                                     key={conv.id}
-                                    onClick={() => handleOpenMessage(conv.otherMemberId)}
+                                    onClick={() => handleOpenMessage(conv.otherMemberId, conv.otherName)}
                                     className="w-full bg-white hover:bg-white/80 active:scale-[0.99] transition-all rounded-2xl p-4 flex items-center gap-4 text-left border border-[#8bd7c7]/30 shadow-sm group"
                                 >
                                     {/* Avatar */}
                                     <div className="relative">
-                                        <img
-                                            src={info.photo}
-                                            alt={info.name}
-                                            className="w-12 h-12 rounded-full object-cover border border-gray-100"
-                                        />
+                                        {conv.otherAvatar ? (
+                                            <img
+                                                src={conv.otherAvatar}
+                                                alt={conv.otherName}
+                                                className="w-12 h-12 rounded-full object-cover border border-gray-100"
+                                            />
+                                        ) : (
+                                            <div className="w-12 h-12 rounded-full bg-[#d8f5e5] flex items-center justify-center border border-gray-100">
+                                                <span className="text-lg font-bold text-[#1e6b4e]">{initial}</span>
+                                            </div>
+                                        )}
                                         {conv.unreadCount > 0 && (
                                             <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center">
                                                 <span className="text-[10px] font-bold text-white">
@@ -198,7 +224,7 @@ export default function MessagesInbox() {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-baseline mb-1">
                                             <h3 className={`font-bold text-lg truncate ${conv.unreadCount > 0 ? 'text-[#1e6b4e]' : 'text-gray-900'}`}>
-                                                {info.name}
+                                                {conv.otherName}
                                             </h3>
                                             <span className={`text-xs whitespace-nowrap ${conv.unreadCount > 0 ? 'text-[#1e6b4e] font-bold' : 'text-gray-400'}`}>
                                                 {timeStr}
@@ -222,7 +248,6 @@ export default function MessagesInbox() {
                     if (!open) {
                         setMessageRecipientId(null);
                         setMessageRecipientName('');
-                        // Refresh inbox when closing modal to update read status/last message
                         fetchInboxData();
                     }
                 }}

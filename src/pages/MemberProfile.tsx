@@ -78,6 +78,8 @@ interface MemberData {
 
   email?: string
   phone?: string
+  avatar_url?: string
+  photo_url?: string
   instagram_handle?: string
   linkedin_handle?: string
   facebook_handle?: string
@@ -578,9 +580,13 @@ export default function MemberProfile() {
               <div className="flex items-start gap-4">
                 {/* Avatar */}
                 <div className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0" style={{ backgroundColor: COLORS.mint }}>
-                  <span style={{ color: COLORS.primary }} className="text-3xl font-bold">
-                    {member.first_name?.charAt(0)}
-                  </span>
+                  {(member.avatar_url || member.photo_url) ? (
+                    <img src={member.avatar_url || member.photo_url} alt={member.first_name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span style={{ color: COLORS.primary }} className="text-3xl font-bold">
+                      {member.first_name?.charAt(0)}
+                    </span>
+                  )}
                 </div>
 
                 {/* Info */}

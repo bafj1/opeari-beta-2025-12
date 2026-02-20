@@ -28,7 +28,6 @@ import { CareNeedCard } from '../../care-needs/CareNeedCard';
 import { useCareNeeds } from '../../../hooks/useCareNeeds';
 import ConnectionRequestsCard from '../ConnectionRequestsCard';
 import { getTopMatches } from '../../../api/matches';
-import { getSuggestedConnections, type SuggestedConnection } from '../../../api/connections';
 import { getNearbyPosts, type Post } from '../../../api/posts';
 import { getReferredCaregivers, type ReferredCaregiver } from '../../../api/referrals';
 import type { MatchResult } from '../../../api/matches';
@@ -592,7 +591,7 @@ export default function FamilyDashboard() {
 
 
     // Suggestion State
-    const [suggestedConnections, setSuggestedConnections] = useState<SuggestedConnection[]>([]);
+    const [suggestedConnections, setSuggestedConnections] = useState<any[]>([]);
     const [connectionsLoading, setConnectionsLoading] = useState(true);
 
     // Referral State
@@ -632,7 +631,16 @@ export default function FamilyDashboard() {
             try {
                 setMatchesLoading(true);
                 const result = await getTopMatches(effectiveUserId, matchFilter, 10);
-                setTopMatches(result);
+
+                // Filter out members we're already connected with
+                const connectedMemberIds = new Set(
+                    Object.entries(statusById)
+                        .filter(([_, status]) => status === 'accepted' || status === 'pending')
+                        .map(([id]) => id)
+                );
+                const filtered = result.filter((m: any) => !connectedMemberIds.has(m.member_id));
+
+                setTopMatches(filtered);
             } catch (error) {
                 console.error('Error fetching matches:', error);
             } finally {
@@ -640,26 +648,60 @@ export default function FamilyDashboard() {
             }
         }
         fetchMatches();
-    }, [effectiveUserId, matchFilter, activeCareNeed?.id]);
+    }, [effectiveUserId, matchFilter, activeCareNeed?.id, statusById]);
 
-    // Fetch suggested connections
+    // Fetch nearby members (includes connected — neighbors are neighbors)
     useEffect(() => {
-        async function fetchSuggestedConnections() {
+        async function fetchNearbyMembers() {
             if (!effectiveUserId) return;
 
             try {
                 setConnectionsLoading(true);
-                const connections = await getSuggestedConnections(effectiveUserId, 10);
-                setSuggestedConnections(connections);
+
+                // Fetch all other members
+                const { data: members, error } = await supabase
+                    .from('members')
+                    .select('id, first_name, last_name, role, zip_code, neighborhood, care_types, availability_days, avatar_url')
+                    .neq('id', effectiveUserId)
+                    .eq('onboarding_complete', true);
+
+                if (error) throw error;
+
+                // Get connection status for each
+                const { data: connections } = await supabase
+                    .from('connections')
+                    .select('requester_id, recipient_id, status')
+                    .or(`requester_id.eq.${effectiveUserId},recipient_id.eq.${effectiveUserId}`)
+                    .in('status', ['accepted', 'pending']);
+
+                const connStatusMap: Record<string, string> = {};
+                (connections || []).forEach(c => {
+                    const otherId = c.requester_id === effectiveUserId ? c.recipient_id : c.requester_id;
+                    connStatusMap[otherId] = c.status;
+                });
+
+                const nearby = (members || []).map(m => ({
+                    member_id: m.id,
+                    display_name: `${m.first_name || ''} ${(m.last_name || '').charAt(0)}.`.trim(),
+                    avatar_url: m.avatar_url,
+                    neighborhood: m.neighborhood,
+                    zip_code: m.zip_code,
+                    role: m.role,
+                    care_types: m.care_types,
+                    mutual_connection_count: 0,
+                    connection_status: connStatusMap[m.id] || 'none',
+                }));
+
+                setSuggestedConnections(nearby);
             } catch (error) {
-                console.error('Error fetching suggested connections:', error);
+                console.error('Error fetching nearby members:', error);
             } finally {
                 setConnectionsLoading(false);
             }
         }
 
-        fetchSuggestedConnections();
-    }, [effectiveUserId]);
+        fetchNearbyMembers();
+    }, [effectiveUserId, viewer?.member?.id]);
 
     // Fetch referred caregivers
     const fetchReferredCaregivers = useCallback(async () => {
@@ -1028,6 +1070,15 @@ export default function FamilyDashboard() {
                             )}
                         </Link>
 
+                        {/* Connections icon */}
+                        <Link
+                            to="/connections"
+                            className="relative p-2 hover:bg-gray-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:ring-offset-2"
+                            aria-label="My connections"
+                        >
+                            <Users className="w-5 h-5 text-[#1E6B4E]" />
+                        </Link>
+
                         <button
                             type="button"
                             aria-label="Settings"
@@ -1123,7 +1174,7 @@ export default function FamilyDashboard() {
                                     </div>
                                     <h3 className="font-semibold text-[#1e6b4e] mb-2">Your neighborhood is filling up</h3>
                                     <p className="text-sm text-[#546E5C] mb-4 max-w-md mx-auto">
-                                        Families nearby are joining Opeari. Invite someone you trust to start building your care circle.
+                                        People nearby are joining Opeari. Invite someone you trust to grow your village.
                                     </p>
                                     <div className="flex flex-col items-center gap-3">
                                         <button
@@ -1171,14 +1222,27 @@ export default function FamilyDashboard() {
                                                 <div className="mb-3"></div>
                                             )}
 
-                                            <button
-                                                type="button"
-                                                onClick={() => handleConnect(person.member_id)}
-                                                disabled={connectingTo === person.member_id}
-                                                className="w-full px-3 py-1.5 rounded-full border border-gray-300 text-[#546E5C] text-xs font-medium hover:border-[#1e6b4e] hover:text-[#1e6b4e] transition-all disabled:opacity-50"
-                                            >
-                                                {connectingTo === person.member_id ? 'Sending...' : 'Connect'}
-                                            </button>
+                                            {person.connection_status === 'accepted' ? (
+                                                <Link
+                                                    to={`/messages?to=${person.member_id}`}
+                                                    className="w-full px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-medium text-center block"
+                                                >
+                                                    Message
+                                                </Link>
+                                            ) : person.connection_status === 'pending' ? (
+                                                <span className="w-full px-3 py-1.5 rounded-full border border-gray-200 text-[#546E5C] text-xs font-medium text-center block">
+                                                    Pending
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleConnect(person.member_id)}
+                                                    disabled={connectingTo === person.member_id}
+                                                    className="w-full px-3 py-1.5 rounded-full border border-gray-300 text-[#546E5C] text-xs font-medium hover:border-[#1e6b4e] hover:text-[#1e6b4e] transition-all disabled:opacity-50"
+                                                >
+                                                    {connectingTo === person.member_id ? 'Sending...' : 'Connect'}
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
 

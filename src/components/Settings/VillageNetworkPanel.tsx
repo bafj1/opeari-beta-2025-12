@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Users, UserPlus, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 
@@ -107,28 +107,28 @@ export default function VillageNetworkPanel({ formData: _formData, setFormData: 
                     <>
                         {/* Stats */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-                            <div style={statBoxStyle}>
+                            <Link to="/connections" style={{ ...statBoxStyle, textDecoration: 'none', cursor: 'pointer', transition: 'all 0.2s' }}>
                                 <p style={{ fontSize: '32px', fontWeight: 700, color: '#1E6B4E', margin: 0 }}>
                                     {connectionCount}
                                 </p>
                                 <p style={{ fontSize: '12px', color: '#546E5C', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                     Connections
                                 </p>
-                            </div>
-                            <div style={statBoxStyle}>
+                            </Link>
+                            <Link to="/connections" style={{ ...statBoxStyle, textDecoration: 'none', cursor: 'pointer', transition: 'all 0.2s' }}>
                                 <p style={{ fontSize: '32px', fontWeight: 700, color: pendingCount > 0 ? '#E07A5F' : '#1E6B4E', margin: 0 }}>
                                     {pendingCount}
                                 </p>
                                 <p style={{ fontSize: '12px', color: '#546E5C', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                     Pending Requests
                                 </p>
-                            </div>
+                            </Link>
                         </div>
 
                         {/* CTA Buttons */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             <button
-                                onClick={() => navigate('/connections')}
+                                onClick={() => navigate('/village')}
                                 style={linkButtonStyle}
                             >
                                 <Users size={18} />

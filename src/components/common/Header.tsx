@@ -155,6 +155,15 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                   >
                     Discover
                   </Link>
+                  <Link
+                    to="/connections"
+                    className={`text-sm font-medium transition-colors focus:outline-none px-3 py-2 rounded-full ${isActive('/connections')
+                      ? 'text-opeari-heading font-bold bg-opeari-mint/20'
+                      : 'text-opeari-text-secondary hover:text-opeari-heading hover:bg-opeari-mint/15'
+                      }`}
+                  >
+                    My Village
+                  </Link>
                 </nav>
 
                 {/* Profile Dropdown (Desktop Only) */}
@@ -259,6 +268,16 @@ export default function Header({ forceGuest = false, onboarding = false }: Heade
                       }`}
                   >
                     Discover
+                  </Link>
+                  <Link
+                    to="/connections"
+                    onClick={() => setMenuOpen(false)}
+                    className={`p-3 rounded-lg text-sm font-medium transition-all ${isActive('/connections')
+                      ? 'bg-opeari-mint text-opeari-heading font-bold'
+                      : 'text-opeari-text hover:bg-opeari-mint/50'
+                      }`}
+                  >
+                    My Village
                   </Link>
                   {/* <Link
                     to="/village"
