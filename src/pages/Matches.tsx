@@ -51,6 +51,7 @@ export default function Matches() {
     const { viewer, loading: viewerLoading } = useViewer();
     const [allCandidates, setAllCandidates] = useState<any[]>([]);
     const [connectedIds, setConnectedIds] = useState<Set<string>>(new Set());
+    const [connectionPeople, setConnectionPeople] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showFilters, setShowFilters] = useState(false);
 
@@ -117,6 +118,27 @@ export default function Matches() {
 
             setAllCandidates(candidates || []);
             setConnectedIds(connIds);
+
+            // Fetch accepted connection people for the empty state grid
+            const { data: connData } = await supabase
+                .from('connections')
+                .select(`
+                    id, status,
+                    requester:members!connections_requester_id_fkey(id, first_name, last_name, avatar_url, neighborhood, role),
+                    recipient:members!connections_recipient_id_fkey(id, first_name, last_name, avatar_url, neighborhood, role)
+                `)
+                .or(`requester_id.eq.${myId},recipient_id.eq.${myId}`)
+                .eq('status', 'accepted')
+                .limit(6);
+
+            if (connData) {
+                const mapped = connData.map((c: any) => {
+                    const req = Array.isArray(c.requester) ? c.requester[0] : c.requester;
+                    const rec = Array.isArray(c.recipient) ? c.recipient[0] : c.recipient;
+                    return req?.id === myId ? rec : req;
+                }).filter(Boolean);
+                setConnectionPeople(mapped);
+            }
         } catch (err) {
             console.error('Match fetch error:', err);
         } finally {
@@ -471,6 +493,65 @@ export default function Matches() {
                                     >
                                         View Your Connections →
                                     </Link>
+
+                                    {/* Your Connections Grid */}
+                                    {connectionPeople.length > 0 && (
+                                        <div style={{ marginTop: '32px', textAlign: 'left' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                                                <h2 style={{ fontSize: '16px', fontWeight: 700, color: C.green }}>Your Connections</h2>
+                                                <Link to="/connections" style={{ fontSize: '13px', fontWeight: 600, color: C.green, textDecoration: 'none' }}>
+                                                    View All →
+                                                </Link>
+                                            </div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
+                                                {connectionPeople.map((person: any) => (
+                                                    <Link
+                                                        key={person.id}
+                                                        to={`/member/${person.id}`}
+                                                        style={{
+                                                            backgroundColor: C.white,
+                                                            borderRadius: '16px',
+                                                            padding: '16px',
+                                                            border: `1px solid ${C.border}`,
+                                                            textDecoration: 'none',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '12px',
+                                                            transition: 'box-shadow 0.2s, border-color 0.2s',
+                                                        }}
+                                                    >
+                                                        <div style={{
+                                                            width: '44px', height: '44px', borderRadius: '50%',
+                                                            backgroundColor: C.mintLight,
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                            overflow: 'hidden', flexShrink: 0,
+                                                        }}>
+                                                            {person.avatar_url ? (
+                                                                <img src={person.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                                                            ) : (
+                                                                <span style={{ fontSize: '16px', fontWeight: 700, color: C.green }}>
+                                                                    {(person.first_name || '?').charAt(0)}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div style={{ minWidth: 0 }}>
+                                                            <p style={{ fontWeight: 600, color: C.green, fontSize: '13px', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                                {person.first_name} {(person.last_name || '').charAt(0)}.
+                                                            </p>
+                                                            {person.neighborhood && (
+                                                                <p style={{ fontSize: '11px', color: C.textMuted, margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                                    {person.neighborhood}
+                                                                </p>
+                                                            )}
+                                                            <p style={{ fontSize: '11px', color: C.textMuted, margin: '2px 0 0', textTransform: 'capitalize' }}>
+                                                                {person.role || 'Family'}
+                                                            </p>
+                                                        </div>
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </>
                             ) : (
                                 <>
