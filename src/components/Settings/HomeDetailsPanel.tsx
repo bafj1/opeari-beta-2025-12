@@ -279,40 +279,29 @@ export default function HomeDetailsPanel() {
             {/* Budget Range */}
             <section>
                 <h3 className="text-sm font-bold text-[#1e6b4e] uppercase tracking-wide mb-1">
-                    Budget Range
+                    Budget Range ($/hr)
                 </h3>
                 <p className="text-xs text-[#546E5C] mb-3">
                     What you can pay per hour (optional, helps filter matches).
                 </p>
                 <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#546E5C] pointer-events-none">
-                            $
-                        </span>
-                        <input
-                            type="number"
-                            value={details.budget_min || ''}
-                            onChange={e => setDetails(prev => ({ ...prev, budget_min: parseInt(e.target.value) || 0 }))}
-                            placeholder="20"
-                            className="w-24 pl-7 pr-3 py-2.5 border-2 border-[#8bd7c7]/30 rounded-xl text-sm text-[#1e6b4e] focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent"
-                            min={0}
-                        />
-                    </div>
+                    <input
+                        type="number"
+                        value={details.budget_min || ''}
+                        onChange={e => setDetails(prev => ({ ...prev, budget_min: parseInt(e.target.value) || 0 }))}
+                        placeholder="20"
+                        className="w-24 px-3 py-2.5 border-2 border-[#8bd7c7]/30 rounded-xl text-sm text-[#1e6b4e] text-center focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent"
+                        min={0}
+                    />
                     <span className="text-sm text-[#546E5C]">to</span>
-                    <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#546E5C] pointer-events-none">
-                            $
-                        </span>
-                        <input
-                            type="number"
-                            value={details.budget_max || ''}
-                            onChange={e => setDetails(prev => ({ ...prev, budget_max: parseInt(e.target.value) || 0 }))}
-                            placeholder="40"
-                            className="w-24 pl-7 pr-3 py-2.5 border-2 border-[#8bd7c7]/30 rounded-xl text-sm text-[#1e6b4e] focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent"
-                            min={0}
-                        />
-                    </div>
-                    <span className="text-sm text-[#546E5C]">/ hr</span>
+                    <input
+                        type="number"
+                        value={details.budget_max || ''}
+                        onChange={e => setDetails(prev => ({ ...prev, budget_max: parseInt(e.target.value) || 0 }))}
+                        placeholder="40"
+                        className="w-24 px-3 py-2.5 border-2 border-[#8bd7c7]/30 rounded-xl text-sm text-[#1e6b4e] text-center focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent"
+                        min={0}
+                    />
                 </div>
             </section>
 

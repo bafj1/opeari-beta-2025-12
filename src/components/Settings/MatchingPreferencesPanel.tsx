@@ -30,6 +30,14 @@ const AGE_RANGE_OPTIONS = [
     { id: 'teen', label: 'Teens (13+)' },
 ];
 
+const COMMUTE_OPTIONS = [
+    { id: 'walking', label: 'Walking distance', description: 'Under 1 mile or 15-minute walk' },
+    { id: 'short-drive', label: 'Short drive', description: 'Under 15 minutes by car' },
+    { id: 'medium-drive', label: 'Medium drive', description: '15-30 minutes by car' },
+    { id: 'long-drive', label: 'Longer commute', description: '30+ minutes, willing to drive further' },
+    { id: 'flexible', label: 'Flexible', description: 'Depends on the arrangement' },
+];
+
 const LANGUAGE_OPTIONS = [
     { id: 'english', label: 'English' },
     { id: 'spanish', label: 'Spanish' },
@@ -63,6 +71,7 @@ export default function MatchingPreferencesPanel({ formData: _formData, setFormD
         needs_caregiver_driver: false,
         max_travel_miles: 10,
         overnight_available: false,
+        commute_range: '' as string,
     });
 
     // Load from viewer
@@ -80,6 +89,7 @@ export default function MatchingPreferencesPanel({ formData: _formData, setFormD
             needs_caregiver_driver: viewer.member.needs_caregiver_driver || false,
             max_travel_miles: viewer.member.max_travel_miles || 10,
             overnight_available: viewer.member.overnight_available || false,
+            commute_range: viewer.member.commute_range || '',
         });
     }, [viewer?.member?.id]);
 
@@ -123,6 +133,7 @@ export default function MatchingPreferencesPanel({ formData: _formData, setFormD
                 needs_caregiver_driver: 'needs_caregiver_driver',
                 max_travel_miles: 'max_travel_miles',
                 overnight_available: 'overnight_available',
+                commute_range: 'commute_range',
             };
 
             if (syncColumns[key]) {
@@ -379,6 +390,42 @@ export default function MatchingPreferencesPanel({ formData: _formData, setFormD
                             label="Available for overnight care"
                             desc="I can do evening/overnight sitting"
                         />
+                    </>
+                )}
+
+                {/* Commute Range — for families */}
+                {(viewer?.member?.role === 'family' || viewer?.member?.role === 'both') && (
+                    <>
+                        <div className="border-t border-[#8bd7c7]/10 my-3" />
+                        <div>
+                            <p className="text-sm font-semibold text-[#1e6b4e] mb-1">Commute Range</p>
+                            <p className="text-xs text-[#546E5C] mb-3">How far are you willing to travel for care arrangements?</p>
+                            <div className="space-y-2">
+                                {COMMUTE_OPTIONS.map(opt => {
+                                    const isSelected = prefs.commute_range === opt.id;
+                                    return (
+                                        <button
+                                            key={opt.id}
+                                            type="button"
+                                            onClick={() => updatePref('commute_range', opt.id)}
+                                            className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-colors text-left ${isSelected
+                                                    ? 'bg-[#d8f5e5] border-[#8bd7c7] text-[#1e6b4e]'
+                                                    : 'bg-white border-[#8bd7c7]/20 text-[#546E5C]'
+                                                }`}
+                                        >
+                                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${isSelected ? 'border-[#1e6b4e]' : 'border-[#8bd7c7]/40'
+                                                }`}>
+                                                {isSelected && <div className="w-2 h-2 rounded-full bg-[#1e6b4e]" />}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium">{opt.label}</p>
+                                                <p className="text-xs opacity-75">{opt.description}</p>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     </>
                 )}
 
