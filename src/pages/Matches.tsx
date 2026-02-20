@@ -86,7 +86,7 @@ export default function Matches() {
             if (!viewer?.member) return;
             const myId = viewer.member.id;
 
-            const { data: candidates, error } = await supabase
+            const { data: candidates, error: candidateError } = await supabase
                 .from('members')
                 .select(`
                     id, first_name, last_name, role, bio,
@@ -97,17 +97,27 @@ export default function Matches() {
                     timeline,
                     has_transportation, needs_caregiver_driver, max_travel_miles, overnight_available,
                     can_lift_30lbs, comfortable_with_stairs,
-                    has_parking, has_stairs, home_type, budget_min, budget_max
+                    has_parking, has_stairs, home_type, budget_min, budget_max,
+                    interests
                 `)
                 .neq('id', myId);
-            if (error) throw error;
+            if (candidateError) {
+                console.error('Matches: candidates query error:', candidateError.message);
+                setAllCandidates([]);
+                setConnectedIds(new Set());
+                return;
+            }
 
             // Exclude connected + pending
-            const { data: connections } = await supabase
+            const { data: connections, error: connError } = await supabase
                 .from('connections')
                 .select('requester_id, recipient_id')
                 .or(`requester_id.eq.${myId},recipient_id.eq.${myId}`)
                 .in('status', ['accepted', 'pending']);
+
+            if (connError) {
+                console.error('Matches: connections query error:', connError.message);
+            }
 
             const connIds = new Set<string>();
             (connections || []).forEach((c: any) => {
