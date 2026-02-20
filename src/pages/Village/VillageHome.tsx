@@ -6,7 +6,6 @@ import type { Post, PostType } from '../../types/FeedTypes';
 import VillageHeader from '../../components/Village/VillageHeader';
 import PostCard from '../../components/Village/PostCard';
 import CreatePost from '../../components/Village/CreatePost';
-import Header from '../../components/common/Header';
 import VillagePulse from '../../components/Village/VillagePulse';
 import VillageFilter from '../../components/Village/VillageFilter';
 
@@ -83,7 +82,6 @@ export default function VillageHome() {
 
     return (
         <div className="min-h-screen bg-[#faf8f5]">
-            <Header />
 
             <main className="max-w-xl mx-auto px-4 py-8">
                 <VillageHeader neighborhood={userNeighborhood} onCreateClick={() => setShowCreate(true)} />

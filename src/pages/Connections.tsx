@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useViewer } from '../hooks/useViewer';
-import Header from '../components/common/Header';
 import { Users, MessageCircle, Loader2, UserPlus } from 'lucide-react';
 
 export default function Connections() {
@@ -56,8 +55,7 @@ export default function Connections() {
   if (viewerLoading || loading) {
     return (
       <>
-        <Header />
-        <div className="min-h-screen bg-[#f0faf4] flex items-center justify-center" style={{ paddingTop: '72px' }}>
+        <div className="min-h-screen bg-[#f0faf4] flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-8 h-8 text-[#1e6b4e] animate-spin" />
             <p className="text-sm text-[#1e6b4e] font-medium">Loading your village...</p>
@@ -69,8 +67,7 @@ export default function Connections() {
 
   return (
     <>
-      <Header />
-      <div className="min-h-screen bg-[#f0faf4]" style={{ paddingTop: '72px' }}>
+      <div className="min-h-screen bg-[#f0faf4]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
 
           {/* Page Header */}

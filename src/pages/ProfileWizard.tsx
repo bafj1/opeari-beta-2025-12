@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import Header from '../components/common/Header'
 
 type Step = 1 | 2 | 3 | 4 | 5
 
@@ -495,7 +494,6 @@ export default function ProfileWizard() {
   if (loading) {
     return (
       <>
-        <Header />
         <div className="min-h-screen bg-opeari-bg flex items-center justify-center">
           <div className="text-opeari-heading font-semibold animate-pulse">Loading...</div>
         </div>
@@ -505,7 +503,6 @@ export default function ProfileWizard() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-opeari-bg py-8 px-4">
         <div className="max-w-xl mx-auto">
           {/* Progress */}

@@ -4,7 +4,6 @@ import { Star, Heart, Calendar, MapPin, Globe, Sparkles, Baby, Car, Handshake, W
 import { useAuth } from '../context/AuthContext'
 import { useViewer } from '../hooks/useViewer'
 import { supabase } from '../lib/supabase'
-import Header from '../components/common/Header'
 import Toast from '../components/ui/Toast'
 import { logAlphaEvent } from '../lib/analytics'
 import { createNotification } from '../lib/notifications'
@@ -605,7 +604,6 @@ export default function MemberProfile() {
   if (loading) {
     return (
       <>
-        <Header />
         <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: COLORS.mint }}>
           <div style={{ color: COLORS.primary }} className="font-semibold animate-pulse">Loading profile...</div>
         </div>
@@ -616,7 +614,6 @@ export default function MemberProfile() {
   if (!member) {
     return (
       <>
-        <Header />
         <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: COLORS.mint }}>
           <div className="text-center">
             <p style={{ color: COLORS.textMuted }} className="mb-4">Family not found</p>
@@ -634,7 +631,6 @@ export default function MemberProfile() {
 
   return (
     <>
-      <Header />
       {toast && (
         <Toast
           message={toast.message}

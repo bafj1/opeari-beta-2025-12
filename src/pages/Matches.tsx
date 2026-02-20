@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useViewer } from '../hooks/useViewer';
 import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
-import Header from '../components/common/Header';
 import {
     computeMatchScore,
     filterByShowMe,
@@ -213,7 +212,6 @@ export default function Matches() {
     if (viewerLoading || loading) {
         return (
             <>
-                <Header />
                 <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: C.bg }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
                         <div style={{ width: '40px', height: '40px', border: `3px solid ${C.green}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
@@ -226,8 +224,7 @@ export default function Matches() {
 
     return (
         <>
-            <Header />
-            <div style={{ minHeight: '100vh', backgroundColor: C.bg, paddingTop: '72px' }}>
+            <div style={{ minHeight: '100vh', backgroundColor: C.bg }}>
                 <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 20px 80px' }}>
 
                     {/* Back to Village */}

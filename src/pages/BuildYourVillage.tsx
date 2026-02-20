@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import Header from '../components/common/Header'
 import {
   WEEKDAYS,
 
@@ -407,7 +406,6 @@ export default function BuildYourVillage() {
   if (loading) {
     return (
       <>
-        <Header />
         <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: COLORS.mint }}>
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-3" style={{ borderColor: COLORS.primary, borderTopColor: 'transparent' }} />
@@ -422,7 +420,6 @@ export default function BuildYourVillage() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen" style={{ backgroundColor: COLORS.mint }}>
         {/* Hero Banner */}
         <div style={{ backgroundColor: COLORS.primary }} className="py-8 px-4">

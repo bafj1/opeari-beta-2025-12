@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
-import Header from '../components/common/Header'
 import { formatLocation } from '../lib/zipLookup'
 import { logAlphaEvent } from '../lib/analytics'
 import { createNotification } from '../lib/notifications'
@@ -351,7 +350,6 @@ export default function Messages() {
   if (loading) {
     return (
       <>
-        <Header />
         <div className="min-h-screen bg-[#fffaf5] flex items-center justify-center">
           <div className="text-[#1E6B4E] font-semibold animate-pulse" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
             Loading messages...
@@ -363,7 +361,6 @@ export default function Messages() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-[#fffaf5]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
         <div className="max-w-5xl mx-auto">
           <div className="flex h-[calc(100vh-60px)]">

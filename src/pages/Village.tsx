@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Activity, Search } from 'lucide-react';
 import { useViewer } from '../hooks/useViewer';
 import { supabase } from '../lib/supabase';
-import Header from '../components/common/Header';
 
 
 
@@ -56,7 +55,6 @@ export default function Village() {
 
     return (
         <div className="min-h-screen bg-opeari-bg pb-20 font-sans">
-            <Header />
 
             {/* A) Header Section */}
             <div className="bg-[#1E6B4E] text-white pt-10 pb-20 px-6 relative overflow-hidden">

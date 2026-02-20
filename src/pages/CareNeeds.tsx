@@ -4,7 +4,6 @@ import { useCareNeeds } from '../hooks/useCareNeeds';
 import { CareNeedCard } from '../components/care-needs/CareNeedCard';
 import { CareNeedForm } from '../components/care-needs/CareNeedForm';
 import { supabase } from '../lib/supabase';
-import Header from '../components/common/Header';
 import { Plus, Calendar } from 'lucide-react';
 import type { CareNeed } from '../types/careNeed';
 
@@ -54,7 +53,6 @@ export default function CareNeedsPage() {
 
     return (
         <>
-            <Header />
             <div className="min-h-screen bg-[#f0faf4]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
                 <div className="max-w-3xl mx-auto px-4 py-8" style={{ paddingTop: '100px' }}>
 
