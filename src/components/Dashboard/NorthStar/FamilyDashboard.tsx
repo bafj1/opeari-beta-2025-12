@@ -1146,12 +1146,14 @@ export default function FamilyDashboard() {
 
                         {/* People You May Know */}
                         <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100 mb-6">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold text-[#1e6b4e]">People You May Know</h2>
-                                <Link to="/matches" className="text-sm text-[#1e6b4e] font-semibold hover:underline">
-                                    View All →
-                                </Link>
-                            </div>
+                            {suggestedConnections.length > 0 && (
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-xl font-bold text-[#1e6b4e]">People You May Know</h2>
+                                    <Link to="/matches" className="text-sm text-[#1e6b4e] font-semibold hover:underline">
+                                        View All →
+                                    </Link>
+                                </div>
+                            )}
 
                             {connectionsLoading ? (
                                 // Loading State
@@ -1161,23 +1163,16 @@ export default function FamilyDashboard() {
                                     ))}
                                 </div>
                             ) : suggestedConnections.length === 0 ? (
-                                // Empty State
-                                <div className="text-center py-8">
-                                    <div className="w-16 h-16 rounded-full bg-[#d8f5e5] flex items-center justify-center mx-auto mb-4">
-                                        <Users className="w-8 h-8 text-[#1e6b4e]" />
-                                    </div>
-                                    <h3 className="font-semibold text-[#1e6b4e] mb-2">Your neighborhood is filling up</h3>
-                                    <p className="text-sm text-[#546E5C] mb-4 max-w-md mx-auto">
-                                        People nearby are joining Opeari. Invite someone you trust to grow your village.
+                                // Compact Empty Banner
+                                <div className="flex items-center justify-between py-1">
+                                    <p className="text-sm text-[#546E5C]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+                                        Know someone who'd love Opeari?
                                     </p>
-                                    <div className="flex flex-col items-center gap-3">
-                                        <button
-                                            onClick={() => setInviteModalOpen(true)}
-                                            className="px-6 py-2.5 rounded-full bg-[#1e6b4e] text-white font-semibold text-sm hover:bg-[#155a3e] transition-all"
-                                        >
-                                            Invite a Family
-                                        </button>
-                                        <Link to="/matches" className="text-sm text-[#1e6b4e] hover:underline">
+                                    <div className="flex items-center gap-4">
+                                        <Link to="/invite-friends" className="text-sm font-semibold text-[#1E6B4E] hover:underline" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+                                            Invite a Friend
+                                        </Link>
+                                        <Link to="/matches" className="text-sm text-[#546E5C] hover:text-[#1E6B4E]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
                                             Discover More →
                                         </Link>
                                     </div>
