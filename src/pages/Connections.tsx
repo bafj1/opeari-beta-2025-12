@@ -103,7 +103,12 @@ export default function Connections() {
                     className="bg-white rounded-[20px] border border-[#8bd7c7]/20 shadow-sm hover:shadow-md hover:border-[#8bd7c7]/40 transition-all overflow-hidden"
                   >
                     {/* Top gradient banner */}
-                    <div className="h-16 bg-gradient-to-r from-[#d8f5e5] via-[#8bd7c7]/20 to-[#F8C3B3]/10" />
+                    <div className={`h-16 ${member.role === 'caregiver'
+                        ? 'bg-gradient-to-r from-[#F8C3B3]/20 via-[#F8C3B3]/10 to-[#d8f5e5]/20'
+                        : member.role === 'both'
+                          ? 'bg-gradient-to-r from-[#8bd7c7]/20 via-[#d8f5e5]/20 to-[#F8C3B3]/10'
+                          : 'bg-gradient-to-r from-[#d8f5e5] via-[#8bd7c7]/20 to-[#F8C3B3]/10'
+                      }`} />
 
                     {/* Avatar + Info */}
                     <div className="px-5 pb-5 -mt-8">
@@ -127,7 +132,12 @@ export default function Connections() {
                       {/* Name + Role */}
                       <h3 className="text-base font-bold text-[#1e6b4e] mb-0.5">{displayName}</h3>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#d8f5e5] text-[#1e6b4e]">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${member.role === 'caregiver'
+                            ? 'bg-[#F8C3B3]/30 text-[#c4785e]'
+                            : member.role === 'both'
+                              ? 'bg-[#8bd7c7]/20 text-[#1e6b4e]'
+                              : 'bg-[#d8f5e5] text-[#1e6b4e]'
+                          }`}>
                           {roleLabel}
                         </span>
                         {member.neighborhood && (
@@ -141,17 +151,17 @@ export default function Connections() {
                       )}
 
                       {/* Action buttons */}
-                      <div className="flex gap-2">
+                      <div className="grid grid-cols-2 gap-2">
                         <Link
                           to={`/messages?to=${member.id}`}
-                          className="flex-1 py-2 rounded-full bg-[#1e6b4e] text-white text-xs font-semibold text-center hover:bg-[#174f3a] transition-colors flex items-center justify-center gap-1.5"
+                          className="py-2 rounded-full bg-[#1e6b4e] text-white text-xs font-semibold text-center hover:bg-[#174f3a] transition-colors flex items-center justify-center gap-1.5"
                         >
                           <MessageCircle className="w-3.5 h-3.5" />
                           Message
                         </Link>
                         <Link
                           to={`/member/${member.id}`}
-                          className="flex-1 py-2 rounded-full border border-[#8bd7c7]/30 text-xs font-semibold text-[#1e6b4e] text-center hover:bg-[#d8f5e5]/50 transition-colors"
+                          className="py-2 rounded-full border border-[#8bd7c7]/30 text-xs font-semibold text-[#1e6b4e] text-center hover:bg-[#d8f5e5]/50 transition-colors"
                         >
                           View Profile
                         </Link>
