@@ -39,6 +39,8 @@ interface HomeDetails {
     home_allergies: string[];
     home_allergy_notes: string;
     home_notes: string;
+    budget_min: number;
+    budget_max: number;
 }
 
 export default function HomeDetailsPanel() {
@@ -58,6 +60,8 @@ export default function HomeDetailsPanel() {
         home_allergies: [],
         home_allergy_notes: '',
         home_notes: '',
+        budget_min: 0,
+        budget_max: 0,
     });
 
     useEffect(() => {
@@ -65,7 +69,7 @@ export default function HomeDetailsPanel() {
             if (!viewer?.member?.id) return;
             const { data, error } = await supabase
                 .from('members')
-                .select('has_parking, has_stairs, home_type, num_floors, has_yard, has_pool, has_pets, pet_types, pet_notes, home_allergies, home_allergy_notes, home_notes')
+                .select('has_parking, has_stairs, home_type, num_floors, has_yard, has_pool, has_pets, pet_types, pet_notes, home_allergies, home_allergy_notes, home_notes, budget_min, budget_max')
                 .eq('id', viewer.member.id)
                 .single();
 
@@ -83,6 +87,8 @@ export default function HomeDetailsPanel() {
                     home_allergies: data.home_allergies || [],
                     home_allergy_notes: data.home_allergy_notes || '',
                     home_notes: data.home_notes || '',
+                    budget_min: data.budget_min || 0,
+                    budget_max: data.budget_max || 0,
                 });
             }
         }
@@ -156,8 +162,8 @@ export default function HomeDetailsPanel() {
                             type="button"
                             onClick={() => setDetails(prev => ({ ...prev, home_type: ht.id }))}
                             className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${details.home_type === ht.id
-                                    ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
-                                    : 'bg-white text-[#546E5C] border-gray-200 hover:border-[#8bd7c7]'
+                                ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
+                                : 'bg-white text-[#546E5C] border-[#8bd7c7]/30 hover:border-[#8bd7c7]'
                                 }`}
                         >
                             {ht.label}
@@ -176,8 +182,8 @@ export default function HomeDetailsPanel() {
                             type="button"
                             onClick={() => setDetails(prev => ({ ...prev, [key]: !prev[key] }))}
                             className={`flex items-center gap-3 p-3 rounded-xl border transition-colors text-left ${details[key]
-                                    ? 'bg-[#d8f5e5] border-[#8bd7c7] text-[#1e6b4e]'
-                                    : 'bg-white border-gray-200 text-[#546E5C] hover:border-[#8bd7c7]/50'
+                                ? 'bg-[#d8f5e5] border-[#8bd7c7] text-[#1e6b4e]'
+                                : 'bg-white border-[#8bd7c7]/30 text-[#546E5C] hover:border-[#8bd7c7]/50'
                                 }`}
                         >
                             <Icon className="w-5 h-5 flex-shrink-0" />
@@ -194,8 +200,8 @@ export default function HomeDetailsPanel() {
                     type="button"
                     onClick={() => setDetails(prev => ({ ...prev, has_pets: !prev.has_pets }))}
                     className={`flex items-center gap-3 p-3 rounded-xl border transition-colors mb-3 ${details.has_pets
-                            ? 'bg-[#d8f5e5] border-[#8bd7c7] text-[#1e6b4e]'
-                            : 'bg-white border-gray-200 text-[#546E5C]'
+                        ? 'bg-[#d8f5e5] border-[#8bd7c7] text-[#1e6b4e]'
+                        : 'bg-white border-[#8bd7c7]/30 text-[#546E5C]'
                         }`}
                 >
                     <PawPrint className="w-5 h-5" />
@@ -211,8 +217,8 @@ export default function HomeDetailsPanel() {
                                     type="button"
                                     onClick={() => togglePetType(pt.id)}
                                     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${details.pet_types.includes(pt.id)
-                                            ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
-                                            : 'bg-white text-[#546E5C] border-gray-200'
+                                        ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
+                                        : 'bg-white text-[#546E5C] border-[#8bd7c7]/30'
                                         }`}
                                 >
                                     {pt.label}
@@ -223,7 +229,7 @@ export default function HomeDetailsPanel() {
                             value={details.pet_notes}
                             onChange={e => setDetails(prev => ({ ...prev, pet_notes: e.target.value }))}
                             placeholder="E.g., Friendly golden retriever, stays in a separate room during care hours..."
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-[#546E5C] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent resize-none"
+                            className="w-full px-4 py-2.5 border border-[#8bd7c7]/30 rounded-xl text-sm text-[#546E5C] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent resize-none"
                             rows={2}
                         />
                     </div>
@@ -241,8 +247,8 @@ export default function HomeDetailsPanel() {
                             type="button"
                             onClick={() => toggleAllergy(allergy)}
                             className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${details.home_allergies.includes(allergy)
-                                    ? 'bg-[#FEF3C7] text-[#92400E] border-[#FCD34D]'
-                                    : 'bg-white text-[#546E5C] border-gray-200 hover:border-[#FCD34D]/50'
+                                ? 'bg-[#FEF3C7] text-[#92400E] border-[#FCD34D]'
+                                : 'bg-white text-[#546E5C] border-[#8bd7c7]/30 hover:border-[#FCD34D]/50'
                                 }`}
                         >
                             {allergy}
@@ -253,7 +259,7 @@ export default function HomeDetailsPanel() {
                     value={details.home_allergy_notes}
                     onChange={e => setDetails(prev => ({ ...prev, home_allergy_notes: e.target.value }))}
                     placeholder="Additional allergy details or severity notes..."
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-[#546E5C] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent resize-none"
+                    className="w-full px-4 py-2.5 border border-[#8bd7c7]/30 rounded-xl text-sm text-[#546E5C] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent resize-none"
                     rows={2}
                 />
             </section>
@@ -265,9 +271,49 @@ export default function HomeDetailsPanel() {
                     value={details.home_notes}
                     onChange={e => setDetails(prev => ({ ...prev, home_notes: e.target.value }))}
                     placeholder="Anything else a caregiver should know about your home? E.g., gate code, nearby park, quiet hours..."
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-[#546E5C] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent resize-none"
+                    className="w-full px-4 py-2.5 border border-[#8bd7c7]/30 rounded-xl text-sm text-[#546E5C] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent resize-none"
                     rows={3}
                 />
+            </section>
+
+            {/* Budget Range */}
+            <section>
+                <h3 className="text-sm font-bold text-[#1e6b4e] uppercase tracking-wide mb-1">
+                    Budget Range
+                </h3>
+                <p className="text-xs text-[#546E5C] mb-3">
+                    What you can pay per hour (optional, helps filter matches).
+                </p>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#546E5C] pointer-events-none">
+                            $
+                        </span>
+                        <input
+                            type="number"
+                            value={details.budget_min || ''}
+                            onChange={e => setDetails(prev => ({ ...prev, budget_min: parseInt(e.target.value) || 0 }))}
+                            placeholder="20"
+                            className="w-24 pl-7 pr-3 py-2.5 border-2 border-[#8bd7c7]/30 rounded-xl text-sm text-[#1e6b4e] focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent"
+                            min={0}
+                        />
+                    </div>
+                    <span className="text-sm text-[#546E5C]">to</span>
+                    <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#546E5C] pointer-events-none">
+                            $
+                        </span>
+                        <input
+                            type="number"
+                            value={details.budget_max || ''}
+                            onChange={e => setDetails(prev => ({ ...prev, budget_max: parseInt(e.target.value) || 0 }))}
+                            placeholder="40"
+                            className="w-24 pl-7 pr-3 py-2.5 border-2 border-[#8bd7c7]/30 rounded-xl text-sm text-[#1e6b4e] focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent"
+                            min={0}
+                        />
+                    </div>
+                    <span className="text-sm text-[#546E5C]">/ hr</span>
+                </div>
             </section>
 
             {/* Save Button */}
