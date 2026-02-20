@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useViewer } from '../hooks/useViewer';
 import Header from '../components/common/Header';
-import { Users, MessageCircle, User, MapPin, Calendar, Loader2 } from 'lucide-react';
+import { Users, MessageCircle, Loader2, UserPlus } from 'lucide-react';
 
 export default function Connections() {
   const { viewer, loading: viewerLoading } = useViewer();
@@ -71,136 +71,117 @@ export default function Connections() {
     <>
       <Header />
       <div className="min-h-screen bg-[#f0faf4]" style={{ paddingTop: '72px' }}>
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
 
           {/* Page Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-[#1e6b4e] mb-1">Connections</h1>
-            <p className="text-sm text-[#546E5C]">
-              {connections.length} trusted connection{connections.length !== 1 ? 's' : ''} in your care circle
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-2xl font-bold text-[#1e6b4e] mb-1">Connections</h1>
+              <p className="text-sm text-[#546E5C]">
+                {connections.length} trusted {connections.length === 1 ? 'connection' : 'connections'} in your care circle
+              </p>
+            </div>
+            <Link
+              to="/invite-friends"
+              className="px-5 py-2.5 rounded-full bg-[#1e6b4e] text-white text-sm font-semibold hover:bg-[#155a3e] transition-colors flex items-center gap-2 shadow-sm self-start"
+            >
+              <UserPlus className="w-4 h-4" />
+              Invite Friends
+            </Link>
           </div>
 
-          {/* Connections List */}
+          {/* Connections Grid */}
           {connections.length > 0 ? (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {connections.map((member) => {
                 const displayName = `${member.first_name || ''} ${(member.last_name || '').charAt(0)}.`.trim();
                 const roleLabel = member.role === 'caregiver' ? 'Caregiver' : member.role === 'both' ? 'Parent & Caregiver' : 'Parent';
-                const locationText = member.neighborhood || member.zip_code || '';
-                const availability = (member.availability_days || []);
-                const availText = availability.length > 0
-                  ? availability.length === 7 ? 'All week'
-                    : availability.length === 5 && ['mon', 'tue', 'wed', 'thu', 'fri'].every((d: string) => availability.includes(d)) ? 'Mon-Fri'
-                      : availability.map((d: string) => d.charAt(0).toUpperCase() + d.slice(1, 3)).join(', ')
-                  : '';
 
                 return (
-                  <div
+                  <Link
                     key={member.id}
-                    className="bg-white rounded-2xl p-5 border border-[#8bd7c7]/20 shadow-sm hover:border-[#8bd7c7]/40 transition-all"
+                    to={`/member/${member.id}`}
+                    className="block bg-white rounded-[20px] border border-[#8bd7c7]/20 shadow-sm hover:shadow-md hover:border-[#8bd7c7]/40 transition-all overflow-hidden group"
                   >
-                    <div className="flex items-start gap-4">
-                      {/* Avatar */}
-                      <div className="w-14 h-14 rounded-full bg-[#d8f5e5] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {/* Top gradient banner */}
+                    <div className="h-16 bg-gradient-to-r from-[#d8f5e5] via-[#8bd7c7]/20 to-[#F8C3B3]/10" />
+
+                    {/* Avatar + Info */}
+                    <div className="px-5 pb-5 -mt-8">
+                      {/* Large Avatar */}
+                      <div className="w-16 h-16 rounded-full bg-white border-[3px] border-white shadow-md flex items-center justify-center overflow-hidden mb-3">
                         {member.avatar_url ? (
-                          <img src={member.avatar_url} alt={displayName} className="w-full h-full object-cover rounded-full" />
+                          <img
+                            src={member.avatar_url}
+                            alt={displayName}
+                            className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform"
+                          />
                         ) : (
-                          <span className="text-xl font-bold text-[#1e6b4e]">
-                            {(member.first_name || '?').charAt(0)}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h3 className="text-base font-bold text-[#1e6b4e]">{displayName}</h3>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-[#d8f5e5] text-[#1e6b4e] font-medium">
-                            {roleLabel}
-                          </span>
-                        </div>
-
-                        {/* Location + Availability */}
-                        <div className="flex items-center gap-3 text-xs text-[#546E5C] mb-2">
-                          {locationText && (
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {locationText}
+                          <div className="w-full h-full rounded-full bg-[#d8f5e5] flex items-center justify-center">
+                            <span className="text-xl font-bold text-[#1e6b4e]">
+                              {(member.first_name || '?').charAt(0)}
                             </span>
-                          )}
-                          {availText && (
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {availText}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Bio snippet */}
-                        {member.bio && (
-                          <p className="text-xs text-[#546E5C] line-clamp-2 mb-3">{member.bio}</p>
-                        )}
-
-                        {/* Care type pills */}
-                        {member.care_types && member.care_types.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mb-3">
-                            {member.care_types.slice(0, 3).map((ct: string) => (
-                              <span
-                                key={ct}
-                                className="text-[10px] px-2 py-0.5 rounded-full bg-[#8bd7c7]/15 text-[#1e6b4e] font-medium"
-                              >
-                                {ct.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                              </span>
-                            ))}
                           </div>
                         )}
+                      </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-2">
-                          <Link
-                            to={`/messages?to=${member.id}`}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#1e6b4e] rounded-full hover:bg-[#174f3a] transition-colors"
-                          >
-                            <MessageCircle className="w-3.5 h-3.5" />
-                            Message
-                          </Link>
-                          <Link
-                            to={`/member/${member.id}`}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-[#1e6b4e] border border-[#8bd7c7]/30 rounded-full hover:bg-[#d8f5e5]/50 transition-colors"
-                          >
-                            <User className="w-3.5 h-3.5" />
-                            View Profile
-                          </Link>
-                        </div>
+                      {/* Name + Role */}
+                      <h3 className="text-base font-bold text-[#1e6b4e] mb-0.5">{displayName}</h3>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#d8f5e5] text-[#1e6b4e]">
+                          {roleLabel}
+                        </span>
+                        {member.neighborhood && (
+                          <span className="text-xs text-[#546E5C]">{member.neighborhood}</span>
+                        )}
+                      </div>
+
+                      {/* Brief bio preview */}
+                      {member.bio && (
+                        <p className="text-xs text-[#546E5C] line-clamp-2 mb-3">{member.bio}</p>
+                      )}
+
+                      {/* Action buttons */}
+                      <div className="flex gap-2">
+                        <Link
+                          to={`/messages?to=${member.id}`}
+                          onClick={e => e.stopPropagation()}
+                          className="flex-1 py-2 rounded-full bg-[#1e6b4e] text-white text-xs font-semibold text-center hover:bg-[#174f3a] transition-colors flex items-center justify-center gap-1.5"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          Message
+                        </Link>
+                        <span className="flex-1 py-2 rounded-full border border-[#8bd7c7]/30 text-xs font-semibold text-[#1e6b4e] text-center group-hover:bg-[#d8f5e5]/50 transition-colors">
+                          View Profile
+                        </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
           ) : (
             /* Empty State */
-            <div className="bg-white rounded-2xl p-8 border border-[#8bd7c7]/20 shadow-sm text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-[#d8f5e5] rounded-full flex items-center justify-center">
+            <div className="bg-white rounded-[20px] p-12 text-center border border-[#8bd7c7]/20 shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-[#d8f5e5] flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-[#1e6b4e]" />
               </div>
-              <h3 className="text-lg font-bold text-[#1e6b4e] mb-2">Your village is empty</h3>
-              <p className="text-sm text-[#546E5C] mb-5 max-w-sm mx-auto">
-                Invite families and caregivers you trust to start building your care circle.
+              <h3 className="font-semibold text-[#1e6b4e] mb-2 text-lg">No connections yet</h3>
+              <p className="text-sm text-[#546E5C] mb-6 max-w-md mx-auto">
+                Start building your village by discovering families and caregivers nearby.
               </p>
-              <div className="flex flex-col items-center gap-3">
-                <Link
-                  to="/invite-friends"
-                  className="inline-block px-6 py-2.5 bg-[#1e6b4e] text-white text-sm font-semibold rounded-full hover:bg-[#174f3a] transition-colors"
-                >
-                  Invite a Family
-                </Link>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
                   to="/matches"
-                  className="text-sm text-[#1e6b4e] font-semibold hover:underline"
+                  className="px-6 py-2.5 rounded-full bg-[#1e6b4e] text-white text-sm font-semibold hover:bg-[#155a3e] transition-colors"
                 >
-                  Discover Neighbors →
+                  Discover People
+                </Link>
+                <Link
+                  to="/invite-friends"
+                  className="px-6 py-2.5 rounded-full border border-[#8bd7c7]/30 text-sm font-semibold text-[#1e6b4e] hover:bg-[#d8f5e5]/50 transition-colors"
+                >
+                  Invite Friends
                 </Link>
               </div>
             </div>

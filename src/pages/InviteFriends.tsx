@@ -34,13 +34,14 @@ export default function InviteFriends() {
       const { data: member, error: memberError } = await supabase
         .from('members')
         .select('referral_code, referral_count')
-        .eq('user_id', user!.id)
+        .eq('id', user!.id)
         .single()
 
       if (memberError) throw memberError
 
       if (member) {
-        setReferralCode(member.referral_code || '')
+        const code = member.referral_code || user!.id.slice(0, 8);
+        setReferralCode(code)
         setReferralCount(member.referral_count || 0)
 
         // Get list of people they've referred
