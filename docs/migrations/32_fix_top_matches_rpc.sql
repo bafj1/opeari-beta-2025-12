@@ -1,9 +1,10 @@
--- Migration 32: Fix get_top_matches RPC to include caregivers
+-- Migration 32: Fix get_top_matches RPC — schedule overlap as scoring bonus, not hard filter
 -- Run in Supabase SQL Editor
 -- Date: 2026-02-20
 --
--- The get_top_matches function may be filtering out caregivers.
--- This version ensures ALL roles are included when p_match_filter = 'all'.
+-- Previously, the function had `AND m.availability_days && v_active_care_need.days_needed`
+-- as a WHERE clause, which excluded anyone without schedule overlap (e.g. Carrie).
+-- This version makes schedule overlap a SCORING BONUS instead, so ALL members appear.
 
 CREATE OR REPLACE FUNCTION get_top_matches(
   p_user_id uuid,
@@ -15,57 +16,75 @@ RETURNS TABLE (
   display_name text,
   role text,
   avatar_url text,
-  match_score numeric,
+  match_score integer,
   distance_miles numeric,
   availability_days text[],
-  care_types text[],
-  also_open_to text[]
+  care_types text[]
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
+DECLARE
+  v_active_care_need record;
+  v_user_zip text;
+  v_user_role text;
 BEGIN
+  -- Get user's active care need (may be NULL)
+  SELECT * INTO v_active_care_need
+  FROM care_needs
+  WHERE member_id = p_user_id AND is_active = true
+  LIMIT 1;
+
+  -- Get user's location and role
+  SELECT zip_code, role INTO v_user_zip, v_user_role
+  FROM members
+  WHERE id = p_user_id;
+
   RETURN QUERY
   SELECT
     m.id as member_id,
     m.first_name || ' ' || LEFT(m.last_name, 1) || '.' as display_name,
     m.role,
     m.avatar_url,
-    -- Simple match score based on overlapping attributes
+    -- Calculate match score — schedule overlap is a BONUS, not a requirement
     (
-      COALESCE(
-        (SELECT COUNT(*) FROM unnest(m.availability_days) d1
-         JOIN unnest((SELECT me.availability_days FROM members me WHERE me.id = p_user_id)) d2
-         ON d1 = d2
-        )::numeric * 20, 0
-      ) +
-      COALESCE(
-        (SELECT COUNT(*) FROM unnest(m.care_types) ct1
-         JOIN unnest((SELECT me.care_types FROM members me WHERE me.id = p_user_id)) ct2
-         ON ct1 = ct2
-        )::numeric * 15, 0
-      ) +
-      CASE WHEN m.neighborhood = (SELECT me.neighborhood FROM members me WHERE me.id = p_user_id)
-           THEN 25 ELSE 0 END +
-      CASE WHEN m.zip_code = (SELECT me.zip_code FROM members me WHERE me.id = p_user_id)
-           THEN 10 ELSE 0 END +
-      -- Base score so everyone gets shown
-      10
-    ) as match_score,
+      CASE
+        WHEN v_active_care_need IS NULL THEN 25  -- Base score when no active care need
+        WHEN m.care_types && ARRAY[v_active_care_need.care_type] THEN 50
+        ELSE 0
+      END +
+      CASE
+        WHEN v_active_care_need IS NULL THEN 0
+        WHEN m.care_types && COALESCE(v_active_care_need.also_open_to, '{}') THEN 25
+        ELSE 0
+      END +
+      CASE
+        WHEN v_active_care_need IS NULL THEN 0
+        WHEN m.availability_days && COALESCE(v_active_care_need.days_needed, '{}') THEN 25
+        ELSE 0
+      END +
+      -- Bonus for same zip code
+      CASE WHEN m.zip_code = v_user_zip THEN 10 ELSE 0 END +
+      -- Bonus for complementary roles (parent sees caregivers higher, and vice versa)
+      CASE
+        WHEN v_user_role IN ('family', 'parent') AND m.role = 'caregiver' THEN 15
+        WHEN v_user_role = 'caregiver' AND m.role IN ('family', 'parent') THEN 15
+        ELSE 5
+      END
+    )::integer as match_score,
     0::numeric as distance_miles,
     m.availability_days,
-    m.care_types,
-    m.also_open_to
+    m.care_types
   FROM members m
   WHERE
     m.id != p_user_id
     AND m.onboarding_complete = true
     AND (m.privacy_appear_in_search IS NULL OR m.privacy_appear_in_search = true)
-    -- Role filter
+    -- Filter by user type tab
     AND (
       p_match_filter = 'all'
-      OR (p_match_filter = 'caregivers' AND m.role = 'caregiver')
-      OR (p_match_filter = 'families' AND m.role IN ('family', 'parent', 'both'))
+      OR (p_match_filter = 'caregivers' AND (m.role = 'caregiver' OR 'caregiver' = ANY(m.roles)))
+      OR (p_match_filter = 'families' AND (m.role IN ('family', 'parent') OR 'family' = ANY(m.roles)))
     )
   ORDER BY match_score DESC, m.created_at DESC
   LIMIT p_limit;
