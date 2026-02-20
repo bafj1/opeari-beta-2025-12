@@ -641,7 +641,7 @@ export default function FamilyDashboard() {
         fetchMatches();
     }, [effectiveUserId, matchFilter, activeCareNeed?.id]);
 
-    // Fetch nearby members (includes connected — neighbors are neighbors)
+    // Fetch suggested members (includes connected — people you may know)
     useEffect(() => {
         async function fetchNearbyMembers() {
             if (!effectiveUserId) return;
@@ -1141,10 +1141,10 @@ export default function FamilyDashboard() {
                     {/* LEFT COLUMN (2/3) */}
                     <div className="lg:col-span-2 space-y-8">
 
-                        {/* Neighbors Near You */}
+                        {/* People You May Know */}
                         <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100 mb-6">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold text-[#1e6b4e]">Neighbors Near You</h2>
+                                <h2 className="text-xl font-bold text-[#1e6b4e]">People You May Know</h2>
                                 <Link to="/matches" className="text-sm text-[#1e6b4e] font-semibold hover:underline">
                                     View All →
                                 </Link>
@@ -1175,7 +1175,7 @@ export default function FamilyDashboard() {
                                             Invite a Family
                                         </button>
                                         <Link to="/matches" className="text-sm text-[#1e6b4e] hover:underline">
-                                            Find Neighbors →
+                                            Discover More →
                                         </Link>
                                     </div>
                                 </div>
