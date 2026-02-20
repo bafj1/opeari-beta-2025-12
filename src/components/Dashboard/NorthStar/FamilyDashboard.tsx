@@ -1229,55 +1229,51 @@ export default function FamilyDashboard() {
                             <div>
                                 {matchesLoading ? (
                                     <div
-                                        className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1"
+                                        className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1"
                                     >
                                         {[1, 2, 3].map(i => (
-                                            <div key={i} className="flex-shrink-0 animate-pulse bg-gray-100 rounded-[20px] h-[200px]" style={{ width: '380px' }} />
+                                            <div key={i} className="flex-shrink-0 animate-pulse bg-gray-100 rounded-[20px] h-[200px]" style={{ width: 'min(400px, 85vw)' }} />
                                         ))}
                                     </div>
                                 ) : topMatches.length === 0 ? (
                                     <div className="text-center py-8">
-                                        <p className="text-sm text-[#546E5C] mb-2">
+                                        <p className="text-sm text-[#546E5C] mb-2" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
                                             We're finding the best matches for you.
                                         </p>
-                                        <p className="text-xs text-gray-400">
+                                        <p className="text-xs text-gray-400" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
                                             As more families and caregivers join, your matches will appear here.
                                         </p>
                                     </div>
                                 ) : (
-                                    <div
-                                        className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1"
-                                        style={{ scrollSnapType: 'x mandatory' }}
-                                    >
-                                        {topMatches.slice(0, 6).map(match => (
-                                            <div
-                                                key={match.member_id}
-                                                className="flex-shrink-0 snap-start"
-                                                style={{ width: '380px' }}
-                                            >
-                                                <DashboardMatchCard
-                                                    memberId={match.member_id}
-                                                    name={match.display_name}
-                                                    role={match.role ?? 'parent'}
-                                                    neighborhood={(match as any).neighborhood}
-                                                    matchScore={match.match_score}
-                                                    distance={match.distance_miles}
-                                                    avatarUrl={match.avatar_url ?? undefined}
-                                                    availabilityDays={match.availability_days ?? undefined}
-                                                    careTypes={match.care_types ?? undefined}
-                                                    connectionStatus={statusById[match.member_id] || 'none'}
-                                                    isConnecting={connectingTo === match.member_id}
-                                                    onConnect={() => handleConnect(match.member_id)}
-                                                    onViewProfile={() => handleViewProfile(match.member_id)}
-                                                    onMessage={(id, name) => {
-                                                        setMessageRecipientId(id);
-                                                        setMessageRecipientName(name);
-                                                        setMessageOpen(true);
-                                                    }}
-                                                />
+                                    <>
+                                        {/* Scrollable match cards */}
+                                        <div
+                                            className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1"
+                                            style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'thin' }}
+                                        >
+                                            {topMatches.slice(0, 6).map((match: any) => (
+                                                <div
+                                                    key={match.member_id}
+                                                    className="flex-shrink-0 snap-start"
+                                                    style={{ width: 'min(400px, 85vw)' }}
+                                                >
+                                                    <DashboardMatchCard match={match} viewerId={viewer?.member?.id || ''} />
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Schedule legend */}
+                                        <div className="flex items-center gap-3 mt-3 text-[11px]" style={{ color: '#546E5C', fontFamily: 'Comfortaa, sans-serif' }}>
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-3 h-3 rounded-full" style={{ background: '#1E6B4E' }} />
+                                                <span>Schedule match</span>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-3 h-3 rounded-full" style={{ background: '#f0faf4', border: '1px solid rgba(139,215,199,0.4)' }} />
+                                                <span>No overlap</span>
+                                            </div>
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         </section>

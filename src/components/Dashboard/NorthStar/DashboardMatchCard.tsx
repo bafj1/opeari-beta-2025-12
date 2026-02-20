@@ -1,198 +1,132 @@
-// DashboardMatchCard — Top Matches card design for the Family Dashboard
+// DashboardMatchCard — Exact spec for Top Matches on the Family Dashboard
+import { useNavigate } from 'react-router-dom';
 
-const COLORS = {
-    primary: '#1E6B4E',
-    teal: '#8bd7c7',
-    coral: '#F8C3B3',
-    mint: '#d8f5e5',
-    bg: '#f0faf4',
-    textMuted: '#546E5C',
-    border: 'rgba(139,215,199,0.2)',
-};
+function DashboardMatchCard({ match, viewerId: _viewerId }: { match: any; viewerId: string }) {
+    const navigate = useNavigate();
 
-const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-const DAY_MAP: Record<string, number> = {
-    monday: 0, mon: 0,
-    tuesday: 1, tue: 1,
-    wednesday: 2, wed: 2,
-    thursday: 3, thu: 3,
-    friday: 4, fri: 4,
-    saturday: 5, sat: 5,
-    sunday: 6, sun: 6,
-};
+    // Determine role display
+    const role = match.role || 'parent';
+    const isCaregiver = role === 'caregiver';
+    const isParent = role === 'family' || role === 'parent';
+    const roleLabel = isCaregiver ? 'Caregiver' : isParent ? 'Parent' : 'Both';
 
-interface DashboardMatchCardProps {
-    memberId: string;
-    name: string;
-    role: string;
-    neighborhood?: string;
-    matchScore: number;
-    distance: number;
-    avatarUrl?: string;
-    availabilityDays?: string[];
-    careTypes?: string[];
-    connectionStatus: 'none' | 'pending' | 'accepted';
-    isConnecting?: boolean;
-    onConnect: () => void;
-    onViewProfile: () => void;
-    onMessage?: (id: string, name: string) => void;
-}
+    // Role-based badge colors
+    const roleBadgeBg = isCaregiver ? '#F8C3B3' : isParent ? '#d8f5e5' : '#8bd7c7';
+    const roleBadgeText = isCaregiver ? '#9B4D3A' : '#1E6B4E';
 
-export default function DashboardMatchCard({
-    memberId,
-    name,
-    role,
-    neighborhood,
-    matchScore,
-    distance,
-    avatarUrl,
-    availabilityDays,
-    careTypes,
-    connectionStatus,
-    isConnecting,
-    onConnect,
-    onViewProfile,
-    onMessage,
-}: DashboardMatchCardProps) {
-    const roleLabel = role === 'caregiver' ? 'Caregiver' : 'Parent';
-    const roleColor = role === 'caregiver' ? COLORS.coral : COLORS.mint;
-    const roleTextColor = role === 'caregiver' ? '#9B4D3A' : COLORS.primary;
+    // Schedule days
+    const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    const matchDays = match.availability_days || [];
 
-    // Convert availability_days strings to day indices
-    const scheduleDayIndices = (availabilityDays || []).map(d => DAY_MAP[d.toLowerCase()]).filter(i => i !== undefined);
+    // Care type formatting
+    const careTypes = (match.care_types || []).slice(0, 2).map((ct: string) =>
+        ct.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+    );
 
-    // Format care types for display
-    const displayCareTypes = (careTypes || []).slice(0, 2).map(ct => {
-        return ct.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    });
+    // Display name
+    const displayName = match.display_name || match.first_name || 'Member';
 
-    const isConnected = connectionStatus === 'accepted';
-    const isPending = connectionStatus === 'pending';
+    // Distance
+    const distance = match.distance_miles != null
+        ? (Number(match.distance_miles) < 1 ? '<1' : Math.round(Number(match.distance_miles)).toString())
+        : '?';
+
+    // Match score
+    const score = match.match_score || 0;
 
     return (
         <div
-            style={{
-                background: '#fff',
-                borderRadius: 20,
-                border: `2px solid ${COLORS.border}`,
-                overflow: 'hidden',
-                fontFamily: 'Comfortaa, sans-serif',
-                width: '100%',
-            }}
+            className="bg-white rounded-[20px] border-2 overflow-hidden"
+            style={{ borderColor: 'rgba(139,215,199,0.2)', fontFamily: 'Comfortaa, sans-serif' }}
         >
-            {/* Top gradient banner */}
+            {/* Top gradient accent */}
             <div
+                className="h-1.5"
                 style={{
-                    height: 6,
-                    background: `linear-gradient(90deg, ${COLORS.primary}, ${COLORS.teal})`,
+                    background: isCaregiver
+                        ? 'linear-gradient(90deg, #F8C3B3, #E8A090)'
+                        : 'linear-gradient(90deg, #1E6B4E, #8bd7c7)'
                 }}
             />
 
-            <div style={{ padding: '20px 24px' }}>
+            <div className="p-5">
                 {/* Row 1: Avatar + Info + Score */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                <div className="flex items-start gap-4">
                     {/* Avatar */}
                     <div
+                        className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden"
                         style={{
-                            width: 56,
-                            height: 56,
-                            borderRadius: '50%',
-                            background: avatarUrl ? `url(${avatarUrl}) center/cover no-repeat` : COLORS.mint,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                            fontSize: 24,
-                            border: `2px solid ${COLORS.teal}40`,
+                            background: isCaregiver ? '#FFF0EB' : '#d8f5e5',
+                            border: '2px solid rgba(139,215,199,0.3)'
                         }}
                     >
-                        {avatarUrl ? null : '🌿'}
+                        {match.avatar_url ? (
+                            <img
+                                src={match.avatar_url}
+                                alt={displayName}
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <span className="text-2xl" style={{ color: '#1E6B4E' }} aria-hidden="true">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1E6B4E" strokeWidth="2">
+                                    <circle cx="12" cy="8" r="4" />
+                                    <path d="M20 21a8 8 0 10-16 0" />
+                                </svg>
+                            </span>
+                        )}
                     </div>
 
                     {/* Name + Role + Location */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div className="flex-1 min-w-0">
+                        <p
+                            className="text-[17px] font-bold truncate"
+                            style={{ color: '#1E6B4E' }}
+                        >
+                            {displayName}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
                             <span
-                                style={{
-                                    fontSize: 17,
-                                    fontWeight: 700,
-                                    color: COLORS.primary,
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                }}
-                            >
-                                {name}
-                            </span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                            <span
-                                style={{
-                                    fontSize: 11,
-                                    fontWeight: 600,
-                                    color: roleTextColor,
-                                    background: roleColor + '40',
-                                    padding: '2px 10px',
-                                    borderRadius: 20,
-                                    letterSpacing: 0.3,
-                                }}
+                                className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
+                                style={{ background: roleBadgeBg, color: roleBadgeText }}
                             >
                                 {roleLabel}
                             </span>
-                            <span style={{ fontSize: 12, color: COLORS.textMuted }}>
-                                {neighborhood || 'Nearby'} · {distance < 1 ? '<1' : distance} mi
+                            <span className="text-xs" style={{ color: '#546E5C' }}>
+                                {match.neighborhood || 'Nearby'} · {distance} mi
                             </span>
                         </div>
                     </div>
 
-                    {/* Match Score Badge */}
+                    {/* Match Score */}
                     <div
-                        style={{
-                            background: COLORS.primary,
-                            color: '#fff',
-                            borderRadius: 12,
-                            padding: '6px 12px',
-                            fontSize: 13,
-                            fontWeight: 700,
-                            flexShrink: 0,
-                            whiteSpace: 'nowrap',
-                        }}
+                        className="flex-shrink-0 rounded-xl px-3 py-1.5 text-[13px] font-bold text-white"
+                        style={{ background: '#1E6B4E' }}
+                        role="status"
+                        aria-label={`${score} percent match`}
                     >
-                        {matchScore}% Match
+                        {score}% Match
                     </div>
                 </div>
 
                 {/* Row 2: Schedule + Care Types */}
                 <div
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginTop: 16,
-                        paddingTop: 14,
-                        borderTop: `1px solid ${COLORS.border}`,
-                    }}
+                    className="flex items-center justify-between mt-4 pt-3.5"
+                    style={{ borderTop: '1px solid rgba(139,215,199,0.2)' }}
                 >
                     {/* Schedule days */}
-                    <div style={{ display: 'flex', gap: 4 }}>
+                    <div className="flex gap-1" role="group" aria-label="Schedule availability">
                         {DAYS.map((day, i) => {
-                            const isMatch = scheduleDayIndices.includes(i);
+                            const isMatch = matchDays.includes(DAY_KEYS[i]);
                             return (
                                 <div
-                                    key={i}
+                                    key={DAY_KEYS[i]}
+                                    className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold transition-colors"
                                     style={{
-                                        width: 28,
-                                        height: 28,
-                                        borderRadius: '50%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: 11,
-                                        fontWeight: 600,
-                                        background: isMatch ? COLORS.primary : COLORS.bg,
-                                        color: isMatch ? '#fff' : COLORS.textMuted + '80',
-                                        transition: 'all 0.15s ease',
+                                        background: isMatch ? '#1E6B4E' : '#f0faf4',
+                                        color: isMatch ? '#fff' : 'rgba(84,110,92,0.5)',
                                     }}
+                                    aria-label={`${DAY_KEYS[i]}${isMatch ? ' - available' : ''}`}
                                 >
                                     {day}
                                 </div>
@@ -201,18 +135,12 @@ export default function DashboardMatchCard({
                     </div>
 
                     {/* Care type pills */}
-                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                        {displayCareTypes.map((ct, i) => (
+                    <div className="flex gap-1 flex-wrap justify-end">
+                        {careTypes.map((ct: string, i: number) => (
                             <span
-                                key={i}
-                                style={{
-                                    fontSize: 10,
-                                    color: COLORS.textMuted,
-                                    background: COLORS.bg,
-                                    padding: '3px 8px',
-                                    borderRadius: 8,
-                                    whiteSpace: 'nowrap',
-                                }}
+                                key={ct + i}
+                                className="text-[10px] px-2 py-0.5 rounded-lg whitespace-nowrap"
+                                style={{ color: '#546E5C', background: '#f0faf4' }}
                             >
                                 {ct}
                             </span>
@@ -220,131 +148,38 @@ export default function DashboardMatchCard({
                     </div>
                 </div>
 
-                {/* Row 3: Action buttons */}
-                <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-                    {isConnected ? (
-                        <>
-                            <button
-                                type="button"
-                                onClick={() => onMessage?.(memberId, name)}
-                                style={{
-                                    flex: 1,
-                                    padding: '10px 0',
-                                    borderRadius: 12,
-                                    border: 'none',
-                                    background: COLORS.primary + '15',
-                                    color: COLORS.primary,
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                    fontFamily: 'Comfortaa, sans-serif',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                Message
-                            </button>
-                            <button
-                                type="button"
-                                onClick={onViewProfile}
-                                style={{
-                                    flex: 1,
-                                    padding: '10px 0',
-                                    borderRadius: 12,
-                                    border: `1.5px solid ${COLORS.teal}50`,
-                                    background: 'transparent',
-                                    color: COLORS.primary,
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                    fontFamily: 'Comfortaa, sans-serif',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                View Profile
-                            </button>
-                        </>
-                    ) : isPending ? (
-                        <>
-                            <button
-                                type="button"
-                                disabled
-                                style={{
-                                    flex: 1,
-                                    padding: '10px 0',
-                                    borderRadius: 12,
-                                    border: `1.5px solid ${COLORS.teal}40`,
-                                    background: COLORS.bg,
-                                    color: COLORS.textMuted,
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                    fontFamily: 'Comfortaa, sans-serif',
-                                    cursor: 'default',
-                                    opacity: 0.7,
-                                }}
-                            >
-                                Pending
-                            </button>
-                            <button
-                                type="button"
-                                onClick={onViewProfile}
-                                style={{
-                                    flex: 1,
-                                    padding: '10px 0',
-                                    borderRadius: 12,
-                                    border: `1.5px solid ${COLORS.teal}50`,
-                                    background: 'transparent',
-                                    color: COLORS.primary,
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                    fontFamily: 'Comfortaa, sans-serif',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                View Profile
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <button
-                                type="button"
-                                onClick={onConnect}
-                                disabled={isConnecting}
-                                style={{
-                                    flex: 1,
-                                    padding: '10px 0',
-                                    borderRadius: 12,
-                                    border: 'none',
-                                    background: COLORS.primary,
-                                    color: '#fff',
-                                    fontSize: 13,
-                                    fontWeight: 700,
-                                    fontFamily: 'Comfortaa, sans-serif',
-                                    cursor: isConnecting ? 'wait' : 'pointer',
-                                    opacity: isConnecting ? 0.6 : 1,
-                                }}
-                            >
-                                {isConnecting ? 'Sending...' : 'Connect'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={onViewProfile}
-                                style={{
-                                    flex: 1,
-                                    padding: '10px 0',
-                                    borderRadius: 12,
-                                    border: `1.5px solid ${COLORS.teal}50`,
-                                    background: 'transparent',
-                                    color: COLORS.primary,
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                    fontFamily: 'Comfortaa, sans-serif',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                View Profile
-                            </button>
-                        </>
-                    )}
+                {/* Row 3: Action Buttons */}
+                <div className="flex gap-2 mt-3.5">
+                    <button
+                        onClick={() => navigate(`/messages`)}
+                        className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E6B4E]"
+                        style={{
+                            background: 'rgba(30,107,78,0.08)',
+                            color: '#1E6B4E',
+                            fontFamily: 'Comfortaa, sans-serif',
+                            border: 'none',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        Message
+                    </button>
+                    <button
+                        onClick={() => navigate(`/member/${match.member_id}`)}
+                        className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E6B4E]"
+                        style={{
+                            background: 'transparent',
+                            color: '#1E6B4E',
+                            fontFamily: 'Comfortaa, sans-serif',
+                            border: '1.5px solid rgba(139,215,199,0.35)',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        View Profile
+                    </button>
                 </div>
             </div>
         </div>
     );
 }
+
+export default DashboardMatchCard;
