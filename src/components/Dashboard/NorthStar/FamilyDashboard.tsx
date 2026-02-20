@@ -630,7 +630,49 @@ export default function FamilyDashboard() {
             if (!effectiveUserId) return;
             try {
                 setMatchesLoading(true);
-                const result = await getTopMatches(effectiveUserId, matchFilter, 10);
+                let result: MatchResult[] = [];
+                try {
+                    result = await getTopMatches(effectiveUserId, matchFilter, 10);
+                } catch (rpcError) {
+                    console.warn('get_top_matches RPC failed, using fallback:', rpcError);
+                }
+
+                // Fallback: if RPC returns empty or failed, query members directly
+                if (result.length === 0) {
+                    const { data: members } = await supabase
+                        .from('members')
+                        .select('id, first_name, last_name, role, avatar_url, availability_days, care_types, also_open_to, neighborhood, zip_code')
+                        .neq('id', effectiveUserId)
+                        .eq('onboarding_complete', true);
+
+                    if (members && members.length > 0) {
+                        const myMember = viewer?.member;
+                        result = members
+                            .filter(m => {
+                                if (matchFilter === 'caregivers') return m.role === 'caregiver';
+                                if (matchFilter === 'families') return m.role === 'family' || m.role === 'parent' || m.role === 'both';
+                                return true; // 'all'
+                            })
+                            .map(m => ({
+                                member_id: m.id,
+                                display_name: `${m.first_name || ''} ${(m.last_name || '').charAt(0)}.`.trim(),
+                                role: m.role,
+                                avatar_url: m.avatar_url,
+                                match_score: (
+                                    (m.neighborhood === myMember?.neighborhood ? 25 : 0) +
+                                    (m.zip_code === myMember?.zip_code ? 10 : 0) +
+                                    10 // base score
+                                ),
+                                distance_miles: 0,
+                                availability_days: m.availability_days || [],
+                                care_types: m.care_types || [],
+                                also_open_to: m.also_open_to || [],
+                            }))
+                            .sort((a, b) => b.match_score - a.match_score)
+                            .slice(0, 10);
+                    }
+                }
+
                 setTopMatches(result);
             } catch (error) {
                 console.error('Error fetching matches:', error);
@@ -1183,11 +1225,11 @@ export default function FamilyDashboard() {
                             </div>
 
                             {/* Match Cards */}
-                            <div className="space-y-4">
+                            <div>
                                 {matchesLoading ? (
-                                    <div className="space-y-4">
+                                    <div className="flex gap-4 overflow-x-auto pb-2">
                                         {[1, 2, 3].map(i => (
-                                            <div key={i} className="animate-pulse bg-gray-100 rounded-[15px] h-32" />
+                                            <div key={i} className="flex-shrink-0 min-w-[300px] animate-pulse bg-gray-100 rounded-[15px] h-32" />
                                         ))}
                                     </div>
                                 ) : topMatches.length === 0 ? (
@@ -1200,165 +1242,62 @@ export default function FamilyDashboard() {
                                         </p>
                                     </div>
                                 ) : (
-                                    topMatches.map(match => {
-                                        // Calculate Schedule Overlap
-                                        // Priority: Active Care Need -> User Profile -> Empty
-                                        const myDays = (activeCareNeed?.days_needed || viewer?.member?.availability_days || []).map((d: string) => d.toLowerCase());
-                                        const theirDays = (match.availability_days || []).map(d => d.toLowerCase());
-                                        const overlappingDays = theirDays.filter(d => myDays.includes(d));
+                                    <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 snap-x scrollbar-none">
+                                        {topMatches.map(match => {
+                                            const myDays = (activeCareNeed?.days_needed || viewer?.member?.availability_days || []).map((d: string) => d.toLowerCase());
+                                            const theirDays = (match.availability_days || []).map(d => d.toLowerCase());
+                                            const overlappingDays = theirDays.filter(d => myDays.includes(d));
 
-                                        // Format overlap text
-                                        let overlapText = '';
-                                        if (overlappingDays.length > 0) {
-                                            if (overlappingDays.length === 7) overlapText = 'Full week overlap';
-                                            else if (overlappingDays.length === 5 && ['mon', 'tue', 'wed', 'thu', 'fri'].every(d => overlappingDays.includes(d))) overlapText = 'Mon-Fri match';
-                                            else overlapText = `${overlappingDays.length} day${overlappingDays.length === 1 ? '' : 's'} overlap`;
-                                        }
+                                            let overlapText = '';
+                                            if (overlappingDays.length > 0) {
+                                                if (overlappingDays.length === 7) overlapText = 'Full week overlap';
+                                                else if (overlappingDays.length === 5 && ['mon', 'tue', 'wed', 'thu', 'fri'].every(d => overlappingDays.includes(d))) overlapText = 'Mon-Fri match';
+                                                else overlapText = `${overlappingDays.length} day${overlappingDays.length === 1 ? '' : 's'} overlap`;
+                                            }
 
-                                        return (
-                                            <MatchCard
-                                                key={match.member_id}
-                                                {...{
-                                                    id: match.member_id,
-                                                    targetMemberId: match.member_id,
-                                                    name: match.display_name,
-                                                    photo: match.avatar_url || 'https://via.placeholder.com/150',
-                                                    distance: match.distance_miles,
-                                                    scheduleOverlap: match.match_score,
-                                                    matchDays: overlappingDays, // Pass INTERSECTION
-                                                    type: match.role === 'caregiver' ? 'caregiver' : 'parent',
-                                                    availability: match.availability_days || [],
-                                                    bio: '',
-                                                    verified: false,
-                                                    inVillage: false,
-                                                    // Derived fields
-                                                    kids: [], // TODO: map kids
-                                                    matchScore: match.match_score
-                                                } as any}
-                                                tags={getSharedCareTags(match)}
-                                                contextText={
-                                                    match.care_types?.includes('nanny-share') ? 'Open to nanny share' :
-                                                        match.match_score >= 80 ? 'Strong match based on your preferences' :
-                                                            overlappingDays.length > 0 ? `${overlapText} · ${match.distance_miles} miles` : // Use overlap text
-                                                                match.distance_miles < 1 ? `Nearby · ${match.distance_miles} miles` :
-                                                                    'Based on your care preferences'
-                                                }
-                                                onClick={() => handleViewProfile(match.member_id)}
-                                                onConnect={() => handleConnect(match.member_id)}
-                                                connectionStatus={statusById[match.member_id] || 'none'}
-                                                isConnecting={connectingTo === match.member_id}
-                                                onMessage={(id, name) => {
-                                                    setMessageRecipientId(id);
-                                                    setMessageRecipientName(name);
-                                                    setMessageOpen(true);
-                                                }}
-                                            />
-                                        )
-                                    })
+                                            return (
+                                                <div key={match.member_id} className="min-w-[300px] max-w-[360px] flex-shrink-0 snap-start">
+                                                    <MatchCard
+                                                        {...{
+                                                            id: match.member_id,
+                                                            targetMemberId: match.member_id,
+                                                            name: match.display_name,
+                                                            photo: match.avatar_url || 'https://via.placeholder.com/150',
+                                                            distance: match.distance_miles,
+                                                            scheduleOverlap: match.match_score,
+                                                            matchDays: overlappingDays,
+                                                            type: match.role === 'caregiver' ? 'caregiver' : 'parent',
+                                                            availability: match.availability_days || [],
+                                                            bio: '',
+                                                            verified: false,
+                                                            inVillage: false,
+                                                            kids: [],
+                                                            matchScore: match.match_score
+                                                        } as any}
+                                                        tags={getSharedCareTags(match)}
+                                                        contextText={
+                                                            match.care_types?.includes('nanny-share') ? 'Open to nanny share' :
+                                                                match.match_score >= 80 ? 'Strong match based on your preferences' :
+                                                                    overlappingDays.length > 0 ? `${overlapText} · ${match.distance_miles} miles` :
+                                                                        match.distance_miles < 1 ? `Nearby · ${match.distance_miles} miles` :
+                                                                            'Based on your care preferences'
+                                                        }
+                                                        onClick={() => handleViewProfile(match.member_id)}
+                                                        onConnect={() => handleConnect(match.member_id)}
+                                                        connectionStatus={statusById[match.member_id] || 'none'}
+                                                        isConnecting={connectingTo === match.member_id}
+                                                        onMessage={(id, name) => {
+                                                            setMessageRecipientId(id);
+                                                            setMessageRecipientName(name);
+                                                            setMessageOpen(true);
+                                                        }}
+                                                    />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 )}
                             </div>
-                        </section>
-
-                        {/* People You May Know */}
-                        <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100 mb-6">
-                            {suggestedConnections.length > 0 && (
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-xl font-bold text-[#1e6b4e]">People You May Know</h2>
-                                    <Link to="/matches" className="text-sm text-[#1e6b4e] font-semibold hover:underline">
-                                        View All →
-                                    </Link>
-                                </div>
-                            )}
-
-                            {connectionsLoading ? (
-                                <div className="flex gap-4 overflow-x-auto pb-2">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="flex-shrink-0 w-36 h-48 bg-gray-100 rounded-[15px] animate-pulse" />
-                                    ))}
-                                </div>
-                            ) : suggestedConnections.length === 0 ? (
-                                <div className="flex items-center justify-between py-1">
-                                    <p className="text-sm text-[#546E5C]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                        Know someone who'd love Opeari?
-                                    </p>
-                                    <div className="flex items-center gap-4">
-                                        <Link to="/invite-friends" className="text-sm font-semibold text-[#1E6B4E] hover:underline" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                            Invite a Friend
-                                        </Link>
-                                        <Link to="/matches" className="text-sm text-[#546E5C] hover:text-[#1E6B4E]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                            Discover More →
-                                        </Link>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-none">
-                                    {suggestedConnections.map(person => (
-                                        <div
-                                            key={person.member_id}
-                                            className="flex-shrink-0 w-36 bg-white rounded-[15px] p-4 border border-gray-100 hover:border-[#8bd7c7] hover:shadow-md transition-all text-center group"
-                                        >
-                                            <img
-                                                src={person.avatar_url || 'https://via.placeholder.com/100'}
-                                                alt={person.display_name}
-                                                className="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2 border-[#8bd7c7] group-hover:scale-105 transition-transform"
-                                            />
-                                            <p className="font-semibold text-sm text-[#1e6b4e] truncate mb-0.5">
-                                                {person.display_name}
-                                            </p>
-                                            <p className="text-xs text-[#546E5C] mb-1 truncate">
-                                                {person.neighborhood || 'Nearby'}
-                                            </p>
-                                            <p className="text-xs text-[#546E5C] mb-1">
-                                                {person.mutual_connection_count} mutual
-                                            </p>
-                                            <div className="flex flex-wrap gap-1 mt-2 mb-1">
-                                                {getSharedCareTags(person).map((tag, idx) => (
-                                                    <SharedCareTag key={idx} label={tag} />
-                                                ))}
-                                            </div>
-                                            {!person.care_types?.includes('nanny-share') && (
-                                                <div className="mb-3"></div>
-                                            )}
-                                            {person.connection_status === 'accepted' ? (
-                                                <Link
-                                                    to={`/messages?to=${person.member_id}`}
-                                                    className="w-full px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-medium text-center block"
-                                                >
-                                                    Message
-                                                </Link>
-                                            ) : person.connection_status === 'pending' ? (
-                                                <span className="w-full px-3 py-1.5 rounded-full border border-gray-200 text-[#546E5C] text-xs font-medium text-center block">
-                                                    Pending
-                                                </span>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleConnect(person.member_id)}
-                                                    disabled={connectingTo === person.member_id}
-                                                    className="w-full px-3 py-1.5 rounded-full border border-gray-300 text-[#546E5C] text-xs font-medium hover:border-[#1e6b4e] hover:text-[#1e6b4e] transition-all disabled:opacity-50"
-                                                >
-                                                    {connectingTo === person.member_id ? 'Sending...' : 'Connect'}
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
-                                    <div className="flex-shrink-0 w-36 bg-gradient-to-br from-[#d8f5e5] to-[#8bd7c7]/20 rounded-[15px] p-4 border border-dashed border-[#8bd7c7] text-center flex flex-col items-center justify-center">
-                                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-3 shadow-sm">
-                                            <UserPlus className="w-6 h-6 text-[#1e6b4e]" />
-                                        </div>
-                                        <p className="text-xs text-[#1e6b4e] font-medium mb-3">
-                                            Invite friends
-                                        </p>
-                                        <button
-                                            type="button"
-                                            onClick={() => setInviteModalOpen(true)}
-                                            className="px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-semibold hover:bg-[#155a3e] transition-all"
-                                        >
-                                            Invite
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
                         </section>
 
                         {/* Active Care Need */}
@@ -1493,6 +1432,108 @@ export default function FamilyDashboard() {
                                     </div>
                                 )}
                             </div>
+                        </section>
+
+                        {/* People You May Know / Invite Banner — Bottom of left column */}
+                        <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100 mb-6">
+                            {suggestedConnections.length > 0 && (
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-xl font-bold text-[#1e6b4e]">People You May Know</h2>
+                                    <Link to="/matches" className="text-sm text-[#1e6b4e] font-semibold hover:underline">
+                                        View All →
+                                    </Link>
+                                </div>
+                            )}
+
+                            {connectionsLoading ? (
+                                <div className="flex gap-4 overflow-x-auto pb-2">
+                                    {[1, 2, 3, 4].map(i => (
+                                        <div key={i} className="flex-shrink-0 w-36 h-48 bg-gray-100 rounded-[15px] animate-pulse" />
+                                    ))}
+                                </div>
+                            ) : suggestedConnections.length === 0 ? (
+                                <div className="flex items-center justify-between py-1">
+                                    <p className="text-sm text-[#546E5C]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+                                        Know someone who'd love Opeari?
+                                    </p>
+                                    <div className="flex items-center gap-4">
+                                        <Link to="/invite-friends" className="text-sm font-semibold text-[#1E6B4E] hover:underline" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+                                            Invite a Friend
+                                        </Link>
+                                        <Link to="/matches" className="text-sm text-[#546E5C] hover:text-[#1E6B4E]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+                                            Discover More →
+                                        </Link>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-none">
+                                    {suggestedConnections.map(person => (
+                                        <div
+                                            key={person.member_id}
+                                            className="flex-shrink-0 w-36 bg-white rounded-[15px] p-4 border border-gray-100 hover:border-[#8bd7c7] hover:shadow-md transition-all text-center group"
+                                        >
+                                            <img
+                                                src={person.avatar_url || 'https://via.placeholder.com/100'}
+                                                alt={person.display_name}
+                                                className="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2 border-[#8bd7c7] group-hover:scale-105 transition-transform"
+                                            />
+                                            <p className="font-semibold text-sm text-[#1e6b4e] truncate mb-0.5">
+                                                {person.display_name}
+                                            </p>
+                                            <p className="text-xs text-[#546E5C] mb-1 truncate">
+                                                {person.neighborhood || 'Nearby'}
+                                            </p>
+                                            <p className="text-xs text-[#546E5C] mb-1">
+                                                {person.mutual_connection_count} mutual
+                                            </p>
+                                            <div className="flex flex-wrap gap-1 mt-2 mb-1">
+                                                {getSharedCareTags(person).map((tag, idx) => (
+                                                    <SharedCareTag key={idx} label={tag} />
+                                                ))}
+                                            </div>
+                                            {!person.care_types?.includes('nanny-share') && (
+                                                <div className="mb-3"></div>
+                                            )}
+                                            {person.connection_status === 'accepted' ? (
+                                                <Link
+                                                    to={`/messages?to=${person.member_id}`}
+                                                    className="w-full px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-medium text-center block"
+                                                >
+                                                    Message
+                                                </Link>
+                                            ) : person.connection_status === 'pending' ? (
+                                                <span className="w-full px-3 py-1.5 rounded-full border border-gray-200 text-[#546E5C] text-xs font-medium text-center block">
+                                                    Pending
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleConnect(person.member_id)}
+                                                    disabled={connectingTo === person.member_id}
+                                                    className="w-full px-3 py-1.5 rounded-full border border-gray-300 text-[#546E5C] text-xs font-medium hover:border-[#1e6b4e] hover:text-[#1e6b4e] transition-all disabled:opacity-50"
+                                                >
+                                                    {connectingTo === person.member_id ? 'Sending...' : 'Connect'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <div className="flex-shrink-0 w-36 bg-gradient-to-br from-[#d8f5e5] to-[#8bd7c7]/20 rounded-[15px] p-4 border border-dashed border-[#8bd7c7] text-center flex flex-col items-center justify-center">
+                                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-3 shadow-sm">
+                                            <UserPlus className="w-6 h-6 text-[#1e6b4e]" />
+                                        </div>
+                                        <p className="text-xs text-[#1e6b4e] font-medium mb-3">
+                                            Invite friends
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => setInviteModalOpen(true)}
+                                            className="px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-semibold hover:bg-[#155a3e] transition-all"
+                                        >
+                                            Invite
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </section>
 
 
