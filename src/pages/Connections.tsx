@@ -98,10 +98,9 @@ export default function Connections() {
                 const roleLabel = member.role === 'caregiver' ? 'Caregiver' : member.role === 'both' ? 'Parent & Caregiver' : 'Parent';
 
                 return (
-                  <Link
+                  <div
                     key={member.id}
-                    to={`/member/${member.id}`}
-                    className="block bg-white rounded-[20px] border border-[#8bd7c7]/20 shadow-sm hover:shadow-md hover:border-[#8bd7c7]/40 transition-all overflow-hidden group"
+                    className="bg-white rounded-[20px] border border-[#8bd7c7]/20 shadow-sm hover:shadow-md hover:border-[#8bd7c7]/40 transition-all overflow-hidden"
                   >
                     {/* Top gradient banner */}
                     <div className="h-16 bg-gradient-to-r from-[#d8f5e5] via-[#8bd7c7]/20 to-[#F8C3B3]/10" />
@@ -114,7 +113,7 @@ export default function Connections() {
                           <img
                             src={member.avatar_url}
                             alt={displayName}
-                            className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform"
+                            className="w-full h-full object-cover rounded-full hover:scale-105 transition-transform"
                           />
                         ) : (
                           <div className="w-full h-full rounded-full bg-[#d8f5e5] flex items-center justify-center">
@@ -145,18 +144,20 @@ export default function Connections() {
                       <div className="flex gap-2">
                         <Link
                           to={`/messages?to=${member.id}`}
-                          onClick={e => e.stopPropagation()}
                           className="flex-1 py-2 rounded-full bg-[#1e6b4e] text-white text-xs font-semibold text-center hover:bg-[#174f3a] transition-colors flex items-center justify-center gap-1.5"
                         >
                           <MessageCircle className="w-3.5 h-3.5" />
                           Message
                         </Link>
-                        <span className="flex-1 py-2 rounded-full border border-[#8bd7c7]/30 text-xs font-semibold text-[#1e6b4e] text-center group-hover:bg-[#d8f5e5]/50 transition-colors">
+                        <Link
+                          to={`/member/${member.id}`}
+                          className="flex-1 py-2 rounded-full border border-[#8bd7c7]/30 text-xs font-semibold text-[#1e6b4e] text-center hover:bg-[#d8f5e5]/50 transition-colors"
+                        >
                           View Profile
-                        </span>
+                        </Link>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
