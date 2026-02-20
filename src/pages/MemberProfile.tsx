@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
-import { Star, Calendar, MapPin, Globe, Sparkles, Baby, Car, Handshake, Wind, PawPrint, CircleParking } from 'lucide-react'
+import { Link, useParams } from 'react-router-dom'
+import { Star, Calendar, MapPin, Globe, Sparkles, Baby, Car, Handshake, Wind, PawPrint, CircleParking, CheckCircle2, Moon, Dumbbell } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useViewer } from '../hooks/useViewer'
 import { supabase } from '../lib/supabase'
@@ -76,6 +76,10 @@ interface MemberData {
   available_overnight?: boolean
   household_preferences?: string[]
   support_offered?: string[]
+  has_transportation?: boolean
+  can_lift_30lbs?: boolean
+  comfortable_with_stairs?: boolean
+  vetting_status?: string
 
   email?: string
   phone?: string
@@ -97,20 +101,10 @@ const COLORS = {
   textMuted: '#4A6163',
 }
 
-// Gender color helper
-function getGenderColor(gender: string | null): { bg: string; text: string } {
-  switch (gender) {
-    case 'boy': return { bg: '#E3F2FD', text: '#1976D2' }
-    case 'girl': return { bg: '#FCE4EC', text: '#C2185B' }
-    default: return { bg: COLORS.mint, text: COLORS.primary }
-  }
-}
-
 export default function MemberProfile() {
   const { id } = useParams<{ id: string }>()
   const { user } = useAuth()
   const { viewer } = useViewer()
-  const navigate = useNavigate()
 
   const [loading, setLoading] = useState(true)
   const [member, setMember] = useState<MemberData | null>(null)
@@ -369,6 +363,16 @@ export default function MemberProfile() {
         linkedin_handle: dataToUse.linkedin_handle,
         facebook_handle: dataToUse.facebook_handle,
         support_offered: dataToUse.support_offered || [],
+
+        // Avatar
+        avatar_url: dataToUse.avatar_url,
+        photo_url: dataToUse.photo_url,
+
+        // Additional preferences
+        has_transportation: dataToUse.has_transportation,
+        can_lift_30lbs: dataToUse.can_lift_30lbs,
+        comfortable_with_stairs: dataToUse.comfortable_with_stairs,
+        vetting_status: dataToUse.vetting_status,
       }
 
       setMember(fullMember)
@@ -558,14 +562,13 @@ export default function MemberProfile() {
           duration={3000}
         />
       )}
-      <div className="min-h-screen" style={{ backgroundColor: COLORS.mint }}>
-        <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="min-h-screen bg-[#d8f5e5]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+        <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
 
           {/* Back Link */}
           <Link
             to="/village"
-            style={{ color: COLORS.textMuted }}
-            className="inline-flex items-center gap-1 text-sm mb-4 hover:underline"
+            className="inline-flex items-center gap-1 text-sm text-[#546E5C] hover:underline"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -573,510 +576,447 @@ export default function MemberProfile() {
             Back to Village
           </Link>
 
-          {/* Main Card */}
-          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: COLORS.cream, border: `1px solid ${COLORS.mintDark} ` }}>
+          {/* ===== PROFILE HEADER CARD ===== */}
+          <div className="bg-white rounded-[24px] overflow-hidden border border-[#8bd7c7]/20 shadow-sm">
+            {/* Top Banner — gradient */}
+            <div className="h-24 bg-gradient-to-r from-[#d8f5e5] via-[#8bd7c7]/30 to-[#F8C3B3]/20" />
 
-            {/* Header Section */}
-            <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark} ` }}>
-              <div className="flex items-start gap-4">
+            {/* Avatar + Name overlay */}
+            <div className="px-6 pb-6 -mt-12">
+              <div className="flex items-end gap-4 mb-4">
                 {/* Avatar */}
-                <div className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0" style={{ backgroundColor: COLORS.mint }}>
+                <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-md flex items-center justify-center overflow-hidden flex-shrink-0">
                   {(member.avatar_url || member.photo_url) ? (
-                    <img src={member.avatar_url || member.photo_url} alt={member.first_name} className="w-full h-full object-cover" />
+                    <img
+                      src={member.avatar_url || member.photo_url}
+                      alt={member.first_name}
+                      className="w-full h-full object-cover rounded-full"
+                    />
                   ) : (
-                    <span style={{ color: COLORS.primary }} className="text-3xl font-bold">
-                      {member.first_name?.charAt(0)}
-                    </span>
+                    <div className="w-full h-full rounded-full bg-[#d8f5e5] flex items-center justify-center">
+                      <span className="text-3xl font-bold text-[#1e6b4e]">
+                        {(member.first_name || '?').charAt(0)}
+                      </span>
+                    </div>
                   )}
                 </div>
 
-                {/* Info */}
-                <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <h1 style={{ color: COLORS.primary }} className="text-2xl font-bold">
-                      {member.role === 'caregiver'
-                        ? `${member.first_name} ${member.first_name ? 'G.' : ''} `
-                        : `${member.first_name} 's Family`
-                      }
-                    </h1 >
-                  </div >
-                  <p style={{ color: COLORS.textMuted }} className="mt-1">
-                    {member.neighborhood || member.zip_code || 'Location not shared'}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {member.timeline === 'asap' && (
-                      <span className="px-3 py-1.5 rounded-full text-sm font-bold bg-[#FEF3C7] text-[#92400E] border border-[#d97706]/20 flex items-center gap-1">
-                        Looking ASAP
+                <div className="pb-1 min-w-0">
+                  <h1 className="text-2xl font-bold text-[#1e6b4e] truncate">
+                    {member.role === 'caregiver'
+                      ? `${member.first_name}`
+                      : `${member.first_name}'s Family`}
+                  </h1>
+                  {(member.neighborhood || member.zip_code) && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <MapPin className="w-3.5 h-3.5 text-[#546E5C]" />
+                      <span className="text-sm text-[#546E5C]">
+                        {member.neighborhood || member.zip_code}
                       </span>
-                    )}
+                    </div>
+                  )}
+                </div>
+              </div>
 
-                    {situationLabel && (
-                      <span
-                        className="px-3 py-1.5 rounded-full text-sm font-semibold"
-                        style={{
-                          backgroundColor: member.situation === 'have_nanny' ? COLORS.mint : 'rgba(248, 195, 179, 0.2)',
-                          color: member.situation === 'have_nanny' ? COLORS.primary : COLORS.coral,
-                        }}
+              {/* Role + Timeline badges */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#d8f5e5] text-[#1e6b4e]">
+                  {member.role === 'caregiver' ? 'Caregiver' : member.role === 'both' ? 'Parent & Caregiver' : 'Parent'}
+                </span>
+                {member.timeline === 'asap' && (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#FEF3C7] text-[#92400E]">
+                    Looking ASAP
+                  </span>
+                )}
+                {situationLabel && (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold"
+                    style={{
+                      backgroundColor: member.situation === 'have_nanny' ? '#d8f5e5' : 'rgba(248, 195, 179, 0.2)',
+                      color: member.situation === 'have_nanny' ? '#1e6b4e' : '#c4785e',
+                    }}
+                  >
+                    {situationLabel}
+                  </span>
+                )}
+                {member.vetting_status === 'verified' && (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#d8f5e5] text-[#1e6b4e] flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Verified
+                  </span>
+                )}
+              </div>
+
+              {/* Endorsement Badge */}
+              {endorsementCount > 0 && (
+                <div className="flex items-center gap-1.5 mb-4 px-3 py-1.5 rounded-full bg-[#f0faf4] border border-[#8bd7c7]/15 w-fit">
+                  <Star className="w-3.5 h-3.5 text-[#F59E0B] fill-[#F59E0B]" />
+                  <span className="text-xs font-semibold text-[#1e6b4e]">
+                    {endorsementCount} {endorsementCount === 1 ? 'endorsement' : 'endorsements'}
+                  </span>
+                  {avgRating > 0 && (
+                    <span className="text-xs text-[#546E5C]">· {avgRating} avg</span>
+                  )}
+                </div>
+              )}
+
+              {/* Stats Row */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15">
+                  <p className="text-xl font-bold text-[#1e6b4e]">{member.care_types?.length || 0}</p>
+                  <p className="text-[10px] text-[#546E5C] uppercase tracking-wide font-medium">Care Needs</p>
+                </div>
+                <div className="text-center p-3 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15">
+                  <p className="text-xl font-bold text-[#1e6b4e]">{connectionCount}</p>
+                  <p className="text-[10px] text-[#546E5C] uppercase tracking-wide font-medium">Connections</p>
+                </div>
+                <div className="text-center p-3 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15">
+                  <p className="text-xl font-bold text-[#1e6b4e]">{mutualCount}</p>
+                  <p className="text-[10px] text-[#546E5C] uppercase tracking-wide font-medium">Mutual</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ===== WHY YOU MIGHT BE A GOOD FIT ===== */}
+          {(() => {
+            const signals = computeCompatibility();
+            if (!signals || signals.length === 0) return null;
+
+            const iconMap: Record<string, React.FC<any>> = {
+              'calendar': Calendar, 'sparkles': Sparkles, 'baby': Baby,
+              'location': MapPin, 'language': Globe, 'transport': Car,
+              'handshake': Handshake, 'smoke-free': Wind, 'pets': PawPrint,
+              'parking': CircleParking,
+            };
+
+            return (
+              <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+                <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Why You Might Be A Good Fit</h3>
+                <div className="flex flex-wrap gap-2">
+                  {signals.map((signal, idx) => {
+                    const IconComp = iconMap[signal.icon] || Star;
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15 text-sm"
                       >
-                        {situationLabel}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Endorsement Badge */}
-                  {
-                    endorsementCount > 0 && (
-                      <div className="flex items-center gap-1.5 mt-2" style={{ display: 'inline-flex', padding: '4px 12px', borderRadius: '20px', backgroundColor: COLORS.mint }}>
-                        <span style={{ color: '#F59E0B', fontSize: '14px' }}>★</span>
-                        <span className="text-xs font-semibold" style={{ color: COLORS.primary }}>
-                          {endorsementCount} {endorsementCount === 1 ? 'endorsement' : 'endorsements'}
-                        </span>
-                        {avgRating > 0 && (
-                          <span className="text-xs" style={{ color: COLORS.textMuted }}>· {avgRating} avg</span>
-                        )}
+                        <IconComp className="w-4 h-4 text-[#1e6b4e] flex-shrink-0" />
+                        <span className="text-[#546E5C]">{signal.label}</span>
                       </div>
-                    )
-                  }
-                </div >
-              </div >
-            </div >
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
 
-            {/* STATS BAR */}
-            < div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '1px',
-              backgroundColor: COLORS.mintDark,
-              borderBottom: `1px solid ${COLORS.mintDark}`
-            }}>
-              <div style={{ backgroundColor: COLORS.cream, padding: '16px', textAlign: 'center' }}>
-                <div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.primary }}>
-                  {member.care_types?.length || 0}
-                </div>
-                <div style={{ fontSize: '11px', color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>
-                  Care Needs
-                </div>
-              </div>
-              <div style={{ backgroundColor: COLORS.cream, padding: '16px', textAlign: 'center' }}>
-                <div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.primary }}>
-                  {connectionCount}
-                </div>
-                <div style={{ fontSize: '11px', color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>
-                  Connections
-                </div>
-              </div>
-              <div style={{ backgroundColor: COLORS.cream, padding: '16px', textAlign: 'center' }}>
-                <div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.primary }}>
-                  {mutualCount}
-                </div>
-                <div style={{ fontSize: '11px', color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '4px' }}>
-                  Mutual
-                </div>
-              </div>
-            </div >
+          {/* ===== ABOUT / BIO ===== */}
+          {member.bio && (
+            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+              <h3 className="text-base font-bold text-[#1e6b4e] mb-3">About</h3>
+              <p className="text-sm text-[#546E5C] leading-relaxed whitespace-pre-line">
+                {member.bio.startsWith('Looking for:')
+                  ? `Looking for ${humanizeCareType(member.bio.replace('Looking for: ', '').trim())}`
+                  : member.bio}
+              </p>
+            </div>
+          )}
 
-            {/* Compatibility Signals (Connected Only) */}
-            {
-              (() => {
-                const signals = computeCompatibility();
-                if (!signals || signals.length === 0) return null;
-                return (
-                  <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}`, backgroundColor: 'rgba(139,215,199,0.06)' }}>
-                    <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-3">
-                      Why You Might Be A Good Fit
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {signals.map((signal, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '6px 14px',
-                            borderRadius: '20px',
-                            backgroundColor: 'white',
-                            border: '1px solid rgba(139,215,199,0.4)',
-                            fontSize: '13px',
-                            color: COLORS.primary,
-                            fontWeight: 500,
-                          }}
-                        >
-                          {(() => {
-                            const iconMap: Record<string, React.FC<any>> = {
-                              'calendar': Calendar,
-                              'sparkles': Sparkles,
-                              'baby': Baby,
-                              'location': MapPin,
-                              'language': Globe,
-                              'transport': Car,
-                              'handshake': Handshake,
-                              'smoke-free': Wind,
-                              'pets': PawPrint,
-                              'parking': CircleParking,
-                            };
-                            const IconComp = iconMap[signal.icon] || Star;
-                            return <IconComp className="w-4 h-4 text-[#1e6b4e] flex-shrink-0" />;
-                          })()}
-                          {signal.label}
+          {/* ===== CARE SCHEDULE ===== */}
+          <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+            <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Care Schedule</h3>
+
+            {member.availability_days.length > 0 ? (
+              <>
+                {/* Connected with detailed data? Show grid */}
+                {isConnected && member.schedule && Object.values(member.schedule).some(slots => Array.isArray(slots) && slots.length > 0) ? (
+                  <>
+                    <div className="flex gap-1 mb-2">
+                      <div className="w-16"></div>
+                      {WEEKDAYS.map(day => (
+                        <div key={day.id} className="flex-1 text-center text-xs font-semibold text-[#546E5C]">
+                          {day.short}
                         </div>
                       ))}
                     </div>
+                    {TIME_SLOTS.map(slot => {
+                      const hasAnyForSlot = WEEKDAYS.some(d => (member.schedule[d.id] || []).includes(slot.id));
+                      if (!hasAnyForSlot) return null;
+                      return (
+                        <div key={slot.id} className="flex gap-1 mb-1">
+                          <div className="w-16 text-xs flex items-center text-[#546E5C]">{slot.time}</div>
+                          {WEEKDAYS.map(day => {
+                            const hasSlot = (member.schedule[day.id] || []).includes(slot.id);
+                            return (
+                              <div
+                                key={`${day.id}-${slot.id}`}
+                                className="flex-1 h-8 rounded"
+                                style={{ backgroundColor: hasSlot ? '#8bd7c7' : '#f5f5f5' }}
+                              />
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                    {member.schedule_notes && (
+                      <div className="mt-4 p-3 bg-[#f0faf4] rounded-lg text-sm text-[#1e6b4e]">
+                        <span className="font-semibold">Note:</span> {member.schedule_notes}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Day pills — simple view */
+                  <>
+                    <div className="flex gap-2 mb-3">
+                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => {
+                        const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                        const isActive = member.availability_days.map((d: string) => d.toLowerCase()).includes(dayKeys[idx]);
+                        return (
+                          <div
+                            key={day}
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-semibold transition-colors ${isActive
+                              ? 'bg-[#1e6b4e] text-white'
+                              : 'bg-gray-100 text-gray-300'
+                              }`}
+                          >
+                            {day.substring(0, 2)}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+
+                {/* Schedule summary */}
+                <p className="text-sm text-[#546E5C]">
+                  {member.availability_days.length === 7 ? 'Available all week' :
+                    member.availability_days.length === 5 && ['mon', 'tue', 'wed', 'thu', 'fri'].every((d: string) => member.availability_days.map((ad: string) => ad.toLowerCase()).includes(d)) ? 'Weekdays (Mon-Fri)' :
+                      `${member.availability_days.length} days per week`}
+                  {member.schedule_flexible && ' · Flexible schedule'}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-[#546E5C] italic">Schedule not yet set</p>
+            )}
+          </div>
+
+          {/* ===== CARE TYPES ===== */}
+          {member.care_types && member.care_types.length > 0 && (
+            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+              <h3 className="text-base font-bold text-[#1e6b4e] mb-3">Looking For</h3>
+              <div className="flex flex-wrap gap-2">
+                {member.care_types.map(ct => (
+                  <span key={ct} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#d8f5e5] text-[#1e6b4e] capitalize">
+                    {ct.replace(/-/g, ' ')}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ===== LANGUAGES ===== */}
+          {isConnected && member.languages && member.languages.length > 0 && (
+            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+              <h3 className="text-base font-bold text-[#1e6b4e] mb-3">Languages</h3>
+              <div className="flex flex-wrap gap-2">
+                {member.languages.map(lang => (
+                  <div key={lang} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f0faf4] border border-[#8bd7c7]/15 text-sm text-[#546E5C]">
+                    <Globe className="w-3.5 h-3.5 text-[#1e6b4e]" />
+                    {lang}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ===== PREFERENCES & LIFESTYLE ===== */}
+          {isConnected && (
+            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+              <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Preferences & Lifestyle</h3>
+              {(() => {
+                const prefs = [
+                  { val: member.smoke_free_required, icon: Wind, label: 'Smoke-free environment' },
+                  { val: member.comfortable_with_pets, icon: PawPrint, label: 'Comfortable with pets' },
+                  { val: member.available_overnight, icon: Moon, label: 'Available overnight' },
+                  { val: member.has_transportation, icon: Car, label: 'Has transportation' },
+                  { val: member.can_lift_30lbs, icon: Dumbbell, label: 'Can lift 30+ lbs' },
+                  { val: member.comfortable_with_stairs, icon: Dumbbell, label: 'Comfortable with stairs' },
+                  { val: member.transportation_required, icon: Car, label: 'Own transportation' },
+                  { val: member.willing_to_travel, icon: MapPin, label: 'Willing to travel' },
+                ].filter(p => p.val);
+
+                if (prefs.length === 0) {
+                  return <p className="text-sm text-[#546E5C] italic">No specific preferences listed.</p>;
+                }
+
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {prefs.map((pref, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-[#546E5C]">
+                        <pref.icon className="w-4 h-4 text-[#1e6b4e]" />
+                        <span>{pref.label}</span>
+                      </div>
+                    ))}
                   </div>
                 );
-              })()
-            }
+              })()}
+            </div>
+          )}
 
-            {/* FULL PROFILE CONTENT (Unlocked) */}
-            {
-              isConnected && (
-                <div className="animate-fade-in">
-
-                  {/* Languages */}
-                  {member.languages && member.languages.length > 0 && (
-                    <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
-                      <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
-                        Languages
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {member.languages.map(lang => (
-                          <div key={lang} className="px-3 py-1 rounded-full bg-white border border-[#E5E7EB] text-sm text-[#374151]">
-                            {lang}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+          {/* ===== CHILDREN ===== */}
+          <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+            <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Children</h3>
+            {(member.num_kids > 0 || member.kids.length > 0) ? (
+              !isConnected && user?.id !== member.id ? (
+                /* Public view */
+                <div className="flex flex-col gap-1">
+                  <span className="text-lg font-semibold text-[#1e6b4e]">
+                    {member.num_kids} {member.num_kids === 1 ? 'Child' : 'Children'}
+                  </span>
+                  {member.children_age_groups && member.children_age_groups.length > 0 && (
+                    <span className="text-sm text-[#546E5C]">
+                      Age Groups: {member.children_age_groups.join(', ')}
+                    </span>
                   )}
-
-                  {/* Preferences */}
-                  <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
-                    <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
-                      Preferences & Lifestyle
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {[
-                        { key: 'comfortable_with_pets', label: 'Comfortable with pets' },
-                        { key: 'smoke_free_required', label: 'Smoke-free environment' },
-                        { key: 'transportation_required', label: 'Own transportation' },
-                        { key: 'willing_to_travel', label: 'Willing to travel' },
-                        { key: 'available_overnight', label: 'Available overnight' },
-                      ].map(pref => {
-                        // Check if property is true on member object (using any for index access simplicity)
-                        const val = (member as any)[pref.key];
-                        if (!val) return null;
-                        return (
-                          <div key={pref.key} className="flex items-center gap-2 text-[#374151] text-sm">
-                            <span className="text-[#1E6B4E]">✓</span> {pref.label}
-                          </div>
-                        )
-                      })}
-                      {/* If no preferences set */}
-                      {!member.comfortable_with_pets && !member.smoke_free_required && !member.transportation_required &&
-                        !member.willing_to_travel && !member.available_overnight && (
-                          <p className="text-sm text-gray-400 italic">No specific preferences listed.</p>
-                        )}
-                    </div>
-                  </div>
-
+                </div>
+              ) : (
+                /* Connected view — warm cards */
+                <div className="flex flex-wrap gap-3">
+                  {member.kids.map(kid => {
+                    const name = kid.first_name || kid.name || 'Child';
+                    const age = kid.birth_year
+                      ? (() => {
+                        const now = new Date();
+                        const ageMonths = (now.getFullYear() - kid.birth_year) * 12 + (now.getMonth() - ((kid.birth_month || 1) - 1));
+                        if (ageMonths < 0) return null;
+                        if (ageMonths < 12) return `${ageMonths}mo`;
+                        const years = Math.floor(ageMonths / 12);
+                        return years === 1 ? '1 year' : `${years} years`;
+                      })()
+                      : null;
+                    return (
+                      <div
+                        key={kid.id}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-[#d8f5e5] flex items-center justify-center">
+                          <span className="text-sm font-bold text-[#1e6b4e]">
+                            {name.charAt(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[#1e6b4e]">{name}</p>
+                          {age && <p className="text-xs text-[#546E5C]">{age}</p>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {member.kids.length === 0 && member.num_kids > 0 && (
+                    <span className="text-sm text-[#546E5C]">
+                      {member.num_kids} {member.num_kids === 1 ? 'child' : 'children'}
+                    </span>
+                  )}
                 </div>
               )
-            }
-
-            {/* Schedule Section */}
-            <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
-              <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
-                Care Schedule
-              </h3>
-
-              {member.availability_days.length > 0 ? (
-                <>
-                  {(!isConnected && user?.id !== member.id) ||
-                    (isConnected && member.schedule && !Object.values(member.schedule).some(slots => Array.isArray(slots) && slots.length > 0)) ? (
-                    /* Public View OR Connected with No Data: Day Summary Only (Pills) */
-                    <div className="flex gap-2 mb-2">
-                      {WEEKDAYS.map(day => {
-                        const hasSolts = member.availability_days.includes(day.id);
-                        return (
-                          <div
-                            key={day.id}
-                            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${hasSolts ? '' : 'opacity-40'}`}
-                            style={{
-                              backgroundColor: hasSolts ? COLORS.mint : '#f5f5f5',
-                              color: hasSolts ? COLORS.primary : COLORS.textMuted
-                            }}
-                          >
-                            {day.letter}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    /* Connected View: Detailed Grid */
-                    <>
-                      <div className="flex gap-1 mb-2">
-                        <div className="w-16"></div>
-                        {WEEKDAYS.map(day => (
-                          <div key={day.id} className="flex-1 text-center text-xs font-semibold" style={{ color: COLORS.textMuted }}>
-                            {day.short}
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Time slot rows */}
-                      {TIME_SLOTS.map(slot => {
-                        // Only show slot rows where *someone* has availability, or show all? 
-                        // Show only rows with data to save space, or show all for completeness?
-                        // Let's show all for clarity if schedule exists.
-                        const hasAnyForSlot = WEEKDAYS.some(d => (member.schedule[d.id] || []).includes(slot.id))
-                        if (!hasAnyForSlot) return null
-
-                        return (
-                          <div key={slot.id} className="flex gap-1 mb-1">
-                            <div className="w-16 text-xs flex items-center leading-none" style={{ color: COLORS.textMuted }}>{slot.time}</div>
-                            {WEEKDAYS.map(day => {
-                              const hasSlot = (member.schedule[day.id] || []).includes(slot.id)
-                              return (
-                                <div
-                                  key={`${day.id}-${slot.id}`}
-                                  className="flex-1 h-8 rounded"
-                                  style={{
-                                    backgroundColor: hasSlot ? COLORS.mintDark : '#f5f5f5',
-                                  }}
-                                />
-                              )
-                            })}
-                          </div>
-                        )
-                      })}
-                      {member.schedule_notes && (
-                        <div className="mt-4 p-3 bg-[#f0faf6] rounded-lg text-sm text-[#1E6B4E]">
-                          <span className="font-semibold">Note:</span> {member.schedule_notes}
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {member.schedule_flexible && (
-                    <p style={{ color: COLORS.textMuted }} className="text-xs mt-3 italic">
-                      Flexible schedule - willing to adjust
-                    </p>
-                  )}
-                </>
+            ) : (
+              member.role !== 'caregiver' ? (
+                <p className="text-sm text-[#546E5C] italic">No children listed yet</p>
               ) : (
-                <p style={{ color: COLORS.textMuted }} className="text-sm italic">
-                  Schedule not yet set
+                <p className="text-sm text-[#546E5C] italic">Not applicable</p>
+              )
+            )}
+          </div>
+
+          {/* ===== PRIVACY NOTE (Not Connected) ===== */}
+          {!isConnected && user?.id !== member.id && (
+            <div className="bg-white/80 rounded-[20px] p-5 border border-[#8bd7c7]/20">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#F8C3B3] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                <p className="text-sm text-[#546E5C]">
+                  <strong className="text-[#1e6b4e]">Connect to see more:</strong> Kids' names, detailed schedules, preferences, and contact info are shared once you connect.
                 </p>
-              )}
+              </div>
             </div>
+          )}
 
-            {/* Kids Section */}
-            <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
-              <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
-                Children
-              </h3>
-
-              {(member.num_kids > 0 || member.kids.length > 0) ? (
-                /* Gating Logic */
-                !isConnected && user?.id !== member.id ? (
-                  /* Public / Private View (Safe) */
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <span style={{ color: COLORS.text }} className="font-semibold text-lg">
-                        {member.num_kids} {member.num_kids === 1 ? 'Child' : 'Children'}
-                      </span>
+          {/* ===== ACTION BUTTONS ===== */}
+          <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+            {connectionStatus === 'pending' ? (
+              <>
+                {incomingRequest ? (
+                  <div className="flex flex-col gap-3">
+                    <div className="bg-[#FFF7ED] border border-[#F8C3B3] rounded-xl p-4 text-center mb-1">
+                      <p className="text-[15px] font-semibold text-[#1e6b4e]">
+                        {member.first_name} asked to join your village
+                      </p>
+                      <p className="text-[13px] text-[#546E5C] mt-1">
+                        Accept to share full profiles and start messaging
+                      </p>
                     </div>
-                    {member.children_age_groups && member.children_age_groups.length > 0 && (
-                      <span style={{ color: COLORS.textMuted }} className="text-sm">
-                        Age Groups: {member.children_age_groups.join(', ')}
-                      </span>
-                    )}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleAccept}
+                        disabled={connecting}
+                        className="flex-1 py-3 rounded-full font-bold text-white bg-[#1e6b4e] hover:bg-[#174f3a] transition-all disabled:opacity-50"
+                      >
+                        {connecting ? '...' : 'Welcome In'}
+                      </button>
+                      <button
+                        onClick={handleDecline}
+                        disabled={connecting}
+                        className="flex-1 py-3 rounded-full font-bold bg-white border border-gray-200 text-[#546E5C] hover:bg-gray-50 transition-all disabled:opacity-50"
+                      >
+                        Skip
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  /* Connected View (Detailed) */
-                  <div className="flex flex-wrap gap-3">
-                    {member.kids.map(kid => {
-                      const name = kid.first_name || kid.name || 'Child'
-                      const age = kid.birth_year
-                        ? (() => {
-                          const now = new Date();
-                          const birthYear = kid.birth_year;
-                          const birthMonth = (kid.birth_month || 1) - 1; // 0-indexed
-                          const ageMonths = (now.getFullYear() - birthYear) * 12 + (now.getMonth() - birthMonth);
-                          if (ageMonths < 0) return null;
-                          if (ageMonths < 12) return `${ageMonths}mo`;
-                          return `${Math.floor(ageMonths / 12)}y`;
-                        })()
-                        : null;
-                      const genderColors = getGenderColor(kid.gender)
-
-                      return (
-                        <div
-                          key={kid.id}
-                          className="flex items-center gap-2 px-4 py-2 rounded-full"
-                          style={{ backgroundColor: genderColors.bg }}
-                        >
-                          <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold"
-                            style={{ backgroundColor: genderColors.text + '20', color: genderColors.text }}
-                          >
-                            {name.charAt(0)}
-                          </div>
-                          <div>
-                            <span style={{ color: genderColors.text }} className="font-medium mr-2">
-                              {name}
-                            </span>
-                            {age && (
-                              <span style={{ color: genderColors.text }} className="text-sm opacity-75">
-                                {age}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
+                  <div className="w-full py-4 rounded-full bg-[#d8f5e5] text-center">
+                    <span className="font-semibold text-[#1e6b4e]">Connection request sent</span>
                   </div>
-                )
-              ) : (
-                <p style={{ color: COLORS.textMuted }} className="text-sm italic">
-                  No kids listed
-                </p>
-              )}
-            </div>
-
-            {/* About Section */}
-            {
-              member.bio && (
-                <div className="p-6" style={{ borderBottom: `1px solid ${COLORS.mintDark}` }}>
-                  <h3 style={{ color: COLORS.textMuted }} className="text-sm font-semibold tracking-wide mb-4">
-                    About
-                  </h3>
-                  <p style={{ color: COLORS.primary }} className="text-sm leading-relaxed">
-                    {member.bio?.startsWith('Looking for:')
-                      ? `Looking for ${humanizeCareType(member.bio.replace('Looking for: ', '').trim())}`
-                      : member.bio
-                    }
-                  </p>
-                </div>
-              )
-            }
-
-            {/* Privacy Note (Only if NOT connected) */}
-            {
-              !isConnected && user?.id !== member.id && (
-                <div className="p-6" style={{ backgroundColor: `${COLORS.mint}50` }}>
-                  <div className="flex items-start gap-3">
-                    <svg style={{ color: COLORS.coral }} className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
-                    <p style={{ color: COLORS.textMuted }} className="text-sm">
-                      <strong style={{ color: COLORS.primary }}>Connect to see more:</strong> Kids' names, detailed schedules, preferences, and contact info are shared once you connect.
-                    </p>
-                  </div>
-                </div>
-              )
-            }
-
-            {/* CTAs */}
-            <div className="p-6">
-              {/* STATUS: PENDING */}
-              {connectionStatus === 'pending' ? (
-                <>
-                  {incomingRequest ? (
-                    <div className="flex flex-col gap-3">
-                      <div style={{
-                        backgroundColor: '#FFF7ED',
-                        border: '1px solid #F8C3B3',
-                        borderRadius: '12px',
-                        padding: '16px',
-                        textAlign: 'center',
-                        marginBottom: '12px'
-                      }}>
-                        <p style={{ fontSize: '15px', fontWeight: 600, color: '#1E6B4E', margin: 0 }}>
-                          {member.first_name} asked to join your village
-                        </p>
-                        <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0 0' }}>
-                          Accept to share full profiles and start messaging
-                        </p>
-                      </div>
-                      <div className="flex gap-3">
-                        <button
-                          onClick={handleAccept}
-                          disabled={connecting}
-                          className="flex-1 py-3 rounded-xl font-bold text-white shadow-sm transition-all hover:-translate-y-0.5"
-                          style={{ backgroundColor: COLORS.primary }}
-                        >
-                          {connecting ? '...' : 'Welcome In'}
-                        </button>
-                        <button
-                          onClick={handleDecline}
-                          disabled={connecting}
-                          className="flex-1 py-3 rounded-xl font-bold transition-all bg-white border"
-                          style={{ color: COLORS.textMuted, borderColor: '#e5e7eb' }}
-                        >
-                          Skip
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full py-4 rounded-full text-center" style={{ backgroundColor: COLORS.mint, color: COLORS.primary }}>
-                      <span className="font-semibold">Connection request sent</span>
-                    </div>
-                  )}
-                </>
-              ) : connectionStatus === 'accepted' ? (
-                /* STATUS: ACCEPTED (Dual Buttons) */
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <button
-                    onClick={() => navigate(`/profile/${member.id}`)}
-                    style={{
-                      flex: 1,
-                      padding: '14px',
-                      backgroundColor: '#d8f5e5',
-                      border: '2px solid #1E6B4E',
-                      color: '#1E6B4E',
-                      borderRadius: '12px',
-                      fontWeight: 600,
-                      fontSize: '15px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    View Full Profile
-                  </button>
-                  <button
-                    onClick={() => navigate(`/messages/${member.id}`)}
-                    style={{ flex: 1, padding: '14px', backgroundColor: '#1E6B4E', color: 'white', borderRadius: '12px', fontWeight: 600, fontSize: '15px', cursor: 'pointer' }}
-                  >
-                    Message {member.first_name}
-                  </button>
-                </div>
-              ) : (
-                /* STATUS: NONE (Connect) */
+                )}
+              </>
+            ) : connectionStatus === 'accepted' ? (
+              <div className="flex gap-3">
+                <Link
+                  to={`/profile/${member.id}`}
+                  className="flex-1 py-3 rounded-full border border-[#8bd7c7]/30 text-center text-sm font-semibold text-[#1e6b4e] hover:bg-[#d8f5e5]/50 transition-colors"
+                >
+                  View Full Profile
+                </Link>
+                <Link
+                  to={`/messages?to=${member.id}`}
+                  className="flex-1 py-3 rounded-full bg-[#1e6b4e] text-white text-center text-sm font-semibold hover:bg-[#174f3a] transition-colors"
+                >
+                  Message {member.first_name}
+                </Link>
+              </div>
+            ) : (
+              <>
                 <button
                   onClick={handleConnect}
                   disabled={connecting || !user}
-                  className="w-full py-4 rounded-full font-bold text-lg shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-50"
-                  style={{ backgroundColor: COLORS.primary, color: 'white' }}
+                  className="w-full py-4 rounded-full font-bold text-lg bg-[#1e6b4e] text-white shadow-sm hover:shadow-md hover:bg-[#174f3a] transition-all disabled:opacity-50"
                 >
                   {connecting ? 'Sending Request...' : 'Request to Chat'}
                 </button>
-              )}
-
-              {!connectionStatus && (
-                <p style={{ color: COLORS.textMuted }} className="text-xs text-center mt-3 opacity-80">
+                <p className="text-xs text-center mt-3 text-[#546E5C] opacity-80">
                   Start a conversation to see if it's a fit. No commitment.
                 </p>
-              )}
+              </>
+            )}
 
-              {!user && (
-                <p style={{ color: COLORS.textMuted }} className="text-xs text-center mt-3">
-                  <Link to="/login" style={{ color: COLORS.coral }} className="font-semibold hover:underline">Log in</Link> to connect
-                </p>
-              )}
-            </div>
-          </div >
-        </div >
-      </div >
+            {!user && (
+              <p className="text-xs text-center mt-3 text-[#546E5C]">
+                <Link to="/login" className="text-[#F8C3B3] font-semibold hover:underline">Log in</Link> to connect
+              </p>
+            )}
+          </div>
+
+        </div>
+      </div>
     </>
   )
 }
