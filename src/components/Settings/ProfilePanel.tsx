@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useViewer } from '../../hooks/useViewer';
 import CaregiverProfileSection from './CaregiverProfileSection';
-import { Camera, User, Heart, AlertCircle, HandHeart, Users, CheckCircle2 } from 'lucide-react';
+import { Camera, User, Heart, AlertCircle, HandHeart, Users, CheckCircle2, Loader2, Check } from 'lucide-react';
 // import { Baby } from 'lucide-react'; // Removed unused import
 import SettingsCard from './SettingsCard';
 // import SettingsToggle from './SettingsToggle'; // Removed unused import
@@ -17,6 +17,22 @@ interface ProfilePanelProps {
 export default function ProfilePanel({ formData, setFormData, saving, onSave }: ProfilePanelProps) {
     const { viewer } = useViewer();
     const [uploading, setUploading] = useState(false);
+    const [saved, setSaved] = useState(false);
+    const prevSaving = useRef(saving);
+
+    // Track saving→false transition to show "Saved" feedback
+    React.useEffect(() => {
+        if (prevSaving.current && !saving) {
+            setSaved(true);
+            const t = setTimeout(() => setSaved(false), 2500);
+            return () => clearTimeout(t);
+        }
+        prevSaving.current = saving;
+    }, [saving]);
+
+    function titleCase(str: string): string {
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    }
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [roleChanged, setRoleChanged] = useState(false);
@@ -242,7 +258,7 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                             <button
                                 type="button"
                                 onClick={() => setPendingRole(null)}
-                                className="px-4 py-1.5 border border-gray-300 text-[#546E5C] text-sm rounded-full font-medium hover:bg-gray-50 transition-colors"
+                                className="px-4 py-1.5 border border-[#8bd7c7]/30 text-[#546E5C] text-sm rounded-full font-medium hover:bg-gray-50 transition-colors"
                             >
                                 Cancel
                             </button>
@@ -400,7 +416,7 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                                     fontSize: '13px',
                                     fontWeight: 500,
                                 }}>
-                                    {lang}
+                                    {titleCase(lang)}
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -453,7 +469,7 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                                 'Korean', 'Japanese', 'Vietnamese', 'Tagalog',
                                 'Hindi', 'Arabic', 'French', 'Portuguese',
                                 'Russian', 'German', 'Italian', 'Hebrew',
-                            ].filter(l => !(formData.languages || []).includes(l))
+                            ].filter(l => !(formData.languages || []).some((existing: string) => existing.toLowerCase() === l.toLowerCase()))
                                 .map(lang => (
                                     <option key={lang} value={lang}>{lang}</option>
                                 ))}
@@ -894,25 +910,26 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
             {/* SECTION 9: CAREGIVER SPECIFIC PROFILE */}
             {viewer?.member?.role === 'caregiver' && <CaregiverProfileSection />}
 
-            <div className="pt-6 flex justify-end border-t border-opeari-mint/20">
+            <div className="sticky bottom-0 bg-white/95 backdrop-blur-sm pt-4 pb-2 -mx-1 px-1 border-t border-[#8bd7c7]/10">
                 <button
                     type="submit"
                     disabled={saving || uploading}
-                    style={{
-                        backgroundColor: '#1E6B4E',
-                        color: 'white',
-                        padding: '14px 32px',
-                        borderRadius: '12px',
-                        fontWeight: 700,
-                        fontSize: '15px',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontFamily: 'Comfortaa, sans-serif',
-                        width: '100%',
-                        opacity: (saving || uploading) ? 0.7 : 1,
-                    }}
+                    className="w-full py-3 rounded-full bg-[#1e6b4e] text-white text-sm font-semibold hover:bg-[#174f3a] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                    style={{ fontFamily: 'Comfortaa, sans-serif' }}
                 >
-                    {saving ? 'Saving...' : 'Save Profile'}
+                    {saving ? (
+                        <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Saving...
+                        </>
+                    ) : saved ? (
+                        <>
+                            <Check className="w-4 h-4" />
+                            Saved
+                        </>
+                    ) : (
+                        'Save Profile'
+                    )}
                 </button>
             </div>
 

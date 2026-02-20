@@ -155,7 +155,7 @@ export default function Settings() {
     try {
       // Helper to clean languages string to array
       const parseLanguages = (str: string) =>
-        str ? str.split(',').map(s => s.trim().toLowerCase()).filter(Boolean) : [];
+        str ? str.split(',').map(s => { const t = s.trim(); return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase(); }).filter(Boolean) : [];
 
       const memberId = viewer.member.id;
 
