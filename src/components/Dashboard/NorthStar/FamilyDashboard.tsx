@@ -22,7 +22,7 @@ import SearchModal from './SearchModal';
 import { ReferCaregiverModal } from './ReferCaregiverModal';
 import { CreatePostModal } from './CreatePostModal';
 import { SharedCareTag, getSharedCareTags } from '../../Shared/SharedCareTag';
-import MatchCard from './MatchCard';
+import DashboardMatchCard from './DashboardMatchCard';
 import { CareNeedForm } from '../../care-needs/CareNeedForm';
 import { CareNeedCard } from '../../care-needs/CareNeedCard';
 import { useCareNeeds } from '../../../hooks/useCareNeeds';
@@ -667,6 +667,7 @@ export default function FamilyDashboard() {
                                 availability_days: m.availability_days || [],
                                 care_types: m.care_types || [],
                                 also_open_to: m.also_open_to || [],
+                                neighborhood: m.neighborhood,
                             }))
                             .sort((a, b) => b.match_score - a.match_score)
                             .slice(0, 10);
@@ -1227,9 +1228,11 @@ export default function FamilyDashboard() {
                             {/* Match Cards — horizontal scroll */}
                             <div>
                                 {matchesLoading ? (
-                                    <div className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1">
+                                    <div
+                                        className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1"
+                                    >
                                         {[1, 2, 3].map(i => (
-                                            <div key={i} className="flex-shrink-0 animate-pulse bg-gray-100 rounded-[15px] h-32" style={{ width: '340px' }} />
+                                            <div key={i} className="flex-shrink-0 animate-pulse bg-gray-100 rounded-[20px] h-[200px]" style={{ width: '380px' }} />
                                         ))}
                                     </div>
                                 ) : topMatches.length === 0 ? (
@@ -1246,58 +1249,34 @@ export default function FamilyDashboard() {
                                         className="flex gap-4 overflow-x-auto pb-4 -mx-1 px-1"
                                         style={{ scrollSnapType: 'x mandatory' }}
                                     >
-                                        {topMatches.slice(0, 6).map(match => {
-                                            const myDays = (activeCareNeed?.days_needed || viewer?.member?.availability_days || []).map((d: string) => d.toLowerCase());
-                                            const theirDays = (match.availability_days || []).map(d => d.toLowerCase());
-                                            const overlappingDays = theirDays.filter(d => myDays.includes(d));
-
-                                            let overlapText = '';
-                                            if (overlappingDays.length > 0) {
-                                                if (overlappingDays.length === 7) overlapText = 'Full week overlap';
-                                                else if (overlappingDays.length === 5 && ['mon', 'tue', 'wed', 'thu', 'fri'].every(d => overlappingDays.includes(d))) overlapText = 'Mon-Fri match';
-                                                else overlapText = `${overlappingDays.length} day${overlappingDays.length === 1 ? '' : 's'} overlap`;
-                                            }
-
-                                            return (
-                                                <div key={match.member_id} className="flex-shrink-0 snap-start" style={{ width: '340px' }}>
-                                                    <MatchCard
-                                                        {...{
-                                                            id: match.member_id,
-                                                            targetMemberId: match.member_id,
-                                                            name: match.display_name,
-                                                            photo: match.avatar_url || 'https://via.placeholder.com/150',
-                                                            distance: match.distance_miles,
-                                                            scheduleOverlap: match.match_score,
-                                                            matchDays: overlappingDays,
-                                                            type: match.role === 'caregiver' ? 'caregiver' : 'parent',
-                                                            availability: match.availability_days || [],
-                                                            bio: '',
-                                                            verified: false,
-                                                            inVillage: false,
-                                                            kids: [],
-                                                            matchScore: match.match_score
-                                                        } as any}
-                                                        tags={getSharedCareTags(match)}
-                                                        contextText={
-                                                            match.care_types?.includes('nanny-share') ? 'Open to nanny share' :
-                                                                match.match_score >= 80 ? 'Strong match based on your preferences' :
-                                                                    overlappingDays.length > 0 ? `${overlapText} · ${match.distance_miles} miles` :
-                                                                        match.distance_miles < 1 ? `Nearby · ${match.distance_miles} miles` :
-                                                                            'Based on your care preferences'
-                                                        }
-                                                        onClick={() => handleViewProfile(match.member_id)}
-                                                        onConnect={() => handleConnect(match.member_id)}
-                                                        connectionStatus={statusById[match.member_id] || 'none'}
-                                                        isConnecting={connectingTo === match.member_id}
-                                                        onMessage={(id, name) => {
-                                                            setMessageRecipientId(id);
-                                                            setMessageRecipientName(name);
-                                                            setMessageOpen(true);
-                                                        }}
-                                                    />
-                                                </div>
-                                            );
-                                        })}
+                                        {topMatches.slice(0, 6).map(match => (
+                                            <div
+                                                key={match.member_id}
+                                                className="flex-shrink-0 snap-start"
+                                                style={{ width: '380px' }}
+                                            >
+                                                <DashboardMatchCard
+                                                    memberId={match.member_id}
+                                                    name={match.display_name}
+                                                    role={match.role ?? 'parent'}
+                                                    neighborhood={(match as any).neighborhood}
+                                                    matchScore={match.match_score}
+                                                    distance={match.distance_miles}
+                                                    avatarUrl={match.avatar_url ?? undefined}
+                                                    availabilityDays={match.availability_days ?? undefined}
+                                                    careTypes={match.care_types ?? undefined}
+                                                    connectionStatus={statusById[match.member_id] || 'none'}
+                                                    isConnecting={connectingTo === match.member_id}
+                                                    onConnect={() => handleConnect(match.member_id)}
+                                                    onViewProfile={() => handleViewProfile(match.member_id)}
+                                                    onMessage={(id, name) => {
+                                                        setMessageRecipientId(id);
+                                                        setMessageRecipientName(name);
+                                                        setMessageOpen(true);
+                                                    }}
+                                                />
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                             </div>
