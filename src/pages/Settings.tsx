@@ -13,7 +13,7 @@ import HomeDetailsPanel from '../components/Settings/HomeDetailsPanel';
 import NotificationsPanel from '../components/Settings/NotificationsPanel';
 import MatchingPreferencesPanel from '../components/Settings/MatchingPreferencesPanel';
 import SchedulePanel from '../components/Settings/SchedulePanel';
-import VillageNetworkPanel from '../components/Settings/VillageNetworkPanel';
+// VillageNetworkPanel removed from sidebar — kept in codebase for future use
 import PrivacyPanel from '../components/Settings/PrivacyPanel';
 import FeedbackPanel from '../components/Settings/FeedbackPanel';
 import ReviewsPanel from '../components/Settings/ReviewsPanel';
@@ -34,7 +34,7 @@ export default function Settings() {
         'notifications': 'notifications',
         'account': 'account',
         'matching': 'preferences', // Map #matching to preferences tab
-        'village': 'village',
+
         'reviews': 'reviews',
         'safety': 'safety',
         'privacy': 'privacy',
@@ -90,6 +90,7 @@ export default function Settings() {
         // Village Intent (Members - Shared)
         support_needed: viewer.member.support_needed || [],
         support_offered: viewer.member.support_offered || [],
+        interests: viewer.member.interests || viewer.member.support_offered || [],
         support_notes: viewer.member.support_notes || '',
         schedule_notes: viewer.member.schedule_notes || '',
         village_prefs: viewer.member.village_prefs || {},
@@ -191,6 +192,7 @@ export default function Settings() {
         'matching_prefs',
         'village_prefs',
         'support_offered',
+        'interests',
         'support_needed',
         'support_notes',
         // Preference Fields (Added to dbSafeFields to ensure persistence)
@@ -312,8 +314,7 @@ export default function Settings() {
       case 'preferences':
         return <MatchingPreferencesPanel formData={formData} setFormData={setFormData} saving={saving} onSave={handleSave} />;
 
-      case 'village':
-        return <VillageNetworkPanel formData={formData} setFormData={setFormData} saving={saving} onSave={handleSave} />;
+
 
       case 'reviews':
         return <ReviewsPanel />;

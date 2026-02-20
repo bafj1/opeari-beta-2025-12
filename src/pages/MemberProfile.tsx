@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Star, Calendar, MapPin, Globe, Sparkles, Baby, Car, Handshake, Wind, PawPrint, CircleParking, CheckCircle2, Moon, Dumbbell, AlertTriangle } from 'lucide-react'
+import { Star, Heart, Calendar, MapPin, Globe, Sparkles, Baby, Car, Handshake, Wind, PawPrint, CircleParking, CheckCircle2, Moon, Dumbbell, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useViewer } from '../hooks/useViewer'
 import { supabase } from '../lib/supabase'
@@ -767,7 +767,7 @@ export default function MemberProfile() {
               'calendar': Calendar, 'sparkles': Sparkles, 'baby': Baby,
               'location': MapPin, 'language': Globe, 'transport': Car,
               'handshake': Handshake, 'smoke-free': Wind, 'pets': PawPrint,
-              'parking': CircleParking,
+              'parking': CircleParking, 'heart': Heart,
             };
 
             return (

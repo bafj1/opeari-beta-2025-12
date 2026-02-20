@@ -174,19 +174,21 @@ export function computeMatchScore(viewer: any, candidate: any): MatchResult {
         practicalScore += 1;
     }
 
-    // Support offered overlap (minor signal)
-    const mySupport = viewer.support_offered || [];
-    const theirSupport = candidate.support_offered || [];
-    if (Array.isArray(mySupport) && Array.isArray(theirSupport)) {
-        const sharedSupport = mySupport.filter((s: string) =>
-            theirSupport.some((t: string) => t.toLowerCase() === s.toLowerCase())
+    // Shared interests / support overlap
+    const myInterests = viewer.interests || viewer.support_offered || [];
+    const theirInterests = candidate.interests || candidate.support_offered || [];
+    if (Array.isArray(myInterests) && Array.isArray(theirInterests)) {
+        const sharedInterests = myInterests.filter((s: string) =>
+            theirInterests.some((t: string) => t.toLowerCase() === s.toLowerCase())
         );
-        if (sharedSupport.length > 0) {
-            practicalScore += 2;
+        if (sharedInterests.length > 0) {
+            practicalScore += Math.min(sharedInterests.length * 3, 12);
             signals.push({
-                icon: 'handshake',
-                label: `Both offer ${sharedSupport[0].toLowerCase()}`,
-                weight: 2
+                icon: 'heart',
+                label: sharedInterests.length === 1
+                    ? `Both enjoy ${sharedInterests[0].toLowerCase()}`
+                    : `${sharedInterests.length} shared interests`,
+                weight: Math.min(sharedInterests.length * 3, 12)
             });
         }
     }

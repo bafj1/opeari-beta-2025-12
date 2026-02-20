@@ -6,7 +6,6 @@ import {
     Calendar,
     Bell,
     Target,
-    Users,
     Shield,
     Star,
     Lock,
@@ -57,7 +56,6 @@ const navSections: NavSection[] = [
         title: 'MATCHING',
         items: [
             { id: 'preferences', label: 'Matching Preferences', icon: Target },
-            { id: 'village', label: 'Village & Network', icon: Users },
             { id: 'reviews', label: 'Reviews & Reputation', icon: Star },
         ],
     },

@@ -7,6 +7,27 @@ import { Camera, User, Heart, AlertCircle, HandHeart, Users, CheckCircle2, Loade
 import SettingsCard from './SettingsCard';
 // import SettingsToggle from './SettingsToggle'; // Removed unused import
 
+const FAMILY_INTERESTS = [
+    'Playdates',
+    'Outdoor adventures',
+    'Arts & crafts',
+    'Sports & athletics',
+    'Music & dance',
+    'Cooking together',
+    'Reading & books',
+    'STEM & science',
+    'Swimming',
+    'Hiking & nature',
+    'Board games',
+    'Weekend trips',
+    'Cultural events',
+    'Gardening',
+    'Volunteering',
+    'Language learning',
+    'Pets & animals',
+    'Photography',
+];
+
 interface ProfilePanelProps {
     formData: any;
     setFormData: (data: any) => void;
@@ -592,43 +613,42 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                 </div>
             </SettingsCard>
 
-            {/* SECTION 5B: WHAT I CAN OFFER (Parents Only) */}
+            {/* SECTION 5B: INTERESTS & ACTIVITIES */}
             {viewer?.member?.role !== 'caregiver' && (
-                <SettingsCard title="What I Can Offer My Village" description="Ways you can help other families in your neighborhood" icon={Users}>
+                <div className="bg-white rounded-[20px] p-6 border-2 border-[#8bd7c7]/20">
+                    <div className="flex items-center gap-3 mb-2">
+                        <Heart className="w-5 h-5 text-[#1e6b4e]" />
+                        <h3 className="text-lg font-bold text-[#1e6b4e]">Interests & Activities</h3>
+                    </div>
+                    <p className="text-sm text-[#546E5C] mb-4">
+                        What does your family enjoy? Shared interests help us connect you with like-minded families.
+                    </p>
+
                     <div className="flex flex-wrap gap-2">
-                        {[
-                            'Emergency backup care',
-                            'Playdate hosting',
-                            'School pickup/dropoff',
-                            'Weekend care',
-                            'Meal sharing',
-                            'Carpool',
-                            'Homework help',
-                            'Nanny share partner',
-                        ].map(item => {
-                            const current = formData.support_offered || [];
-                            const isSelected = current.includes(item);
+                        {FAMILY_INTERESTS.map(interest => {
+                            const current = formData.interests || formData.support_offered || [];
+                            const isSelected = current.includes(interest);
                             return (
                                 <button
-                                    key={item}
+                                    key={interest}
                                     type="button"
                                     onClick={() => {
                                         const updated = isSelected
-                                            ? current.filter((s: string) => s !== item)
-                                            : [...current, item];
-                                        setFormData({ ...formData, support_offered: updated });
+                                            ? current.filter((s: string) => s !== interest)
+                                            : [...current, interest];
+                                        setFormData({ ...formData, interests: updated, support_offered: updated });
                                     }}
-                                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${isSelected
-                                        ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
-                                        : 'bg-white text-[#546E5C] border-[#8bd7c7]/30 hover:border-[#8bd7c7]'
+                                    className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors ${isSelected
+                                        ? 'bg-[#d8f5e5] border-[#8bd7c7] text-[#1e6b4e] font-semibold'
+                                        : 'bg-white border-[#8bd7c7]/20 text-[#546E5C] hover:border-[#8bd7c7]/50'
                                         }`}
                                 >
-                                    {item}
+                                    {interest}
                                 </button>
                             );
                         })}
                     </div>
-                </SettingsCard>
+                </div>
             )}
 
             {/* SECTION 6: TRUST & SAFETY */}
