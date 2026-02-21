@@ -804,11 +804,35 @@ export default function FamilyDashboard() {
         return <>We're finding the best matches for you. Your village is growing.</>;
     };
 
-    // V2 helper: active care needs count
-    const activeCareNeedsCount = careNeeds.filter((n: any) => n.status === 'active' || !n.status).length;
+    // V2: care needs count from Supabase (is_active = true)
+    const [careNeedsCount, setCareNeedsCount] = useState(0);
+
+    // V2: village members count from accepted connections
+    const [villageMemberCount, setVillageMemberCount] = useState(0);
 
     // V2 Care Needs Accordion state
     const [careNeedsExpanded, setCareNeedsExpanded] = useState(false);
+
+    useEffect(() => {
+        if (!effectiveUserId) return;
+        (async () => {
+            // Care needs count
+            const { count } = await supabase
+                .from('care_needs')
+                .select('*', { count: 'exact', head: true })
+                .eq('member_id', effectiveUserId)
+                .eq('is_active', true);
+            setCareNeedsCount(count ?? 0);
+
+            // Village members (accepted connections)
+            const { data: connections } = await supabase
+                .from('connections')
+                .select('id')
+                .or(`requester_id.eq.${effectiveUserId},recipient_id.eq.${effectiveUserId}`)
+                .eq('status', 'accepted');
+            setVillageMemberCount(connections?.length ?? 0);
+        })();
+    }, [effectiveUserId]);
 
     return (
         <div className="min-h-screen" style={{ background: '#fffaf5', fontFamily: 'Comfortaa, sans-serif' }}>
@@ -975,8 +999,8 @@ export default function FamilyDashboard() {
                     <div style={{ display: 'flex', gap: 12, marginTop: 18, flexWrap: 'wrap' }}>
                         {[
                             { label: 'Top Matches', value: topMatches.length.toString() },
-                            { label: 'Active Needs', value: activeCareNeedsCount.toString() },
-                            { label: 'Village Members', value: suggestedConnections.length.toString() },
+                            { label: 'Care Needs', value: careNeedsCount.toString() },
+                            { label: 'Village Members', value: villageMemberCount.toString() },
                         ].map((m) => (
                             <div
                                 key={m.label}
@@ -1033,9 +1057,9 @@ export default function FamilyDashboard() {
                     </div>
 
                     {matchesLoading ? (
-                        <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 4 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
                             {[1, 2, 3].map(i => (
-                                <div key={i} style={{ flexShrink: 0, width: 260, height: 220, background: '#f5f5f5', borderRadius: 16, animation: 'pulse 2s infinite' }} />
+                                <div key={i} style={{ height: 220, background: '#f5f5f5', borderRadius: 16, animation: 'pulse 2s infinite' }} />
                             ))}
                         </div>
                     ) : topMatches.length === 0 ? (
@@ -1048,9 +1072,9 @@ export default function FamilyDashboard() {
                             </p>
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 4 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
                             {topMatches.slice(0, 6).map((match: any) => (
-                                <div key={match.member_id} style={{ flexShrink: 0, width: 260 }}>
+                                <div key={match.member_id} style={{ height: '100%' }}>
                                     <DashboardMatchCard match={match} viewerId={viewer?.member?.id || ''} />
                                 </div>
                             ))}
@@ -1087,7 +1111,7 @@ export default function FamilyDashboard() {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#8bd7c7' }} />
                                     <span style={{ fontWeight: 700, fontSize: 14, color: '#2d3a35' }}>
-                                        {activeCareNeedsCount} active care need{activeCareNeedsCount !== 1 ? 's' : ''}
+                                        {careNeedsCount} care need{careNeedsCount !== 1 ? 's' : ''}
                                     </span>
                                 </div>
                                 <ChevronDown
