@@ -688,7 +688,7 @@ export default function MemberProfile() {
         <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} duration={3000} />
       )}
       <div className="min-h-screen" style={{ background: '#f0faf4', fontFamily: 'Comfortaa, sans-serif' }}>
-        <div style={{ maxWidth: 560, margin: '0 auto', padding: '24px 16px' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 16px' }}>
 
           {/* Back Link */}
           <Link
@@ -899,7 +899,7 @@ export default function MemberProfile() {
               })()}
 
               {/* CONNECTED: Detailed time grid */}
-              {isConnected && member.schedule && Object.values(member.schedule).some((slots: any) => Array.isArray(slots) && slots.length > 0) && (
+              {isConnected && member.schedule && Object.keys(member.schedule).length > 0 && Object.values(member.schedule).some((slots: any) => Array.isArray(slots) && slots.length > 0) && (
                 <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${COLORS.mintDark}15` }}>
                   <p style={{ fontSize: 11, fontWeight: 600, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Detailed Availability</p>
                   <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
@@ -928,24 +928,6 @@ export default function MemberProfile() {
                       <span style={{ fontWeight: 600 }}>Note:</span> {member.schedule_notes}
                     </div>
                   )}
-                </div>
-              )}              {/* Services / Looking For */}
-              {member.care_types && member.care_types.length > 0 && (
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary, marginBottom: 8 }}>
-                    {isCaregiver ? 'Services Offered' : 'Looking For'}
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {member.care_types.map((ct: string, i: number) => (
-                      <span key={i} style={{
-                        fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20,
-                        background: isCaregiver ? `${COLORS.coral}30` : COLORS.mint,
-                        color: accentDark,
-                      }}>
-                        {ct.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               )}
             </div>
@@ -1110,297 +1092,297 @@ export default function MemberProfile() {
             )}
           </div>
 
-        {/* ===== CONNECTED-ONLY SECTIONS ===== */}
-        {isConnected && (
-          <>
-            {/* Languages */}
-            {member.languages && member.languages.length > 0 && (
-              <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Languages</h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {member.languages.map((lang: string) => (
-                    <div key={lang} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, background: '#f0faf4', border: `1px solid ${COLORS.mintDark}15`, fontSize: 13, color: COLORS.textMuted }}>
-                      <Globe style={{ width: 14, height: 14, color: COLORS.primary }} />
-                      {lang}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Preferences & Lifestyle */}
-            {(() => {
-              const prefs = [
-                { val: member.smoke_free_required, icon: Wind, label: 'Smoke-free environment' },
-                { val: member.comfortable_with_pets, icon: PawPrint, label: 'Comfortable with pets' },
-                { val: member.available_overnight, icon: Moon, label: 'Available overnight' },
-                { val: member.has_transportation, icon: Car, label: 'Has transportation' },
-                { val: member.willing_to_travel, icon: MapPin, label: 'Willing to travel' },
-              ].filter(p => p.val);
-              if (prefs.length === 0) return null;
-              return (
+          {/* ===== CONNECTED-ONLY SECTIONS ===== */}
+          {isConnected && (
+            <>
+              {/* Languages */}
+              {member.languages && member.languages.length > 0 && (
                 <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Preferences</h3>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Languages</h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {prefs.map((pref, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, background: '#f0faf4', fontSize: 12, color: COLORS.textMuted }}>
-                        <pref.icon style={{ width: 14, height: 14, color: COLORS.primary }} />
-                        <span>{pref.label}</span>
+                    {member.languages.map((lang: string) => (
+                      <div key={lang} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, background: '#f0faf4', border: `1px solid ${COLORS.mintDark}15`, fontSize: 13, color: COLORS.textMuted }}>
+                        <Globe style={{ width: 14, height: 14, color: COLORS.primary }} />
+                        {lang}
                       </div>
                     ))}
                   </div>
                 </div>
-              );
-            })()}
+              )}
 
-            {/* Home Details */}
-            {(() => {
-              const homeItems = [
-                { val: member.has_parking, label: 'Parking available' },
-                { val: member.has_yard, label: 'Has yard' },
-                { val: member.has_pool, label: 'Has pool' },
-                { val: member.has_stairs, label: 'Has stairs' },
-                { val: member.has_pets, label: member.pet_types?.length ? `Pets: ${member.pet_types.join(', ')}` : 'Has pets' },
-              ].filter(p => p.val);
-              const allergies = member.home_allergies?.length ? member.home_allergies : [];
-
-              if (homeItems.length === 0 && allergies.length === 0 && !member.home_notes && !member.home_type) return null;
-
-              return (
-                <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Home Details</h3>
-                  {member.home_type && (
-                    <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>
-                      <strong style={{ color: COLORS.primary }}>Type:</strong> {member.home_type}
-                    </p>
-                  )}
-                  {homeItems.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: allergies.length > 0 || member.home_notes ? 12 : 0 }}>
-                      {homeItems.map((item, idx) => (
-                        <span key={idx} style={{ padding: '5px 12px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.textMuted }}>
-                          {item.label}
-                        </span>
+              {/* Preferences & Lifestyle */}
+              {(() => {
+                const prefs = [
+                  { val: member.smoke_free_required, icon: Wind, label: 'Smoke-free environment' },
+                  { val: member.comfortable_with_pets, icon: PawPrint, label: 'Comfortable with pets' },
+                  { val: member.available_overnight, icon: Moon, label: 'Available overnight' },
+                  { val: member.has_transportation, icon: Car, label: 'Has transportation' },
+                  { val: member.willing_to_travel, icon: MapPin, label: 'Willing to travel' },
+                ].filter(p => p.val);
+                if (prefs.length === 0) return null;
+                return (
+                  <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Preferences</h3>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {prefs.map((pref, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, background: '#f0faf4', fontSize: 12, color: COLORS.textMuted }}>
+                          <pref.icon style={{ width: 14, height: 14, color: COLORS.primary }} />
+                          <span>{pref.label}</span>
+                        </div>
                       ))}
                     </div>
-                  )}
-                  {allergies.length > 0 && (
-                    <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: member.home_notes ? 8 : 0 }}>
-                      <strong style={{ color: COLORS.primary }}>Allergies:</strong> {allergies.join(', ')}
-                      {member.home_allergy_notes && ` (${member.home_allergy_notes})`}
-                    </p>
-                  )}
-                  {member.home_notes && (
-                    <p style={{ fontSize: 13, color: COLORS.textMuted }}>{member.home_notes}</p>
-                  )}
-                </div>
-              );
-            })()}
+                  </div>
+                );
+              })()}
 
-            {/* Children — hidden for caregivers */}
-            {member.role !== 'caregiver' && (
-              <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Children</h3>
-                {(member.num_kids > 0 || member.kids.length > 0) ? (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                    {member.kids.map((kid: any) => {
-                      const name = kid.first_name || kid.name || 'Child';
-                      const age = kid.birth_year
-                        ? (() => {
-                          const now = new Date();
-                          const ageMonths = (now.getFullYear() - kid.birth_year) * 12 + (now.getMonth() - ((kid.birth_month || 1) - 1));
-                          if (ageMonths < 0) return null;
-                          if (ageMonths < 12) return `${ageMonths}mo`;
-                          const years = Math.floor(ageMonths / 12);
-                          return years === 1 ? '1 year' : `${years} years`;
-                        })()
-                        : null;
-                      return (
-                        <div key={kid.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 14, background: '#f0faf4', border: `1px solid ${COLORS.mintDark}15` }}>
-                          <div style={{ width: 32, height: 32, borderRadius: '50%', background: COLORS.mint, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary }}>{name.charAt(0)}</span>
-                          </div>
-                          <div>
-                            <p style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary, margin: 0 }}>{name}</p>
-                            {age && <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>{age}</p>}
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {member.kids.length === 0 && member.num_kids > 0 && (
-                      <span style={{ fontSize: 13, color: COLORS.textMuted }}>
-                        {member.num_kids} {member.num_kids === 1 ? 'child' : 'children'}
-                      </span>
+              {/* Home Details */}
+              {(() => {
+                const homeItems = [
+                  { val: member.has_parking, label: 'Parking available' },
+                  { val: member.has_yard, label: 'Has yard' },
+                  { val: member.has_pool, label: 'Has pool' },
+                  { val: member.has_stairs, label: 'Has stairs' },
+                  { val: member.has_pets, label: member.pet_types?.length ? `Pets: ${member.pet_types.join(', ')}` : 'Has pets' },
+                ].filter(p => p.val);
+                const allergies = member.home_allergies?.length ? member.home_allergies : [];
+
+                if (homeItems.length === 0 && allergies.length === 0 && !member.home_notes && !member.home_type) return null;
+
+                return (
+                  <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Home Details</h3>
+                    {member.home_type && (
+                      <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>
+                        <strong style={{ color: COLORS.primary }}>Type:</strong> {member.home_type}
+                      </p>
+                    )}
+                    {homeItems.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: allergies.length > 0 || member.home_notes ? 12 : 0 }}>
+                        {homeItems.map((item, idx) => (
+                          <span key={idx} style={{ padding: '5px 12px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.textMuted }}>
+                            {item.label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {allergies.length > 0 && (
+                      <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: member.home_notes ? 8 : 0 }}>
+                        <strong style={{ color: COLORS.primary }}>Allergies:</strong> {allergies.join(', ')}
+                        {member.home_allergy_notes && ` (${member.home_allergy_notes})`}
+                      </p>
+                    )}
+                    {member.home_notes && (
+                      <p style={{ fontSize: 13, color: COLORS.textMuted }}>{member.home_notes}</p>
                     )}
                   </div>
-                ) : (
-                  <p style={{ fontSize: 13, color: COLORS.textMuted, fontStyle: 'italic' }}>No children listed yet</p>
-                )}
-              </div>
-            )}
+                );
+              })()}
 
-            {/* Social / Contact */}
-            {(member.instagram_handle || member.linkedin_handle || member.facebook_handle) && (
-              <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Connect Elsewhere</h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                  {member.instagram_handle && (
-                    <a href={`https://instagram.com/${member.instagram_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
-                      Instagram
-                    </a>
-                  )}
-                  {member.linkedin_handle && (
-                    <a href={member.linkedin_handle.startsWith('http') ? member.linkedin_handle : `https://linkedin.com/in/${member.linkedin_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
-                      LinkedIn
-                    </a>
-                  )}
-                  {member.facebook_handle && (
-                    <a href={member.facebook_handle.startsWith('http') ? member.facebook_handle : `https://facebook.com/${member.facebook_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
-                      Facebook
-                    </a>
+              {/* Children — hidden for caregivers */}
+              {member.role !== 'caregiver' && (
+                <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Children</h3>
+                  {(member.num_kids > 0 || member.kids.length > 0) ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                      {member.kids.map((kid: any) => {
+                        const name = kid.first_name || kid.name || 'Child';
+                        const age = kid.birth_year
+                          ? (() => {
+                            const now = new Date();
+                            const ageMonths = (now.getFullYear() - kid.birth_year) * 12 + (now.getMonth() - ((kid.birth_month || 1) - 1));
+                            if (ageMonths < 0) return null;
+                            if (ageMonths < 12) return `${ageMonths}mo`;
+                            const years = Math.floor(ageMonths / 12);
+                            return years === 1 ? '1 year' : `${years} years`;
+                          })()
+                          : null;
+                        return (
+                          <div key={kid.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 14, background: '#f0faf4', border: `1px solid ${COLORS.mintDark}15` }}>
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: COLORS.mint, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary }}>{name.charAt(0)}</span>
+                            </div>
+                            <div>
+                              <p style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary, margin: 0 }}>{name}</p>
+                              {age && <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>{age}</p>}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {member.kids.length === 0 && member.num_kids > 0 && (
+                        <span style={{ fontSize: 13, color: COLORS.textMuted }}>
+                          {member.num_kids} {member.num_kids === 1 ? 'child' : 'children'}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <p style={{ fontSize: 13, color: COLORS.textMuted, fontStyle: 'italic' }}>No children listed yet</p>
                   )}
                 </div>
+              )}
+
+              {/* Social / Contact */}
+              {(member.instagram_handle || member.linkedin_handle || member.facebook_handle) && (
+                <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Connect Elsewhere</h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                    {member.instagram_handle && (
+                      <a href={`https://instagram.com/${member.instagram_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
+                        Instagram
+                      </a>
+                    )}
+                    {member.linkedin_handle && (
+                      <a href={member.linkedin_handle.startsWith('http') ? member.linkedin_handle : `https://linkedin.com/in/${member.linkedin_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
+                        LinkedIn
+                      </a>
+                    )}
+                    {member.facebook_handle && (
+                      <a href={member.facebook_handle.startsWith('http') ? member.facebook_handle : `https://facebook.com/${member.facebook_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
+                        Facebook
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Endorsement Form */}
+          {showEndorseForm && (
+            <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 16 }}>
+                {hasEndorsed ? 'Edit Your Endorsement' : `Endorse ${member.first_name}`}
+              </h3>
+
+              {/* Stars */}
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>Rating</p>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <button key={star} type="button" onClick={() => setEndorseRating(star)} style={{ padding: 4, background: 'none', border: 'none', cursor: 'pointer' }}>
+                      <Star className={`w-6 h-6 ${star <= endorseRating ? 'text-[#F59E0B] fill-[#F59E0B]' : 'text-gray-200'}`} />
+                    </button>
+                  ))}
+                </div>
               </div>
-            )}
-          </>
-        )}
 
-        {/* Endorsement Form */}
-        {showEndorseForm && (
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 16 }}>
-              {hasEndorsed ? 'Edit Your Endorsement' : `Endorse ${member.first_name}`}
-            </h3>
+              {/* Relationship multi-select */}
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>How do you know {member.first_name}? (select all)</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {['Neighbor', 'Used as caregiver', 'Share a nanny', 'Friend', 'Community member', 'Coworker', 'Family friend'].map(rel => {
+                    const isSelected = endorseRelationship.includes(rel);
+                    return (
+                      <button
+                        key={rel}
+                        type="button"
+                        onClick={() => setEndorseRelationship((prev: string[]) => isSelected ? prev.filter((r: string) => r !== rel) : [...prev, rel])}
+                        style={{
+                          padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 500, cursor: 'pointer',
+                          fontFamily: 'Comfortaa, sans-serif',
+                          background: isSelected ? COLORS.primary : '#fff',
+                          color: isSelected ? '#fff' : COLORS.textMuted,
+                          border: isSelected ? `1.5px solid ${COLORS.primary}` : '1.5px solid #e5e7eb',
+                        }}
+                      >
+                        {rel}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-            {/* Stars */}
-            <div style={{ marginBottom: 16 }}>
-              <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>Rating</p>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {[1, 2, 3, 4, 5].map(star => (
-                  <button key={star} type="button" onClick={() => setEndorseRating(star)} style={{ padding: 4, background: 'none', border: 'none', cursor: 'pointer' }}>
-                    <Star className={`w-6 h-6 ${star <= endorseRating ? 'text-[#F59E0B] fill-[#F59E0B]' : 'text-gray-200'}`} />
-                  </button>
-                ))}
+              {/* Text */}
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>Your recommendation (optional)</p>
+                <textarea
+                  value={endorseText}
+                  onChange={e => setEndorseText(e.target.value)}
+                  placeholder={`What makes ${member.first_name} a great member of your village?`}
+                  style={{
+                    width: '100%', padding: '10px 14px', border: '1.5px solid #e5e7eb', borderRadius: 12,
+                    fontSize: 13, color: COLORS.textMuted, fontFamily: 'Comfortaa, sans-serif', resize: 'none', outline: 'none',
+                  }}
+                  rows={3}
+                  maxLength={500}
+                />
+                <p style={{ fontSize: 11, color: '#aaa', marginTop: 4, textAlign: 'right' }}>{endorseText.length}/500</p>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowEndorseForm(false)}
+                  style={{
+                    flex: 1, padding: '10px 0', borderRadius: 14, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                    fontFamily: 'Comfortaa, sans-serif', background: 'transparent', color: COLORS.textMuted, border: '1.5px solid #e5e7eb',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEndorse}
+                  disabled={endorseSaving || endorseRating === 0}
+                  style={{
+                    flex: 1, padding: '10px 0', borderRadius: 14, fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    fontFamily: 'Comfortaa, sans-serif', background: COLORS.primary, color: '#fff', border: 'none',
+                    opacity: (endorseSaving || endorseRating === 0) ? 0.5 : 1,
+                  }}
+                >
+                  {endorseSaving ? 'Saving...' : hasEndorsed ? 'Update Endorsement' : 'Submit Endorsement'}
+                </button>
               </div>
             </div>
+          )}
 
-            {/* Relationship multi-select */}
-            <div style={{ marginBottom: 16 }}>
-              <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>How do you know {member.first_name}? (select all)</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {['Neighbor', 'Used as caregiver', 'Share a nanny', 'Friend', 'Community member', 'Coworker', 'Family friend'].map(rel => {
-                  const isSelected = endorseRelationship.includes(rel);
+          {/* Endorsements from Village */}
+          {endorsements.length > 0 && (
+            <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 16 }}>What Others Say</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {endorsements.map((e: any) => {
+                  const author = Array.isArray(e.author) ? e.author[0] : e.author;
+                  const authorName = author ? `${author.first_name} ${(author.last_name || '').charAt(0)}.` : 'Member';
                   return (
-                    <button
-                      key={rel}
-                      type="button"
-                      onClick={() => setEndorseRelationship((prev: string[]) => isSelected ? prev.filter((r: string) => r !== rel) : [...prev, rel])}
-                      style={{
-                        padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 500, cursor: 'pointer',
-                        fontFamily: 'Comfortaa, sans-serif',
-                        background: isSelected ? COLORS.primary : '#fff',
-                        color: isSelected ? '#fff' : COLORS.textMuted,
-                        border: isSelected ? `1.5px solid ${COLORS.primary}` : '1.5px solid #e5e7eb',
-                      }}
-                    >
-                      {rel}
-                    </button>
+                    <div key={e.id} style={{ display: 'flex', gap: 12 }}>
+                      <div style={{
+                        width: 32, height: 32, borderRadius: '50%', background: COLORS.mint,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden',
+                      }}>
+                        {author?.avatar_url ? (
+                          <img src={author.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                        ) : (
+                          <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.primary }}>{authorName.charAt(0)}</span>
+                        )}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary }}>{authorName}</span>
+                          {e.relationship && (
+                            <span style={{ fontSize: 11, color: COLORS.textMuted }}>
+                              · {Array.isArray(e.relationship) ? e.relationship.join(', ') : e.relationship}
+                            </span>
+                          )}
+                        </div>
+                        {e.rating && (
+                          <div style={{ display: 'flex', gap: 2, marginBottom: 4 }}>
+                            {[1, 2, 3, 4, 5].map((s: number) => (
+                              <Star key={s} className={`w-3 h-3 ${s <= e.rating ? 'text-[#F59E0B] fill-[#F59E0B]' : 'text-gray-200'}`} />
+                            ))}
+                          </div>
+                        )}
+                        {e.text && <p style={{ fontSize: 13, color: COLORS.textMuted, lineHeight: 1.5 }}>{e.text}</p>}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
             </div>
+          )}
 
-            {/* Text */}
-            <div style={{ marginBottom: 16 }}>
-              <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>Your recommendation (optional)</p>
-              <textarea
-                value={endorseText}
-                onChange={e => setEndorseText(e.target.value)}
-                placeholder={`What makes ${member.first_name} a great member of your village?`}
-                style={{
-                  width: '100%', padding: '10px 14px', border: '1.5px solid #e5e7eb', borderRadius: 12,
-                  fontSize: 13, color: COLORS.textMuted, fontFamily: 'Comfortaa, sans-serif', resize: 'none', outline: 'none',
-                }}
-                rows={3}
-                maxLength={500}
-              />
-              <p style={{ fontSize: 11, color: '#aaa', marginTop: 4, textAlign: 'right' }}>{endorseText.length}/500</p>
-            </div>
-
-            {/* Actions */}
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                type="button"
-                onClick={() => setShowEndorseForm(false)}
-                style={{
-                  flex: 1, padding: '10px 0', borderRadius: 14, fontSize: 13, fontWeight: 500, cursor: 'pointer',
-                  fontFamily: 'Comfortaa, sans-serif', background: 'transparent', color: COLORS.textMuted, border: '1.5px solid #e5e7eb',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleEndorse}
-                disabled={endorseSaving || endorseRating === 0}
-                style={{
-                  flex: 1, padding: '10px 0', borderRadius: 14, fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                  fontFamily: 'Comfortaa, sans-serif', background: COLORS.primary, color: '#fff', border: 'none',
-                  opacity: (endorseSaving || endorseRating === 0) ? 0.5 : 1,
-                }}
-              >
-                {endorseSaving ? 'Saving...' : hasEndorsed ? 'Update Endorsement' : 'Submit Endorsement'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Endorsements from Village */}
-        {endorsements.length > 0 && (
-          <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 16 }}>What Others Say</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {endorsements.map((e: any) => {
-                const author = Array.isArray(e.author) ? e.author[0] : e.author;
-                const authorName = author ? `${author.first_name} ${(author.last_name || '').charAt(0)}.` : 'Member';
-                return (
-                  <div key={e.id} style={{ display: 'flex', gap: 12 }}>
-                    <div style={{
-                      width: 32, height: 32, borderRadius: '50%', background: COLORS.mint,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden',
-                    }}>
-                      {author?.avatar_url ? (
-                        <img src={author.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-                      ) : (
-                        <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.primary }}>{authorName.charAt(0)}</span>
-                      )}
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary }}>{authorName}</span>
-                        {e.relationship && (
-                          <span style={{ fontSize: 11, color: COLORS.textMuted }}>
-                            · {Array.isArray(e.relationship) ? e.relationship.join(', ') : e.relationship}
-                          </span>
-                        )}
-                      </div>
-                      {e.rating && (
-                        <div style={{ display: 'flex', gap: 2, marginBottom: 4 }}>
-                          {[1, 2, 3, 4, 5].map((s: number) => (
-                            <Star key={s} className={`w-3 h-3 ${s <= e.rating ? 'text-[#F59E0B] fill-[#F59E0B]' : 'text-gray-200'}`} />
-                          ))}
-                        </div>
-                      )}
-                      {e.text && <p style={{ fontSize: 13, color: COLORS.textMuted, lineHeight: 1.5 }}>{e.text}</p>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-      </div>
-    </div >
+        </div>
+      </div >
     </>
   )
 }
