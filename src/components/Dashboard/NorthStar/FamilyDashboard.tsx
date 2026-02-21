@@ -1376,15 +1376,14 @@ export default function FamilyDashboard() {
                 <section style={{ marginBottom: 24 }}>
                     <div
                         style={{
-                            background: '#fafffe',
+                            background: '#fff',
                             borderRadius: 14,
                             boxShadow: '0 2px 12px rgba(30,107,78,0.08)',
                             padding: 20,
-                            borderLeft: '3px solid #8bd7c7',
                         }}
                     >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                            <div style={{ fontWeight: 700, fontSize: 15, color: '#2d3a35', display: 'flex', alignItems: 'center' }}><span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', backgroundColor: '#8bd7c7', marginRight: 8 }} />Village Board</div>
+                            <div style={{ fontWeight: 700, fontSize: 14, color: '#2d3a35' }}>Village Board</div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                 <button
                                     type="button"
