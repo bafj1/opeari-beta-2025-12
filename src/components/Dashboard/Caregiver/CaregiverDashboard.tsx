@@ -284,16 +284,15 @@ export default function CaregiverDashboard() {
                     .from('care_needs')
                     .select(`
                         id,
+                        name,
                         care_type,
-                        description,
-                        schedule_days,
-                        schedule_time,
-                        start_date,
+                        days_needed,
+                        time_windows,
+                        status,
                         is_active,
-                        created_at,
-                        member:members!care_needs_member_id_fkey (
-                            id, first_name, last_name, neighborhood, avatar_url
-                        )
+                        notes_for_caregiver,
+                        member_id,
+                        members(id, first_name, last_name, neighborhood, avatar_url)
                     `)
                     .eq('is_active', true)
                     .neq('member_id', effectiveUserId)
@@ -809,9 +808,10 @@ export default function CaregiverDashboard() {
                         <div id="cg-opps-content" style={{ padding: '0 20px 16px', display: 'none', flexDirection: 'column', gap: 10 }}>
                             {opportunityCount > 0 ? (
                                 careOpportunities.map((opp: any, i: number) => {
-                                    const familyName = opp.member ? `${opp.member.first_name || ''} ${(opp.member.last_name || '')[0] || ''}.`.trim() : 'Family';
+                                    const member = opp.members || opp.member;
+                                    const familyName = member ? `${member.first_name || ''} ${(member.last_name || '')[0] || ''}.`.trim() : 'Family';
                                     const careType = careTypeLabels[opp.care_type] || opp.care_type || 'Care';
-                                    const scheduleDays = Array.isArray(opp.schedule_days) ? opp.schedule_days.join(', ') : (opp.schedule_time || 'Flexible schedule');
+                                    const scheduleDays = Array.isArray(opp.days_needed) ? opp.days_needed.join(', ') : (opp.time_windows || 'Flexible schedule');
 
                                     return (
                                         <div key={opp.id || i} style={{
@@ -827,7 +827,7 @@ export default function CaregiverDashboard() {
                                                 </div>
                                             </div>
                                             <button
-                                                onClick={() => opp.member?.id && navigate(`/member/${opp.member.id}`)}
+                                                onClick={() => { const m = opp.members || opp.member; if (m?.id) navigate(`/member/${m.id}`); }}
                                                 style={{
                                                     fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 16,
                                                     border: '1px solid #1E6B4E', background: 'none', color: '#1E6B4E',
