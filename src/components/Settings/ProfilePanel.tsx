@@ -416,6 +416,15 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                                 onCropComplete={onCropComplete}
                             />
                         </div>
+                        <p style={{
+                            fontSize: 12,
+                            color: '#6b7f76',
+                            textAlign: 'center',
+                            marginTop: 8,
+                            fontFamily: 'Comfortaa, cursive',
+                        }}>
+                            Zoom in, then drag to reposition
+                        </p>
                         <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
                             <span style={{ fontSize: 12, color: '#6b7f76' }}>Zoom</span>
                             <input
