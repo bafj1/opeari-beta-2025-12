@@ -41,10 +41,12 @@ interface Kid {
 interface MemberData {
   id: string
   first_name: string
+  last_name?: string
   role: string
   neighborhood: string
   zip_code: string
   bio: string
+  privacy_show_full_name?: boolean
 
   // Aliases from Prod Schema
   situation: string
@@ -125,6 +127,7 @@ export default function MemberProfile() {
   const [endorsementCount, setEndorsementCount] = useState(0)
   const [avgRating, setAvgRating] = useState(0)
   const [endorsements, setEndorsements] = useState<any[]>([])
+  const [careNeeds, setCareNeeds] = useState<any[]>([])
   const [showEndorseForm, setShowEndorseForm] = useState(false)
   const [endorseRating, setEndorseRating] = useState(0)
   const [endorseText, setEndorseText] = useState('')
@@ -364,6 +367,7 @@ export default function MemberProfile() {
       const fullMember: MemberData = {
         id: dataToUse.id,
         first_name: dataToUse.first_name || 'Family',
+        last_name: dataToUse.last_name || '',
         role: dataToUse.role || 'family',
         neighborhood: dataToUse.neighborhood || '',
         zip_code: dataToUse.zip_code || '',
@@ -396,6 +400,7 @@ export default function MemberProfile() {
         instagram_handle: dataToUse.instagram_handle,
         linkedin_handle: dataToUse.linkedin_handle,
         facebook_handle: dataToUse.facebook_handle,
+        privacy_show_full_name: dataToUse.privacy_show_full_name,
         support_offered: dataToUse.support_offered || [],
 
         // Avatar
@@ -471,6 +476,18 @@ export default function MemberProfile() {
             setExistingEndorsement(myEndorsement);
           }
         } catch { /* table might not exist */ }
+      }
+
+      // Fetch care needs for connected profiles
+      if (status === 'accepted') {
+        try {
+          const { data: needs } = await supabase
+            .from('care_needs')
+            .select('id, name, care_type, days_needed, time_windows, status, is_active, notes_for_caregiver, start_date, end_date, start_time, end_time, duration_type')
+            .eq('member_id', id)
+            .eq('is_active', true);
+          setCareNeeds(needs || []);
+        } catch { /* care_needs table might not exist */ }
       }
 
     } catch (err) {
@@ -731,7 +748,14 @@ export default function MemberProfile() {
                 {/* Name + meta */}
                 <div style={{ flex: 1 }}>
                   <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: COLORS.primary, fontFamily: 'Comfortaa, sans-serif' }}>
-                    {isCaregiver ? member.first_name : `${member.first_name}'s Family`}
+                    {(() => {
+                      const isParentOnly = member.role === 'parent' || member.role === 'family';
+                      const hasChildren = member.kids && member.kids.length > 0;
+                      if (isParentOnly && hasChildren) return `${member.first_name}'s Family`;
+                      const lastInitial = member.last_name ? `${member.last_name[0]}.` : '';
+                      const lastNameDisplay = member.privacy_show_full_name ? (member.last_name || '') : lastInitial;
+                      return `${member.first_name} ${lastNameDisplay}`.trim();
+                    })()}
                   </h1>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 20, background: badgeBg, color: accentDark }}>
@@ -808,6 +832,27 @@ export default function MemberProfile() {
                 </div>
               )}
 
+              {/* Bio — dedicated About section */}
+              {member.bio && (
+                <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginBottom: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 8 }}>About</h3>
+                  <p style={{
+                    fontSize: 14, color: '#2d3a35', lineHeight: 1.6, margin: 0,
+                    fontFamily: 'Comfortaa, cursive',
+                    ...(!isConnected ? {
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical' as any,
+                      overflow: 'hidden',
+                    } : {}),
+                  }}>
+                    {member.bio.startsWith('Looking for:')
+                      ? `Looking for ${humanizeCareType(member.bio.replace('Looking for: ', '').trim())}`
+                      : member.bio}
+                  </p>
+                </div>
+              )}
+
               {/* Why You Match */}
               {signals.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
@@ -822,21 +867,41 @@ export default function MemberProfile() {
                 </div>
               )}
 
-              {/* Bio */}
-              {member.bio && (
-                <p style={{
-                  fontSize: 13, color: COLORS.textMuted, lineHeight: 1.5, marginBottom: 20,
-                  ...(!isConnected ? {
-                    display: '-webkit-box',
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: 'vertical' as any,
-                    overflow: 'hidden',
-                  } : {}),
-                }}>
-                  {member.bio.startsWith('Looking for:')
-                    ? `Looking for ${humanizeCareType(member.bio.replace('Looking for: ', '').trim())}`
-                    : member.bio}
-                </p>
+              {/* Care Needs — only for connected parent profiles */}
+              {isConnected && member.role !== 'caregiver' && careNeeds.length > 0 && (
+                <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginBottom: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Care Needs</h3>
+                  {careNeeds.map((need: any) => (
+                    <div key={need.id} style={{ padding: '12px 14px', borderRadius: 10, background: '#fffaf5', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: 14, color: '#2d3a35', fontFamily: 'Comfortaa, cursive' }}>
+                            {need.name || (need.care_type ? need.care_type.replace(/[-_]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) : 'Care Need')}
+                          </div>
+                          {need.days_needed && (
+                            <div style={{ fontSize: 12, color: '#6b7f76', marginTop: 4, fontFamily: 'Comfortaa, cursive' }}>
+                              {Array.isArray(need.days_needed) ? need.days_needed.join(', ') : need.days_needed}
+                              {need.start_time && need.end_time ? ` · ${need.start_time} - ${need.end_time}` : ''}
+                            </div>
+                          )}
+                          {need.notes_for_caregiver && (
+                            <div style={{ fontSize: 12, color: '#6b7f76', marginTop: 4, fontStyle: 'italic', fontFamily: 'Comfortaa, cursive' }}>
+                              {need.notes_for_caregiver}
+                            </div>
+                          )}
+                        </div>
+                        <span style={{
+                          padding: '3px 10px', borderRadius: 12,
+                          background: need.is_active ? '#d8f5e5' : '#f0f0f0',
+                          fontSize: 11, fontWeight: 600, fontFamily: 'Comfortaa, cursive',
+                          color: need.is_active ? '#1E6B4E' : '#6b7f76',
+                        }}>
+                          {need.status === 'open' ? 'Active' : (need.status || 'Active')}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
 
               {/* Schedule Overlap */}
