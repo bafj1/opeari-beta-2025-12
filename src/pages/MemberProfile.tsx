@@ -22,7 +22,7 @@ function humanizeCareType(raw: string): string {
     'date-night': 'date night sitter',
     'occasional': 'occasional care',
   };
-  return map[raw] || raw.replace(/-/g, ' ');
+  return map[raw] || raw.replace(/[-_]/g, ' ');
 }
 
 // Prod Schema: No JSONB for kids. 
@@ -31,6 +31,7 @@ interface Kid {
   id: string
   first_name?: string
   name?: string
+  show_name?: boolean
   gender: string | null
   birth_month: number | null
   birth_year: number | null
@@ -339,10 +340,12 @@ export default function MemberProfile() {
         if (dataToUse.kids_table && dataToUse.kids_table.length > 0) {
           kidsArray = dataToUse.kids_table.map((k: any) => ({
             id: k.id,
+            first_name: k.first_name || null,
             name: k.name,
+            show_name: k.show_name,
             birth_year: k.birth_year ? k.birth_year : (k.birthday ? new Date(k.birthday).getFullYear() : null),
-            birth_month: k.birthday ? new Date(k.birthday).getMonth() + 1 : null,
-            gender: k.gender || null, // Updated to use real gender
+            birth_month: k.birth_month || (k.birthday ? new Date(k.birthday).getMonth() + 1 : null),
+            gender: k.gender || null,
             notes: k.notes
           }))
         }
@@ -910,7 +913,7 @@ export default function MemberProfile() {
                     background: isCaregiver ? 'rgba(248,195,179,0.2)' : COLORS.mint,
                     color: accentDark,
                   }}>
-                    {ct.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                    {ct.replace(/[-_]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
                   </span>
                 ))}
               </div>
@@ -1014,29 +1017,7 @@ export default function MemberProfile() {
               )}
             </div>
 
-            {/* Endorse / Edit */}
-            {isConnected && user?.id !== member.id && (
-              <button
-                onClick={() => {
-                  if (hasEndorsed && existingEndorsement) {
-                    setEndorseRating(existingEndorsement.rating || 0);
-                    setEndorseText(existingEndorsement.text || '');
-                    setEndorseRelationship(existingEndorsement.relationship || []);
-                  }
-                  setShowEndorseForm(!showEndorseForm);
-                }}
-                style={{
-                  width: '100%', marginTop: 12, padding: '10px 0', borderRadius: 14,
-                  border: `1px solid ${COLORS.mintDark}30`, background: 'transparent',
-                  color: COLORS.primary, fontSize: 13, fontWeight: 600,
-                  fontFamily: 'Comfortaa, sans-serif', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                }}
-              >
-                <Star className="w-4 h-4" />
-                {hasEndorsed ? 'Edit Your Endorsement' : `Endorse ${member.first_name}`}
-              </button>
-            )}
+            {/* Endorse / Edit — consolidated into CTA row above */}
 
             {/* Privacy note */}
             {!isConnected && !user && (
@@ -1148,8 +1129,13 @@ export default function MemberProfile() {
                   <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Children</h3>
                   {(member.num_kids > 0 || member.kids.length > 0) ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                      {member.kids.map((kid: any) => {
-                        const name = kid.first_name || kid.name || 'Child';
+                      {member.kids.map((kid: any, kidIdx: number) => {
+                        const displayName = (() => {
+                          const rawName = kid.first_name || kid.name;
+                          if (!rawName) return `Child ${kidIdx + 1}`;
+                          if (kid.show_name === false) return `${rawName[0]}.`;
+                          return rawName;
+                        })();
                         const age = kid.birth_year
                           ? (() => {
                             const now = new Date();
@@ -1157,16 +1143,16 @@ export default function MemberProfile() {
                             if (ageMonths < 0) return null;
                             if (ageMonths < 12) return `${ageMonths}mo`;
                             const years = Math.floor(ageMonths / 12);
-                            return years === 1 ? '1 year' : `${years} years`;
+                            return years === 0 ? 'Under 1' : years === 1 ? '1 year old' : `${years} years old`;
                           })()
                           : null;
                         return (
                           <div key={kid.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 14, background: '#f0faf4', border: `1px solid ${COLORS.mintDark}15` }}>
                             <div style={{ width: 32, height: 32, borderRadius: '50%', background: COLORS.mint, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary }}>{name.charAt(0)}</span>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary }}>{displayName.charAt(0)}</span>
                             </div>
                             <div>
-                              <p style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary, margin: 0 }}>{name}</p>
+                              <p style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary, margin: 0 }}>{displayName}</p>
                               {age && <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>{age}</p>}
                             </div>
                           </div>
@@ -1191,17 +1177,17 @@ export default function MemberProfile() {
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                     {member.instagram_handle && (
                       <a href={`https://instagram.com/${member.instagram_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
-                        Instagram
+                        Instagram: @{member.instagram_handle}
                       </a>
                     )}
                     {member.linkedin_handle && (
                       <a href={member.linkedin_handle.startsWith('http') ? member.linkedin_handle : `https://linkedin.com/in/${member.linkedin_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
-                        LinkedIn
+                        LinkedIn: {member.linkedin_handle.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//i, '')}
                       </a>
                     )}
                     {member.facebook_handle && (
                       <a href={member.facebook_handle.startsWith('http') ? member.facebook_handle : `https://facebook.com/${member.facebook_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
-                        Facebook
+                        Facebook: {member.facebook_handle.replace(/^https?:\/\/(www\.)?facebook\.com\//i, '')}
                       </a>
                     )}
                   </div>

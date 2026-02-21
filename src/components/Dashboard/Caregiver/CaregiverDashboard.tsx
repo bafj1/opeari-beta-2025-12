@@ -292,7 +292,7 @@ export default function CaregiverDashboard() {
                         is_active,
                         notes_for_caregiver,
                         member_id,
-                        members(id, first_name, last_name, neighborhood, avatar_url)
+                        members!care_needs_member_id_fkey(id, first_name, last_name, neighborhood, avatar_url)
                     `)
                     .eq('is_active', true)
                     .neq('member_id', effectiveUserId)
