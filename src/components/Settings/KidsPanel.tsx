@@ -48,10 +48,12 @@ const CHILD_ALLERGIES = [
 
 const NAP_OPTIONS = [
     { value: '', label: 'Select...' },
-    { value: 'none', label: 'No naps' },
-    { value: '1-morning', label: '1 nap (morning)' },
-    { value: '1-afternoon', label: '1 nap (afternoon)' },
-    { value: '2-naps', label: '2 naps' },
+    { value: 'no_naps', label: 'No naps' },
+    { value: '1_nap', label: '1 nap' },
+    { value: '2_naps', label: '2 naps' },
+    { value: '3_naps', label: '3 naps' },
+    { value: '4_plus_naps', label: '4+ naps' },
+    { value: 'varies', label: 'Varies / on demand' },
 ];
 
 export default function KidsPanel() {
@@ -154,7 +156,7 @@ export default function KidsPanel() {
                 favorite_foods: favoriteFoods || null,
                 personality_notes: personalityNotes || null,
                 display_name: computedDisplayName,
-                show_name: showName,
+                show_name: showName === true || (showName as any) === 'true' ? true : false,
                 notes: notes || null,
             };
 
