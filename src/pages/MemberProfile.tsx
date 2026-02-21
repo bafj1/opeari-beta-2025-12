@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Star, Heart, Calendar, MapPin, Globe, Sparkles, Baby, Car, Handshake, Wind, PawPrint, CircleParking, CheckCircle2, Moon, Dumbbell, AlertTriangle } from 'lucide-react'
+import { Star, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useViewer } from '../hooks/useViewer'
 import { supabase } from '../lib/supabase'
 import Toast from '../components/ui/Toast'
 import { logAlphaEvent } from '../lib/analytics'
 import { createNotification } from '../lib/notifications'
-import {
-  NANNY_SITUATION_OPTIONS,
-  WEEKDAYS,
-  TIME_SLOTS,
-} from '../lib/Constants'
+
 
 type Schedule = Record<string, string[]>
 
@@ -641,26 +637,44 @@ export default function MemberProfile() {
     )
   }
 
-  const situationLabel = NANNY_SITUATION_OPTIONS.find(o => o.id === member.situation)?.label
+
+
   const isConnected = connectionStatus === 'accepted';
+
+  // Role-aware colors
+  const isCaregiver = member.role === 'caregiver';
+  const accentDark = isCaregiver ? '#9B4D3A' : COLORS.primary;
+  const badgeBg = isCaregiver ? COLORS.coral : COLORS.mint;
+
+  // Schedule overlap
+  const viewerDays = (viewer?.member?.availability_days || []).map((d: string) => d.toLowerCase());
+  const memberDays = (member.availability_days || []).map((d: string) => d.toLowerCase());
+  const overlapDays = viewerDays.filter((d: string) => memberDays.includes(d));
+  const DAY_MAP = [
+    { key: 'mon', label: 'M', full: 'Mon' },
+    { key: 'tue', label: 'T', full: 'Tue' },
+    { key: 'wed', label: 'W', full: 'Wed' },
+    { key: 'thu', label: 'T', full: 'Thu' },
+    { key: 'fri', label: 'F', full: 'Fri' },
+    { key: 'sat', label: 'S', full: 'Sat' },
+    { key: 'sun', label: 'S', full: 'Sun' },
+  ];
+
+  const signals = computeCompatibility() || [];
 
   return (
     <>
       {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-          duration={3000}
-        />
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} duration={3000} />
       )}
-      <div className="min-h-screen bg-[#d8f5e5]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-        <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <div className="min-h-screen" style={{ background: '#f0faf4', fontFamily: 'Comfortaa, sans-serif' }}>
+        <div style={{ maxWidth: 560, margin: '0 auto', padding: '24px 16px' }}>
 
           {/* Back Link */}
           <Link
             to="/village"
-            className="inline-flex items-center gap-1 text-sm text-[#546E5C] hover:underline"
+            className="inline-flex items-center gap-1 text-sm hover:underline"
+            style={{ color: COLORS.textMuted, marginBottom: 16, display: 'inline-flex' }}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -668,623 +682,346 @@ export default function MemberProfile() {
             Back to Home
           </Link>
 
-          {/* ===== PROFILE HEADER CARD ===== */}
-          <div className="bg-white rounded-[24px] overflow-hidden border border-[#8bd7c7]/20 shadow-sm">
-            {/* Top Banner — gradient */}
-            <div
-              className="h-24"
-              style={{
-                background: member.role === 'caregiver'
-                  ? 'linear-gradient(135deg, #FFF0EB, #F8C3B3 40%, #FFE4D6)'
-                  : 'linear-gradient(135deg, #d8f5e5, rgba(139,215,199,0.3) 40%, rgba(248,195,179,0.2))'
-              }}
-            />
+          {/* ===== MAIN CARD ===== */}
+          <div style={{ background: '#fff', borderRadius: 24, border: `2px solid ${COLORS.mintDark}20`, overflow: 'hidden' }}>
 
-            {/* Avatar + Name overlay */}
-            <div className="px-6 pb-6 -mt-12">
-              <div className="flex items-end gap-4 mb-4">
+            {/* Hero — gradient + avatar + name */}
+            <div style={{
+              background: isCaregiver
+                ? 'linear-gradient(135deg, #FFF0EB 0%, #F8C3B3 50%, #FFE4D6 100%)'
+                : 'linear-gradient(135deg, #d8f5e5 0%, #8bd7c7 50%, rgba(248,195,179,0.15) 100%)',
+              padding: '28px 24px 20px',
+            }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
                 {/* Avatar */}
-                <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-md flex items-center justify-center overflow-hidden flex-shrink-0">
+                <div style={{
+                  width: 72, height: 72, borderRadius: '50%', background: '#fff',
+                  border: '3px solid #fff', boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0, overflow: 'hidden',
+                }}>
                   {(member.avatar_url || member.photo_url) ? (
-                    <img
-                      src={member.avatar_url || member.photo_url}
-                      alt={member.first_name}
-                      className="w-full h-full object-cover rounded-full"
-                    />
+                    <img src={member.avatar_url || member.photo_url} alt={member.first_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <div className="w-full h-full rounded-full bg-[#d8f5e5] flex items-center justify-center">
-                      <span className="text-3xl font-bold text-[#1e6b4e]">
-                        {(member.first_name || '?').charAt(0)}
-                      </span>
+                    <div style={{ width: '100%', height: '100%', background: COLORS.mint, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{(member.first_name || '?').charAt(0)}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="pb-1 min-w-0">
-                  <h1 className="text-2xl font-bold text-[#1e6b4e] truncate">
-                    {member.role === 'caregiver'
-                      ? `${member.first_name}`
-                      : `${member.first_name}'s Family`}
+                {/* Name + meta */}
+                <div style={{ flex: 1 }}>
+                  <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: COLORS.primary, fontFamily: 'Comfortaa, sans-serif' }}>
+                    {isCaregiver ? member.first_name : `${member.first_name}'s Family`}
                   </h1>
-                  {(member.neighborhood || member.zip_code) && (
-                    <div className="flex items-center gap-1 mt-1">
-                      <MapPin className="w-3.5 h-3.5 text-[#546E5C]" />
-                      <span className="text-sm text-[#546E5C]">
-                        {member.neighborhood || member.zip_code}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 20, background: badgeBg, color: accentDark }}>
+                      {isCaregiver ? 'Caregiver' : member.role === 'both' ? 'Parent & Caregiver' : 'Parent'}
+                    </span>
+                    {(member.neighborhood || member.zip_code) && (
+                      <span style={{ fontSize: 12, color: COLORS.textMuted }}>{member.neighborhood || member.zip_code}</span>
+                    )}
+                    {member.timeline === 'asap' && (
+                      <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#FEF3C7', color: '#92400E' }}>ASAP</span>
+                    )}
+                  </div>
+                  {endorsementCount > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
+                      <Star className="w-3.5 h-3.5 text-[#F59E0B] fill-[#F59E0B]" />
+                      <span style={{ fontSize: 12, color: COLORS.textMuted, fontWeight: 600 }}>
+                        {endorsementCount} endorsement{endorsementCount !== 1 ? 's' : ''}{avgRating > 0 ? ` · ${avgRating} avg` : ''}
                       </span>
                     </div>
                   )}
-                </div>
-              </div>
-
-              {/* Role + Timeline badges */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span
-                  className="px-3 py-1 rounded-full text-xs font-semibold"
-                  style={{
-                    background: member.role === 'caregiver' ? '#F8C3B3' : member.role === 'both' ? '#8bd7c7' : '#d8f5e5',
-                    color: member.role === 'caregiver' ? '#9B4D3A' : '#1e6b4e',
-                  }}
-                >
-                  {member.role === 'caregiver' ? 'Caregiver' : member.role === 'both' ? 'Parent & Caregiver' : 'Parent'}
-                </span>
-                {member.timeline === 'asap' && (
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#FEF3C7] text-[#92400E]">
-                    Looking ASAP
-                  </span>
-                )}
-                {situationLabel && (
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold"
-                    style={{
-                      backgroundColor: member.situation === 'have_nanny' ? '#d8f5e5' : 'rgba(248, 195, 179, 0.2)',
-                      color: member.situation === 'have_nanny' ? '#1e6b4e' : '#c4785e',
-                    }}
-                  >
-                    {situationLabel}
-                  </span>
-                )}
-                {member.vetting_status === 'verified' && (
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#d8f5e5] text-[#1e6b4e] flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" />
-                    Verified
-                  </span>
-                )}
-              </div>
-
-              {/* Endorsement Badge */}
-              {endorsementCount > 0 && (
-                <div className="flex items-center gap-1.5 mb-4 px-3 py-1.5 rounded-full bg-[#f0faf4] border border-[#8bd7c7]/15 w-fit">
-                  <Star className="w-3.5 h-3.5 text-[#F59E0B] fill-[#F59E0B]" />
-                  <span className="text-xs font-semibold text-[#1e6b4e]">
-                    {endorsementCount} {endorsementCount === 1 ? 'endorsement' : 'endorsements'}
-                  </span>
-                  {avgRating > 0 && (
-                    <span className="text-xs text-[#546E5C]">· {avgRating} avg</span>
+                  {member.vetting_status === 'verified' && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#1e6b4e]" />
+                      <span style={{ fontSize: 11, fontWeight: 600, color: COLORS.primary }}>Verified</span>
+                    </div>
                   )}
-                </div>
-              )}
-
-              {/* Stats Row */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="text-center p-3 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15">
-                  <p className="text-xl font-bold text-[#1e6b4e]">{member.care_types?.length || 0}</p>
-                  <p className="text-[10px] text-[#546E5C] uppercase tracking-wide font-medium">Care Needs</p>
-                </div>
-                <div className="text-center p-3 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15">
-                  <p className="text-xl font-bold text-[#1e6b4e]">{connectionCount}</p>
-                  <p className="text-[10px] text-[#546E5C] uppercase tracking-wide font-medium">Connections</p>
-                </div>
-                <div className="text-center p-3 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15">
-                  <p className="text-xl font-bold text-[#1e6b4e]">{mutualCount}</p>
-                  <p className="text-[10px] text-[#546E5C] uppercase tracking-wide font-medium">Mutual</p>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* ===== WHY YOU MIGHT BE A GOOD FIT ===== */}
-          {(() => {
-            const signals = computeCompatibility();
-            if (!signals || signals.length === 0) return null;
+            {/* Content */}
+            <div style={{ padding: '20px 24px 24px' }}>
 
-            const iconMap: Record<string, React.FC<any>> = {
-              'calendar': Calendar, 'sparkles': Sparkles, 'baby': Baby,
-              'location': MapPin, 'language': Globe, 'transport': Car,
-              'handshake': Handshake, 'smoke-free': Wind, 'pets': PawPrint,
-              'parking': CircleParking, 'heart': Heart,
-            };
+              {/* Quick stats row */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                {[
+                  { n: connectionCount, label: 'Connections' },
+                  { n: mutualCount, label: 'Mutual' },
+                  { n: overlapDays.length, label: 'Days Overlap' },
+                ].map((stat, i) => (
+                  <div key={i} style={{ flex: 1, textAlign: 'center', padding: '10px 0', borderRadius: 12, background: '#f0faf4', border: `1px solid ${COLORS.mintDark}15` }}>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>{stat.n}</div>
+                    <div style={{ fontSize: 10, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 500 }}>{stat.label}</div>
+                  </div>
+                ))}
+              </div>
 
-            return (
-              <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-                <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Why You Might Be A Good Fit</h3>
-                <div className="flex flex-wrap gap-2">
-                  {signals.map((signal, idx) => {
-                    const IconComp = iconMap[signal.icon] || Star;
+              {/* Why You Match */}
+              {signals.length > 0 && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary, marginBottom: 8 }}>Why You Might Be a Good Fit</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {signals.map((signal: any, i: number) => (
+                      <span key={i} style={{ fontSize: 12, color: COLORS.textMuted, background: '#f0faf4', padding: '5px 12px', borderRadius: 20, border: `1px solid ${COLORS.mintDark}20` }}>
+                        {signal.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Bio — 3 lines max */}
+              {member.bio && (
+                <p style={{
+                  fontSize: 13, color: COLORS.textMuted, lineHeight: 1.5, marginBottom: 20,
+                  display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as any, overflow: 'hidden',
+                }}>
+                  {member.bio.startsWith('Looking for:')
+                    ? `Looking for ${humanizeCareType(member.bio.replace('Looking for: ', '').trim())}`
+                    : member.bio}
+                </p>
+              )}
+
+              {/* Schedule Overlap */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary, marginBottom: 10 }}>Schedule Overlap</div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {DAY_MAP.map((day) => {
+                    const theyAvailable = memberDays.includes(day.key);
+                    const youAvailable = viewerDays.includes(day.key);
+                    const isOverlap = theyAvailable && youAvailable;
+                    const theyOnly = theyAvailable && !youAvailable;
                     return (
-                      <div
-                        key={idx}
-                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15 text-sm"
-                      >
-                        <IconComp className="w-4 h-4 text-[#1e6b4e] flex-shrink-0" />
-                        <span className="text-[#546E5C]">{signal.label}</span>
+                      <div key={day.key} style={{ flex: 1, textAlign: 'center' }}>
+                        <div
+                          style={{
+                            width: 36, height: 36, borderRadius: '50%', margin: '0 auto 4px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 12, fontWeight: 600,
+                            background: isOverlap ? COLORS.primary : theyOnly ? `${COLORS.mintDark}40` : '#f5f5f5',
+                            color: isOverlap ? '#fff' : theyOnly ? COLORS.primary : '#ccc',
+                            border: theyOnly ? `2px dashed ${COLORS.mintDark}` : 'none',
+                          }}
+                          aria-label={`${day.full}${isOverlap ? ' - both available' : theyOnly ? ' - they are available' : ''}`}
+                        >
+                          {day.label}
+                        </div>
+                        <div style={{ fontSize: 9, color: COLORS.textMuted }}>{day.full}</div>
                       </div>
                     );
                   })}
                 </div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 10, color: COLORS.textMuted }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: COLORS.primary }} />
+                    Both available
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: `${COLORS.mintDark}40`, border: `1.5px dashed ${COLORS.mintDark}` }} />
+                    They're available
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f5f5f5' }} />
+                    Neither
+                  </div>
+                </div>
               </div>
-            );
-          })()}
 
-          {/* ===== ABOUT / BIO ===== */}
-          {member.bio && (
-            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-              <h3 className="text-base font-bold text-[#1e6b4e] mb-3">About</h3>
-              <p className="text-sm text-[#546E5C] leading-relaxed whitespace-pre-line">
-                {member.bio.startsWith('Looking for:')
-                  ? `Looking for ${humanizeCareType(member.bio.replace('Looking for: ', '').trim())}`
-                  : member.bio}
-              </p>
-            </div>
-          )}
-
-          {/* ===== CARE SCHEDULE ===== */}
-          <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-            <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Care Schedule</h3>
-
-            {member.availability_days.length > 0 ? (
-              <>
-                {/* Connected with detailed data? Show grid */}
-                {isConnected && member.schedule && Object.values(member.schedule).some(slots => Array.isArray(slots) && slots.length > 0) ? (
-                  <>
-                    <div className="flex gap-1 mb-2">
-                      <div className="w-16"></div>
-                      {WEEKDAYS.map(day => (
-                        <div key={day.id} className="flex-1 text-center text-xs font-semibold text-[#546E5C]">
-                          {day.short}
-                        </div>
-                      ))}
-                    </div>
-                    {TIME_SLOTS.map(slot => {
-                      const hasAnyForSlot = WEEKDAYS.some(d => (member.schedule[d.id] || []).includes(slot.id));
-                      if (!hasAnyForSlot) return null;
-                      return (
-                        <div key={slot.id} className="flex gap-1 mb-1">
-                          <div className="w-16 text-xs flex items-center text-[#546E5C]">{slot.time}</div>
-                          {WEEKDAYS.map(day => {
-                            const hasSlot = (member.schedule[day.id] || []).includes(slot.id);
-                            return (
-                              <div
-                                key={`${day.id}-${slot.id}`}
-                                className="flex-1 h-8 rounded"
-                                style={{ backgroundColor: hasSlot ? '#8bd7c7' : '#f5f5f5' }}
-                              />
-                            );
-                          })}
-                        </div>
-                      );
-                    })}
-                    {member.schedule_notes && (
-                      <div className="mt-4 p-3 bg-[#f0faf4] rounded-lg text-sm text-[#1e6b4e]">
-                        <span className="font-semibold">Note:</span> {member.schedule_notes}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  /* Day dots — filled circles */
-                  <>
-                    <div className="flex gap-2 mb-3">
-                      {[
-                        { key: 'mon', label: 'M' },
-                        { key: 'tue', label: 'T' },
-                        { key: 'wed', label: 'W' },
-                        { key: 'thu', label: 'T' },
-                        { key: 'fri', label: 'F' },
-                        { key: 'sat', label: 'S' },
-                        { key: 'sun', label: 'S' },
-                      ].map(day => {
-                        const isActive = member.availability_days.map((d: string) => d.toLowerCase()).includes(day.key);
-                        return (
-                          <div
-                            key={day.key}
-                            className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
-                            style={{
-                              background: isActive ? '#1e6b4e' : '#f0faf4',
-                              color: isActive ? '#fff' : 'rgba(84,110,92,0.4)',
-                              border: isActive ? 'none' : '1.5px solid rgba(139,215,199,0.3)',
-                            }}
-                            aria-label={`${day.key}${isActive ? ' - available' : ''}`}
-                          >
-                            {day.label}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Schedule legend */}
-                    <div className="flex items-center gap-3 mt-2 text-[11px]" style={{ color: '#546E5C' }}>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded-full" style={{ background: '#1e6b4e' }} />
-                        <span>Available</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded-full" style={{ background: '#f0faf4', border: '1px solid rgba(139,215,199,0.4)' }} />
-                        <span>Not available</span>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* Schedule summary */}
-                <p className="text-sm text-[#546E5C]">
-                  {member.availability_days.length === 7 ? 'Available all week' :
-                    member.availability_days.length === 5 && ['mon', 'tue', 'wed', 'thu', 'fri'].every((d: string) => member.availability_days.map((ad: string) => ad.toLowerCase()).includes(d)) ? 'Weekdays (Mon-Fri)' :
-                      `${member.availability_days.length} days per week`}
-                  {member.schedule_flexible && ' · Flexible schedule'}
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-[#546E5C] italic">Schedule not yet set</p>
-            )}
-          </div>
-
-          {/* ===== CARE TYPES + PREFERENCES (combined) ===== */}
-          {(member.care_types?.length > 0 || isConnected) && (
-            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-              {/* Care types */}
+              {/* Services / Looking For */}
               {member.care_types && member.care_types.length > 0 && (
-                <>
-                  <h3 className="text-base font-bold text-[#1e6b4e] mb-3">
-                    {member.role === 'caregiver' ? 'Services Offered' : 'Looking For'}
-                  </h3>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {member.care_types.map((ct: string) => (
-                      <span key={ct} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#d8f5e5] text-[#1e6b4e] capitalize">
-                        {ct.replace(/-/g, ' ')}
-                      </span>
-                    ))}
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary, marginBottom: 8 }}>
+                    {isCaregiver ? 'Services Offered' : 'Looking For'}
                   </div>
-                </>
-              )}
-
-              {/* Preferences inline */}
-              {isConnected && (() => {
-                const prefs = [
-                  { val: member.smoke_free_required, icon: Wind, label: 'Smoke-free environment' },
-                  { val: member.comfortable_with_pets, icon: PawPrint, label: 'Comfortable with pets' },
-                  { val: member.available_overnight, icon: Moon, label: 'Available overnight' },
-                  { val: member.has_transportation, icon: Car, label: 'Has transportation' },
-                  { val: member.willing_to_travel, icon: MapPin, label: 'Willing to travel' },
-                ].filter(p => p.val);
-
-                if (prefs.length === 0) return null;
-
-                return (
-                  <>
-                    {member.care_types?.length > 0 && (
-                      <div className="border-t border-[#8bd7c7]/15 my-4" />
-                    )}
-                    <h4 className="text-sm font-semibold text-[#1e6b4e] mb-2">Preferences</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {prefs.map((pref, idx) => (
-                        <div key={idx} className="flex items-center gap-1.5 text-xs text-[#546E5C] px-2.5 py-1.5 rounded-lg bg-[#f0faf4]">
-                          <pref.icon className="w-3.5 h-3.5 text-[#1e6b4e]" />
-                          <span>{pref.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-          )}
-
-          {/* ===== HOME DETAILS (connected only) ===== */}
-          {isConnected && (member.has_stairs || member.has_parking || member.has_yard || member.has_pool || member.has_pets || member.home_type) && (
-            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-              <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Home Details</h3>
-
-              {member.home_type && (
-                <p className="text-sm text-[#546E5C] mb-3 capitalize">
-                  {member.home_type.replace(/-/g, ' ')}
-                </p>
-              )}
-
-              <div className="grid grid-cols-2 gap-2">
-                {member.has_parking && (
-                  <div className="flex items-center gap-2 text-sm text-[#546E5C]">
-                    <Car className="w-4 h-4 text-[#1e6b4e]" />
-                    <span>Parking available</span>
-                  </div>
-                )}
-                {member.has_stairs && (
-                  <div className="flex items-center gap-2 text-sm text-[#546E5C]">
-                    <Dumbbell className="w-4 h-4 text-[#1e6b4e]" />
-                    <span>Has stairs</span>
-                  </div>
-                )}
-                {member.has_yard && (
-                  <div className="flex items-center gap-2 text-sm text-[#546E5C]">
-                    <MapPin className="w-4 h-4 text-[#1e6b4e]" />
-                    <span>Outdoor space</span>
-                  </div>
-                )}
-                {member.has_pool && (
-                  <div className="flex items-center gap-2 text-sm text-[#546E5C]">
-                    <Star className="w-4 h-4 text-[#1e6b4e]" />
-                    <span>Pool</span>
-                  </div>
-                )}
-                {member.has_pets && (
-                  <div className="flex items-center gap-2 text-sm text-[#546E5C]">
-                    <PawPrint className="w-4 h-4 text-[#1e6b4e]" />
-                    <span>Pets in home{member.pet_types && member.pet_types.length > 0 ? ` (${member.pet_types.join(', ')})` : ''}</span>
-                  </div>
-                )}
-              </div>
-
-              {member.home_allergies && member.home_allergies.length > 0 && (
-                <div className="mt-4 pt-3 border-t border-gray-100">
-                  <p className="text-xs font-semibold text-[#92400E] uppercase tracking-wide mb-2 flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" />
-                    Household Allergies
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {member.home_allergies.map((allergy: string) => (
-                      <span
-                        key={allergy}
-                        className="px-2 py-0.5 rounded-full text-xs bg-[#FEF3C7] text-[#92400E] font-medium"
-                      >
-                        {allergy}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {member.care_types.map((ct: string, i: number) => (
+                      <span key={i} style={{
+                        fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 20,
+                        background: isCaregiver ? `${COLORS.coral}30` : COLORS.mint,
+                        color: accentDark,
+                      }}>
+                        {ct.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
                       </span>
                     ))}
                   </div>
                 </div>
               )}
 
-              {member.home_notes && (
-                <p className="text-sm text-[#546E5C] mt-3 italic">{member.home_notes}</p>
-              )}
-            </div>
-          )}
+              {/* Divider */}
+              <div style={{ borderTop: `1px solid ${COLORS.mintDark}20`, margin: '0 -24px', padding: '0 24px' }} />
 
-          {/* ===== LANGUAGES ===== */}
-          {isConnected && member.languages && member.languages.length > 0 && (
-            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-              <h3 className="text-base font-bold text-[#1e6b4e] mb-3">Languages</h3>
-              <div className="flex flex-wrap gap-2">
-                {member.languages.map((lang: string) => (
-                  <div key={lang} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f0faf4] border border-[#8bd7c7]/15 text-sm text-[#546E5C]">
-                    <Globe className="w-3.5 h-3.5 text-[#1e6b4e]" />
-                    {lang}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ===== CHILDREN (hide for caregivers) ===== */}
-          {member.role !== 'caregiver' && (
-            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-              <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Children</h3>
-              {(member.num_kids > 0 || member.kids.length > 0) ? (
-                !isConnected && user?.id !== member.id ? (
-                  /* Public view */
-                  <div className="flex flex-col gap-1">
-                    <span className="text-lg font-semibold text-[#1e6b4e]">
-                      {member.num_kids} {member.num_kids === 1 ? 'Child' : 'Children'}
-                    </span>
-                    {member.children_age_groups && member.children_age_groups.length > 0 && (
-                      <span className="text-sm text-[#546E5C]">
-                        Age Groups: {member.children_age_groups.join(', ')}
-                      </span>
-                    )}
-                  </div>
-                ) : (
-                  /* Connected view — warm cards */
-                  <div className="flex flex-wrap gap-3">
-                    {member.kids.map(kid => {
-                      const name = kid.first_name || kid.name || 'Child';
-                      const age = kid.birth_year
-                        ? (() => {
-                          const now = new Date();
-                          const ageMonths = (now.getFullYear() - kid.birth_year) * 12 + (now.getMonth() - ((kid.birth_month || 1) - 1));
-                          if (ageMonths < 0) return null;
-                          if (ageMonths < 12) return `${ageMonths}mo`;
-                          const years = Math.floor(ageMonths / 12);
-                          return years === 1 ? '1 year' : `${years} years`;
-                        })()
-                        : null;
-                      return (
-                        <div
-                          key={kid.id}
-                          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15"
+              {/* CTA buttons */}
+              <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+                {connectionStatus === 'pending' ? (
+                  <>
+                    {incomingRequest ? (
+                      <>
+                        <button
+                          onClick={handleAccept}
+                          disabled={connecting}
+                          style={{
+                            flex: 1, padding: '13px 0', borderRadius: 14, border: 'none', cursor: 'pointer',
+                            background: COLORS.primary, color: '#fff', fontSize: 14, fontWeight: 700,
+                            fontFamily: 'Comfortaa, sans-serif', opacity: connecting ? 0.5 : 1,
+                          }}
                         >
-                          <div className="w-8 h-8 rounded-full bg-[#d8f5e5] flex items-center justify-center">
-                            <span className="text-sm font-bold text-[#1e6b4e]">
-                              {name.charAt(0)}
-                            </span>
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-[#1e6b4e]">{name}</p>
-                            {age && <p className="text-xs text-[#546E5C]">{age}</p>}
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {member.kids.length === 0 && member.num_kids > 0 && (
-                      <span className="text-sm text-[#546E5C]">
-                        {member.num_kids} {member.num_kids === 1 ? 'child' : 'children'}
-                      </span>
+                          {connecting ? '...' : 'Welcome In'}
+                        </button>
+                        <button
+                          onClick={handleDecline}
+                          disabled={connecting}
+                          style={{
+                            flex: 1, padding: '13px 0', borderRadius: 14, cursor: 'pointer',
+                            fontFamily: 'Comfortaa, sans-serif', background: 'transparent',
+                            color: COLORS.textMuted, border: '1.5px solid #e5e7eb',
+                            fontSize: 14, fontWeight: 600, opacity: connecting ? 0.5 : 1,
+                          }}
+                        >
+                          Skip
+                        </button>
+                      </>
+                    ) : (
+                      <div style={{ flex: 1, padding: '13px 0', borderRadius: 14, background: '#f0faf4', textAlign: 'center' }}>
+                        <span style={{ fontWeight: 600, color: COLORS.primary, fontSize: 14 }}>Connection request sent</span>
+                      </div>
                     )}
-                  </div>
-                )
-              ) : (
-                <p className="text-sm text-[#546E5C] italic">No children listed yet</p>
-              )}
-            </div>
-          )}
-          {/* ===== PRIVACY NOTE (Not Connected) ===== */}
-          {!isConnected && user?.id !== member.id && (
-            <div className="bg-white/80 rounded-[20px] p-5 border border-[#8bd7c7]/20">
-              <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-[#F8C3B3] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                </svg>
-                <p className="text-sm text-[#546E5C]">
-                  <strong className="text-[#1e6b4e]">Connect to see more:</strong> Kids' names, detailed schedules, preferences, and contact info are shared once you connect.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* ===== ACTION BUTTONS ===== */}
-          <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-            {connectionStatus === 'pending' ? (
-              <>
-                {incomingRequest ? (
-                  <div className="flex flex-col gap-3">
-                    <div className="bg-[#FFF7ED] border border-[#F8C3B3] rounded-xl p-4 text-center mb-1">
-                      <p className="text-[15px] font-semibold text-[#1e6b4e]">
-                        {member.first_name} asked to join your village
-                      </p>
-                      <p className="text-[13px] text-[#546E5C] mt-1">
-                        Accept to share full profiles and start messaging
-                      </p>
-                    </div>
-                    <div className="flex gap-3">
-                      <button
-                        onClick={handleAccept}
-                        disabled={connecting}
-                        className="flex-1 py-3 rounded-full font-bold text-white bg-[#1e6b4e] hover:bg-[#174f3a] transition-all disabled:opacity-50"
-                      >
-                        {connecting ? '...' : 'Welcome In'}
-                      </button>
-                      <button
-                        onClick={handleDecline}
-                        disabled={connecting}
-                        className="flex-1 py-3 rounded-full font-bold bg-white border border-gray-200 text-[#546E5C] hover:bg-gray-50 transition-all disabled:opacity-50"
-                      >
-                        Skip
-                      </button>
-                    </div>
-                  </div>
+                  </>
+                ) : isConnected ? (
+                  <>
+                    <Link
+                      to={`/messages?to=${member.id}`}
+                      style={{
+                        flex: 1, padding: '13px 0', borderRadius: 14, border: 'none',
+                        textDecoration: 'none', textAlign: 'center',
+                        background: COLORS.primary, color: '#fff', fontSize: 14, fontWeight: 700,
+                        fontFamily: 'Comfortaa, sans-serif',
+                      }}
+                    >
+                      Message {member.first_name}
+                    </Link>
+                    <Link
+                      to={`/profile/${member.id}`}
+                      style={{
+                        flex: 1, padding: '13px 0', borderRadius: 14,
+                        textDecoration: 'none', textAlign: 'center',
+                        fontFamily: 'Comfortaa, sans-serif',
+                        background: isCaregiver ? COLORS.coral : 'transparent',
+                        color: isCaregiver ? '#9B4D3A' : COLORS.primary,
+                        border: isCaregiver ? 'none' : `1.5px solid ${COLORS.mintDark}50`,
+                        fontSize: 14, fontWeight: 600,
+                      }}
+                    >
+                      Full Profile
+                    </Link>
+                  </>
                 ) : (
-                  <div className="w-full py-4 rounded-full bg-[#d8f5e5] text-center">
-                    <span className="font-semibold text-[#1e6b4e]">Connection request sent</span>
-                  </div>
+                  <>
+                    <button
+                      onClick={handleConnect}
+                      disabled={connecting || !user}
+                      style={{
+                        flex: 1, padding: '13px 0', borderRadius: 14, border: 'none',
+                        cursor: connecting ? 'wait' : 'pointer',
+                        background: COLORS.primary, color: '#fff', fontSize: 14, fontWeight: 700,
+                        fontFamily: 'Comfortaa, sans-serif', opacity: connecting ? 0.5 : 1,
+                      }}
+                    >
+                      {connecting ? 'Sending...' : 'Request to Chat'}
+                    </button>
+                    <button
+                      disabled
+                      style={{
+                        flex: 1, padding: '13px 0', borderRadius: 14, cursor: 'default',
+                        fontFamily: 'Comfortaa, sans-serif', background: 'transparent',
+                        color: COLORS.primary, border: `1.5px solid ${COLORS.mintDark}50`,
+                        fontSize: 14, fontWeight: 600,
+                      }}
+                    >
+                      View Profile
+                    </button>
+                  </>
                 )}
-              </>
-            ) : connectionStatus === 'accepted' ? (
-              <div className="flex gap-3">
-                <Link
-                  to={`/profile/${member.id}`}
-                  className="flex-1 py-3 rounded-full text-center text-sm font-semibold transition-colors"
+              </div>
+
+              {/* Endorse / Edit */}
+              {isConnected && user?.id !== member.id && (
+                <button
+                  onClick={() => {
+                    if (hasEndorsed && existingEndorsement) {
+                      setEndorseRating(existingEndorsement.rating || 0);
+                      setEndorseText(existingEndorsement.text || '');
+                      setEndorseRelationship(existingEndorsement.relationship || []);
+                    }
+                    setShowEndorseForm(!showEndorseForm);
+                  }}
                   style={{
-                    background: member.role === 'caregiver' ? '#F8C3B3' : 'transparent',
-                    color: member.role === 'caregiver' ? '#9B4D3A' : '#1e6b4e',
-                    border: member.role === 'caregiver' ? 'none' : '1.5px solid rgba(139,215,199,0.3)',
+                    width: '100%', marginTop: 12, padding: '10px 0', borderRadius: 14,
+                    border: `1px solid ${COLORS.mintDark}30`, background: 'transparent',
+                    color: COLORS.primary, fontSize: 13, fontWeight: 600,
+                    fontFamily: 'Comfortaa, sans-serif', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                   }}
                 >
-                  View Full Profile
-                </Link>
-                <Link
-                  to={`/messages?to=${member.id}`}
-                  className="flex-1 py-3 rounded-full bg-[#1e6b4e] text-white text-center text-sm font-semibold hover:bg-[#174f3a] transition-colors"
-                >
-                  Message {member.first_name}
-                </Link>
-              </div>
-            ) : (
-              <>
-                <button
-                  onClick={handleConnect}
-                  disabled={connecting || !user}
-                  className="w-full py-4 rounded-full font-bold text-lg bg-[#1e6b4e] text-white shadow-sm hover:shadow-md hover:bg-[#174f3a] transition-all disabled:opacity-50"
-                >
-                  {connecting ? 'Sending Request...' : 'Request to Chat'}
+                  <Star className="w-4 h-4" />
+                  {hasEndorsed ? 'Edit Your Endorsement' : `Endorse ${member.first_name}`}
                 </button>
-                <p className="text-xs text-center mt-3 text-[#546E5C] opacity-80">
-                  Start a conversation to see if it's a fit. No commitment.
+              )}
+
+              {/* Privacy note */}
+              {!isConnected && !user && (
+                <p style={{ fontSize: 11, color: COLORS.textMuted, textAlign: 'center', marginTop: 12, opacity: 0.7 }}>
+                  <Link to="/login" style={{ color: COLORS.coral, fontWeight: 600, textDecoration: 'none' }}>Log in</Link> to connect
                 </p>
-              </>
-            )}
-
-            {!user && (
-              <p className="text-xs text-center mt-3 text-[#546E5C]">
-                <Link to="/login" className="text-[#F8C3B3] font-semibold hover:underline">Log in</Link> to connect
-              </p>
-            )}
-
-            {/* Endorse / Edit Endorsement Button — only if connected */}
-            {isConnected && user?.id !== member.id && (
-              <button
-                onClick={() => {
-                  if (hasEndorsed && existingEndorsement) {
-                    // Pre-populate form with existing data
-                    setEndorseRating(existingEndorsement.rating || 0);
-                    setEndorseText(existingEndorsement.text || '');
-                    setEndorseRelationship(existingEndorsement.relationship || []);
-                  }
-                  setShowEndorseForm(!showEndorseForm);
-                }}
-                className="w-full mt-3 py-2.5 rounded-full border border-[#8bd7c7]/40 text-sm font-semibold text-[#1e6b4e] hover:bg-[#d8f5e5]/50 transition-colors flex items-center justify-center gap-2"
-              >
-                <Star className="w-4 h-4" />
-                {hasEndorsed ? `Edit Your Endorsement` : `Endorse ${member.first_name}`}
-              </button>
-            )}
+              )}
+              {!isConnected && user && user.id !== member.id && (
+                <p style={{ fontSize: 11, color: COLORS.textMuted, textAlign: 'center', marginTop: 12, opacity: 0.7 }}>
+                  Connect to see detailed schedule, contact info, and endorsements
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Endorsement Form */}
           {showEndorseForm && (
-            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-              <h3 className="text-base font-bold text-[#1e6b4e] mb-4">
-                Endorse {member.first_name}
+            <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 16 }}>
+                {hasEndorsed ? 'Edit Your Endorsement' : `Endorse ${member.first_name}`}
               </h3>
 
-              {/* Star Rating */}
-              <div className="mb-4">
-                <p className="text-sm text-[#546E5C] mb-2">Rating</p>
-                <div className="flex gap-1">
+              {/* Stars */}
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>Rating</p>
+                <div style={{ display: 'flex', gap: 4 }}>
                   {[1, 2, 3, 4, 5].map(star => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setEndorseRating(star)}
-                      className="p-1 transition-colors"
-                    >
-                      <Star
-                        className={`w-6 h-6 ${star <= endorseRating
-                          ? 'text-[#F59E0B] fill-[#F59E0B]'
-                          : 'text-gray-200'
-                          }`}
-                      />
+                    <button key={star} type="button" onClick={() => setEndorseRating(star)} style={{ padding: 4, background: 'none', border: 'none', cursor: 'pointer' }}>
+                      <Star className={`w-6 h-6 ${star <= endorseRating ? 'text-[#F59E0B] fill-[#F59E0B]' : 'text-gray-200'}`} />
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Relationship — multi-select */}
-              <div className="mb-4">
-                <p className="text-sm text-[#546E5C] mb-2">How do you know {member.first_name}? (select all that apply)</p>
-                <div className="flex flex-wrap gap-2">
+              {/* Relationship multi-select */}
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>How do you know {member.first_name}? (select all)</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {['Neighbor', 'Used as caregiver', 'Share a nanny', 'Friend', 'Community member', 'Coworker', 'Family friend'].map(rel => {
                     const isSelected = endorseRelationship.includes(rel);
                     return (
                       <button
                         key={rel}
                         type="button"
-                        onClick={() => {
-                          setEndorseRelationship(prev =>
-                            isSelected
-                              ? prev.filter(r => r !== rel)
-                              : [...prev, rel]
-                          );
+                        onClick={() => setEndorseRelationship((prev: string[]) => isSelected ? prev.filter((r: string) => r !== rel) : [...prev, rel])}
+                        style={{
+                          padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 500, cursor: 'pointer',
+                          fontFamily: 'Comfortaa, sans-serif',
+                          background: isSelected ? COLORS.primary : '#fff',
+                          color: isSelected ? '#fff' : COLORS.textMuted,
+                          border: isSelected ? `1.5px solid ${COLORS.primary}` : '1.5px solid #e5e7eb',
                         }}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${isSelected
-                          ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
-                          : 'bg-white text-[#546E5C] border-gray-200 hover:border-[#8bd7c7]'
-                          }`}
                       >
                         {rel}
                       </button>
@@ -1293,26 +1030,32 @@ export default function MemberProfile() {
                 </div>
               </div>
 
-              {/* Written Endorsement */}
-              <div className="mb-4">
-                <p className="text-sm text-[#546E5C] mb-2">Your recommendation (optional)</p>
+              {/* Text */}
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>Your recommendation (optional)</p>
                 <textarea
                   value={endorseText}
                   onChange={e => setEndorseText(e.target.value)}
                   placeholder={`What makes ${member.first_name} a great member of your village?`}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-[#546E5C] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:border-transparent resize-none"
+                  style={{
+                    width: '100%', padding: '10px 14px', border: '1.5px solid #e5e7eb', borderRadius: 12,
+                    fontSize: 13, color: COLORS.textMuted, fontFamily: 'Comfortaa, sans-serif', resize: 'none', outline: 'none',
+                  }}
                   rows={3}
                   maxLength={500}
                 />
-                <p className="text-xs text-gray-400 mt-1 text-right">{endorseText.length}/500</p>
+                <p style={{ fontSize: 11, color: '#aaa', marginTop: 4, textAlign: 'right' }}>{endorseText.length}/500</p>
               </div>
 
-              {/* Submit */}
-              <div className="flex gap-3">
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: 10 }}>
                 <button
                   type="button"
                   onClick={() => setShowEndorseForm(false)}
-                  className="flex-1 py-2.5 rounded-full border border-gray-200 text-sm font-medium text-[#546E5C] hover:bg-gray-50 transition-colors"
+                  style={{
+                    flex: 1, padding: '10px 0', borderRadius: 14, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                    fontFamily: 'Comfortaa, sans-serif', background: 'transparent', color: COLORS.textMuted, border: '1.5px solid #e5e7eb',
+                  }}
                 >
                   Cancel
                 </button>
@@ -1320,9 +1063,13 @@ export default function MemberProfile() {
                   type="button"
                   onClick={handleEndorse}
                   disabled={endorseSaving || endorseRating === 0}
-                  className="flex-1 py-2.5 rounded-full bg-[#1e6b4e] text-white text-sm font-semibold hover:bg-[#174f3a] disabled:opacity-50 transition-colors"
+                  style={{
+                    flex: 1, padding: '10px 0', borderRadius: 14, fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    fontFamily: 'Comfortaa, sans-serif', background: COLORS.primary, color: '#fff', border: 'none',
+                    opacity: (endorseSaving || endorseRating === 0) ? 0.5 : 1,
+                  }}
                 >
-                  {endorseSaving ? 'Submitting...' : 'Submit Endorsement'}
+                  {endorseSaving ? 'Saving...' : hasEndorsed ? 'Update Endorsement' : 'Submit Endorsement'}
                 </button>
               </div>
             </div>
@@ -1330,42 +1077,41 @@ export default function MemberProfile() {
 
           {/* Endorsements from Village */}
           {endorsements.length > 0 && (
-            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-              <h3 className="text-base font-bold text-[#1e6b4e] mb-4">
-                What Others Say
-              </h3>
-              <div className="space-y-4">
+            <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 16 }}>What Others Say</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {endorsements.map((e: any) => {
                   const author = Array.isArray(e.author) ? e.author[0] : e.author;
                   const authorName = author ? `${author.first_name} ${(author.last_name || '').charAt(0)}.` : 'Member';
                   return (
-                    <div key={e.id} className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#d8f5e5] flex items-center justify-center flex-shrink-0">
+                    <div key={e.id} style={{ display: 'flex', gap: 12 }}>
+                      <div style={{
+                        width: 32, height: 32, borderRadius: '50%', background: COLORS.mint,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden',
+                      }}>
                         {author?.avatar_url ? (
-                          <img src={author.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                          <img src={author.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                         ) : (
-                          <span className="text-xs font-bold text-[#1e6b4e]">{authorName.charAt(0)}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: COLORS.primary }}>{authorName.charAt(0)}</span>
                         )}
                       </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-[#1e6b4e]">{authorName}</span>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary }}>{authorName}</span>
                           {e.relationship && (
-                            <span className="text-xs text-[#546E5C]">
+                            <span style={{ fontSize: 11, color: COLORS.textMuted }}>
                               · {Array.isArray(e.relationship) ? e.relationship.join(', ') : e.relationship}
                             </span>
                           )}
                         </div>
                         {e.rating && (
-                          <div className="flex gap-0.5 mb-1">
+                          <div style={{ display: 'flex', gap: 2, marginBottom: 4 }}>
                             {[1, 2, 3, 4, 5].map((s: number) => (
                               <Star key={s} className={`w-3 h-3 ${s <= e.rating ? 'text-[#F59E0B] fill-[#F59E0B]' : 'text-gray-200'}`} />
                             ))}
                           </div>
                         )}
-                        {e.text && (
-                          <p className="text-sm text-[#546E5C] leading-relaxed">{e.text}</p>
-                        )}
+                        {e.text && <p style={{ fontSize: 13, color: COLORS.textMuted, lineHeight: 1.5 }}>{e.text}</p>}
                       </div>
                     </div>
                   );
