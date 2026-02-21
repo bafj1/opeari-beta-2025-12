@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+import Cropper from 'react-easy-crop';
 import { supabase } from '../../lib/supabase';
 import { useViewer } from '../../hooks/useViewer';
 import CaregiverProfileSection from './CaregiverProfileSection';
@@ -115,6 +116,17 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
 
 
 
+    // Crop modal state
+    const [showCropModal, setShowCropModal] = useState(false);
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+
+    const onCropComplete = useCallback((_: any, croppedPixels: { x: number; y: number; width: number; height: number }) => {
+        setCroppedAreaPixels(croppedPixels);
+    }, []);
+
     const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file || !viewer?.user?.id) return;
@@ -130,15 +142,51 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
             return;
         }
 
+        // Convert to data URL and show crop modal
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImageSrc(reader.result as string);
+            setCrop({ x: 0, y: 0 });
+            setZoom(1);
+            setShowCropModal(true);
+        };
+        reader.readAsDataURL(file);
+        // Reset input so same file can be re-selected
+        event.target.value = '';
+    };
+
+    const handleCropSave = async () => {
+        if (!imageSrc || !croppedAreaPixels || !viewer?.user?.id) return;
+
         setUploading(true);
         try {
-            const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-            // CRITICAL: Must use userId folder for RLS policy
-            const fileName = `${viewer.user.id}/${Date.now()}.${fileExt}`;
+            // Create cropped canvas
+            const canvas = document.createElement('canvas');
+            const image = new Image();
+            image.src = imageSrc;
+            await new Promise((resolve) => { image.onload = resolve; });
+
+            canvas.width = croppedAreaPixels.width;
+            canvas.height = croppedAreaPixels.height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(
+                image,
+                croppedAreaPixels.x, croppedAreaPixels.y,
+                croppedAreaPixels.width, croppedAreaPixels.height,
+                0, 0,
+                croppedAreaPixels.width, croppedAreaPixels.height
+            );
+
+            // Convert to blob and upload
+            const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+            if (!blob) throw new Error('Failed to create cropped image');
+
+            const croppedFile = new File([blob], 'profile-photo.jpg', { type: 'image/jpeg' });
+            const fileName = `${viewer.user.id}/${Date.now()}.jpg`;
 
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
-                .upload(fileName, file, { upsert: true });
+                .upload(fileName, croppedFile, { upsert: true });
 
             if (uploadError) throw uploadError;
 
@@ -146,7 +194,6 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                 .from('avatars')
                 .getPublicUrl(fileName);
 
-            // Update both local state and database immediately for feedback, though Save also persists it
             setFormData({ ...formData, avatar_url: publicUrl });
 
             await supabase
@@ -154,6 +201,8 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                 .update({ avatar_url: publicUrl })
                 .eq('id', viewer.user.id);
 
+            setShowCropModal(false);
+            setImageSrc(null);
         } catch (err) {
             console.error('Photo upload failed:', err);
             alert('Failed to upload photo. Please try again.');
@@ -338,6 +387,72 @@ export default function ProfilePanel({ formData, setFormData, saving, onSave }: 
                     />
                 </div>
             </div>
+
+            {/* CROP MODAL */}
+            {showCropModal && imageSrc && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: 16,
+                }}>
+                    <div style={{
+                        background: '#fff', borderRadius: 16, padding: 24,
+                        width: '100%', maxWidth: 440, fontFamily: 'Comfortaa, cursive',
+                    }}>
+                        <h3 style={{ color: '#1E6B4E', marginBottom: 16, fontSize: 16, fontWeight: 700 }}>
+                            Adjust Photo
+                        </h3>
+                        <div style={{ position: 'relative', width: '100%', height: 300, borderRadius: 12, overflow: 'hidden', background: '#f5f5f5' }}>
+                            <Cropper
+                                image={imageSrc}
+                                crop={crop}
+                                zoom={zoom}
+                                aspect={1}
+                                cropShape="round"
+                                showGrid={false}
+                                onCropChange={setCrop}
+                                onZoomChange={setZoom}
+                                onCropComplete={onCropComplete}
+                            />
+                        </div>
+                        <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <span style={{ fontSize: 12, color: '#6b7f76' }}>Zoom</span>
+                            <input
+                                type="range" min={1} max={3} step={0.1} value={zoom}
+                                onChange={(e) => setZoom(Number(e.target.value))}
+                                style={{ flex: 1 }}
+                            />
+                        </div>
+                        <div style={{ marginTop: 20, display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                            <button
+                                type="button"
+                                onClick={() => { setShowCropModal(false); setImageSrc(null); }}
+                                style={{
+                                    padding: '8px 20px', borderRadius: 20, border: '1px solid #d8f5e5',
+                                    background: 'none', fontFamily: 'Comfortaa, cursive', fontSize: 13,
+                                    cursor: 'pointer', color: '#6b7f76',
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleCropSave}
+                                disabled={uploading}
+                                style={{
+                                    padding: '8px 20px', borderRadius: 20, border: 'none',
+                                    background: '#1E6B4E', color: '#fff', fontFamily: 'Comfortaa, cursive',
+                                    fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                                    opacity: uploading ? 0.6 : 1,
+                                }}
+                            >
+                                {uploading ? 'Saving...' : 'Save Photo'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* SECTION 3: BASIC INFO */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
