@@ -21,10 +21,10 @@ import MessageModal from './MessageModal';
 import SearchModal from './SearchModal';
 import { ReferCaregiverModal } from './ReferCaregiverModal';
 import { CreatePostModal } from './CreatePostModal';
-import { SharedCareTag, getSharedCareTags } from '../../Shared/SharedCareTag';
+// SharedCareTag removed — not used in V2
 import DashboardMatchCard from './DashboardMatchCard';
 import { CareNeedForm } from '../../care-needs/CareNeedForm';
-import { CareNeedCard } from '../../care-needs/CareNeedCard';
+// CareNeedCard removed — V2 uses accordion
 import { useCareNeeds } from '../../../hooks/useCareNeeds';
 import ConnectionRequestsCard from '../ConnectionRequestsCard';
 import { getTopMatches } from '../../../api/matches';
@@ -35,7 +35,7 @@ import type { CareNeed } from '../../../types/careNeed';
 import { createNotification } from '../../../lib/notifications';
 import {
     Search, Settings, Users, Bell, ArrowRight, Plus, UserPlus,
-    X, Check, ChevronDown, Mail, Star, Calendar, Copy, Home, MapPin, CheckCircle2, MessageCircle
+    X, Check, ChevronDown, Mail, Copy, Home, MessageCircle
 } from 'lucide-react';
 
 // ============================================================================
@@ -84,19 +84,7 @@ export interface MatchCardProps {
 
 
 
-function formatAvailability(days: string[]): string {
-    if (!days || days.length === 0) return 'Flexible';
-    if (days.length === 5 &&
-        days.includes('mon') &&
-        days.includes('tue') &&
-        days.includes('wed') &&
-        days.includes('thu') &&
-        days.includes('fri')) {
-        return 'Mon-Fri';
-    }
-    if (days.length === 7) return 'All Week';
-    return days.map(d => d.charAt(0).toUpperCase() + d.slice(1, 3)).join(', ');
-}
+// formatAvailability removed — V2 uses inline signal text
 
 // ============================================================================
 
@@ -138,205 +126,6 @@ function timeAgo(dateString: string): string {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-interface NannyCardProps {
-    id: string;
-    name: string;
-    photo: string;
-    experience: string;
-    rating: number;
-    reviewCount: number;
-    referredBy: string;
-    referralCount: number;
-    distance: number;
-    available: string;
-    verified: boolean;
-    inVillage?: boolean;
-    referrerNote?: string | null;
-}
-
-function NannyCard({
-    id, name, photo, experience, rating, reviewCount, referredBy, referralCount,
-    distance, available, verified, inVillage, referrerNote, onViewProfile
-}: NannyCardProps & { onViewProfile?: (id: string) => void }) {
-    return (
-        <div className="bg-white rounded-[20px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-gray-100 flex-shrink-0 w-64">
-            {/* Photo Section */}
-            <div className="relative h-40">
-                <img
-                    src={photo}
-                    alt={`${name} - Professional caregiver`}
-                    className="w-full h-full object-cover"
-                />
-                {inVillage && (
-                    <div className="absolute top-3 right-3 bg-[#1e6b4e] text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5">
-                        <Users className="w-3 h-3" />
-                        In Village
-                    </div>
-                )}
-                {verified && (
-                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#1e6b4e]" />
-                        <span className="text-xs font-semibold text-[#1e6b4e]">Verified</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Info Section */}
-            <div className="p-4">
-                <h3 className="font-bold text-[#1e6b4e] mb-1">{name}</h3>
-                <p className="text-xs text-[#546E5C] mb-3">{experience}</p>
-
-                {/* Rating */}
-                <div className="flex items-center gap-1.5 mb-3">
-                    <Star className="w-4 h-4 fill-[#F8C3B3] text-[#F8C3B3]" />
-                    <span className="font-semibold text-sm text-[#1e6b4e]">{rating}</span>
-                    <span className="text-xs text-[#546E5C]">({reviewCount} reviews)</span>
-                </div>
-
-                {/* Referral Info */}
-                <div className="bg-[#8bd7c7]/10 rounded-[10px] px-3 py-2 mb-3">
-                    <p className="text-xs text-[#546E5C]">
-                        Referred by <span className="font-semibold text-[#1e6b4e]">{referredBy}</span>
-                        {referralCount > 1 && <span className="text-[#1e6b4e]"> +{referralCount - 1} more</span>}
-                    </p>
-                    {referrerNote && (
-                        <p className="text-xs text-[#546E5C] mt-1 italic line-clamp-2">
-                            "{referrerNote}"
-                        </p>
-                    )}
-                </div>
-
-                {/* Distance & Availability */}
-                <div className="flex items-center justify-between text-xs text-[#546E5C] mb-4">
-                    <div className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5" />
-                        <span>{distance} mi</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5" />
-                        <span>{available}</span>
-                    </div>
-                </div>
-
-                <button
-                    type="button"
-                    onClick={() => onViewProfile?.(id)}
-                    className="w-full px-4 py-2.5 rounded-[50px] border border-[#1e6b4e] text-[#1e6b4e] font-semibold text-sm hover:bg-[#d8f5e5] transition-all focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:ring-offset-2"
-                >
-                    View Profile
-                </button>
-            </div>
-        </div>
-    );
-}
-
-
-
-
-
-
-
-// -----------------------------
-// 2. QUICK ACTIONS SIDEBAR COMPONENT
-// -----------------------------
-
-// -----------------------------
-
-interface QuickActionsProps {
-    onShareWithVillage?: () => void;
-    onInviteToVillage?: () => void;
-    onReferCaregiver?: () => void;
-}
-
-function QuickActionsSidebar({
-    onShareWithVillage,
-    onInviteToVillage,
-    onReferCaregiver
-}: QuickActionsProps) {
-    const navigate = useNavigate();
-    return (
-        <>
-            <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100">
-                {/* Quick Actions Header */}
-                <h3 className="text-sm font-bold text-[#1e6b4e] uppercase tracking-wide mb-4">
-                    Quick Actions
-                </h3>
-
-                {/* Action Buttons */}
-                {/* Action Buttons */}
-                <div className="space-y-2">
-                    {/* Invite a Family (Moved to top, styled) */}
-                    <button
-                        type="button"
-                        onClick={onInviteToVillage}
-                        className="w-full flex items-start gap-3 px-4 py-3 rounded-[15px] border border-[#8bd7c7] bg-[#d8f5e5] hover:bg-[#c0e8d5] transition-all text-left shadow-sm"
-                    >
-                        <UserPlus className="w-5 h-5 text-[#1e6b4e] mt-0.5 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm font-bold text-[#1e6b4e]">Invite a Family</p>
-                            <p className="text-xs text-[#546E5C]">Grow your village</p>
-                        </div>
-                    </button>
-
-                    {/* Post a Care Need */}
-                    <button
-                        type="button"
-                        onClick={onShareWithVillage}
-                        className="w-full flex items-start gap-3 px-4 py-3 rounded-[15px] border border-gray-100 hover:border-[#8bd7c7] hover:bg-[#d8f5e5]/30 transition-all text-left"
-                    >
-                        <Plus className="w-5 h-5 text-[#6B9080] mt-0.5 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm font-semibold text-[#1e6b4e]">Post a Care Need</p>
-                            <p className="text-xs text-[#546E5C]">Share with your village</p>
-                        </div>
-                    </button>
-
-                    {/* Refer a Caretaker */}
-                    <button
-                        type="button"
-                        onClick={onReferCaregiver}
-                        className="w-full flex items-start gap-3 px-4 py-3 rounded-[15px] border border-gray-100 hover:border-[#8bd7c7] hover:bg-[#d8f5e5]/30 transition-all text-left"
-                    >
-                        <Users className="w-5 h-5 text-[#D4A59A] mt-0.5 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm font-semibold text-[#1e6b4e]">Refer a Caretaker</p>
-                            <p className="text-xs text-[#546E5C]">Help grow the village</p>
-                        </div>
-                    </button>
-
-                    {/* View My Calendar */}
-                    <button
-                        type="button"
-                        onClick={() => navigate('/calendar')}
-                        className="w-full flex items-start gap-3 px-4 py-3 rounded-[15px] border border-gray-100 hover:border-[#8bd7c7] hover:bg-[#d8f5e5]/30 transition-all text-left"
-                    >
-                        <Calendar className="w-5 h-5 text-[#7BA99D] mt-0.5 flex-shrink-0" />
-                        <div>
-                            <p className="text-sm font-semibold text-[#1e6b4e]">View My Calendar</p>
-                            <p className="text-xs text-[#546E5C]">Check your schedule</p>
-                        </div>
-                    </button>
-                </div>
-            </section>
-
-        </>
-    );
-}
-
-function MobileQuickActionsBar({ onShareWithVillage }: { onShareWithVillage: () => void }) {
-    return (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-40 shadow-lg">
-            <button
-                type="button"
-                onClick={onShareWithVillage}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-[50px] bg-[#1e6b4e] text-white hover:bg-[#155a3e] font-semibold text-sm shadow-md focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:ring-offset-2"
-            >
-                <Plus className="w-5 h-5" />
-                Share with Village
-            </button>
-        </div>
-    );
-}
 
 // ============================================================================
 // MODAL COMPONENTS
@@ -539,10 +328,10 @@ function InviteToVillageModal({ onClose }: { onClose: () => void }) {
 export default function FamilyDashboard() {
     // State
     const [connectingTo, setConnectingTo] = useState<string | null>(null);
-    const [statusById, setStatusById] = useState<Record<string, 'pending' | 'accepted'>>({});
+    const [_statusById, setStatusById] = useState<Record<string, 'pending' | 'accepted'>>({});
 
     // BACKEND DATA STATE
-    const { careNeeds, isLoading: careNeedsLoading, createCareNeed, updateCareNeed, deleteCareNeed } = useCareNeeds();
+    const { careNeeds, isLoading: _careNeedsLoading, createCareNeed, updateCareNeed, deleteCareNeed: _deleteCareNeed } = useCareNeeds();
 
     // Derived state for legacy compatibility (matches, etc.)
     const activeCareNeed = careNeeds.length > 0 ? careNeeds[0] : null;
@@ -572,19 +361,13 @@ export default function FamilyDashboard() {
     const [matchFilter, setMatchFilter] = useState<'all' | 'caregivers' | 'families'>('all');
 
     // Responsive UI State
-    const [postsRadius, setPostsRadius] = useState('5');
-    const [radiusDropdownOpen, setRadiusDropdownOpen] = useState(false);
+    // postsRadius and radiusDropdownOpen removed — V2 doesn't use radius UI
 
     // Posts State
     const [posts, setPosts] = useState<Post[]>([]);
     const [postsLoading, setPostsLoading] = useState(true);
 
-    const radiusOptions = [
-        { value: '1', label: '1 mile' },
-        { value: '5', label: '5 miles' },
-        { value: '10', label: '10 miles' },
-        { value: '25', label: '25 miles' },
-    ];
+    // radiusOptions removed — V2 doesn't use radius UI
 
     // For now, show all posts (radius filtering requires lat/lng data)
     const filteredPosts = posts;
@@ -592,7 +375,7 @@ export default function FamilyDashboard() {
 
     // Suggestion State
     const [suggestedConnections, setSuggestedConnections] = useState<any[]>([]);
-    const [connectionsLoading, setConnectionsLoading] = useState(true);
+    const [_connectionsLoading, setConnectionsLoading] = useState(true);
 
     // Referral State
     const [referredCaregivers, setReferredCaregivers] = useState<ReferredCaregiver[]>([]);
@@ -960,10 +743,7 @@ export default function FamilyDashboard() {
 
     const navigate = useNavigate();
 
-    const handleViewProfile = (memberId: string) => {
-        setActiveProfileId(memberId);
-        setProfileOpen(true);
-    };
+
 
     const handleConnect = async (targetId: string) => {
         if (!effectiveUserId || connectingTo) return;
@@ -1001,8 +781,37 @@ export default function FamilyDashboard() {
         }
     };
 
+    // V2 helper: greeting based on time
+    const getGreeting = () => {
+        const h = new Date().getHours();
+        if (h < 12) return 'Good morning';
+        if (h < 17) return 'Good afternoon';
+        return 'Good evening';
+    };
+
+    // V2 helper: dynamic insight line
+    const getInsightLine = () => {
+        const matchCount = topMatches.length;
+        if (matchCount > 0) {
+            const caregiverMatches = topMatches.filter((m: any) => m.role === 'caregiver');
+            if (caregiverMatches.length > 0) {
+                return (
+                    <>You have <span style={{ fontWeight: 700, color: '#8bd7c7' }}>{matchCount} match{matchCount > 1 ? 'es' : ''}</span> nearby — {caregiverMatches.length} caregiver{caregiverMatches.length > 1 ? 's' : ''} with overlapping schedules.</>
+                );
+            }
+            return <>You have <span style={{ fontWeight: 700, color: '#8bd7c7' }}>{matchCount} new match{matchCount > 1 ? 'es' : ''}</span> in your area.</>;
+        }
+        return <>We're finding the best matches for you. Your village is growing.</>;
+    };
+
+    // V2 helper: active care needs count
+    const activeCareNeedsCount = careNeeds.filter((n: any) => n.status === 'active' || !n.status).length;
+
+    // V2 Care Needs Accordion state
+    const [careNeedsExpanded, setCareNeedsExpanded] = useState(false);
+
     return (
-        <div className="min-h-screen bg-[#d8f5e5]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
+        <div className="min-h-screen" style={{ background: '#fffaf5', fontFamily: 'Comfortaa, sans-serif' }}>
             {/* ========== HEADER ========== */}
             <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
@@ -1136,503 +945,519 @@ export default function FamilyDashboard() {
                 </div>
             </header>
 
-            {/* ========== VILLAGE ACTIVITY BANNER ========== */}
-            <div className="bg-[#d8f5e5] border-b border-[#8bd7c7]/30">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm text-[#1e6b4e]">
-                                {(() => {
-                                    // const hour = new Date().getHours();
-                                    // Removed time-based greeting for specific copy requests, or prepend it?
-                                    // Prompt says: "Welcome Line... Current: Good evening! Welcome to your village."
-                                    // New: "Your village starts with one connection." or "Welcome back — your village is growing."
-                                    // It doesn't explicitly say to keep the time-based greeting, but "Welcome Line" headers usually replace the whole line.
-                                    // However, the current code has: {greeting} {notification/welcome message}
-                                    // I'll replace the whole block to match the prompt exactly.
 
-                                    const acceptedCount = Object.values(statusById).filter(s => s === 'accepted').length;
-                                    // Note: suggestedConnections might be empty if not loaded yet, but we have a loading state? 
-                                    // Actually we are in the render, so if it's loading, it might be 0.
-                                    // But the prompt says "0 accepted connections AND 0 suggested connections".
-                                    const hasConnections = acceptedCount > 0;
-                                    const hasSuggestions = suggestedConnections.length > 0;
+            {/* ========== V2 MAIN CONTENT ========== */}
+            <div style={{ maxWidth: 960, margin: '0 auto', padding: '28px 20px 60px' }}>
 
-                                    if (!hasConnections && !hasSuggestions) {
-                                        return <span className="font-semibold">Your village starts with one connection.</span>;
-                                    } else {
-                                        return <span className="font-semibold">Welcome back — your village is growing.</span>;
-                                    }
-                                })()}
-                            </span>
-                        </div>
-                        <button
-                            onClick={() => navigate('/notifications')}
-                            className="text-sm text-[#1e6b4e] font-semibold hover:underline"
-                        >
-                            View →
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* ========== MAIN CONTENT ========== */}
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-                {/* Pending Connections Section */}
-                <div className="mb-6">
+                {/* Pending Connections */}
+                <div style={{ marginBottom: 24 }}>
                     <ConnectionRequestsCard />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-                    {/* LEFT COLUMN (2/3) */}
-                    <div className="lg:col-span-2 space-y-8">
+                {/* ── HERO ── */}
+                <section
+                    style={{
+                        background: 'linear-gradient(135deg, #1E6B4E 0%, #2a8a64 100%)',
+                        borderRadius: 18,
+                        padding: '28px 28px',
+                        color: '#fff',
+                        marginBottom: 24,
+                    }}
+                >
+                    <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, lineHeight: 1.3 }}>
+                        {getGreeting()}, {viewer?.member?.first_name || 'there'}
+                    </div>
+                    <div style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.6 }}>
+                        {getInsightLine()}
+                    </div>
 
-                        {/* Top Matches for You */}
-                        <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100">
-                            {/* Header */}
-                            <div className="flex items-start justify-between mb-4">
-                                <div>
-                                    <h2 className="text-xl font-bold text-[#1e6b4e] tracking-tight mb-1">Top Matches for You</h2>
-                                    <p className="text-sm text-[#546E5C]/80">
-                                        Families and caregivers with overlapping schedules and care needs
-                                    </p>
+                    {/* Metric chips */}
+                    <div style={{ display: 'flex', gap: 12, marginTop: 18, flexWrap: 'wrap' }}>
+                        {[
+                            { label: 'Top Matches', value: topMatches.length.toString() },
+                            { label: 'Active Needs', value: activeCareNeedsCount.toString() },
+                            { label: 'Village Members', value: suggestedConnections.length.toString() },
+                        ].map((m) => (
+                            <div
+                                key={m.label}
+                                style={{
+                                    background: 'rgba(255,255,255,0.15)',
+                                    backdropFilter: 'blur(8px)',
+                                    borderRadius: 10,
+                                    padding: '10px 16px',
+                                    display: 'flex',
+                                    alignItems: 'baseline',
+                                    gap: 6,
+                                }}
+                            >
+                                <span style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>{m.value}</span>
+                                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{m.label}</span>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* ── TOP MATCHES ── */}
+                <section style={{ marginBottom: 24 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                        <h2 style={{ fontWeight: 700, fontSize: 16, color: '#2d3a35' }}>Your Top Matches</h2>
+                        <Link to="/matches" style={{ fontSize: 12, color: '#1E6B4E', fontWeight: 600, textDecoration: 'none' }}>
+                            See all
+                        </Link>
+                    </div>
+
+                    {/* Filter Toggle */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                        <span style={{ fontSize: 12, color: '#6b7f76' }}>Show:</span>
+                        <div style={{ display: 'flex', background: '#f0f0f0', borderRadius: 20, padding: 3 }}>
+                            {(['all', 'caregivers', 'families'] as const).map((filter) => (
+                                <button
+                                    key={filter}
+                                    type="button"
+                                    onClick={() => setMatchFilter(filter)}
+                                    style={{
+                                        padding: '4px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                                        fontSize: 11, fontWeight: matchFilter === filter ? 700 : 500,
+                                        background: matchFilter === filter ? '#fff' : 'transparent',
+                                        color: matchFilter === filter ? '#1E6B4E' : '#6b7f76',
+                                        boxShadow: matchFilter === filter ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                                        textTransform: 'capitalize',
+                                        fontFamily: 'Comfortaa, sans-serif',
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {matchesLoading ? (
+                        <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 4 }}>
+                            {[1, 2, 3].map(i => (
+                                <div key={i} style={{ flexShrink: 0, width: 260, height: 220, background: '#f5f5f5', borderRadius: 16, animation: 'pulse 2s infinite' }} />
+                            ))}
+                        </div>
+                    ) : topMatches.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                            <p style={{ fontSize: 13, color: '#6b7f76', marginBottom: 8 }}>
+                                We're finding the best matches for you.
+                            </p>
+                            <p style={{ fontSize: 12, color: '#aaa' }}>
+                                As more families and caregivers join, your matches will appear here.
+                            </p>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 4 }}>
+                            {topMatches.slice(0, 6).map((match: any) => (
+                                <div key={match.member_id} style={{ flexShrink: 0, width: 260 }}>
+                                    <DashboardMatchCard match={match} viewerId={viewer?.member?.id || ''} />
                                 </div>
-                                <Link to="/matches" className="text-sm text-[#1e6b4e] font-semibold hover:underline flex items-center gap-1">
-                                    View All <ArrowRight className="w-4 h-4" />
+                            ))}
+                        </div>
+                    )}
+                </section>
+
+                {/* ── CARE NEEDS ACCORDION ── */}
+                {careNeeds.length > 0 && (
+                    <section style={{ marginBottom: 24 }}>
+                        <div
+                            style={{
+                                background: '#fff',
+                                borderRadius: 14,
+                                boxShadow: '0 2px 12px rgba(30,107,78,0.08)',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <button
+                                onClick={() => setCareNeedsExpanded(!careNeedsExpanded)}
+                                type="button"
+                                style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '14px 20px',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontFamily: 'Comfortaa, sans-serif',
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#8bd7c7' }} />
+                                    <span style={{ fontWeight: 700, fontSize: 14, color: '#2d3a35' }}>
+                                        {activeCareNeedsCount} active care need{activeCareNeedsCount !== 1 ? 's' : ''}
+                                    </span>
+                                </div>
+                                <ChevronDown
+                                    className="w-4 h-4"
+                                    style={{
+                                        color: '#6b7f76',
+                                        transition: 'transform 0.2s',
+                                        transform: careNeedsExpanded ? 'rotate(180deg)' : 'rotate(0)',
+                                    }}
+                                />
+                            </button>
+
+                            {careNeedsExpanded && (
+                                <div style={{ padding: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                    {careNeeds.map((need: any) => (
+                                        <div
+                                            key={need.id}
+                                            style={{
+                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                padding: '10px 14px', borderRadius: 10, background: '#fffaf5',
+                                                cursor: 'pointer',
+                                            }}
+                                            onClick={() => { setActiveCareNeedToEdit(need); setShowEditNeed(true); }}
+                                        >
+                                            <div>
+                                                <div style={{ fontSize: 13, fontWeight: 600, color: '#2d3a35' }}>
+                                                    {need.title || need.care_type?.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Care Need'}
+                                                </div>
+                                                <div style={{ fontSize: 11, color: '#6b7f76', marginTop: 2 }}>
+                                                    {need.schedule_text || need.frequency || 'Flexible schedule'}
+                                                </div>
+                                            </div>
+                                            <span
+                                                style={{
+                                                    padding: '3px 10px', borderRadius: 12,
+                                                    background: need.status === 'active' || !need.status ? '#d8f5e5' : '#f0f0f0',
+                                                    fontSize: 11, fontWeight: 600,
+                                                    color: need.status === 'active' || !need.status ? '#1E6B4E' : '#6b7f76',
+                                                    fontFamily: 'Comfortaa, sans-serif',
+                                                }}
+                                            >
+                                                {need.status === 'active' || !need.status ? 'Active' : 'Draft'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={() => { setActiveCareNeedToEdit(null); setShowEditNeed(true); }}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                                            padding: '10px', borderRadius: 10,
+                                            background: 'none', border: '1px dashed #8bd7c7',
+                                            color: '#1E6B4E', fontSize: 12, fontWeight: 600,
+                                            cursor: 'pointer', fontFamily: 'Comfortaa, sans-serif',
+                                        }}
+                                    >
+                                        <Plus className="w-3.5 h-3.5" /> Create Care Need
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                )}
+
+                {/* ── REFERRED CARETAKERS (compact) ── */}
+                {referredCaregivers.length > 0 && (
+                    <section style={{ marginBottom: 24 }}>
+                        <div
+                            style={{
+                                background: '#fff',
+                                borderRadius: 14,
+                                boxShadow: '0 2px 12px rgba(30,107,78,0.08)',
+                                padding: 20,
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                                <div style={{ fontWeight: 700, fontSize: 14, color: '#2d3a35' }}>Referred Caretakers</div>
+                                <Link to="/matches?show=caregivers" style={{ fontSize: 12, color: '#1E6B4E', fontWeight: 600, textDecoration: 'none' }}>
+                                    View All <ArrowRight className="w-3.5 h-3.5 inline" />
                                 </Link>
                             </div>
-
-                            {/* Filter Toggle */}
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="text-sm text-[#546E5C]">Show:</span>
-                                <div className="flex bg-gray-100 rounded-full p-1">
-                                    {(['all', 'caregivers', 'families'] as const).map((filter) => (
-                                        <button
-                                            key={filter}
-                                            type="button"
-                                            onClick={() => setMatchFilter(filter)}
-                                            className={`
-                            px-4 py-1.5 rounded-full text-xs font-semibold transition-all capitalize
-                            ${matchFilter === filter
-                                                    ? 'bg-white text-[#1e6b4e] shadow-sm'
-                                                    : 'text-[#546E5C] hover:text-[#1e6b4e]'
-                                                }
-                        `}
-                                        >
-                                            {filter}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Match Cards — horizontal scroll */}
-                            <div>
-                                {matchesLoading ? (
-                                    <div
-                                        className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1"
-                                    >
-                                        {[1, 2, 3].map(i => (
-                                            <div key={i} className="flex-shrink-0 animate-pulse bg-gray-100 rounded-[20px] h-[200px]" style={{ width: 'min(400px, 85vw)' }} />
-                                        ))}
-                                    </div>
-                                ) : topMatches.length === 0 ? (
-                                    <div className="text-center py-8">
-                                        <p className="text-sm text-[#546E5C] mb-2" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                            We're finding the best matches for you.
-                                        </p>
-                                        <p className="text-xs text-gray-400" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                            As more families and caregivers join, your matches will appear here.
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <>
-                                        {/* Scrollable match cards */}
-                                        <div
-                                            className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1"
-                                            style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'thin' }}
-                                        >
-                                            {topMatches.slice(0, 6).map((match: any) => (
-                                                <div
-                                                    key={match.member_id}
-                                                    className="flex-shrink-0 snap-start"
-                                                    style={{ width: 'min(400px, 85vw)' }}
-                                                >
-                                                    <DashboardMatchCard match={match} viewerId={viewer?.member?.id || ''} />
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Schedule legend */}
-                                        <div className="flex items-center gap-3 mt-3 text-[11px]" style={{ color: '#546E5C', fontFamily: 'Comfortaa, sans-serif' }}>
-                                            <div className="flex items-center gap-1.5">
-                                                <div className="w-3 h-3 rounded-full" style={{ background: '#8bd7c7' }} />
-                                                <span>Schedule match</span>
-                                            </div>
-                                            <div className="flex items-center gap-1.5">
-                                                <div className="w-3 h-3 rounded-full" style={{ background: '#f0faf4', border: '1px solid rgba(139,215,199,0.4)' }} />
-                                                <span>No overlap</span>
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </section>
-
-                        {/* Active Care Need */}
-                        <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                                <div>
-                                    <h2 className="text-lg sm:text-xl font-bold text-[#1e6b4e] tracking-tight mb-1">Your Care Needs</h2>
-                                    <p className="text-sm text-[#546E5C]/80 mt-1">Manage your scheduling requirements</p>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setActiveCareNeedToEdit(null);
-                                            setShowEditNeed(true);
-                                        }}
-                                        className="px-4 py-2 rounded-full bg-[#1e6b4e] text-white text-sm font-semibold hover:bg-[#155a3e] transition-colors flex items-center gap-1.5 shadow-sm"
-                                    >
-                                        <Plus className="w-4 h-4" />
-                                        Add New
-                                    </button>
-                                </div>
-                            </div>
-
-                            {careNeedsLoading ? (
-                                <div className="space-y-4">
-                                    {[1, 2].map(i => (
-                                        <div key={i} className="animate-pulse bg-gray-100 rounded-[15px] h-32 w-full" />
-                                    ))}
-                                </div>
-                            ) : careNeeds.length > 0 ? (
-                                <div className="space-y-4">
-                                    {careNeeds.map(need => (
-                                        <CareNeedCard
-                                            key={need.id}
-                                            careNeed={need}
-                                            onEdit={(need) => {
-                                                setActiveCareNeedToEdit(need);
-                                                setShowEditNeed(true);
-                                            }}
-                                            onDelete={deleteCareNeed}
-                                        />
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="bg-[#d8f5e5]/30 rounded-[15px] p-6 text-center">
-                                    <p className="text-[#546E5C] mb-3">No active care needs</p>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setActiveCareNeedToEdit(null);
-                                            setShowEditNeed(true);
-                                        }}
-                                        className="px-4 py-2 rounded-full bg-[#1e6b4e] text-white text-sm font-semibold hover:bg-[#155a3e] transition-colors"
-                                    >
-                                        Create Care Need
-                                    </button>
-                                </div>
-                            )}
-                        </section>
-
-                        {/* Referred Caretakers — only show when there are results */}
-                        {referredCaregivers.length > 0 && (
-                            <section className="mb-6">
-                                <div className="flex items-center justify-between mb-4 px-2">
-                                    <div>
-                                        <h2 className="text-lg sm:text-xl font-bold text-[#1e6b4e] tracking-tight mb-1">
-                                            Referred Caretakers
-                                        </h2>
-                                        <p className="text-sm text-[#546E5C]/80">Vetted by your village</p>
-                                    </div>
+                            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                                {referredCaregivers.map((cg) => (
                                     <Link
-                                        to="/matches?show=caregivers"
-                                        className="text-sm text-[#1e6b4e] hover:underline font-medium flex items-center gap-1"
-                                        style={{ fontFamily: 'Comfortaa, sans-serif' }}
+                                        key={cg.caregiver_id}
+                                        to={`/member/${cg.caregiver_id}`}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: 10,
+                                            padding: '10px 14px', borderRadius: 12,
+                                            background: '#fffaf5', flex: '1 1 200px',
+                                            textDecoration: 'none', color: 'inherit',
+                                            transition: 'box-shadow 0.2s',
+                                        }}
                                     >
-                                        View All <ArrowRight className="w-4 h-4" />
-                                    </Link>
-                                </div>
-
-                                <div className="overflow-x-auto hide-scrollbar -mx-4 px-4 pb-2">
-                                    <div className="flex gap-4">
-                                        {referredCaregivers.map(caregiver => (
-                                            <NannyCard
-                                                key={caregiver.caregiver_id}
-                                                id={caregiver.caregiver_id}
-                                                name={caregiver.display_name}
-                                                photo={caregiver.avatar_url || 'https://via.placeholder.com/400x300?text=No+Photo'}
-                                                experience={caregiver.experience}
-                                                rating={caregiver.rating}
-                                                reviewCount={caregiver.review_count}
-                                                referredBy={caregiver.referrer_name}
-                                                referralCount={caregiver.referrer_count}
-                                                distance={caregiver.distance_miles}
-                                                available={formatAvailability(caregiver.availability_days)}
-                                                verified={caregiver.verified}
-                                                inVillage={true}
-                                                referrerNote={caregiver.referrer_note}
-                                                onViewProfile={handleViewProfile}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            </section>
-                        )}
-
-                        {/* People You May Know / Invite Banner — Bottom of left column */}
-                        <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100 mb-6">
-                            {suggestedConnections.length > 0 && (
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-xl font-bold text-[#1e6b4e]">People You May Know</h2>
-                                    <Link to="/matches" className="text-sm text-[#1e6b4e] font-semibold hover:underline">
-                                        View All →
-                                    </Link>
-                                </div>
-                            )}
-
-                            {connectionsLoading ? (
-                                <div className="flex gap-4 overflow-x-auto pb-2">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="flex-shrink-0 w-36 h-48 bg-gray-100 rounded-[15px] animate-pulse" />
-                                    ))}
-                                </div>
-                            ) : suggestedConnections.length === 0 ? (
-                                <div className="flex items-center justify-between py-1">
-                                    <p className="text-sm text-[#546E5C]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                        Know someone who'd love Opeari?
-                                    </p>
-                                    <div className="flex items-center gap-4">
-                                        <button
-                                            onClick={() => setShowReferCaregiverModal(true)}
-                                            className="text-sm font-semibold text-[#1E6B4E] hover:underline"
-                                            style={{ fontFamily: 'Comfortaa, sans-serif', background: 'none', border: 'none', cursor: 'pointer' }}
-                                        >
-                                            Refer a Caregiver
-                                        </button>
-                                        <Link to="/invite-friends" className="text-sm font-semibold text-[#1E6B4E] hover:underline" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                            Invite a Friend
-                                        </Link>
-                                        <Link to="/matches" className="text-sm text-[#546E5C] hover:text-[#1E6B4E]" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
-                                            Discover More →
-                                        </Link>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-none">
-                                    {suggestedConnections.map(person => (
+                                        {/* Warm gradient avatar */}
                                         <div
-                                            key={person.member_id}
-                                            className="flex-shrink-0 w-36 bg-white rounded-[15px] p-4 border border-gray-100 hover:border-[#8bd7c7] hover:shadow-md transition-all text-center group"
+                                            style={{
+                                                width: 36, height: 36, borderRadius: '50%',
+                                                background: cg.avatar_url ? undefined : `linear-gradient(135deg, #F8C3B3 0%, #f5a08a 50%, #f0c4b8 100%)`,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontWeight: 700, fontSize: 12, color: '#1E6B4E', flexShrink: 0,
+                                                overflow: 'hidden',
+                                                boxShadow: '0 2px 8px rgba(248,195,179,0.4)',
+                                            }}
                                         >
-                                            <img
-                                                src={person.avatar_url || 'https://via.placeholder.com/100'}
-                                                alt={person.display_name}
-                                                className="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2 border-[#8bd7c7] group-hover:scale-105 transition-transform"
-                                            />
-                                            <p className="font-semibold text-sm text-[#1e6b4e] truncate mb-0.5">
-                                                {person.display_name}
-                                            </p>
-                                            <p className="text-xs text-[#546E5C] mb-1 truncate">
-                                                {person.neighborhood || 'Nearby'}
-                                            </p>
-                                            <p className="text-xs text-[#546E5C] mb-1">
-                                                {person.mutual_connection_count} mutual
-                                            </p>
-                                            <div className="flex flex-wrap gap-1 mt-2 mb-1">
-                                                {getSharedCareTags(person).map((tag, idx) => (
-                                                    <SharedCareTag key={idx} label={tag} />
-                                                ))}
-                                            </div>
-                                            {!person.care_types?.includes('nanny-share') && (
-                                                <div className="mb-3"></div>
-                                            )}
-                                            {person.connection_status === 'accepted' ? (
-                                                <Link
-                                                    to={`/messages?to=${person.member_id}`}
-                                                    className="w-full px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-medium text-center block"
-                                                >
-                                                    Message
-                                                </Link>
-                                            ) : person.connection_status === 'pending' ? (
-                                                <span className="w-full px-3 py-1.5 rounded-full border border-gray-200 text-[#546E5C] text-xs font-medium text-center block">
-                                                    Pending
-                                                </span>
+                                            {cg.avatar_url ? (
+                                                <img src={cg.avatar_url} alt={cg.display_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             ) : (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleConnect(person.member_id)}
-                                                    disabled={connectingTo === person.member_id}
-                                                    className="w-full px-3 py-1.5 rounded-full border border-gray-300 text-[#546E5C] text-xs font-medium hover:border-[#1e6b4e] hover:text-[#1e6b4e] transition-all disabled:opacity-50"
-                                                >
-                                                    {connectingTo === person.member_id ? 'Sending...' : 'Connect'}
-                                                </button>
+                                                cg.display_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
                                             )}
                                         </div>
-                                    ))}
-                                    <div className="flex-shrink-0 w-36 bg-gradient-to-br from-[#d8f5e5] to-[#8bd7c7]/20 rounded-[15px] p-4 border border-dashed border-[#8bd7c7] text-center flex flex-col items-center justify-center">
-                                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-3 shadow-sm">
-                                            <UserPlus className="w-6 h-6 text-[#1e6b4e]" />
+                                        <div>
+                                            <div style={{ fontSize: 13, fontWeight: 600, color: '#2d3a35' }}>{cg.display_name}</div>
+                                            <div style={{ fontSize: 11, color: '#6b7f76' }}>Endorsed by {cg.referrer_name}</div>
                                         </div>
-                                        <p className="text-xs text-[#1e6b4e] font-medium mb-3">
-                                            Invite friends
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* ── PEOPLE YOU MAY KNOW ── */}
+                {suggestedConnections.length > 0 && (
+                    <section style={{ marginBottom: 24 }}>
+                        <div
+                            style={{
+                                background: '#fff',
+                                borderRadius: 14,
+                                boxShadow: '0 2px 12px rgba(30,107,78,0.08)',
+                                padding: 20,
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                                <h2 style={{ fontWeight: 700, fontSize: 14, color: '#2d3a35' }}>People You May Know</h2>
+                                <Link to="/matches" style={{ fontSize: 12, color: '#1E6B4E', fontWeight: 600, textDecoration: 'none' }}>
+                                    View All
+                                </Link>
+                            </div>
+                            <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 }}>
+                                {suggestedConnections.map((person: any) => (
+                                    <div
+                                        key={person.member_id}
+                                        style={{
+                                            flexShrink: 0, width: 140,
+                                            background: '#fff', borderRadius: 15,
+                                            padding: 16, border: '1px solid #f0f0f0',
+                                            textAlign: 'center',
+                                            transition: 'border-color 0.2s, box-shadow 0.2s',
+                                        }}
+                                    >
+                                        <img
+                                            src={person.avatar_url || 'https://via.placeholder.com/100'}
+                                            alt={person.display_name}
+                                            style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px', border: '2px solid #8bd7c7' }}
+                                        />
+                                        <p style={{ fontWeight: 600, fontSize: 13, color: '#1E6B4E', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {person.display_name}
                                         </p>
-                                        <button
-                                            type="button"
-                                            onClick={() => setInviteModalOpen(true)}
-                                            className="px-3 py-1.5 rounded-full bg-[#1e6b4e] text-white text-xs font-semibold hover:bg-[#155a3e] transition-all"
-                                        >
-                                            Invite
-                                        </button>
+                                        <p style={{ fontSize: 11, color: '#6b7f76', marginBottom: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {person.neighborhood || 'Nearby'}
+                                        </p>
+                                        {person.connection_status === 'accepted' ? (
+                                            <Link
+                                                to={`/member/${person.member_id}`}
+                                                style={{
+                                                    display: 'block', padding: '5px 12px', borderRadius: 20,
+                                                    background: '#d8f5e5', color: '#1E6B4E',
+                                                    fontSize: 11, fontWeight: 600, textDecoration: 'none',
+                                                }}
+                                            >
+                                                Connected
+                                            </Link>
+                                        ) : person.connection_status === 'pending' ? (
+                                            <span style={{ display: 'block', padding: '5px 12px', borderRadius: 20, border: '1px solid #e5e5e5', color: '#6b7f76', fontSize: 11, fontWeight: 500 }}>
+                                                Pending
+                                            </span>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleConnect(person.member_id)}
+                                                disabled={connectingTo === person.member_id}
+                                                style={{
+                                                    display: 'block', width: '100%', padding: '5px 12px', borderRadius: 20,
+                                                    border: '1px solid #ccc', background: 'none',
+                                                    color: '#6b7f76', fontSize: 11, fontWeight: 500,
+                                                    cursor: 'pointer', fontFamily: 'Comfortaa, sans-serif',
+                                                    transition: 'all 0.2s',
+                                                }}
+                                            >
+                                                {connectingTo === person.member_id ? 'Sending...' : 'Connect'}
+                                            </button>
+                                        )}
                                     </div>
+                                ))}
+                                {/* Invite friends card */}
+                                <div
+                                    style={{
+                                        flexShrink: 0, width: 140,
+                                        background: 'linear-gradient(135deg, #d8f5e5, rgba(139,215,199,0.2))',
+                                        borderRadius: 15, padding: 16,
+                                        border: '1px dashed #8bd7c7',
+                                        textAlign: 'center',
+                                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                    }}
+                                >
+                                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                                        <UserPlus className="w-5 h-5 text-[#1e6b4e]" />
+                                    </div>
+                                    <p style={{ fontSize: 11, color: '#1E6B4E', fontWeight: 500, marginBottom: 10 }}>Invite friends</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setInviteModalOpen(true)}
+                                        style={{
+                                            padding: '5px 14px', borderRadius: 20,
+                                            background: '#1E6B4E', color: '#fff',
+                                            fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',
+                                            fontFamily: 'Comfortaa, sans-serif',
+                                        }}
+                                    >
+                                        Invite
+                                    </button>
                                 </div>
-                            )}
-                        </section>
+                            </div>
+                        </div>
+                    </section>
+                )}
 
-
-                    </div >
-
-                    {/* RIGHT COLUMN - Sidebar */}
-                    < aside className="hidden lg:block space-y-6 lg:sticky lg:top-24 lg:self-start" >
-                        {/* Village Feed (Moved from Left Column) */}
-                        < section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100 mb-6" >
-                            <h3 className="text-xs font-bold text-[#546E5C] uppercase tracking-wide mb-4">
-                                Posts Near You
-                            </h3>
-
-                            {/* Create Post Button */}
+                {/* ── QUICK ACTIONS (horizontal row) ── */}
+                <section style={{ marginBottom: 24 }}>
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                        {[
+                            { label: 'Refer a Caregiver', onClick: () => setShowReferCaregiverModal(true), icon: 'M12 4.5v15m7.5-7.5h-15' },
+                            { label: 'Invite a Friend', onClick: () => setInviteModalOpen(true), icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0' },
+                            { label: 'Post to Village', onClick: () => setShowCreatePost(true), icon: 'M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z' },
+                            { label: 'Discover', onClick: () => navigate('/matches'), icon: 'M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z' },
+                        ].map((a) => (
                             <button
+                                key={a.label}
                                 type="button"
-                                onClick={() => setShowCreatePost(true)}
-                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-[50px] bg-[#1e6b4e] text-white font-semibold text-sm hover:bg-[#155a3e] transition-all mb-4"
+                                onClick={a.onClick}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: 8,
+                                    padding: '10px 16px', borderRadius: 12,
+                                    background: '#fff', border: '1px solid #d8f5e5',
+                                    cursor: 'pointer', fontFamily: 'Comfortaa, sans-serif',
+                                    fontSize: 12, fontWeight: 600, color: '#1E6B4E',
+                                    boxShadow: '0 1px 4px rgba(30,107,78,0.05)',
+                                    transition: 'all 0.2s',
+                                }}
                             >
-                                <Plus className="w-4 h-4" />
-                                Create Post
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E6B4E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d={a.icon} />
+                                </svg>
+                                {a.label}
                             </button>
+                        ))}
+                    </div>
+                </section>
 
-                            {/* Radius Selector */}
-                            <div className="relative mb-3 z-10">
+                {/* ── VILLAGE BOARD (secondary placement) ── */}
+                <section style={{ marginBottom: 24 }}>
+                    <div
+                        style={{
+                            background: '#fff',
+                            borderRadius: 14,
+                            boxShadow: '0 2px 12px rgba(30,107,78,0.08)',
+                            padding: 20,
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                            <div style={{ fontWeight: 700, fontSize: 14, color: '#2d3a35' }}>Village Board</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                 <button
                                     type="button"
-                                    onClick={() => setRadiusDropdownOpen(!radiusDropdownOpen)}
-                                    className="flex items-center gap-1 text-xs text-[#546E5C] hover:text-[#1e6b4e] transition-colors"
+                                    onClick={() => setShowCreatePost(true)}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: 4,
+                                        padding: '5px 12px', borderRadius: 20,
+                                        background: '#d8f5e5', border: 'none',
+                                        color: '#1E6B4E', fontSize: 11, fontWeight: 600,
+                                        cursor: 'pointer', fontFamily: 'Comfortaa, sans-serif',
+                                    }}
                                 >
-                                    <span>Within</span>
-                                    <span className="font-semibold text-[#1e6b4e]">
-                                        {radiusOptions.find(o => o.value === postsRadius)?.label}
-                                    </span>
-                                    <ChevronDown className={`w-3 h-3 text-[#1e6b4e] transition-transform ${radiusDropdownOpen ? 'rotate-180' : ''}`} />
+                                    <Plus className="w-3 h-3" /> New Post
                                 </button>
-
-                                {/* Dropdown */}
-                                {radiusDropdownOpen && (
-                                    <>
-                                        <div
-                                            className="fixed inset-0 z-10"
-                                            onClick={() => setRadiusDropdownOpen(false)}
-                                        />
-                                        <div className="absolute top-full left-0 mt-1 bg-white rounded-[10px] shadow-lg border border-gray-100 py-1 z-20 min-w-[100px]">
-                                            {radiusOptions.map(option => (
-                                                <button
-                                                    key={option.value}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setPostsRadius(option.value);
-                                                        setRadiusDropdownOpen(false);
-                                                    }}
-                                                    className={`
-                                                      w-full px-3 py-2 text-left text-xs transition-colors
-                                                      ${postsRadius === option.value
-                                                            ? 'bg-[#d8f5e5] text-[#1e6b4e] font-semibold'
-                                                            : 'text-[#546E5C] hover:bg-gray-50'
-                                                        }
-                                                    `}
-                                                >
-                                                    {option.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/posts')}
+                                    style={{
+                                        background: 'none', border: 'none',
+                                        color: '#1E6B4E', fontSize: 12, fontWeight: 600,
+                                        cursor: 'pointer', fontFamily: 'Comfortaa, sans-serif',
+                                    }}
+                                >
+                                    View All
+                                </button>
                             </div>
+                        </div>
 
-                            {/* Divider */}
-                            <div className="border-t border-gray-100 mb-4"></div>
-
-                            {/* Posts List */}
-                            {/* Posts List */}
-                            {postsLoading ? (
-                                <div className="space-y-3">
-                                    {[1, 2, 3].map(i => (
-                                        <div key={i} className="animate-pulse">
-                                            <div className="h-4 bg-gray-100 rounded w-24 mb-1" />
-                                            <div className="h-3 bg-gray-100 rounded w-full mb-1" />
-                                            <div className="h-3 bg-gray-100 rounded w-16" />
+                        {postsLoading ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {[1, 2].map(i => (
+                                    <div key={i} style={{ height: 48, background: '#f5f5f5', borderRadius: 10, animation: 'pulse 2s infinite' }} />
+                                ))}
+                            </div>
+                        ) : filteredPosts.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                                <p style={{ fontSize: 13, color: '#6b7f76', marginBottom: 4 }}>No posts yet</p>
+                                <p style={{ fontSize: 11, color: '#aaa' }}>Be the first to share something!</p>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                {filteredPosts.slice(0, 4).map((post) => (
+                                    <button
+                                        key={post.id}
+                                        type="button"
+                                        onClick={() => navigate('/posts')}
+                                        style={{
+                                            display: 'block', width: '100%', textAlign: 'left',
+                                            padding: '12px 14px', borderRadius: 10, background: '#fffaf5',
+                                            border: 'none', cursor: 'pointer',
+                                            fontFamily: 'Comfortaa, sans-serif',
+                                            transition: 'background 0.2s',
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                            <span style={{ fontWeight: 700, fontSize: 12, color: '#1E6B4E' }}>{post.author_name}</span>
+                                            <span style={{ fontSize: 11, color: '#6b7f76' }}>{timeAgo(post.created_at)}</span>
                                         </div>
-                                    ))}
-                                </div>
-                            ) : filteredPosts.length === 0 ? (
-                                <div className="text-center py-6">
-                                    <p className="text-sm text-[#546E5C] mb-2">No posts yet</p>
-                                    <p className="text-xs text-gray-400">Be the first to share something!</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-4 max-h-[280px] overflow-y-auto">
-                                    {filteredPosts.map(post => (
-                                        <button
-                                            key={post.id}
-                                            type="button"
-                                            className="w-full text-left p-3 -mx-3 rounded-[10px] hover:bg-[#d8f5e5]/50 transition-all cursor-pointer group"
-                                        >
-                                            {/* Author Name */}
-                                            <p className="font-semibold text-sm text-[#1e6b4e] mb-0.5 group-hover:underline">
-                                                {post.author_name}
-                                            </p>
+                                        <div style={{ fontSize: 13, color: '#2d3a35', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {post.content}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </section>
 
-                                            {/* Content - truncate to 2 lines */}
-                                            <p className="text-sm text-gray-500 line-clamp-2 mb-0.5">
-                                                {post.content}
-                                            </p>
+                {/* ── BOTTOM CTA ── */}
+                <div style={{ textAlign: 'center', padding: '16px 0 0', fontSize: 13, color: '#6b7f76' }}>
+                    Know someone great?{' '}
+                    <button
+                        type="button"
+                        onClick={() => setShowReferCaregiverModal(true)}
+                        style={{ background: 'none', border: 'none', color: '#1E6B4E', fontSize: 13, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 2, fontFamily: 'Comfortaa, sans-serif' }}
+                    >
+                        Refer a Caregiver
+                    </button>
+                    {' · '}
+                    <button
+                        type="button"
+                        onClick={() => setInviteModalOpen(true)}
+                        style={{ background: 'none', border: 'none', color: '#1E6B4E', fontSize: 13, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 2, fontFamily: 'Comfortaa, sans-serif' }}
+                    >
+                        Invite a Friend
+                    </button>
+                    {' · '}
+                    <button
+                        type="button"
+                        onClick={() => navigate('/matches')}
+                        style={{ background: 'none', border: 'none', color: '#1E6B4E', fontSize: 13, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 2, fontFamily: 'Comfortaa, sans-serif' }}
+                    >
+                        Discover More
+                    </button>
+                </div>
+            </div>
 
-                                            {/* Meta */}
-                                            <p className="text-xs text-gray-400">
-                                                {post.neighborhood || 'Nearby'} • {timeAgo(post.created_at)}
-                                            </p>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* View All Link */}
-                            {/* View All Link */}
-                            <button
-                                onClick={() => navigate('/posts')}
-                                className="w-full text-center text-sm text-[#1e6b4e] font-semibold mt-4 hover:underline"
-                            >
-                                View All Posts
-                            </button>
-                        </section >
-
-                        <QuickActionsSidebar
-                            onShareWithVillage={() => setShowEditNeed(true)} // Or correct handler
-                            onInviteToVillage={() => setInviteModalOpen(true)}
-                            onReferCaregiver={() => setShowReferCaregiverModal(true)}
-                        />
-                    </aside >
-                </div >
-
-
-
-                {/* Mobile Quick Actions Bar */}
-                <MobileQuickActionsBar onShareWithVillage={() => setShowCreatePost(true)} />
-            </div >
-
-            {/* Modals */}
-            {/* Modals */}
+            {/* ========== MODALS ========== */}
             <ProfileModal
                 open={profileOpen}
                 onOpenChange={(open) => {
@@ -1662,18 +1487,16 @@ export default function FamilyDashboard() {
             {showSearch && <SearchModal open={showSearch} onClose={() => setShowSearch(false)} />}
             {showCreatePost && <CreatePostModal onClose={() => setShowCreatePost(false)} onPostCreated={(newPost) => setPosts(prev => [newPost, ...prev])} />}
             {isInviteModalOpen && <InviteToVillageModal onClose={() => setInviteModalOpen(false)} />}
-            {
-                showEditNeed && (
-                    <CareNeedForm
-                        careNeed={activeCareNeedToEdit}
-                        onClose={() => {
-                            setShowEditNeed(false);
-                            setActiveCareNeedToEdit(null);
-                        }}
-                        onSave={handleSaveCareNeed}
-                    />
-                )
-            }
+            {showEditNeed && (
+                <CareNeedForm
+                    careNeed={activeCareNeedToEdit}
+                    onClose={() => {
+                        setShowEditNeed(false);
+                        setActiveCareNeedToEdit(null);
+                    }}
+                    onSave={handleSaveCareNeed}
+                />
+            )}
 
             {/* Refer Caregiver Modal */}
             <ReferCaregiverModal
@@ -1687,3 +1510,4 @@ export default function FamilyDashboard() {
         </div >
     );
 }
+

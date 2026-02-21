@@ -1,177 +1,175 @@
-// DashboardMatchCard — Exact spec for Top Matches on the Family Dashboard
+// DashboardMatchCard — V2: Warm avatar, one signal, single CTA, no schedule dots
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+const COLORS = {
+    green: '#1E6B4E',
+    teal: '#8bd7c7',
+    coral: '#F8C3B3',
+    warmWhite: '#fffaf5',
+    mint: '#d8f5e5',
+    darkText: '#2d3a35',
+    mutedText: '#6b7f76',
+};
 
 function DashboardMatchCard({ match, viewerId: _viewerId }: { match: any; viewerId: string }) {
     const navigate = useNavigate();
+    const [hovered, setHovered] = useState(false);
 
-    // Determine role display
+    // Role
     const role = match.role || 'parent';
     const isCaregiver = role === 'caregiver';
     const isParent = role === 'family' || role === 'parent';
     const roleLabel = isCaregiver ? 'Caregiver' : isParent ? 'Parent' : 'Both';
 
-    // Role-based badge colors
-    const roleBadgeBg = isCaregiver ? '#F8C3B3' : isParent ? '#d8f5e5' : '#8bd7c7';
-    const roleBadgeText = isCaregiver ? '#9B4D3A' : '#1E6B4E';
+    // Role-based colors
+    const roleBadgeBg = isCaregiver ? COLORS.coral : isParent ? COLORS.mint : COLORS.teal;
+    const roleBadgeText = isCaregiver ? '#9B4D3A' : COLORS.green;
+    const avatarGradient = isCaregiver
+        ? `linear-gradient(135deg, ${COLORS.coral} 0%, #f5a08a 50%, #f0c4b8 100%)`
+        : isParent
+            ? `linear-gradient(135deg, ${COLORS.mint} 0%, ${COLORS.teal} 100%)`
+            : `linear-gradient(135deg, ${COLORS.teal} 0%, ${COLORS.coral} 100%)`;
+    const avatarShadow = isCaregiver
+        ? 'rgba(248,195,179,0.4)' : 'rgba(139,215,199,0.4)';
 
-    // Schedule days
-    const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-    const matchDays = match.availability_days || [];
+    const barColor = isCaregiver
+        ? `linear-gradient(90deg, ${COLORS.coral}, #f5a08a)`
+        : `linear-gradient(90deg, ${COLORS.mint}, ${COLORS.teal})`;
 
-    // Care type formatting
+    // Display
+    const displayName = match.display_name || match.first_name || 'Member';
+    const initials = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+    const score = match.match_score || 0;
+
+    // Care types (max 2)
     const careTypes = (match.care_types || []).slice(0, 2).map((ct: string) =>
         ct.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
     );
 
-    // Display name
-    const displayName = match.display_name || match.first_name || 'Member';
-
-    // Distance
+    // Signal line — pick the most useful context
+    const overlapDays = match.schedule_overlap || match.overlap_days || 0;
     const distance = match.distance_miles != null
         ? (Number(match.distance_miles) < 1 ? '<1' : Math.round(Number(match.distance_miles)).toString())
-        : '?';
+        : null;
+    const neighborhood = match.neighborhood;
 
-    // Match score
-    const score = match.match_score || 0;
+    let signal = '';
+    if (overlapDays > 0) {
+        signal = `${overlapDays} day${overlapDays > 1 ? 's' : ''} of schedule overlap`;
+    } else if (neighborhood) {
+        signal = `${neighborhood}${distance ? ` · ${distance} mi away` : ''}`;
+    } else if (distance) {
+        signal = `${distance} mi away`;
+    } else {
+        signal = 'New to your area';
+    }
 
     return (
         <div
-            className="bg-white rounded-[20px] border-2 overflow-hidden"
-            style={{ borderColor: 'rgba(139,215,199,0.2)', fontFamily: 'Comfortaa, sans-serif' }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                background: '#fff',
+                borderRadius: 16,
+                boxShadow: hovered
+                    ? '0 4px 24px rgba(30,107,78,0.14)'
+                    : '0 2px 12px rgba(30,107,78,0.08)',
+                overflow: 'hidden',
+                transition: 'box-shadow 0.25s ease, transform 0.25s ease',
+                transform: hovered ? 'translateY(-2px)' : 'none',
+                cursor: 'pointer',
+                minWidth: 220,
+                maxWidth: 280,
+                flex: '1 1 240px',
+                fontFamily: 'Comfortaa, sans-serif',
+            }}
+            onClick={() => navigate(`/member/${match.member_id}`)}
         >
-            {/* Top gradient accent */}
-            <div
-                className="h-1.5"
-                style={{
-                    background: isCaregiver
-                        ? 'linear-gradient(90deg, #F8C3B3, #E8A090)'
-                        : 'linear-gradient(90deg, #1E6B4E, #8bd7c7)'
-                }}
-            />
+            {/* Role gradient bar */}
+            <div style={{ height: 4, background: barColor }} />
 
-            <div className="p-5">
-                {/* Row 1: Avatar + Info + Score */}
-                <div className="flex items-start gap-4">
-                    {/* Avatar */}
+            <div style={{ padding: '20px 20px 16px' }}>
+                {/* Avatar + Name + Role */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+                    {/* Warm gradient avatar with photo or initials */}
                     <div
-                        className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden"
                         style={{
-                            background: isCaregiver ? '#FFF0EB' : '#d8f5e5',
-                            border: '2px solid rgba(139,215,199,0.3)'
+                            width: 56, height: 56, borderRadius: '50%',
+                            background: match.avatar_url ? undefined : avatarGradient,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontWeight: 700, fontSize: 18,
+                            color: isCaregiver ? COLORS.green : '#fff',
+                            flexShrink: 0,
+                            boxShadow: `0 2px 8px ${avatarShadow}`,
+                            overflow: 'hidden',
                         }}
                     >
                         {match.avatar_url ? (
                             <img
                                 src={match.avatar_url}
                                 alt={displayName}
-                                className="w-full h-full object-cover"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
                         ) : (
-                            <span className="text-2xl" style={{ color: '#1E6B4E' }} aria-hidden="true">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1E6B4E" strokeWidth="2">
-                                    <circle cx="12" cy="8" r="4" />
-                                    <path d="M20 21a8 8 0 10-16 0" />
-                                </svg>
-                            </span>
+                            initials
                         )}
                     </div>
-
-                    {/* Name + Role + Location */}
-                    <div className="flex-1 min-w-0">
-                        <p
-                            className="text-[17px] font-bold truncate"
-                            style={{ color: '#1E6B4E' }}
-                        >
+                    <div>
+                        <div style={{ fontWeight: 700, fontSize: 15, color: COLORS.darkText, marginBottom: 4 }}>
                             {displayName}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span
-                                className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
-                                style={{ background: roleBadgeBg, color: roleBadgeText }}
-                            >
-                                {roleLabel}
-                            </span>
-                            <span className="text-xs" style={{ color: '#546E5C' }}>
-                                {match.neighborhood || 'Nearby'} · {distance} mi
-                            </span>
                         </div>
-                    </div>
-
-                    {/* Match Score */}
-                    <div
-                        className="flex-shrink-0 rounded-xl px-3 py-1.5 text-[13px] font-bold text-white"
-                        style={{ background: '#1E6B4E' }}
-                        role="status"
-                        aria-label={`${score} percent match`}
-                    >
-                        {score}% Match
+                        <span
+                            style={{
+                                display: 'inline-block', padding: '3px 10px', borderRadius: 20,
+                                background: roleBadgeBg, color: roleBadgeText,
+                                fontSize: 11, fontWeight: 600, letterSpacing: 0.3,
+                            }}
+                        >
+                            {roleLabel}
+                        </span>
                     </div>
                 </div>
 
-                {/* Row 2: Schedule + Care Types */}
-                <div
-                    className="flex items-center justify-between mt-4 pt-3.5"
-                    style={{ borderTop: '1px solid rgba(139,215,199,0.2)' }}
-                >
-                    {/* Schedule days */}
-                    <div className="flex gap-1" role="group" aria-label="Schedule availability">
-                        {DAYS.map((day, i) => {
-                            const isMatch = matchDays.includes(DAY_KEYS[i]);
-                            return (
-                                <div
-                                    key={DAY_KEYS[i]}
-                                    className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold transition-colors"
-                                    style={{
-                                        background: isMatch ? '#8bd7c7' : '#f0faf4',
-                                        color: isMatch ? '#1E6B4E' : 'rgba(84,110,92,0.35)',
-                                    }}
-                                    aria-label={`${DAY_KEYS[i]}${isMatch ? ' - available' : ''}`}
-                                >
-                                    {day}
-                                </div>
-                            );
-                        })}
-                    </div>
+                {/* Signal line */}
+                <div style={{ fontSize: 13, color: COLORS.mutedText, marginBottom: 14, lineHeight: 1.5 }}>
+                    {signal}
+                </div>
 
-                    {/* Care type pills */}
-                    <div className="flex gap-1 flex-wrap justify-end">
+                {/* Care type pills */}
+                {careTypes.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
                         {careTypes.map((ct: string, i: number) => (
                             <span
                                 key={ct + i}
-                                className="text-[10px] px-2 py-0.5 rounded-lg whitespace-nowrap"
-                                style={{ color: '#546E5C', background: '#f0faf4' }}
+                                style={{
+                                    padding: '3px 10px', borderRadius: 12,
+                                    background: COLORS.warmWhite,
+                                    border: `1px solid ${COLORS.mint}`,
+                                    fontSize: 11, color: COLORS.green, fontWeight: 500,
+                                }}
                             >
                                 {ct}
                             </span>
                         ))}
                     </div>
-                </div>
+                )}
 
-                {/* Row 3: Action Buttons */}
-                <div className="flex gap-2 mt-3.5">
+                {/* Match score + CTA */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ fontSize: 12, color: COLORS.green, fontWeight: 700 }}>
+                        {score}% match
+                    </div>
                     <button
-                        onClick={() => navigate(`/messages`)}
-                        className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E6B4E]"
+                        onClick={(e) => { e.stopPropagation(); navigate(`/member/${match.member_id}`); }}
                         style={{
-                            background: 'rgba(30,107,78,0.08)',
-                            color: '#1E6B4E',
+                            fontSize: 12, fontWeight: 600,
+                            background: COLORS.green, color: '#fff',
+                            border: 'none', borderRadius: 20,
+                            padding: '7px 18px', cursor: 'pointer',
+                            transition: 'opacity 0.2s',
+                            opacity: hovered ? 1 : 0.9,
                             fontFamily: 'Comfortaa, sans-serif',
-                            border: 'none',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        Message
-                    </button>
-                    <button
-                        onClick={() => navigate(`/member/${match.member_id}`)}
-                        className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E6B4E]"
-                        style={{
-                            background: 'transparent',
-                            color: '#1E6B4E',
-                            fontFamily: 'Comfortaa, sans-serif',
-                            border: '1.5px solid rgba(139,215,199,0.35)',
-                            cursor: 'pointer',
                         }}
                     >
                         View Profile
