@@ -136,7 +136,6 @@ export default function KidsPanel() {
         setSaving(true);
         try {
             const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
-            const computedDisplayName = showName ? firstName.trim() : (firstName.trim()?.[0] || '');
 
             const payload: Record<string, any> = {
                 user_id: viewer.user.id,
@@ -155,10 +154,11 @@ export default function KidsPanel() {
                 daily_routines: dailyRoutines || null,
                 favorite_foods: favoriteFoods || null,
                 personality_notes: personalityNotes || null,
-                display_name: computedDisplayName,
-                show_name: showName === true || (showName as any) === 'true' ? true : false,
+                show_name: Boolean(showName),
                 notes: notes || null,
             };
+
+            console.log('KidsPanel save payload:', JSON.stringify(payload, null, 2));
 
             if (editingKid) {
                 const { error } = await supabase
@@ -648,7 +648,7 @@ export default function KidsPanel() {
                                 }}
                             >
                                 {saving && <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />}
-                                {saving ? 'Saving...' : editingKid ? 'Update' : 'Add Child'}
+                                {saving ? 'Saving...' : editingKid ? 'Save Changes' : 'Add Child'}
                             </button>
                         </div>
                     </form>
