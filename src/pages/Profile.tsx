@@ -627,7 +627,7 @@ export default function Profile() {
                   {[
                     { label: 'Children', action: 'Add children info', link: '/settings#profile', visible: true },
                     { label: 'Languages', action: 'Add languages', link: '/settings#profile', visible: true },
-                    { label: 'References', action: 'Request a reference', link: '/settings#reviews', visible: true },
+                    { label: 'References', action: 'Request an endorsement', link: '/settings#reviews', visible: true },
                     // Only show "What I Can Offer" if NOT family
                     { label: 'What I Can Offer', action: 'Add what you can offer', link: '/settings#matching', visible: p.role !== 'family' },
                   ].filter(item => item.visible).map((item, i, arr) => (
@@ -800,7 +800,7 @@ export default function Profile() {
 
                 {/* Card D: References (Placeholder) */}
                 {(viewMode === 'own') && (
-                  <CollapsedEmptyState label="References" linkText="Request a reference" link="/settings#reviews" />
+                  <CollapsedEmptyState label="References" linkText="Request an endorsement" link="/settings#reviews" />
                 )}
 
               </div>

@@ -1113,7 +1113,7 @@ export default function MemberProfile() {
                     {member.languages.map((lang: string) => (
                       <div key={lang} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, background: '#f0faf4', border: `1px solid ${COLORS.mintDark}15`, fontSize: 13, color: COLORS.textMuted }}>
                         <Globe style={{ width: 14, height: 14, color: COLORS.primary }} />
-                        {lang}
+                        {lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase()}
                       </div>
                     ))}
                   </div>
