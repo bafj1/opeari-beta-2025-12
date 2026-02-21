@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Star, CheckCircle2 } from 'lucide-react'
+import { Star, CheckCircle2, Globe, Wind, PawPrint, Car, MapPin, Moon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useViewer } from '../hooks/useViewer'
 import { supabase } from '../lib/supabase'
 import Toast from '../components/ui/Toast'
 import { logAlphaEvent } from '../lib/analytics'
 import { createNotification } from '../lib/notifications'
+import {
+  WEEKDAYS,
+  TIME_SLOTS,
+} from '../lib/Constants'
 
 
 type Schedule = Record<string, string[]>
@@ -774,11 +778,16 @@ export default function MemberProfile() {
                 </div>
               )}
 
-              {/* Bio — 3 lines max */}
+              {/* Bio */}
               {member.bio && (
                 <p style={{
                   fontSize: 13, color: COLORS.textMuted, lineHeight: 1.5, marginBottom: 20,
-                  display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as any, overflow: 'hidden',
+                  ...(!isConnected ? {
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical' as any,
+                    overflow: 'hidden',
+                  } : {}),
                 }}>
                   {member.bio.startsWith('Looking for:')
                     ? `Looking for ${humanizeCareType(member.bio.replace('Looking for: ', '').trim())}`
@@ -831,7 +840,51 @@ export default function MemberProfile() {
                 </div>
               </div>
 
-              {/* Services / Looking For */}
+              {/* Overlap summary */}
+              {(() => {
+                return overlapDays.length > 0 ? (
+                  <p style={{ fontSize: 13, color: COLORS.primary, fontWeight: 600, marginTop: 8 }}>
+                    {overlapDays.length} day{overlapDays.length !== 1 ? 's' : ''} of overlap with your schedule
+                  </p>
+                ) : member.availability_days.length > 0 ? (
+                  <p style={{ fontSize: 13, color: COLORS.textMuted, marginTop: 8 }}>
+                    No schedule overlap — but schedules can change!
+                  </p>
+                ) : null;
+              })()}
+
+              {/* CONNECTED: Detailed time grid */}
+              {isConnected && member.schedule && Object.values(member.schedule).some((slots: any) => Array.isArray(slots) && slots.length > 0) && (
+                <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${COLORS.mintDark}15` }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Detailed Availability</p>
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+                    <div style={{ width: 64 }} />
+                    {WEEKDAYS.map((day: any) => (
+                      <div key={day.id} style={{ flex: 1, textAlign: 'center', fontSize: 11, fontWeight: 600, color: COLORS.textMuted }}>{day.short}</div>
+                    ))}
+                  </div>
+                  {TIME_SLOTS.map((slot: any) => {
+                    const hasAny = WEEKDAYS.some((d: any) => ((member.schedule as any)[d.id] || []).includes(slot.id));
+                    if (!hasAny) return null;
+                    return (
+                      <div key={slot.id} style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+                        <div style={{ width: 64, fontSize: 11, display: 'flex', alignItems: 'center', color: COLORS.textMuted }}>{slot.time}</div>
+                        {WEEKDAYS.map((day: any) => {
+                          const has = ((member.schedule as any)[day.id] || []).includes(slot.id);
+                          return (
+                            <div key={`${day.id}-${slot.id}`} style={{ flex: 1, height: 32, borderRadius: 6, background: has ? `${COLORS.mintDark}60` : '#f5f5f5' }} />
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                  {member.schedule_notes && (
+                    <div style={{ marginTop: 12, padding: '10px 14px', background: '#f0faf4', borderRadius: 10, fontSize: 13, color: COLORS.primary }}>
+                      <span style={{ fontWeight: 600 }}>Note:</span> {member.schedule_notes}
+                    </div>
+                  )}
+                </div>
+              )}              {/* Services / Looking For */}
               {member.care_types && member.care_types.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary, marginBottom: 8 }}>
@@ -903,20 +956,21 @@ export default function MemberProfile() {
                     >
                       Message {member.first_name}
                     </Link>
-                    <Link
-                      to={`/profile/${member.id}`}
-                      style={{
-                        flex: 1, padding: '13px 0', borderRadius: 14,
-                        textDecoration: 'none', textAlign: 'center',
-                        fontFamily: 'Comfortaa, sans-serif',
-                        background: isCaregiver ? COLORS.coral : 'transparent',
-                        color: isCaregiver ? '#9B4D3A' : COLORS.primary,
-                        border: isCaregiver ? 'none' : `1.5px solid ${COLORS.mintDark}50`,
-                        fontSize: 14, fontWeight: 600,
-                      }}
-                    >
-                      Full Profile
-                    </Link>
+                    {!hasEndorsed && (
+                      <button
+                        onClick={() => setShowEndorseForm(!showEndorseForm)}
+                        style={{
+                          flex: 1, padding: '13px 0', borderRadius: 14,
+                          fontFamily: 'Comfortaa, sans-serif', cursor: 'pointer',
+                          background: isCaregiver ? COLORS.coral : 'transparent',
+                          color: isCaregiver ? '#9B4D3A' : COLORS.primary,
+                          border: isCaregiver ? 'none' : `1.5px solid ${COLORS.mintDark}50`,
+                          fontSize: 14, fontWeight: 600,
+                        }}
+                      >
+                        Endorse {member.first_name}
+                      </button>
+                    )}
                   </>
                 ) : (
                   <>
@@ -978,12 +1032,171 @@ export default function MemberProfile() {
                 </p>
               )}
               {!isConnected && user && user.id !== member.id && (
-                <p style={{ fontSize: 11, color: COLORS.textMuted, textAlign: 'center', marginTop: 12, opacity: 0.7 }}>
-                  Connect to see detailed schedule, contact info, and endorsements
-                </p>
+                <div style={{ marginTop: 16, padding: '14px 16px', borderRadius: 14, background: '#fff8f5', border: '1px solid rgba(248,195,179,0.3)', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <svg style={{ width: 18, height: 18, color: COLORS.coral, flexShrink: 0, marginTop: 1 }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
+                  <p style={{ fontSize: 12, color: COLORS.textMuted, lineHeight: 1.4 }}>
+                    <strong style={{ color: COLORS.primary }}>Connect to unlock full profile:</strong> Detailed schedule, endorsements, contact info, preferences, and more are shared once you connect.
+                  </p>
+                </div>
               )}
             </div>
           </div>
+
+          {/* ===== CONNECTED-ONLY SECTIONS ===== */}
+          {isConnected && (
+            <>
+              {/* Languages */}
+              {member.languages && member.languages.length > 0 && (
+                <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Languages</h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {member.languages.map((lang: string) => (
+                      <div key={lang} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, background: '#f0faf4', border: `1px solid ${COLORS.mintDark}15`, fontSize: 13, color: COLORS.textMuted }}>
+                        <Globe style={{ width: 14, height: 14, color: COLORS.primary }} />
+                        {lang}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Preferences & Lifestyle */}
+              {(() => {
+                const prefs = [
+                  { val: member.smoke_free_required, icon: Wind, label: 'Smoke-free environment' },
+                  { val: member.comfortable_with_pets, icon: PawPrint, label: 'Comfortable with pets' },
+                  { val: member.available_overnight, icon: Moon, label: 'Available overnight' },
+                  { val: member.has_transportation, icon: Car, label: 'Has transportation' },
+                  { val: member.willing_to_travel, icon: MapPin, label: 'Willing to travel' },
+                ].filter(p => p.val);
+                if (prefs.length === 0) return null;
+                return (
+                  <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Preferences</h3>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {prefs.map((pref, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10, background: '#f0faf4', fontSize: 12, color: COLORS.textMuted }}>
+                          <pref.icon style={{ width: 14, height: 14, color: COLORS.primary }} />
+                          <span>{pref.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Home Details */}
+              {(() => {
+                const homeItems = [
+                  { val: member.has_parking, label: 'Parking available' },
+                  { val: member.has_yard, label: 'Has yard' },
+                  { val: member.has_pool, label: 'Has pool' },
+                  { val: member.has_stairs, label: 'Has stairs' },
+                  { val: member.has_pets, label: member.pet_types?.length ? `Pets: ${member.pet_types.join(', ')}` : 'Has pets' },
+                ].filter(p => p.val);
+                const allergies = member.home_allergies?.length ? member.home_allergies : [];
+
+                if (homeItems.length === 0 && allergies.length === 0 && !member.home_notes && !member.home_type) return null;
+
+                return (
+                  <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Home Details</h3>
+                    {member.home_type && (
+                      <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 8 }}>
+                        <strong style={{ color: COLORS.primary }}>Type:</strong> {member.home_type}
+                      </p>
+                    )}
+                    {homeItems.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: allergies.length > 0 || member.home_notes ? 12 : 0 }}>
+                        {homeItems.map((item, idx) => (
+                          <span key={idx} style={{ padding: '5px 12px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.textMuted }}>
+                            {item.label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {allergies.length > 0 && (
+                      <p style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: member.home_notes ? 8 : 0 }}>
+                        <strong style={{ color: COLORS.primary }}>Allergies:</strong> {allergies.join(', ')}
+                        {member.home_allergy_notes && ` (${member.home_allergy_notes})`}
+                      </p>
+                    )}
+                    {member.home_notes && (
+                      <p style={{ fontSize: 13, color: COLORS.textMuted }}>{member.home_notes}</p>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Children — hidden for caregivers */}
+              {member.role !== 'caregiver' && (
+                <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Children</h3>
+                  {(member.num_kids > 0 || member.kids.length > 0) ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                      {member.kids.map((kid: any) => {
+                        const name = kid.first_name || kid.name || 'Child';
+                        const age = kid.birth_year
+                          ? (() => {
+                            const now = new Date();
+                            const ageMonths = (now.getFullYear() - kid.birth_year) * 12 + (now.getMonth() - ((kid.birth_month || 1) - 1));
+                            if (ageMonths < 0) return null;
+                            if (ageMonths < 12) return `${ageMonths}mo`;
+                            const years = Math.floor(ageMonths / 12);
+                            return years === 1 ? '1 year' : `${years} years`;
+                          })()
+                          : null;
+                        return (
+                          <div key={kid.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 14, background: '#f0faf4', border: `1px solid ${COLORS.mintDark}15` }}>
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: COLORS.mint, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary }}>{name.charAt(0)}</span>
+                            </div>
+                            <div>
+                              <p style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary, margin: 0 }}>{name}</p>
+                              {age && <p style={{ fontSize: 11, color: COLORS.textMuted, margin: 0 }}>{age}</p>}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {member.kids.length === 0 && member.num_kids > 0 && (
+                        <span style={{ fontSize: 13, color: COLORS.textMuted }}>
+                          {member.num_kids} {member.num_kids === 1 ? 'child' : 'children'}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <p style={{ fontSize: 13, color: COLORS.textMuted, fontStyle: 'italic' }}>No children listed yet</p>
+                  )}
+                </div>
+              )}
+
+              {/* Social / Contact */}
+              {(member.instagram_handle || member.linkedin_handle || member.facebook_handle) && (
+                <div style={{ background: '#fff', borderRadius: 20, padding: 24, marginTop: 16, border: `2px solid ${COLORS.mintDark}20` }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary, marginBottom: 12 }}>Connect Elsewhere</h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                    {member.instagram_handle && (
+                      <a href={`https://instagram.com/${member.instagram_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
+                        Instagram
+                      </a>
+                    )}
+                    {member.linkedin_handle && (
+                      <a href={member.linkedin_handle.startsWith('http') ? member.linkedin_handle : `https://linkedin.com/in/${member.linkedin_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
+                        LinkedIn
+                      </a>
+                    )}
+                    {member.facebook_handle && (
+                      <a href={member.facebook_handle.startsWith('http') ? member.facebook_handle : `https://facebook.com/${member.facebook_handle}`} target="_blank" rel="noopener noreferrer" style={{ padding: '6px 14px', borderRadius: 20, background: '#f0faf4', fontSize: 12, color: COLORS.primary, fontWeight: 500, textDecoration: 'none', border: `1px solid ${COLORS.mintDark}15` }}>
+                        Facebook
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
 
           {/* Endorsement Form */}
           {showEndorseForm && (

@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useParams } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Loading from './components/common/Loading';
@@ -70,6 +70,12 @@ const InviteFriends = lazy(() => import('./pages/InviteFriends'));
 // const NannyShare = lazy(() => import('./pages/NannyShare'));
 
 import RouteErrorBoundary from './components/common/RouteErrorBoundary';
+
+// Redirect /profile/:id → /member/:id
+function ProfileRedirect() {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={`/member/${id}`} replace />;
+}
 
 // ... (existing imports)
 
@@ -150,7 +156,7 @@ function App() {
                     <Route path="/messages" element={<MessagesInbox />} />
                     <Route path="/messages/:id" element={<Messages />} />
                     <Route path="/member/:id" element={<MemberProfile />} />
-                    <Route path="/profile/:id" element={<Profile />} />
+                    <Route path="/profile/:id" element={<ProfileRedirect />} />
 
                     {/* Redirects & Locks */}
                     <Route path="/dashboard" element={<Navigate to="/village" replace />} />
