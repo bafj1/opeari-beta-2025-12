@@ -7,10 +7,6 @@ import { supabase } from '../lib/supabase'
 import Toast from '../components/ui/Toast'
 import { logAlphaEvent } from '../lib/analytics'
 import { createNotification } from '../lib/notifications'
-import {
-  WEEKDAYS,
-  TIME_SLOTS,
-} from '../lib/Constants'
 
 
 type Schedule = Record<string, string[]>
@@ -843,17 +839,17 @@ export default function MemberProfile() {
               {/* Schedule Overlap */}
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.primary, marginBottom: 10 }}>Schedule Overlap</div>
-                <div style={{ display: 'flex', gap: 6 }}>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-start' }}>
                   {DAY_MAP.map((day) => {
                     const theyAvailable = memberDays.includes(day.key);
                     const youAvailable = viewerDays.includes(day.key);
                     const isOverlap = theyAvailable && youAvailable;
                     const theyOnly = theyAvailable && !youAvailable;
                     return (
-                      <div key={day.key} style={{ flex: 1, textAlign: 'center' }}>
+                      <div key={day.key} style={{ width: 48, textAlign: 'center' }}>
                         <div
                           style={{
-                            width: 36, height: 36, borderRadius: '50%', margin: '0 auto 4px',
+                            width: 40, height: 40, borderRadius: '50%', margin: '0 auto 4px',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontSize: 12, fontWeight: 600,
                             background: isOverlap ? COLORS.primary : theyOnly ? `${COLORS.mintDark}40` : '#f5f5f5',
@@ -898,38 +894,6 @@ export default function MemberProfile() {
                 ) : null;
               })()}
 
-              {/* CONNECTED: Detailed time grid */}
-              {isConnected && member.schedule && Object.keys(member.schedule).length > 0 && Object.values(member.schedule).some((slots: any) => Array.isArray(slots) && slots.length > 0) && (
-                <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${COLORS.mintDark}15` }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Detailed Availability</p>
-                  <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
-                    <div style={{ width: 64 }} />
-                    {WEEKDAYS.map((day: any) => (
-                      <div key={day.id} style={{ flex: 1, textAlign: 'center', fontSize: 11, fontWeight: 600, color: COLORS.textMuted }}>{day.short}</div>
-                    ))}
-                  </div>
-                  {TIME_SLOTS.map((slot: any) => {
-                    const hasAny = WEEKDAYS.some((d: any) => ((member.schedule as any)[d.id] || []).includes(slot.id));
-                    if (!hasAny) return null;
-                    return (
-                      <div key={slot.id} style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-                        <div style={{ width: 64, fontSize: 11, display: 'flex', alignItems: 'center', color: COLORS.textMuted }}>{slot.time}</div>
-                        {WEEKDAYS.map((day: any) => {
-                          const has = ((member.schedule as any)[day.id] || []).includes(slot.id);
-                          return (
-                            <div key={`${day.id}-${slot.id}`} style={{ flex: 1, height: 32, borderRadius: 6, background: has ? `${COLORS.mintDark}60` : '#f5f5f5' }} />
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
-                  {member.schedule_notes && (
-                    <div style={{ marginTop: 12, padding: '10px 14px', background: '#f0faf4', borderRadius: 10, fontSize: 13, color: COLORS.primary }}>
-                      <span style={{ fontWeight: 600 }}>Note:</span> {member.schedule_notes}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
 
