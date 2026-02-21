@@ -123,8 +123,8 @@ function DashboardMatchCard({ match, viewerId: _viewerId }: { match: any; viewer
                                     key={DAY_KEYS[i]}
                                     className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold transition-colors"
                                     style={{
-                                        background: isMatch ? '#1E6B4E' : '#f0faf4',
-                                        color: isMatch ? '#fff' : 'rgba(84,110,92,0.5)',
+                                        background: isMatch ? '#8bd7c7' : '#f0faf4',
+                                        color: isMatch ? '#1E6B4E' : 'rgba(84,110,92,0.35)',
                                     }}
                                     aria-label={`${DAY_KEYS[i]}${isMatch ? ' - available' : ''}`}
                                 >

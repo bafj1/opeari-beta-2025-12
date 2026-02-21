@@ -596,7 +596,7 @@ export default function FamilyDashboard() {
 
     // Referral State
     const [referredCaregivers, setReferredCaregivers] = useState<ReferredCaregiver[]>([]);
-    const [caregiversLoading, setCaregiversLoading] = useState(true);
+    const [_caregiversLoading, setCaregiversLoading] = useState(true);
 
     const [authUserId, setAuthUserId] = useState<string | null>(null);
     const { viewer } = useViewer();
@@ -1265,7 +1265,7 @@ export default function FamilyDashboard() {
                                         {/* Schedule legend */}
                                         <div className="flex items-center gap-3 mt-3 text-[11px]" style={{ color: '#546E5C', fontFamily: 'Comfortaa, sans-serif' }}>
                                             <div className="flex items-center gap-1.5">
-                                                <div className="w-3 h-3 rounded-full" style={{ background: '#1E6B4E' }} />
+                                                <div className="w-3 h-3 rounded-full" style={{ background: '#8bd7c7' }} />
                                                 <span>Schedule match</span>
                                             </div>
                                             <div className="flex items-center gap-1.5">
@@ -1339,54 +1339,26 @@ export default function FamilyDashboard() {
                             )}
                         </section>
 
-                        {/* Referred Caretakers */}
-                        <section className="mb-6">
-                            <div className="flex items-center justify-between mb-4 px-2">
-                                <div>
-                                    <h2 className="text-lg sm:text-xl font-bold text-[#1e6b4e] tracking-tight mb-1">
-                                        Referred Caretakers
-                                    </h2>
-                                    <p className="text-sm text-[#546E5C]/80">Vetted by your village</p>
+                        {/* Referred Caretakers — only show when there are results */}
+                        {referredCaregivers.length > 0 && (
+                            <section className="mb-6">
+                                <div className="flex items-center justify-between mb-4 px-2">
+                                    <div>
+                                        <h2 className="text-lg sm:text-xl font-bold text-[#1e6b4e] tracking-tight mb-1">
+                                            Referred Caretakers
+                                        </h2>
+                                        <p className="text-sm text-[#546E5C]/80">Vetted by your village</p>
+                                    </div>
+                                    <Link
+                                        to="/matches?show=caregivers"
+                                        className="text-sm text-[#1e6b4e] hover:underline font-medium flex items-center gap-1"
+                                        style={{ fontFamily: 'Comfortaa, sans-serif' }}
+                                    >
+                                        View All <ArrowRight className="w-4 h-4" />
+                                    </Link>
                                 </div>
-                                <button
-                                    type="button"
-                                    className="text-sm text-[#1e6b4e] hover:underline font-medium flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#1e6b4e] focus:ring-offset-2 rounded-lg px-2 py-1"
-                                >
-                                    View All
-                                    <ArrowRight className="w-4 h-4" />
-                                </button>
-                            </div>
 
-                            <div className="overflow-x-auto hide-scrollbar -mx-4 px-4 pb-2">
-                                {caregiversLoading ? (
-                                    // Loading State
-                                    <div className="flex gap-4">
-                                        {[1, 2, 3].map(i => (
-                                            <div
-                                                key={i}
-                                                className="flex-shrink-0 w-64 h-80 bg-gray-100 rounded-[20px] animate-pulse"
-                                            />
-                                        ))}
-                                    </div>
-                                ) : referredCaregivers.length === 0 ? (
-                                    // Empty State
-                                    <div className="bg-white rounded-[20px] p-8 text-center border border-gray-100">
-                                        <div className="w-16 h-16 rounded-full bg-[#d8f5e5] flex items-center justify-center mx-auto mb-4">
-                                            <Users className="w-8 h-8 text-[#1e6b4e]" />
-                                        </div>
-                                        <h3 className="font-semibold text-[#1e6b4e] mb-2">Trusted recommendations from your village</h3>
-                                        <p className="text-sm text-[#546E5C] mb-4 max-w-md mx-auto">
-                                            As your village grows, families here will share caregivers they trust. You can also refer someone you know.
-                                        </p>
-                                        <button
-                                            onClick={() => setShowReferCaregiverModal(true)}
-                                            className="px-6 py-2 bg-[#1e6b4e] text-white rounded-full font-medium hover:bg-[#155a3e] transition-colors shadow-sm"
-                                        >
-                                            Refer a Caregiver
-                                        </button>
-                                    </div>
-                                ) : (
-                                    // Caregivers List
+                                <div className="overflow-x-auto hide-scrollbar -mx-4 px-4 pb-2">
                                     <div className="flex gap-4">
                                         {referredCaregivers.map(caregiver => (
                                             <NannyCard
@@ -1408,9 +1380,9 @@ export default function FamilyDashboard() {
                                             />
                                         ))}
                                     </div>
-                                )}
-                            </div>
-                        </section>
+                                </div>
+                            </section>
+                        )}
 
                         {/* People You May Know / Invite Banner — Bottom of left column */}
                         <section className="bg-white rounded-[20px] p-6 shadow-sm border border-gray-100 mb-6">
@@ -1435,6 +1407,13 @@ export default function FamilyDashboard() {
                                         Know someone who'd love Opeari?
                                     </p>
                                     <div className="flex items-center gap-4">
+                                        <button
+                                            onClick={() => setShowReferCaregiverModal(true)}
+                                            className="text-sm font-semibold text-[#1E6B4E] hover:underline"
+                                            style={{ fontFamily: 'Comfortaa, sans-serif', background: 'none', border: 'none', cursor: 'pointer' }}
+                                        >
+                                            Refer a Caregiver
+                                        </button>
                                         <Link to="/invite-friends" className="text-sm font-semibold text-[#1E6B4E] hover:underline" style={{ fontFamily: 'Comfortaa, sans-serif' }}>
                                             Invite a Friend
                                         </Link>
