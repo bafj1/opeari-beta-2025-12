@@ -131,9 +131,10 @@ export default function MemberProfile() {
   const [showEndorseForm, setShowEndorseForm] = useState(false)
   const [endorseRating, setEndorseRating] = useState(0)
   const [endorseText, setEndorseText] = useState('')
-  const [endorseRelationship, setEndorseRelationship] = useState('')
+  const [endorseRelationship, setEndorseRelationship] = useState<string[]>([])
   const [endorseSaving, setEndorseSaving] = useState(false)
   const [hasEndorsed, setHasEndorsed] = useState(false)
+  const [existingEndorsement, setExistingEndorsement] = useState<any>(null)
 
   function computeCompatibility() {
     if (!viewer?.member || !member || !isConnected) return null;
@@ -446,11 +447,14 @@ export default function MemberProfile() {
         try {
           const { data: myEndorsement } = await supabase
             .from('endorsements')
-            .select('id')
+            .select('id, rating, text, relationship')
             .eq('author_id', user.id)
             .eq('recipient_id', id)
             .maybeSingle();
-          if (myEndorsement) setHasEndorsed(true);
+          if (myEndorsement) {
+            setHasEndorsed(true);
+            setExistingEndorsement(myEndorsement);
+          }
         } catch { /* table might not exist */ }
       }
 
@@ -465,27 +469,38 @@ export default function MemberProfile() {
     if (!user || !member || endorseRating === 0) return;
     setEndorseSaving(true);
     try {
-      const { error } = await supabase.from('endorsements').insert({
-        author_id: user.id,
-        recipient_id: member.id,
-        rating: endorseRating,
-        text: endorseText.trim(),
-        relationship: endorseRelationship,
-      });
-      if (error) throw error;
+      if (hasEndorsed && existingEndorsement) {
+        // UPDATE existing
+        const { error } = await supabase
+          .from('endorsements')
+          .update({
+            rating: endorseRating,
+            text: endorseText.trim(),
+            relationship: endorseRelationship,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingEndorsement.id);
+        if (error) throw error;
+        setToast({ message: 'Endorsement updated!', type: 'success' });
+      } else {
+        // INSERT new
+        const { error } = await supabase.from('endorsements').insert({
+          author_id: user.id,
+          recipient_id: member.id,
+          rating: endorseRating,
+          text: endorseText.trim(),
+          relationship: endorseRelationship,
+        });
+        if (error) throw error;
+        setToast({ message: 'Endorsement submitted!', type: 'success' });
+      }
       setHasEndorsed(true);
       setShowEndorseForm(false);
-      setToast({ message: 'Endorsement submitted!', type: 'success' });
       setTimeout(() => setToast(null), 3000);
-      // Refresh endorsement data
-      loadMember();
+      loadMember(); // Refresh data
     } catch (err: any) {
-      if (err.code === '23505') {
-        setToast({ message: 'You already endorsed this member.', type: 'info' });
-      } else {
-        console.error('Endorse error:', err);
-        setToast({ message: 'Could not save endorsement.', type: 'error' });
-      }
+      console.error('Endorse error:', err);
+      setToast({ message: 'Could not save endorsement.', type: 'error' });
       setTimeout(() => setToast(null), 3000);
     } finally {
       setEndorseSaving(false);
@@ -656,7 +671,14 @@ export default function MemberProfile() {
           {/* ===== PROFILE HEADER CARD ===== */}
           <div className="bg-white rounded-[24px] overflow-hidden border border-[#8bd7c7]/20 shadow-sm">
             {/* Top Banner — gradient */}
-            <div className="h-24 bg-gradient-to-r from-[#d8f5e5] via-[#8bd7c7]/30 to-[#F8C3B3]/20" />
+            <div
+              className="h-24"
+              style={{
+                background: member.role === 'caregiver'
+                  ? 'linear-gradient(135deg, #FFF0EB, #F8C3B3 40%, #FFE4D6)'
+                  : 'linear-gradient(135deg, #d8f5e5, rgba(139,215,199,0.3) 40%, rgba(248,195,179,0.2))'
+              }}
+            />
 
             {/* Avatar + Name overlay */}
             <div className="px-6 pb-6 -mt-12">
@@ -697,7 +719,13 @@ export default function MemberProfile() {
 
               {/* Role + Timeline badges */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#d8f5e5] text-[#1e6b4e]">
+                <span
+                  className="px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{
+                    background: member.role === 'caregiver' ? '#F8C3B3' : member.role === 'both' ? '#8bd7c7' : '#d8f5e5',
+                    color: member.role === 'caregiver' ? '#9B4D3A' : '#1e6b4e',
+                  }}
+                >
                   {member.role === 'caregiver' ? 'Caregiver' : member.role === 'both' ? 'Parent & Caregiver' : 'Parent'}
                 </span>
                 {member.timeline === 'asap' && (
@@ -842,24 +870,46 @@ export default function MemberProfile() {
                     )}
                   </>
                 ) : (
-                  /* Day pills — simple view */
+                  /* Day dots — filled circles */
                   <>
                     <div className="flex gap-2 mb-3">
-                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => {
-                        const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-                        const isActive = member.availability_days.map((d: string) => d.toLowerCase()).includes(dayKeys[idx]);
+                      {[
+                        { key: 'mon', label: 'M' },
+                        { key: 'tue', label: 'T' },
+                        { key: 'wed', label: 'W' },
+                        { key: 'thu', label: 'T' },
+                        { key: 'fri', label: 'F' },
+                        { key: 'sat', label: 'S' },
+                        { key: 'sun', label: 'S' },
+                      ].map(day => {
+                        const isActive = member.availability_days.map((d: string) => d.toLowerCase()).includes(day.key);
                         return (
                           <div
-                            key={day}
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-semibold transition-colors ${isActive
-                              ? 'bg-[#1e6b4e] text-white'
-                              : 'bg-gray-100 text-gray-300'
-                              }`}
+                            key={day.key}
+                            className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
+                            style={{
+                              background: isActive ? '#1e6b4e' : '#f0faf4',
+                              color: isActive ? '#fff' : 'rgba(84,110,92,0.4)',
+                              border: isActive ? 'none' : '1.5px solid rgba(139,215,199,0.3)',
+                            }}
+                            aria-label={`${day.key}${isActive ? ' - available' : ''}`}
                           >
-                            {day.substring(0, 2)}
+                            {day.label}
                           </div>
                         );
                       })}
+                    </div>
+
+                    {/* Schedule legend */}
+                    <div className="flex items-center gap-3 mt-2 text-[11px]" style={{ color: '#546E5C' }}>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full" style={{ background: '#1e6b4e' }} />
+                        <span>Available</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full" style={{ background: '#f0faf4', border: '1px solid rgba(139,215,199,0.4)' }} />
+                        <span>Not available</span>
+                      </div>
                     </div>
                   </>
                 )}
@@ -877,64 +927,52 @@ export default function MemberProfile() {
             )}
           </div>
 
-          {/* ===== CARE TYPES ===== */}
-          {member.care_types && member.care_types.length > 0 && (
+          {/* ===== CARE TYPES + PREFERENCES (combined) ===== */}
+          {(member.care_types?.length > 0 || isConnected) && (
             <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-              <h3 className="text-base font-bold text-[#1e6b4e] mb-3">Looking For</h3>
-              <div className="flex flex-wrap gap-2">
-                {member.care_types.map(ct => (
-                  <span key={ct} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#d8f5e5] text-[#1e6b4e] capitalize">
-                    {ct.replace(/-/g, ' ')}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ===== LANGUAGES ===== */}
-          {isConnected && member.languages && member.languages.length > 0 && (
-            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-              <h3 className="text-base font-bold text-[#1e6b4e] mb-3">Languages</h3>
-              <div className="flex flex-wrap gap-2">
-                {member.languages.map(lang => (
-                  <div key={lang} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f0faf4] border border-[#8bd7c7]/15 text-sm text-[#546E5C]">
-                    <Globe className="w-3.5 h-3.5 text-[#1e6b4e]" />
-                    {lang}
+              {/* Care types */}
+              {member.care_types && member.care_types.length > 0 && (
+                <>
+                  <h3 className="text-base font-bold text-[#1e6b4e] mb-3">
+                    {member.role === 'caregiver' ? 'Services Offered' : 'Looking For'}
+                  </h3>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {member.care_types.map((ct: string) => (
+                      <span key={ct} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#d8f5e5] text-[#1e6b4e] capitalize">
+                        {ct.replace(/-/g, ' ')}
+                      </span>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                </>
+              )}
 
-          {/* ===== PREFERENCES & LIFESTYLE ===== */}
-          {isConnected && (
-            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-              <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Preferences & Lifestyle</h3>
-              {(() => {
+              {/* Preferences inline */}
+              {isConnected && (() => {
                 const prefs = [
                   { val: member.smoke_free_required, icon: Wind, label: 'Smoke-free environment' },
                   { val: member.comfortable_with_pets, icon: PawPrint, label: 'Comfortable with pets' },
                   { val: member.available_overnight, icon: Moon, label: 'Available overnight' },
                   { val: member.has_transportation, icon: Car, label: 'Has transportation' },
-                  { val: member.can_lift_30lbs, icon: Dumbbell, label: 'Can lift 30+ lbs' },
-                  { val: member.comfortable_with_stairs, icon: Dumbbell, label: 'Comfortable with stairs' },
-                  { val: member.transportation_required, icon: Car, label: 'Own transportation' },
                   { val: member.willing_to_travel, icon: MapPin, label: 'Willing to travel' },
                 ].filter(p => p.val);
 
-                if (prefs.length === 0) {
-                  return <p className="text-sm text-[#546E5C] italic">No specific preferences listed.</p>;
-                }
+                if (prefs.length === 0) return null;
 
                 return (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {prefs.map((pref, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm text-[#546E5C]">
-                        <pref.icon className="w-4 h-4 text-[#1e6b4e]" />
-                        <span>{pref.label}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <>
+                    {member.care_types?.length > 0 && (
+                      <div className="border-t border-[#8bd7c7]/15 my-4" />
+                    )}
+                    <h4 className="text-sm font-semibold text-[#1e6b4e] mb-2">Preferences</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {prefs.map((pref, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5 text-xs text-[#546E5C] px-2.5 py-1.5 rounded-lg bg-[#f0faf4]">
+                          <pref.icon className="w-3.5 h-3.5 text-[#1e6b4e]" />
+                          <span>{pref.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 );
               })()}
             </div>
@@ -1009,70 +1047,82 @@ export default function MemberProfile() {
             </div>
           )}
 
-          {/* ===== CHILDREN ===== */}
-          <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
-            <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Children</h3>
-            {(member.num_kids > 0 || member.kids.length > 0) ? (
-              !isConnected && user?.id !== member.id ? (
-                /* Public view */
-                <div className="flex flex-col gap-1">
-                  <span className="text-lg font-semibold text-[#1e6b4e]">
-                    {member.num_kids} {member.num_kids === 1 ? 'Child' : 'Children'}
-                  </span>
-                  {member.children_age_groups && member.children_age_groups.length > 0 && (
-                    <span className="text-sm text-[#546E5C]">
-                      Age Groups: {member.children_age_groups.join(', ')}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                /* Connected view — warm cards */
-                <div className="flex flex-wrap gap-3">
-                  {member.kids.map(kid => {
-                    const name = kid.first_name || kid.name || 'Child';
-                    const age = kid.birth_year
-                      ? (() => {
-                        const now = new Date();
-                        const ageMonths = (now.getFullYear() - kid.birth_year) * 12 + (now.getMonth() - ((kid.birth_month || 1) - 1));
-                        if (ageMonths < 0) return null;
-                        if (ageMonths < 12) return `${ageMonths}mo`;
-                        const years = Math.floor(ageMonths / 12);
-                        return years === 1 ? '1 year' : `${years} years`;
-                      })()
-                      : null;
-                    return (
-                      <div
-                        key={kid.id}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15"
-                      >
-                        <div className="w-8 h-8 rounded-full bg-[#d8f5e5] flex items-center justify-center">
-                          <span className="text-sm font-bold text-[#1e6b4e]">
-                            {name.charAt(0)}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-[#1e6b4e]">{name}</p>
-                          {age && <p className="text-xs text-[#546E5C]">{age}</p>}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {member.kids.length === 0 && member.num_kids > 0 && (
-                    <span className="text-sm text-[#546E5C]">
-                      {member.num_kids} {member.num_kids === 1 ? 'child' : 'children'}
-                    </span>
-                  )}
-                </div>
-              )
-            ) : (
-              member.role !== 'caregiver' ? (
-                <p className="text-sm text-[#546E5C] italic">No children listed yet</p>
-              ) : (
-                <p className="text-sm text-[#546E5C] italic">Not applicable</p>
-              )
-            )}
-          </div>
+          {/* ===== LANGUAGES ===== */}
+          {isConnected && member.languages && member.languages.length > 0 && (
+            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+              <h3 className="text-base font-bold text-[#1e6b4e] mb-3">Languages</h3>
+              <div className="flex flex-wrap gap-2">
+                {member.languages.map((lang: string) => (
+                  <div key={lang} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f0faf4] border border-[#8bd7c7]/15 text-sm text-[#546E5C]">
+                    <Globe className="w-3.5 h-3.5 text-[#1e6b4e]" />
+                    {lang}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
+          {/* ===== CHILDREN (hide for caregivers) ===== */}
+          {member.role !== 'caregiver' && (
+            <div className="bg-white rounded-[20px] p-6 border border-[#8bd7c7]/20 shadow-sm">
+              <h3 className="text-base font-bold text-[#1e6b4e] mb-4">Children</h3>
+              {(member.num_kids > 0 || member.kids.length > 0) ? (
+                !isConnected && user?.id !== member.id ? (
+                  /* Public view */
+                  <div className="flex flex-col gap-1">
+                    <span className="text-lg font-semibold text-[#1e6b4e]">
+                      {member.num_kids} {member.num_kids === 1 ? 'Child' : 'Children'}
+                    </span>
+                    {member.children_age_groups && member.children_age_groups.length > 0 && (
+                      <span className="text-sm text-[#546E5C]">
+                        Age Groups: {member.children_age_groups.join(', ')}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  /* Connected view — warm cards */
+                  <div className="flex flex-wrap gap-3">
+                    {member.kids.map(kid => {
+                      const name = kid.first_name || kid.name || 'Child';
+                      const age = kid.birth_year
+                        ? (() => {
+                          const now = new Date();
+                          const ageMonths = (now.getFullYear() - kid.birth_year) * 12 + (now.getMonth() - ((kid.birth_month || 1) - 1));
+                          if (ageMonths < 0) return null;
+                          if (ageMonths < 12) return `${ageMonths}mo`;
+                          const years = Math.floor(ageMonths / 12);
+                          return years === 1 ? '1 year' : `${years} years`;
+                        })()
+                        : null;
+                      return (
+                        <div
+                          key={kid.id}
+                          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#f0faf4] border border-[#8bd7c7]/15"
+                        >
+                          <div className="w-8 h-8 rounded-full bg-[#d8f5e5] flex items-center justify-center">
+                            <span className="text-sm font-bold text-[#1e6b4e]">
+                              {name.charAt(0)}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-[#1e6b4e]">{name}</p>
+                            {age && <p className="text-xs text-[#546E5C]">{age}</p>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {member.kids.length === 0 && member.num_kids > 0 && (
+                      <span className="text-sm text-[#546E5C]">
+                        {member.num_kids} {member.num_kids === 1 ? 'child' : 'children'}
+                      </span>
+                    )}
+                  </div>
+                )
+              ) : (
+                <p className="text-sm text-[#546E5C] italic">No children listed yet</p>
+              )}
+            </div>
+          )}
           {/* ===== PRIVACY NOTE (Not Connected) ===== */}
           {!isConnected && user?.id !== member.id && (
             <div className="bg-white/80 rounded-[20px] p-5 border border-[#8bd7c7]/20">
@@ -1128,7 +1178,12 @@ export default function MemberProfile() {
               <div className="flex gap-3">
                 <Link
                   to={`/profile/${member.id}`}
-                  className="flex-1 py-3 rounded-full border border-[#8bd7c7]/30 text-center text-sm font-semibold text-[#1e6b4e] hover:bg-[#d8f5e5]/50 transition-colors"
+                  className="flex-1 py-3 rounded-full text-center text-sm font-semibold transition-colors"
+                  style={{
+                    background: member.role === 'caregiver' ? '#F8C3B3' : 'transparent',
+                    color: member.role === 'caregiver' ? '#9B4D3A' : '#1e6b4e',
+                    border: member.role === 'caregiver' ? 'none' : '1.5px solid rgba(139,215,199,0.3)',
+                  }}
                 >
                   View Full Profile
                 </Link>
@@ -1160,22 +1215,23 @@ export default function MemberProfile() {
               </p>
             )}
 
-            {/* Endorse Button — only if connected and haven't endorsed yet */}
-            {isConnected && !hasEndorsed && user?.id !== member.id && (
+            {/* Endorse / Edit Endorsement Button — only if connected */}
+            {isConnected && user?.id !== member.id && (
               <button
-                onClick={() => setShowEndorseForm(!showEndorseForm)}
+                onClick={() => {
+                  if (hasEndorsed && existingEndorsement) {
+                    // Pre-populate form with existing data
+                    setEndorseRating(existingEndorsement.rating || 0);
+                    setEndorseText(existingEndorsement.text || '');
+                    setEndorseRelationship(existingEndorsement.relationship || []);
+                  }
+                  setShowEndorseForm(!showEndorseForm);
+                }}
                 className="w-full mt-3 py-2.5 rounded-full border border-[#8bd7c7]/40 text-sm font-semibold text-[#1e6b4e] hover:bg-[#d8f5e5]/50 transition-colors flex items-center justify-center gap-2"
               >
                 <Star className="w-4 h-4" />
-                Endorse {member.first_name}
+                {hasEndorsed ? `Edit Your Endorsement` : `Endorse ${member.first_name}`}
               </button>
-            )}
-
-            {/* Already Endorsed Badge */}
-            {isConnected && hasEndorsed && (
-              <div className="w-full mt-3 py-2.5 text-center text-sm text-[#546E5C]">
-                You endorsed {member.first_name}
-              </div>
             )}
           </div>
 
@@ -1208,23 +1264,32 @@ export default function MemberProfile() {
                 </div>
               </div>
 
-              {/* Relationship */}
+              {/* Relationship — multi-select */}
               <div className="mb-4">
-                <p className="text-sm text-[#546E5C] mb-2">How do you know {member.first_name}?</p>
+                <p className="text-sm text-[#546E5C] mb-2">How do you know {member.first_name}? (select all that apply)</p>
                 <div className="flex flex-wrap gap-2">
-                  {['Neighbor', 'Used as caregiver', 'Share a nanny', 'Friend', 'Community member'].map(rel => (
-                    <button
-                      key={rel}
-                      type="button"
-                      onClick={() => setEndorseRelationship(rel)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${endorseRelationship === rel
-                        ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
-                        : 'bg-white text-[#546E5C] border-gray-200 hover:border-[#8bd7c7]'
-                        }`}
-                    >
-                      {rel}
-                    </button>
-                  ))}
+                  {['Neighbor', 'Used as caregiver', 'Share a nanny', 'Friend', 'Community member', 'Coworker', 'Family friend'].map(rel => {
+                    const isSelected = endorseRelationship.includes(rel);
+                    return (
+                      <button
+                        key={rel}
+                        type="button"
+                        onClick={() => {
+                          setEndorseRelationship(prev =>
+                            isSelected
+                              ? prev.filter(r => r !== rel)
+                              : [...prev, rel]
+                          );
+                        }}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${isSelected
+                          ? 'bg-[#1e6b4e] text-white border-[#1e6b4e]'
+                          : 'bg-white text-[#546E5C] border-gray-200 hover:border-[#8bd7c7]'
+                          }`}
+                      >
+                        {rel}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1286,7 +1351,9 @@ export default function MemberProfile() {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-semibold text-[#1e6b4e]">{authorName}</span>
                           {e.relationship && (
-                            <span className="text-xs text-[#546E5C]">· {e.relationship}</span>
+                            <span className="text-xs text-[#546E5C]">
+                              · {Array.isArray(e.relationship) ? e.relationship.join(', ') : e.relationship}
+                            </span>
                           )}
                         </div>
                         {e.rating && (
