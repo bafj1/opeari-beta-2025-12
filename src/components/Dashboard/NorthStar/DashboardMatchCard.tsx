@@ -79,17 +79,17 @@ function DashboardMatchCard({ match, viewerId: _viewerId }: { match: any; viewer
                 transition: 'box-shadow 0.25s ease, transform 0.25s ease',
                 transform: hovered ? 'translateY(-2px)' : 'none',
                 cursor: 'pointer',
-                minWidth: 220,
-                maxWidth: 280,
-                flex: '1 1 240px',
                 fontFamily: 'Comfortaa, sans-serif',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column' as const,
             }}
             onClick={() => navigate(`/member/${match.member_id}`)}
         >
             {/* Role gradient bar */}
             <div style={{ height: 4, background: barColor }} />
 
-            <div style={{ padding: '20px 20px 16px' }}>
+            <div style={{ padding: '20px 20px 16px', flex: 1, display: 'flex', flexDirection: 'column' as const }}>
                 {/* Avatar + Name + Role */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
                     {/* Warm gradient avatar with photo or initials */}
@@ -156,7 +156,7 @@ function DashboardMatchCard({ match, viewerId: _viewerId }: { match: any; viewer
                 )}
 
                 {/* Match score + CTA */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
                     <div style={{ fontSize: 12, color: COLORS.green, fontWeight: 700 }}>
                         {score}% match
                     </div>
