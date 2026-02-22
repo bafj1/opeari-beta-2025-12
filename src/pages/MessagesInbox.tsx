@@ -164,7 +164,7 @@ export default function MessagesInbox() {
     };
 
     return (
-        <div className="min-h-screen bg-[#d8f5e5] pb-20">
+        <div className="min-h-screen pb-20" style={{ background: '#fffaf5' }}>
             <div className="max-w-4xl mx-auto px-4 py-8">
                 <div className="mb-8">
                     <h1 className="text-3xl font-serif text-[#1e6b4e] mb-2">Messages</h1>
@@ -187,16 +187,30 @@ export default function MessagesInbox() {
                         {conversations.map(conv => {
                             const initial = conv.otherName?.charAt(0) || '?';
                             const date = new Date(conv.updatedAt);
-                            const isToday = date.toDateString() === new Date().toDateString();
-                            const timeStr = isToday
+                            const now = new Date();
+                            const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+                            const timeStr = diffDays === 0
                                 ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                                : date.toLocaleDateString();
+                                : diffDays === 1
+                                    ? 'Yesterday'
+                                    : diffDays < 7
+                                        ? date.toLocaleDateString('en-US', { weekday: 'short' })
+                                        : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                            const hasUnread = conv.unreadCount > 0;
 
                             return (
                                 <button
                                     key={conv.id}
                                     onClick={() => handleOpenMessage(conv.otherMemberId, conv.otherName)}
-                                    className="w-full bg-white hover:bg-white/80 active:scale-[0.99] transition-all rounded-2xl p-4 flex items-center gap-4 text-left border border-[#8bd7c7]/30 shadow-sm group"
+                                    className="w-full bg-white active:scale-[0.99] transition-all rounded-2xl p-4 flex items-center gap-4 text-left shadow-sm group"
+                                    style={{
+                                        borderLeft: hasUnread ? '3px solid #F8C3B3' : '3px solid transparent',
+                                        border: '1px solid rgba(139,215,199,0.2)',
+                                        borderLeftWidth: 3,
+                                        borderLeftColor: hasUnread ? '#F8C3B3' : 'transparent',
+                                    }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(30,107,78,0.1)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'translateY(0)'; }}
                                 >
                                     {/* Avatar */}
                                     <div className="relative">
@@ -223,14 +237,14 @@ export default function MessagesInbox() {
                                     {/* Content */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-baseline mb-1">
-                                            <h3 className={`font-bold text-lg truncate ${conv.unreadCount > 0 ? 'text-[#1e6b4e]' : 'text-gray-900'}`}>
+                                            <h3 className={`text-lg truncate ${hasUnread ? 'font-bold text-[#1e6b4e]' : 'font-semibold text-gray-800'}`}>
                                                 {conv.otherName}
                                             </h3>
-                                            <span className={`text-xs whitespace-nowrap ${conv.unreadCount > 0 ? 'text-[#1e6b4e] font-bold' : 'text-gray-400'}`}>
+                                            <span className={`text-xs whitespace-nowrap ${hasUnread ? 'text-[#1e6b4e] font-bold' : 'text-gray-400'}`}>
                                                 {timeStr}
                                             </span>
                                         </div>
-                                        <p className={`text-sm truncate pr-4 ${conv.unreadCount > 0 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+                                        <p className={`text-sm truncate pr-4 ${hasUnread ? 'text-gray-900 font-semibold' : 'text-gray-500'}`}>
                                             {conv.lastMessage}
                                         </p>
                                     </div>

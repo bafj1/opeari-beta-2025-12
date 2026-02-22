@@ -225,11 +225,19 @@ export default function MessageModal({
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={handleBackdropClick}
         >
-            <div className="bg-white rounded-[20px] max-w-md w-full h-[500px] flex flex-col">
+            <div className="bg-white rounded-[20px] flex flex-col" style={{ width: '90%', maxWidth: 600, height: '80vh', maxHeight: 700 }}>
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <div>
-                        <h2 className="text-lg font-bold text-[#1e6b4e]">{recipientName}</h2>
+                        <h2 className="text-lg font-bold text-[#1e6b4e]">
+                            <a
+                                href={`/member/${recipientId}`}
+                                style={{ color: '#1E6B4E', fontWeight: 700, textDecoration: 'none', fontFamily: 'Comfortaa, cursive' }}
+                                onClick={(e) => { e.stopPropagation(); onOpenChange(false); }}
+                            >
+                                {recipientName}
+                            </a>
+                        </h2>
                         <p className="text-xs text-[#546E5C]">
                             {loading ? 'Loading...' : 'Direct Message'}
                         </p>
