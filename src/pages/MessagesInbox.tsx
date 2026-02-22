@@ -212,8 +212,8 @@ export default function MessagesInbox() {
                                             </div>
                                         )}
                                         {conv.unreadCount > 0 && (
-                                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center">
-                                                <span className="text-[10px] font-bold text-white">
+                                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#F8C3B3] rounded-full border-2 border-white flex items-center justify-center">
+                                                <span className="text-[10px] font-bold text-[#1E6B4E]">
                                                     {conv.unreadCount > 9 ? '9+' : conv.unreadCount}
                                                 </span>
                                             </div>

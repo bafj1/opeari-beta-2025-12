@@ -15,6 +15,7 @@ interface Message {
     content: string;
     sender_id: string;
     created_at: string;
+    edited_at?: string;
 }
 
 export default function MessageModal({
@@ -29,6 +30,9 @@ export default function MessageModal({
     const [loading, setLoading] = useState(false);
     const [sending, setSending] = useState(false);
     const [conversationId, setConversationId] = useState<string | null>(null);
+    const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
+    const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+    const [editText, setEditText] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Find or create conversation when modal opens
@@ -85,7 +89,7 @@ export default function MessageModal({
     async function loadMessages(convId: string) {
         const { data, error } = await supabase
             .from('messages')
-            .select('id, content, sender_id, created_at')
+            .select('id, content, sender_id, created_at, edited_at')
             .eq('conversation_id', convId)
             .order('created_at', { ascending: true });
 
@@ -118,7 +122,7 @@ export default function MessageModal({
                     sender_id: currentUserId,
                     content: messageContent
                 })
-                .select('id, content, sender_id, created_at')
+                .select('id, content, sender_id, created_at, edited_at')
                 .single();
 
             if (error) throw error;
@@ -151,6 +155,37 @@ export default function MessageModal({
     };
 
     if (!open) return null;
+
+    // Edit handler
+    const handleEditMessage = async (messageId: string, newContent: string) => {
+        if (!newContent.trim() || !currentUserId) return;
+        const { error } = await supabase
+            .from('messages')
+            .update({ content: newContent.trim(), edited_at: new Date().toISOString() })
+            .eq('id', messageId)
+            .eq('sender_id', currentUserId);
+
+        if (!error) {
+            setMessages(prev => prev.map(m =>
+                m.id === messageId ? { ...m, content: newContent.trim(), edited_at: new Date().toISOString() } : m
+            ));
+            setEditingMessageId(null);
+        }
+    };
+
+    // Delete handler
+    const handleDeleteMessage = async (messageId: string) => {
+        if (!currentUserId) return;
+        const { error } = await supabase
+            .from('messages')
+            .delete()
+            .eq('id', messageId)
+            .eq('sender_id', currentUserId);
+
+        if (!error) {
+            setMessages(prev => prev.filter(m => m.id !== messageId));
+        }
+    };
 
     const handleBackdropClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) {
@@ -239,22 +274,78 @@ export default function MessageModal({
                                                 </span>
                                             </div>
                                         )}
-                                        <div className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                        {isMe ? (
                                             <div
-                                                className={`
-                                                    max-w-[80%] px-4 py-2.5 rounded-[18px]
-                                                    ${isMe
-                                                        ? 'bg-[#1e6b4e] text-white rounded-br-[4px]'
-                                                        : 'bg-gray-100 text-[#1e6b4e] rounded-bl-[4px]'
-                                                    }
-                                                `}
+                                                onMouseEnter={() => setHoveredMessageId(message.id)}
+                                                onMouseLeave={() => setHoveredMessageId(null)}
+                                                style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8 }}
                                             >
-                                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                                                <p className={`text-[10px] mt-1 ${isMe ? 'text-white/70' : 'text-gray-400'}`}>
-                                                    {formatTime(message.created_at)}
-                                                </p>
+                                                {hoveredMessageId === message.id && editingMessageId !== message.id && (
+                                                    <div style={{ display: 'flex', gap: 4 }}>
+                                                        <button
+                                                            onClick={() => { setEditingMessageId(message.id); setEditText(message.content); }}
+                                                            style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', background: '#f0f0f0', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                                                            title="Edit"
+                                                        >
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7f76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                                                                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                            </svg>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteMessage(message.id)}
+                                                            style={{ width: 28, height: 28, borderRadius: '50%', border: 'none', background: '#f0f0f0', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                                                            title="Delete"
+                                                        >
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7f76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <polyline points="3 6 5 6 21 6" />
+                                                                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                {editingMessageId === message.id ? (
+                                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                                        <input
+                                                            value={editText}
+                                                            onChange={(e) => setEditText(e.target.value)}
+                                                            onKeyDown={(e) => { if (e.key === 'Enter') handleEditMessage(message.id, editText); if (e.key === 'Escape') setEditingMessageId(null); }}
+                                                            autoFocus
+                                                            style={{ padding: '8px 12px', borderRadius: 16, border: '1px solid #8bd7c7', fontFamily: 'Comfortaa, cursive', fontSize: 13, outline: 'none', minWidth: 200 }}
+                                                        />
+                                                        <button onClick={() => handleEditMessage(message.id, editText)}
+                                                            style={{ padding: '6px 12px', borderRadius: 12, background: '#1E6B4E', color: '#fff', border: 'none', fontFamily: 'Comfortaa, cursive', fontSize: 12, cursor: 'pointer' }}>
+                                                            Save
+                                                        </button>
+                                                        <button onClick={() => setEditingMessageId(null)}
+                                                            style={{ padding: '6px 12px', borderRadius: 12, background: 'none', border: '1px solid #d8f5e5', color: '#6b7f76', fontFamily: 'Comfortaa, cursive', fontSize: 12, cursor: 'pointer' }}>
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="max-w-[80%] px-4 py-2.5 rounded-[18px] bg-[#1e6b4e] text-white rounded-br-[4px]">
+                                                        <p className="text-sm whitespace-pre-wrap">
+                                                            {message.content}
+                                                            {message.edited_at && (
+                                                                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', marginLeft: 6 }}>(edited)</span>
+                                                            )}
+                                                        </p>
+                                                        <p className="text-[10px] mt-1 text-white/70">
+                                                            {formatTime(message.created_at)}
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
-                                        </div>
+                                        ) : (
+                                            <div className="flex justify-start">
+                                                <div className="max-w-[80%] px-4 py-2.5 rounded-[18px] bg-gray-100 text-[#1e6b4e] rounded-bl-[4px]">
+                                                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                                    <p className="text-[10px] mt-1 text-gray-400">
+                                                        {formatTime(message.created_at)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
