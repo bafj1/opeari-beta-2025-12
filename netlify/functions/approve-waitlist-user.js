@@ -55,7 +55,7 @@ export const handler = async (event) => {
             type: 'invite',
             email: email,
             options: {
-                redirectTo: `${siteUrl}/onboarding`
+                redirectTo: `${siteUrl}/auth/confirm`
             }
         })
 
