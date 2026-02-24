@@ -76,8 +76,8 @@ export async function ensureMemberRow() {
         const payload = {
             id: userId,
             email: email,
-            first_name: firstName,
-            last_name: lastName,
+            first_name: firstName || 'New',
+            last_name: lastName || 'Member',
             role: role,
             onboarding_complete: false,
             zip_code: zipCode

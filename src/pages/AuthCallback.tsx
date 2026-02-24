@@ -8,69 +8,85 @@ export default function AuthCallback() {
 
     useEffect(() => {
         const next = searchParams.get('next') || '/village';
-        const isRecovery = searchParams.get('type') === 'recovery';
-        const destination = isRecovery ? '/update-password' : next;
+        const type = searchParams.get('type');
+        const destination = type === 'recovery' ? '/update-password' : next;
 
         let timeout: ReturnType<typeof setTimeout>;
+        let interval: ReturnType<typeof setInterval>;
+        let subscription: any;
 
         const handleAuth = async () => {
-            // The Supabase JS client automatically detects #access_token in the URL
-            // and processes it. We need to wait for that to complete.
-
-            // First, check if there's already a session (e.g., from a previous sign-in)
-            const { data: { session } } = await supabase.auth.getSession();
-
-            if (session) {
-                // Session exists — redirect immediately using window.location
-                // (not React Router, to ensure a full page load with clean state)
-                window.location.replace(destination);
-                return;
+            // Check for session immediately
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    window.location.replace(destination);
+                    return;
+                }
+            } catch (e) {
+                console.error('Initial getSession failed:', e);
             }
 
-            // No session yet — the hash token might still be processing.
-            // Listen for the auth state change.
-            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_IN' && session) {
-                    subscription.unsubscribe();
+            // Listen for auth state change
+            const { data } = supabase.auth.onAuthStateChange((event, session) => {
+                if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+                    data.subscription.unsubscribe();
+                    clearInterval(interval);
+                    clearTimeout(timeout);
                     window.location.replace(destination);
                 } else if (event === 'PASSWORD_RECOVERY') {
-                    subscription.unsubscribe();
+                    data.subscription.unsubscribe();
+                    clearInterval(interval);
+                    clearTimeout(timeout);
                     window.location.replace('/update-password');
                 }
             });
+            subscription = data.subscription;
 
-            // Fallback: check session again after a delay (race condition safety net)
-            timeout = setTimeout(async () => {
-                const { data: { session: retrySession } } = await supabase.auth.getSession();
-                if (retrySession) {
-                    subscription.unsubscribe();
-                    window.location.replace(destination);
-                } else {
-                    subscription.unsubscribe();
-                    setError('This link may have expired or is invalid. Please request a new one.');
+            // Poll for session every 500ms as backup
+            interval = setInterval(async () => {
+                try {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session) {
+                        clearInterval(interval);
+                        clearTimeout(timeout);
+                        subscription?.unsubscribe();
+                        window.location.replace(destination);
+                    }
+                } catch (e) {
+                    // ignore
                 }
-            }, 5000);
+            }, 500);
+
+            // Final timeout — show error after 8 seconds
+            timeout = setTimeout(() => {
+                clearInterval(interval);
+                subscription?.unsubscribe();
+                setError('This link may have expired. Please request a new one.');
+            }, 8000);
         };
 
         handleAuth();
 
         return () => {
             clearTimeout(timeout);
+            clearInterval(interval);
+            subscription?.unsubscribe();
         };
     }, [searchParams]);
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#fffaf5] text-[#1e6b4e] font-[Comfortaa]">
-                <div className="text-center p-8 bg-white rounded-3xl shadow-card border border-[#1e6b4e]/10 max-w-sm mx-4">
-                    <h2 className="text-xl font-bold mb-2 text-[#1e6b4e]">Verification Issue</h2>
+            <div className="min-h-screen flex items-center justify-center bg-[#fffaf5] font-[Comfortaa]">
+                <div className="text-center p-8 bg-white rounded-3xl shadow-lg border border-[#1e6b4e]/10 max-w-sm mx-4">
+                    <h2 className="text-xl font-bold mb-2 text-[#1e6b4e]">Link Expired</h2>
                     <p className="text-[#546E5C] mb-6 text-sm">{error}</p>
-                    <button
-                        onClick={() => window.location.href = '/login'}
-                        className="px-6 py-2.5 bg-[#1e6b4e] text-white rounded-full font-semibold text-sm hover:bg-[#155a3e] transition-colors w-full"
+                    <a
+                        href="/login"
+                        className="block px-6 py-2.5 bg-[#1e6b4e] text-white rounded-full font-semibold text-sm hover:bg-[#155a3e] transition-colors w-full text-center"
                     >
                         Back to Login
-                    </button>
+                    </a>
                 </div>
             </div>
         );
@@ -80,12 +96,7 @@ export default function AuthCallback() {
         <div className="min-h-screen flex items-center justify-center bg-[#fffaf5]">
             <div className="animate-pulse flex flex-col items-center">
                 <img src="/icon.svg" className="w-16 h-16 mb-4" alt="Opeari" />
-                <div className="flex items-center gap-3 text-[#1e6b4e]">
-                    <div className="w-2 h-2 bg-[#1e6b4e] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-[#1e6b4e] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-[#1e6b4e] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-                <p className="text-[#1e6b4e] font-bold mt-4 text-sm tracking-wide uppercase">Verifying your link</p>
+                <p className="text-[#1e6b4e] font-bold text-sm tracking-wide uppercase">Verifying your link</p>
             </div>
         </div>
     );

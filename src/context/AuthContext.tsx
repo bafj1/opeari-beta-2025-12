@@ -18,67 +18,84 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Failsafe: If nothing resolves in 8 seconds, force loading to false
+    let mounted = true;
+
+    // Hard failsafe: no matter what, stop loading after 5 seconds
     const failsafeTimer = setTimeout(() => {
-      setLoading((prev) => {
-        if (prev) {
-          console.warn('AuthContext: Failsafe triggered - forcing loading to false');
-          return false;
-        }
-        return prev;
-      });
-    }, 8000);
+      if (mounted) {
+        setLoading(prev => {
+          if (prev) {
+            console.warn('AuthContext: Failsafe triggered after 5s');
+            return false;
+          }
+          return prev;
+        });
+      }
+    }, 5000);
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      clearTimeout(failsafeTimer);
-      if (error) {
-        console.error('Session error:', error)
-        setSession(null)
-        setUser(null)
-      } else {
-        setSession(session)
-        setUser(session?.user ?? null)
+    const initSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (!mounted) return;
 
-        // Background check for member row
-        if (session?.user) {
-          ensureMemberRow().catch(err => console.error('Background init member row check failed', err));
+        if (error) {
+          console.error('Session error:', error);
+          setSession(null);
+          setUser(null);
+        } else {
+          setSession(session);
+          setUser(session?.user ?? null);
+
+          // Background member row check — do NOT await
+          if (session?.user) {
+            ensureMemberRow().catch(err =>
+              console.error('Background member row check failed:', err)
+            );
+          }
+        }
+      } catch (err) {
+        console.error('getSession exception:', err);
+        if (mounted) {
+          setSession(null);
+          setUser(null);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
         }
       }
-      setLoading(false) // Always unblock immediately after getting session
-    })
+    };
+
+    initSession();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        // console.log('Auth state changed:', event) 
+        if (!mounted) return;
 
         if (event === 'SIGNED_OUT') {
-          setSession(null)
-          setUser(null)
-          setLoading(false)
-        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          setSession(session)
-          setUser(session?.user ?? null)
-          setLoading(false) // Unblock UI immediately for better perceived performance
-
-          // Run data consistency check in background
-          if (session?.user) {
-            ensureMemberRow().catch(err => console.error('Background member row check failed', err));
-          }
+          setSession(null);
+          setUser(null);
         } else {
-          // For other events (initial session check often falls here or above), ensure we update state
-          setSession(session)
-          setUser(session?.user ?? null)
-          setLoading(false)
+          setSession(session);
+          setUser(session?.user ?? null);
+
+          if (session?.user) {
+            ensureMemberRow().catch(err =>
+              console.error('Background member row check failed:', err)
+            );
+          }
         }
+        setLoading(false);
       }
-    )
+    );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
       clearTimeout(failsafeTimer);
-    }
+    };
   }, [])
 
   const signOut = async () => {
