@@ -1,60 +1,63 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 export default function AuthCallback() {
     const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const next = searchParams.get('next') || '/village';
+        const isRecovery = searchParams.get('type') === 'recovery';
+        const destination = isRecovery ? '/update-password' : next;
 
-        // 1. Listen for auth state changes (this catches the hash processing)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                // Auth succeeded — redirect
-                // specific check for password recovery which might fire SIGNED_IN first in some flows
-                const isRecovery = searchParams.get('type') === 'recovery';
-                if (isRecovery) {
-                    navigate('/update-password', { replace: true });
-                } else {
-                    navigate(next, { replace: true });
-                }
-            } else if (event === 'PASSWORD_RECOVERY') {
-                // Explicit password recovery event
-                navigate('/update-password', { replace: true });
-            }
-        });
+        let timeout: ReturnType<typeof setTimeout>;
 
-        // 2. Fallback: if already signed in (race condition), redirect immediately
-        const checkSession = async () => {
+        const handleAuth = async () => {
+            // The Supabase JS client automatically detects #access_token in the URL
+            // and processes it. We need to wait for that to complete.
+
+            // First, check if there's already a session (e.g., from a previous sign-in)
             const { data: { session } } = await supabase.auth.getSession();
+
             if (session) {
-                const isRecovery = searchParams.get('type') === 'recovery';
-                if (isRecovery) {
-                    navigate('/update-password', { replace: true });
-                } else {
-                    navigate(next, { replace: true });
-                }
+                // Session exists — redirect immediately using window.location
+                // (not React Router, to ensure a full page load with clean state)
+                window.location.replace(destination);
+                return;
             }
+
+            // No session yet — the hash token might still be processing.
+            // Listen for the auth state change.
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN' && session) {
+                    subscription.unsubscribe();
+                    window.location.replace(destination);
+                } else if (event === 'PASSWORD_RECOVERY') {
+                    subscription.unsubscribe();
+                    window.location.replace('/update-password');
+                }
+            });
+
+            // Fallback: check session again after a delay (race condition safety net)
+            timeout = setTimeout(async () => {
+                const { data: { session: retrySession } } = await supabase.auth.getSession();
+                if (retrySession) {
+                    subscription.unsubscribe();
+                    window.location.replace(destination);
+                } else {
+                    subscription.unsubscribe();
+                    setError('This link may have expired or is invalid. Please request a new one.');
+                }
+            }, 5000);
         };
 
-        // Small delay to let Supabase process the token hash if present
-        // (Supabase client auto-detects hash in URL and processes it)
-        const checkTimer = setTimeout(checkSession, 1500);
-
-        // 3. Timeout: if nothing happens after 10 seconds, show error
-        const errorTimer = setTimeout(() => {
-            setError('This link may have expired or is invalid. Please request a new one.');
-        }, 10000);
+        handleAuth();
 
         return () => {
-            subscription.unsubscribe();
-            clearTimeout(checkTimer);
-            clearTimeout(errorTimer);
+            clearTimeout(timeout);
         };
-    }, [navigate, searchParams]);
+    }, [searchParams]);
 
     if (error) {
         return (
@@ -63,7 +66,7 @@ export default function AuthCallback() {
                     <h2 className="text-xl font-bold mb-2 text-[#1e6b4e]">Verification Issue</h2>
                     <p className="text-[#546E5C] mb-6 text-sm">{error}</p>
                     <button
-                        onClick={() => navigate('/login')}
+                        onClick={() => window.location.href = '/login'}
                         className="px-6 py-2.5 bg-[#1e6b4e] text-white rounded-full font-semibold text-sm hover:bg-[#155a3e] transition-colors w-full"
                     >
                         Back to Login
@@ -76,7 +79,7 @@ export default function AuthCallback() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#fffaf5]">
             <div className="animate-pulse flex flex-col items-center">
-                <img src="/logo.svg" className="w-16 h-16 mb-4" alt="Opeari" />
+                <img src="/icon.svg" className="w-16 h-16 mb-4" alt="Opeari" />
                 <div className="flex items-center gap-3 text-[#1e6b4e]">
                     <div className="w-2 h-2 bg-[#1e6b4e] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <div className="w-2 h-2 bg-[#1e6b4e] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
