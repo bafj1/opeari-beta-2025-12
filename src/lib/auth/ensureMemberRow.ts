@@ -92,6 +92,11 @@ export async function ensureMemberRow() {
             .upsert(payload, { onConflict: 'id' });
 
         if (upsertError) {
+            // 409 Conflict / duplicate key means row was created by a concurrent call — that's OK
+            if (upsertError.code === '23505' || upsertError.message?.includes('duplicate') || upsertError.message?.includes('conflict')) {
+                console.log('ensureMemberRow: Row created by concurrent call, treating as success');
+                return { success: true, role };
+            }
             console.error('ensureMemberRow: Error inserting row:', upsertError);
             // Fallback check using maybeSingle instead of single
             const { error: fetchError } = await supabase.from('members').select('id').eq('id', userId).maybeSingle();

@@ -377,11 +377,16 @@ export function useOnboarding() {
 
                     const { error: memberError } = await supabase
                         .from('members')
-                        .upsert({ id: authUser.id, ...memberUpdatePayload });
+                        .upsert({ id: authUser.id, ...memberUpdatePayload }, { onConflict: 'id' });
 
                     if (memberError) {
-                        console.error('Error upserting member base data:', memberError);
-                        throw memberError;
+                        // Treat 409/duplicate as success (concurrent ensureMemberRow call)
+                        if (memberError.code === '23505' || memberError.message?.includes('duplicate')) {
+                            console.log('handleFinish: Member row conflict, treating as success');
+                        } else {
+                            console.error('Error upserting member base data:', memberError);
+                            throw memberError;
+                        }
                     }
 
                     // Map Logistics to Transportation "Own Car" if applicable
@@ -512,9 +517,16 @@ export function useOnboarding() {
 
                     const { error } = await supabase
                         .from('members')
-                        .upsert({ id: authUser.id, ...userPayload });
+                        .upsert({ id: authUser.id, ...userPayload }, { onConflict: 'id' });
 
-                    if (error) throw error;
+                    if (error) {
+                        // Treat 409/duplicate as success (concurrent ensureMemberRow call)
+                        if (error.code === '23505' || error.message?.includes('duplicate')) {
+                            console.log('handleFinish: Family member row conflict, treating as success');
+                        } else {
+                            throw error;
+                        }
+                    }
                 }
             };
 
@@ -540,8 +552,12 @@ export function useOnboarding() {
             if (err.details) console.error('Error Details:', err.details);
             if (err.hint) console.error('Error Hint:', err.hint);
 
-            setSaveError(err.message || 'Failed to check save.');
-            // DO NOT set showSuccess here!
+            setSaveError(err.message || 'Failed to save.');
+            // On timeout, navigate anyway — the save may have partially succeeded
+            if (err.message?.includes('timed out')) {
+                console.log('Save timed out but navigating to /village anyway');
+                navigate('/village', { replace: true });
+            }
         } finally {
             setLoading(false);
         }

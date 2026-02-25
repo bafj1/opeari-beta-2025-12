@@ -107,7 +107,7 @@ export default function OnboardingWizard() {
         <OnboardingLayout step={step} intent={data.intent}>
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 animate-fade-in text-center">
-                    <div className="flex flex-col items-center justify-center p-8 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl">
+                    <div className="flex flex-col items-center justify-center p-8 bg-white rounded-[20px] border border-[#1e6b4e]/10">
                         <div className="relative w-16 h-16 flex items-center justify-center mb-4">
                             <img src="/icon.svg" alt="Loading" className="w-12 h-12 animate-pulse" />
                         </div>
