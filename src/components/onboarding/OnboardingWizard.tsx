@@ -107,12 +107,15 @@ export default function OnboardingWizard() {
         <OnboardingLayout step={step} intent={data.intent}>
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 animate-fade-in text-center">
-                    <div className="flex flex-col items-center justify-center p-8 bg-white rounded-[20px] border border-[#1e6b4e]/10">
-                        <div className="relative w-16 h-16 flex items-center justify-center mb-4">
-                            <img src="/icon.svg" alt="Loading" className="w-12 h-12 animate-pulse" />
+                    <div className="flex flex-col items-center justify-center">
+                        <img src="/icon.svg" alt="Opeari" className="w-20 h-20 mb-6 animate-pulse" />
+                        <h2 className="text-2xl font-bold text-[#1e6b4e] mb-2 font-comfortaa">Building your village...</h2>
+                        <p className="text-[#546E5C] text-sm font-comfortaa mb-6">This will just take a moment.</p>
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-[#1e6b4e] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <div className="w-2 h-2 bg-[#1e6b4e] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <div className="w-2 h-2 bg-[#1e6b4e] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                         </div>
-                        <h2 className="text-xl font-bold text-[#1e6b4e] mb-2 font-comfortaa">Building your village...</h2>
-                        <p className="text-[#1e6b4e]/70 text-center font-comfortaa">This will just take a moment.</p>
                     </div>
                 </div>
             ) : (

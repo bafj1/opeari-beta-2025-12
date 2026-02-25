@@ -287,6 +287,13 @@ export function useOnboarding() {
         setSaveError(null);
         console.log('=== ONBOARDING SAVE START ===');
 
+        // Failsafe: navigate to village after 12 seconds no matter what
+        const failsafeNav = setTimeout(() => {
+            console.warn('handleFinish: Failsafe navigation after 12s');
+            setLoading(false);
+            navigate('/village', { replace: true });
+        }, 12000);
+
         try {
             // 1. Determine Canonical Intent
             const rawIntent = data.intent;
@@ -373,6 +380,8 @@ export function useOnboarding() {
                         zip_code: data.zipCode,
                         neighborhood: data.neighborhood,
                         bio: data.bio, // Shared bio
+                        role: 'caregiver',
+                        onboarding_complete: true,
                     };
 
                     const { error: memberError } = await supabase
@@ -485,6 +494,7 @@ export function useOnboarding() {
                         neighborhood: data.neighborhood,
 
                         role: 'family',
+                        onboarding_complete: true,
 
                         // New Intel-Lite Fields
                         hosting_interest: (data.careOfferOptions || []).includes('host-share'), // Derived Single Source of Truth
@@ -538,6 +548,7 @@ export function useOnboarding() {
             ]);
 
             console.log('=== ONBOARDING SAVE SUCCESS ===');
+            clearTimeout(failsafeNav);
             // Clear LocalStorage on success
             if (authUser) {
                 localStorage.removeItem(`opeari_onboarding_progress_${authUser.id}`)
@@ -546,6 +557,7 @@ export function useOnboarding() {
             // Navigate to Success Page (Village Reveal)
             navigate('/village');
         } catch (err: any) {
+            clearTimeout(failsafeNav);
             console.error('=== ONBOARDING SAVE FAILED ===', err);
             // If it's a Supabase error it might have details
             if (err.message) console.error('Error Message:', err.message);
@@ -553,11 +565,11 @@ export function useOnboarding() {
             if (err.hint) console.error('Error Hint:', err.hint);
 
             setSaveError(err.message || 'Failed to save.');
-            // On timeout, navigate anyway — the save may have partially succeeded
-            if (err.message?.includes('timed out')) {
-                console.log('Save timed out but navigating to /village anyway');
+            // Auth metadata already has onboarding_complete=true, so navigate anyway
+            console.log('Save had errors but auth metadata is set — navigating to /village');
+            setTimeout(() => {
                 navigate('/village', { replace: true });
-            }
+            }, 2000); // Brief delay to show error, then redirect
         } finally {
             setLoading(false);
         }
