@@ -37,6 +37,12 @@ export function useOnboarding() {
 
                 if (!session) {
                     setLoading(false)
+                    // Check if URL hash contains an auth error (expired/used magic link)
+                    const hash = window.location.hash
+                    if (hash.includes('error=') || hash.includes('access_denied')) {
+                        console.warn('Onboarding: Auth error detected in URL hash, redirecting to login')
+                        navigate('/login', { replace: true })
+                    }
                     return
                 }
 
